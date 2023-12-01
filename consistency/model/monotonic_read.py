@@ -1,48 +1,58 @@
-from dataclasses import dataclass
-from typing import Self
+import itertools
 
 import z3
 
+from consistency.abstract_execution import AbstractExecution
+from consistency.relation import Relation
 
-@dataclass
+
 class MonotonicRead:
     """
-    Consistency in Non-Transactional Distributed Storage Systems
-    pp.{12,13}
-    Section 3.4
-
-    Monotonic reads states that successive reads must reflect a non-decreasing set of writes.
-
-    Namely, if a process has read a certain value $v$ from an object,
-    any successive read operation will not return any value written before $v$.
-
-    Intuitively, a read operation can be served only by those replicas that have executed all
-    write operations whose effects have already been observed by the requesting process.
-
-    In effect, we can represent this by saying that, given three operations
-    $a,b,c in H$ if $a -->^"vis" b$ and $b -->^"so" c$,
-    where $b$ and $c$ are read operations,
-    then $a -->^"vis" c$,
-    i.e., the transitive closure of $vis$ and so is included in $vis$.
+    Monotonic Reads are defined as:
+    for all operations $a$ in history, a set of operations denoted by $H$, and,
+    for all read operations $b$ and $c$ in history $H$,
+    if operation $a$ is visible to operation $b$, $b$ returns before $c$ starts, and $b, c$ are in the same session,
+    then operation $a$ is visible to operation $c$.
     """
-    vis: set[str]
-    so: set[str]
-
-
-    def constraints(self: Self)-> list[z3.BoolRef]:
+    def check(ae: AbstractExecution) -> bool:
         """
-        Generate the constraints for the monotonic read property.
+        Check if the given abstract execution event graph satisfies the monotonic read properties.
         """
-        return [z3.Implies(z3.And(a == c, b == d), z3.And((a, d) in self.vis)) for (a, b) in self.vis for (c, d) in self.so if b == c]
+        solver = z3.Solver()
 
+        # z3 vars
+        vars = {op: z3.Bool(op.symbol) for op in ae.hist.ops}
 
-    def check(self: Self)-> bool:
-        """
-        Check if the monotonic read property holds for the given visibility and session order relations.
-        """
-        s = z3.Solver()
-        for (a, b) in self.vis:
-            for (c, d) in self.so:
-                if b == c:
-                    s.add(z3.Not(z3.Implies(z3.And(a == c, b == d), z3.And((a, d) in self.vis))))
-        return s.check() == z3.unsat
+        # vis, rb, ss
+        for a, b in itertools.product(ae.hist.ops, repeat=2):
+            print(a, b)
+
+            # rb
+            if Relation.is_rb(a, b):
+                rb_rel = z3.Bool(f"rb_{a.symbol}_{b.symbol}")
+                solver.add(rb_rel == z3.And(vars[a], vars[b]))
+
+            # ss
+            if Relation.is_ss(a, b):
+                ss_rel = z3.Bool(f"ss_{a.symbol}_{b.symbol}")
+                solver.add(ss_rel == z3.And(vars[a], vars[b]))
+
+        # monotonic read
+        for a in ae.hist['wr']:
+            for b in ae.hist['rd']:
+                for c in ae.hist['rd']:
+                    if b != c:
+                        rb_rel = z3.Bool(f"rb_{b.symbol}_{c.symbol}")
+                        ss_rel = z3.Bool(f"ss_{b.symbol}_{c.symbol}")
+                        so_rel = z3.And(rb_rel, ss_rel)  # $so \triangleq rb \cap ss$
+                        # monotonic read condition
+                        solver.add(z3.Implies(z3.And(vars[a], vars[b], so_rel), vars[c]))
+
+        match solver.check():
+            case z3.sat:
+                print(solver.model())
+                return True
+            case z3.unsat:
+                return False
+            case z3.unknown:
+                raise RuntimeError("MonotonicRead.check: z3 solver returned unknown")

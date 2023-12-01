@@ -21,13 +21,15 @@
       python3 = pkgs.python311;
 
       python3Env = (python3.withPackages (ps: with ps; [
+        # tools
+        pip
+        setuptools
+        virtualenvwrapper
+        # dependencies
         click
         click-aliases
         click-option-group
-        pip
         rich
-        setuptools
-        virtualenvwrapper
         z3
       ])).override (args: { ignoreCollisions = true; });
 
@@ -57,8 +59,11 @@
         packages = with pkgs; [
           direnv
           git
+          hayagriva
           nix-direnv
           ruff
+          typst
+          typstfmt
         ];
 
         buildInputs = [ python3Env ];

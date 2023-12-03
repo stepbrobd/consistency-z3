@@ -2,61 +2,37 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    pyproject = {
+      url = "github:nix-community/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     { self
     , nixpkgs
     , flake-utils
+    , pyproject
     }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {
-          allowUnfree = true;
-          allowUnfreePredicate = (_: true);
-        };
-      };
-      lib = pkgs.lib;
-      python3 = pkgs.python311;
-
-      python3Env = (python3.withPackages (ps: with ps; [
-        # tools
-        pip
-        setuptools
-        virtualenvwrapper
-        # dependencies
-        click
-        click-aliases
-        click-option-group
-        rich
-        z3
-      ])).override (args: { ignoreCollisions = true; });
-
-      drv = python3.pkgs.buildPythonPackage {
-        pname = "consistency";
-        inherit ((lib.importTOML ./pyproject.toml).project) version;
-        pyproject = true;
-        enableParallelBuilding = true;
-        src = lib.cleanSource ./.;
-        propagatedBuildInputs = [ python3Env ];
+      pkgs = import nixpkgs { inherit system; };
+      python = pkgs.python311;
+      project = pyproject.lib.project.loadPyproject {
+        projectRoot = ./.;
       };
     in
     {
       formatter = pkgs.nixpkgs-fmt;
 
-      packages = rec {
-        consistency = drv;
-        default = consistency;
-      };
+      packages.default = python.pkgs.buildPythonPackage (
+        project.renderers.buildPythonPackage { inherit python; }
+      );
 
-      apps = rec {
-        consistency = flake-utils.lib.mkApp { drv = self.packages.${system}.consistency; };
-        default = consistency;
-      };
+      apps.default = flake-utils.lib.mkApp { drv = self.packages.${system}.default; };
 
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
+          (python.withPackages (project.renderers.withPackages { inherit python; }))
           direnv
           git
           hayagriva
@@ -65,21 +41,6 @@
           typst
           typstfmt
         ];
-
-        buildInputs = [ python3Env ];
-
-        shellHook = ''
-          export "VENV=.venv"
-
-          if [ ! -d "$VENV" ]; then
-            virtualenv "$VENV"
-          fi
-
-          source "$VENV/bin/activate"
-          export "PYTHONPATH=$PWD/$VENV/${python3.sitePackages}/:$PYTHONPATH"
-          pip install --upgrade pip
-          pip install --editable .
-        '';
       };
     });
 }

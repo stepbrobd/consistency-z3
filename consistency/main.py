@@ -11,7 +11,7 @@ def main() -> int:
         proc=1,
         type="wr",
         obj=1,
-        ival=("somekey", "somevalue"),
+        ival=("somekey", "someval"),
         oval=None,
         stime=0,
         rtime=1,
@@ -22,7 +22,7 @@ def main() -> int:
         type="rd",
         obj=1,
         ival="somekey",
-        oval="somevalue",
+        oval="someval",
         stime=2,
         rtime=3,
     )
@@ -32,16 +32,16 @@ def main() -> int:
         type="rd",
         obj=1,
         ival="somekey",
-        oval="somevalue",
+        oval="someval",
         stime=4,
         rtime=5,
     )
     # a --vis-> b
-    vis = {Relation(sub=op_a, obj=op_b, rel="vis")}
+    vis = {Relation(sub=op_a, obj=op_b)}
 
     # b --so-> c
-    rb = {Relation(sub=op_b, obj=op_c, rel="rb")}
-    ss = {Relation(sub=op_b, obj=op_c, rel="ss")}
+    rb = {Relation(sub=op_b, obj=op_c)}
+    ss = {Relation(sub=op_b, obj=op_c)}
 
     hist = History(
         ops={op_a, op_b, op_c},

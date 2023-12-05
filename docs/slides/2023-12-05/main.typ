@@ -23,9 +23,12 @@
   == Objectives
 
   + model distributed semantics
-  + verify said semantic satisfies its specifications
+  + verify a given semantic satisfies its specifications
   + check pair-wise compatibility
   + composition of two or more systems
+
+  // ultimately, a tool that takes in a log a spits out what semantics it satisfies
+  // and what does each of its sub-services satisfies
 ]
 
 #slide[
@@ -34,16 +37,16 @@
   Operation are tuples: $("proc", "type", "obj", "ival", "oval", "stime", "rtime")$ @viotti2016consistency[pp.3].
 
   ```py
-  class Operation(NamedTuple):
-      proc: int # process id
-      type: str # operation type
-      obj: int # object id
-      ival: Any # input value
-      stime: int # start time
-      rtime: int = None # return time
-      oval: Any = None # output value
-      symbol: str = None # readable representation
-  ```
+      class Operation(NamedTuple):
+          proc: int # process id
+          type: str # operation type
+          obj: int # object id
+          ival: Any # input value
+          stime: int # start time
+          rtime: int = None # return time
+          oval: Any = None # output value
+          symbol: str = None # readable representation
+      ```
 ]
 
 #slide[
@@ -72,12 +75,12 @@
   // there are more relations
 
   ```py
-  class History:
-      def __init__(self: Self,
-        ops: set[Operation],
-        **kwargs: set[Relation]
-      ) -> None: ...
-  ```
+      class History:
+          def __init__(self: Self,
+            ops: set[Operation],
+            **kwargs: set[Relation]
+          ) -> None: ...
+      ```
 ]
 
 #slide[
@@ -86,23 +89,40 @@
   - built on top of a history
   - *captures the non-determinism, and constraints*
   - an event graph $"A" = ("H", "vis", "ar", "hb")$ @burckhardt2014principles[pp.25-27,34-35]
+  - can be visualized as a directed graph
 ]
 
 #slide[
   == Definitions: Anstract Execution
   Relations:
   - $"vis"$ (visibility): $a arrow.r.long^"vis" b$
-  - $"ar"$ (arbitration):
-  - $"hb"$ (happens-before):
+  // - visibility
+  // - arbitration
+  - ...
   // there are more relations
 
   ```py
-  class AbstractExecution:
-      def __init__(self: Self,
-        hist: History,
-        **kwargs: set[Relation]
-      ) -> None: ...
-  ```
+      class AbstractExecution:
+          def __init__(self: Self,
+            hist: History,
+            **kwargs: set[Relation]
+          ) -> None: ...
+      ```
+]
+
+#slide[
+  == Example: Monotonic Reads
+
+  ```txt
+      1: ___ op_a: set("somekey", "someval")
+               op_b: get("somekey") -> "someval"
+      2:       ___      ___
+                        op_c: get("somekey") -> "someval"
+      ```
+  - $a arrow.r.long^"vis" b$
+  - $b arrow.r.long^"so" c$
+    - $b arrow.r.long^"rb" c$
+    - $b arrow.r.long^"ss" c$
 ]
 
 #slide[

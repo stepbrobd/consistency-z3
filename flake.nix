@@ -16,10 +16,8 @@
     }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs { inherit system; };
-      python = pkgs.python311;
-      project = pyproject.lib.project.loadPyproject {
-        projectRoot = ./.;
-      };
+      python = pkgs.python312;
+      project = pyproject.lib.project.loadPyproject { projectRoot = ./.; };
     in
     {
       formatter = pkgs.nixpkgs-fmt;
@@ -32,7 +30,6 @@
 
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
-          (python.withPackages (project.renderers.withPackages { inherit python; }))
           direnv
           git
           hayagriva
@@ -41,6 +38,16 @@
           typst
           typstfmt
         ];
+
+        venvDir = "./.venv";
+        buildInputs = [ python ] ++ (with python.pkgs; [
+          venvShellHook
+          setuptools
+          wheel
+        ]);
+        postShellHook = ''
+          pip --disable-pip-version-check install -e .
+        '';
       };
     });
 }

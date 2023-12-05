@@ -16,8 +16,7 @@ dependencies = [
     "click-aliases",
     "click-option-group",
     "rich",
-    # should be z3-solver, waiting for 271924 to be merged
-    "z3",
+    "z3-solver",
 ]
 
 [project.urls]

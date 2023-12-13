@@ -16,7 +16,7 @@
     }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs { inherit system; };
-      python = pkgs.python312;
+      python = pkgs.python311;
       project = pyproject.lib.project.loadPyproject { projectRoot = ./.; };
     in
     {

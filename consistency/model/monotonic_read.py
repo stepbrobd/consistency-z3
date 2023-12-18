@@ -15,6 +15,57 @@ class MonotonicRead:
     then operation $a$ is visible to operation $c$.
     """
     @staticmethod
+    def constraints(s: z3.Solver, op: z3.DatatypeSortRef) -> None:
+        """
+        Add monotonic read constraints.
+        """
+        # ops a, b, c
+        a = z3.Const("a", op)
+        b = z3.Const("b", op)
+        c = z3.Const("c", op)
+
+        # returns-before
+        rb = z3.Function("rb", op, op, z3.BoolSort())
+        s.add(z3.ForAll(
+            [a, b],
+            z3.Implies(rb(a, b), op.rtime(a) < op.stime(b))
+        ))
+
+        # same-session
+        ss = z3.Function("ss", op, op, z3.BoolSort())
+        s.add(z3.ForAll(
+            [a, b],
+            z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
+        ))
+
+        # session-order
+        so = z3.Function("so", op, op, z3.BoolSort())
+        s.add(z3.ForAll(
+            [a, b],
+            z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
+        ))
+
+        # visibility
+        vis = z3.Function("vis", op, op, z3.BoolSort())
+        s.add(z3.ForAll(
+            [a, b],
+            z3.Implies(
+                vis(a, b),
+                z3.And(op.type(a) == "wr", op.type(b) == "rd", op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
+            )
+        ))
+
+        # monotonic read
+        s.add(z3.ForAll(
+            [a, b, c],
+            z3.Implies(
+                z3.And(vis(a, b), so(b, c)),
+                vis(a, c)
+            )
+        ))
+
+
+    @staticmethod
     def check(ae: AbstractExecution) -> bool:
         """
         Check if the given abstract execution event graph satisfies the monotonic read properties.

@@ -1,6 +1,7 @@
 import z3
 
 from consistency.model.monotonic_read import MonotonicRead
+from consistency.model.read_your_writes import ReadYourWrites
 
 
 def main() -> int:
@@ -19,6 +20,9 @@ def main() -> int:
     op = op.create()
 
     MonotonicRead.constraints(s, op)
+    ReadYourWrites.constraints(s, op)
+
+    print(s)
 
     match s.check():
         case z3.sat:

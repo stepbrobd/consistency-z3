@@ -12,9 +12,11 @@
 #### Monotonic Reads (arXiv:1512.00168 pp.12)
 
 Monotonic reads states that successive reads must reflect a non-decreasing set of writes. Namely, if a process has read a certain value v from an object, any successive read operation will not return any value written before v. Intuitively, a read operation can be served only by those replicas that have executed all write operations whose effects have already been observed by the requesting process. In effect, we can represent this by saying that, given three operations $a, b, c \in H$, if $a \overset{vis}{\rightarrow} b$ and $b \overset{so}{\rightarrow} c$, where $b$ and $c$ are read operations, then $a \overset{vis}{\rightarrow} c$, i.e., the transitive closure of $vis$ and $so$ is included in $vis$.
-$$
+
+```math
 MonotonicReads \triangleq \forall a \in H, \forall b, c \in H|_{rd}: a \overset{vis}{\rightarrow} b \wedge b \overset{so}{\rightarrow} c \Rightarrow a \overset{vis}{\rightarrow} c \triangleq (vis; so|_{rd \rightarrow rd}) \subseteq vis
-$$
+```
+
 > Monotonic Reads are defined as:
 > for all operations $a$ in history, a set of operations denoted by $H$, and,
 > for all read operations $b$ and $c$ in history $H$,
@@ -24,9 +26,11 @@ $$
 #### Read Your Writes (arXiv:1512.00168 pp.13)
 
 Read-your-writes guarantee (also called read-my-writes) requires that a read operation invoked by a process can only be carried out by replicas that have already applied all writes previously invoked by the same process.
-$$
+
+```math
 ReadYourWrites \triangleq \forall a \in H|_{wr}, \forall b \in H|_{rd}: a\overset{so}{\rightarrow} b \Rightarrow a \overset{vis}{\rightarrow} b \triangleq so|_{wr \rightarrow rd} \subseteq vis
-$$
+```
+
 > Read-Your-Writes are defined as:
 > for all write operations $a$ in history, a set of operations denoted by $H$, and,
 > for all read operations $b$ in history $H$,

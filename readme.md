@@ -59,6 +59,8 @@ MonotonicWrites \triangleq \forall a, b \in H_{wr}: a\overset{so}{\rightarrow} b
 #### Writes Follow Reads (arXiv:1512.00168 pp.13)
 
 [`consistency/model/writes_follow_reads.py`](consistency/model/writes_follow_reads.py)
+and
+[`consistency/model/session_causality.py`](consistency/model/session_causality.py)
 
 Writes-follow-reads, sometimes called session causality, is somewhat the converse concept of read-your-write guarantee as it ensures that writes made during the session are ordered after any writes made by any process on any object whose effects were seen by previous reads in the same session.
 

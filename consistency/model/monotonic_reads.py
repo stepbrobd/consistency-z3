@@ -7,7 +7,7 @@ from consistency.constraint import Constraint
 from consistency.relation import Relation
 
 
-class MonotonicRead:
+class MonotonicReads:
     """
     Monotonic Reads are defined as:
     for all operations $a$ in history, a set of operations denoted by $H$, and,

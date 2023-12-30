@@ -1,6 +1,7 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution
+from consistency.constraint import Constraint
 
 
 class ReadYourWrites:
@@ -12,53 +13,30 @@ class ReadYourWrites:
     then operation $a$ is visible to operation $b$.
     """
     @staticmethod
-    def constraints(s: z3.Solver, op: z3.DatatypeSortRef) -> None:
+    def constraints(s: z3.Solver) -> None:
         """
         Add read-your-writes constraints.
         """
-        # ops a, b
-        a = z3.Const("a", op)
-        b = z3.Const("b", op)
+        _, (rd, wr) = Constraint.declare_operation_type()
+        op = Constraint.declare_operation()
+        a, b = z3.Consts("a b", op)
 
-        # returns-before
-        rb = z3.Function("rb", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
-            z3.Implies(rb(a, b), op.rtime(a) < op.stime(b))
-        ))
+        ss = Constraint.same_session(s)
+        so = Constraint.session_order(s)
+        vis = Constraint.visibility(s)
 
-        # same-session
-        ss = z3.Function("ss", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
-            z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
-        ))
-
-        # session-order
-        so = z3.Function("so", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
-            z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
-        ))
-
-        # visibility
-        vis = z3.Function("vis", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
-            z3.Implies(
-                vis(a, b),
-                z3.And(op.type(a) == "wr", op.type(b) == "rd", op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
-            )
-        ))
-
-        # read-your-writes
-        s.add(z3.ForAll(
-            [a, b],
-            z3.Implies(
-                z3.And(so(a, b), op.type(a) == "wr", op.type(b) == "rd"),
-                vis(a, b)
-            )
-        ))
+        s.add([
+            # all operations and themselves are in the same session
+            ss(a, a),
+            ss(b, b),
+            # read-your-writes
+            z3.ForAll([a, b],
+                z3.Implies(
+                    z3.And(so(a, b), op.type(a) == wr, op.type(b) == rd),
+                    vis(a, b)
+                )
+            ),
+        ])
 
 
     @staticmethod

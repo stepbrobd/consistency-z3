@@ -9,7 +9,7 @@ class Constraint:
         """
         OperationType, (_, _) = Constraint.declare_operation_type()
         Operation = z3.Datatype("Operation")
-        # Operation.declare("nil")
+        Operation.declare("nil")
         Operation.declare("cons",
             ("proc", z3.IntSort()),    # process id
             ("type", OperationType),   # operation type
@@ -31,9 +31,10 @@ class Constraint:
 
 
     @staticmethod
-    def returns_before(s: z3.Solver, a: z3.DatatypeRef, b: z3.DatatypeRef) -> z3.FuncDeclRef:
+    def returns_before(s: z3.Solver) -> z3.FuncDeclRef:
         op = Constraint.declare_operation()
-        rb = z3.Function("rb", op, op)
+        a, b = z3.Consts("a b", op)
+        rb = z3.Function("rb", op, op, z3.BoolSort())
         s.add(z3.ForAll(
             [a, b],
             z3.Implies(rb(a, b), op.rtime(a) < op.stime(b))
@@ -42,9 +43,10 @@ class Constraint:
 
 
     @staticmethod
-    def same_session(s: z3.Solver, a: z3.DatatypeRef, b: z3.DatatypeRef) -> z3.FuncDeclRef:
+    def same_session(s: z3.Solver) -> z3.FuncDeclRef:
         op = Constraint.declare_operation()
-        ss = z3.Function("ss", op, op)
+        a, b = z3.Consts("a b", op)
+        ss = z3.Function("ss", op, op, z3.BoolSort())
         s.add(z3.ForAll(
             [a, b],
             z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
@@ -53,11 +55,12 @@ class Constraint:
 
 
     @staticmethod
-    def session_order(s: z3.Solver, a: z3.DatatypeRef, b: z3.DatatypeRef) -> z3.FuncDeclRef:
+    def session_order(s: z3.Solver) -> z3.FuncDeclRef:
         op = Constraint.declare_operation()
-        rb = Constraint.returns_before(s, a, b)
-        ss = Constraint.same_session(s, a, b)
-        so = z3.Function("so", op, op)
+        a, b = z3.Consts("a b", op)
+        rb = Constraint.returns_before(s)
+        ss = Constraint.same_session(s)
+        so = z3.Function("so", op, op, z3.BoolSort())
         s.add(z3.ForAll(
             [a, b],
             z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
@@ -66,10 +69,11 @@ class Constraint:
 
 
     @staticmethod
-    def visibility(s: z3.Solver, a: z3.DatatypeRef, b: z3.DatatypeRef) -> z3.FuncDeclRef:
+    def visibility(s: z3.Solver) -> z3.FuncDeclRef:
         _, (rd, wr) = Constraint.declare_operation_type()
         op = Constraint.declare_operation()
-        vis = z3.Function("vis", op, op)
+        a, b = z3.Consts("a b", op)
+        vis = z3.Function("vis", op, op, z3.BoolSort())
         s.add(z3.ForAll(
             [a, b],
             z3.Implies(

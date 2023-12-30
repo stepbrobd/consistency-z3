@@ -5,11 +5,13 @@
 > [!Caution]
 > Experimental project, use at your own risk.
 
-## Model
+## Models
 
 ### Session Guarantees
 
 #### Monotonic Reads (arXiv:1512.00168 pp.12)
+
+[`consistency/model/monotonic_reads.py`](consistency/model/monotonic_reads.py)
 
 Monotonic reads states that successive reads must reflect a non-decreasing set of writes. Namely, if a process has read a certain value v from an object, any successive read operation will not return any value written before v. Intuitively, a read operation can be served only by those replicas that have executed all write operations whose effects have already been observed by the requesting process. In effect, we can represent this by saying that, given three operations $a, b, c \in H$, if $a \overset{vis}{\rightarrow} b$ and $b \overset{so}{\rightarrow} c$, where $b$ and $c$ are read operations, then $a \overset{vis}{\rightarrow} c$, i.e., the transitive closure of $vis$ and $so$ is included in $vis$.
 
@@ -25,6 +27,10 @@ MonotonicReads \triangleq \forall a \in H, \forall b, c \in H|_{rd}: a \overset{
 
 #### Read Your Writes (arXiv:1512.00168 pp.13)
 
+[`consistency/model/read_your_writes.py`](consistency/model/read_your_writes.py)
+and
+[`consistency/model/read_my_writes.py`](consistency/model/read_my_writes.py)
+
 Read-your-writes guarantee (also called read-my-writes) requires that a read operation invoked by a process can only be carried out by replicas that have already applied all writes previously invoked by the same process.
 
 ```math
@@ -36,6 +42,32 @@ ReadYourWrites \triangleq \forall a \in H|_{wr}, \forall b \in H|_{rd}: a\overse
 > for all read operations $b$ in history $H$,
 > if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
 > then operation $a$ is visible to operation $b$.
+
+#### Monotonic Writes (arXiv:1512.00168 pp.13)
+
+[`consistency/model/monotonic_writes.py`](consistency/model/monotonic_writes.py)
+
+In a system that ensures monotonic writes a write is only performed on a replica if the replica has already performed all previous writes of the same session. In other words, replicas shall apply all writes belonging to the same session according to the order in which they were issued.
+
+```math
+MonotonicWrites \triangleq \forall a, b \in H_{wr}: a\overset{so}{\rightarrow} b \Rightarrow a \overset{ar}{\rightarrow} b \triangleq so|_{wr \rightarrow wr} \subseteq ar
+```
+
+> Monotonic Writes are defined as:
+>
+
+#### Writes Follow Reads (arXiv:1512.00168 pp.13)
+
+[`consistency/model/writes_follow_reads.py`](consistency/model/writes_follow_reads.py)
+
+Writes-follow-reads, sometimes called session causality, is somewhat the converse concept of read-your-write guarantee as it ensures that writes made during the session are ordered after any writes made by any process on any object whose effects were seen by previous reads in the same session.
+
+```math
+WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a \overset{vis}{\rightarrow} b \wedge b \overset{so}{\rightarrow} c \Rightarrow a \overset{ar}{\rightarrow} c \triangleq (vis;so|_{rd \rightarrow wr}) \subseteq ar
+```
+
+> Writes Follow Reads are defined as:
+>
 
 ## Abstract Definition
 

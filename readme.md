@@ -54,7 +54,9 @@ MonotonicWrites \triangleq \forall a, b \in H_{wr}: a\overset{so}{\rightarrow} b
 ```
 
 > Monotonic Writes are defined as:
->
+> for all write operations $a, b$ in history, a set of operations denoted by $H$,
+> if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
+> then operation $a$ must precede operation $b$ in the total order imposed by arbitration.
 
 #### Writes Follow Reads (arXiv:1512.00168 pp.13)
 
@@ -69,7 +71,10 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 ```
 
 > Writes Follow Reads are defined as:
->
+> for all write operations $a, c$ in history, a set of operations denoted by $H$, and,
+> for all read operation $b$ in history $H$,
+> if operation $a$ is visible to operation $b$, and $b$ returns before $c$ starts within the same session,
+> then operation $a$ must precede operation $c$ in the total order imposed by arbitration.
 
 ## Abstract Definition
 

@@ -72,13 +72,17 @@ class Constraint:
     def visibility(s: z3.Solver) -> z3.FuncDeclRef:
         _, (rd, wr) = Constraint.declare_operation_type()
         op = Constraint.declare_operation()
-        a, b = z3.Consts("a b", op)
+        a, b, c = z3.Consts("a b c", op)
         vis = z3.Function("vis", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
+        # op a's effect is visible to op b
+        s.add(z3.ForAll([a, b],
             z3.Implies(
                 vis(a, b),
                 z3.And(op.type(a) == wr, op.type(b) == rd, op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
             )
         ))
+        # acyclicity
+        s.add(z3.ForAll([a, b], z3.Implies(vis(a, b), z3.Not(vis(b, a)))))
+        # transitivity
+        s.add(z3.ForAll([a, b, c], z3.Implies(z3.And(vis(a, b), vis(b, c)), vis(a, c))))
         return vis

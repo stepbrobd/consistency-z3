@@ -1,18 +1,22 @@
 
 import z3
 
-from consistency.common import check
+from consistency.common import compatible
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.read_your_writes import ReadYourWrites
 
 
 def main() -> int:
-    s = z3.Solver()
+    mr = z3.Solver()
+    MonotonicReads.constraints(mr)
 
-    MonotonicReads.constraints(s)
-    ReadYourWrites.constraints(s)
+    ryw = z3.Solver()
+    ReadYourWrites.constraints(ryw)
 
-    check(s)
+    # compatibility is not symmetric
+    # i.e. if mr is compatible with ryw, then ryw is not necessarily compatible with mr
+    print(compatible(mr, ryw))
+    print(compatible(ryw, mr))
 
     return 0
 

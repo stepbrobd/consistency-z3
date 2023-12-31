@@ -81,14 +81,22 @@ Example:
 
 ```py
 import z3
-from consistency.common import check
-from consistency.model.monotonic_read import MonotonicRead
+from consistency.common import compatible
+from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.read_your_writes import ReadYourWrites
 
-s = z3.Solver()
-MonotonicRead.constraints(s)
-ReadYourWrites.constraints(s)
-check(s)
+# add constraints for monotonic reads 
+mr = z3.Solver()
+MonotonicReads.constraints(mr)
+
+# add constraints for read your writes
+ryw = z3.Solver()
+ReadYourWrites.constraints(ryw)
+
+# compatibility is not symmetric
+# i.e. if mr is compatible with ryw, then ryw is not necessarily compatible with mr
+print(compatible(mr, ryw))
+print(compatible(ryw, mr))
 ```
 
 ## Concrete History

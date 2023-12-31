@@ -35,8 +35,7 @@ class Constraint:
         op = Constraint.declare_operation()
         a, b = z3.Consts("a b", op)
         rb = z3.Function("rb", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
+        s.add(z3.ForAll([a, b],
             z3.Implies(rb(a, b), op.rtime(a) < op.stime(b))
         ))
         return rb
@@ -47,8 +46,7 @@ class Constraint:
         op = Constraint.declare_operation()
         a, b = z3.Consts("a b", op)
         ss = z3.Function("ss", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
+        s.add(z3.ForAll([a, b],
             z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
         ))
         return ss
@@ -61,8 +59,7 @@ class Constraint:
         rb = Constraint.returns_before(s)
         ss = Constraint.same_session(s)
         so = z3.Function("so", op, op, z3.BoolSort())
-        s.add(z3.ForAll(
-            [a, b],
+        s.add(z3.ForAll([a, b],
             z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
         ))
         return so
@@ -86,3 +83,19 @@ class Constraint:
         # transitivity
         s.add(z3.ForAll([a, b, c], z3.Implies(z3.And(vis(a, b), vis(b, c)), vis(a, c))))
         return vis
+
+
+    @staticmethod
+    def arbitration(s: z3.Solver) -> z3.FuncDeclRef:
+        op = Constraint.declare_operation()
+        a, b, c = z3.Consts("a b c", op)
+        ar = z3.Function("ar", op, op, z3.BoolSort())
+        # ordering
+        s.add(z3.ForAll([a, b],
+            z3.Implies(ar(a, b), op.rtime(a) < op.stime(b))
+        ))
+        # acyclicity
+        s.add(z3.ForAll([a, b], z3.Implies(ar(a, b), z3.Not(ar(b, a)))))
+        # transitivity
+        s.add(z3.ForAll([a, b, c], z3.Implies(z3.And(ar(a, b), ar(b, c)), ar(a, c))))
+        return ar

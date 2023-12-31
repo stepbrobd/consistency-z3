@@ -38,9 +38,6 @@ def compatible(s1: z3.Solver, s2: z3.Solver, verbose=False) -> bool:
     if verbose:
         z3.set_param("verbose", 10)
 
-    assert check(s1, verbose) is not None
-    assert check(s2, verbose) is not None
-
     for a in set(s2.assertions()):
         s1.push()
         s1.add(a)

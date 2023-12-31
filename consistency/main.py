@@ -11,6 +11,12 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 
 
 def main() -> int:
+    # note:
+    # if a system S_1 provide guarantee G_1, another system S_2 provide guarantee G_2
+    # compatible(G_1, G_2) == True means
+    # the service mesh of S_1 and S_2 can be composed to provide at a guarantee of G_1
+    # i.e. all assertions in G_2 are satisfied in G_1
+
     # compatibility is not symmetric
     # i.e. if mr is compatible with ryw, then ryw is not necessarily compatible with mr
     for a, b in itertools.product([

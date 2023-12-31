@@ -5,6 +5,20 @@
 > [!Caution]
 > Experimental project, use at your own risk.
 
+## Roadmap
+
+- [x] basic project structure
+- [x] abstract monotonic reads
+- [ ] concrete monotonic reads
+- [x] abstract monotonic writes
+- [ ] concrete monotonic writes
+- [x] abstract read your writes
+- [ ] concrete read your writes
+- [x] abstract writes follow reads
+- [ ] concrete writes follow reads
+- [x] z3 compatibility check
+- [ ] hand verification of pairwise compatibility
+
 ## Models
 
 ### Session Guarantees

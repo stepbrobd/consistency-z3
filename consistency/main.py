@@ -6,6 +6,7 @@ from rich import print
 from consistency.common import compatible
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
+from consistency.model.pram_consistency import PRAMConsistency
 from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
 
@@ -20,6 +21,7 @@ def main() -> int:
     # compatibility is not symmetric
     # i.e. if mr is compatible with ryw, then ryw is not necessarily compatible with mr
     for a, b in itertools.product([
+        (PRAMConsistency, "pram"),
         (MonotonicReads, "mr"),
         (MonotonicWrites, "mw"),
         (ReadYourWrites, "ryw"),

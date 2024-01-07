@@ -18,8 +18,30 @@
 - [ ] concrete writes follow reads
 - [x] z3 compatibility check
 - [ ] hand verification of pairwise compatibility
+- [x] abstract pram consistency
+- [ ] concrete pram consistency
 
 ## Models
+
+
+### PRAM and Sequential Consistency
+
+#### PRAM Consistency (arXiv:1512.00168 pp.11)
+
+[`consistency/model/pram_consistency.py`](consistency/model/pram_consistency.py)
+
+Pipeline RAM (PRAM or FIFO) consistency prescribes that all processes see write operations issued by a given process in the same order as they were invoked by that process. On the other hand, processes may observe writes issued by different processes in different orders. Thus, no global total ordering is required. However, the writes from any given process (session) must be serialized in order, as if they were in a pipeline – hence the name.
+
+```math
+PRAM \triangleq \forall a,b \in H: a\overset{so}{\rightarrow} b \Rightarrow a \overset{vis}{\rightarrow} b \triangleq so \subseteq vis
+```
+
+Modified from original definition: $PRAM \triangleq so \subseteq vis$.
+
+> PRAM consistency is defined as:
+> for all operations $a$ and $b$ in history, a set of operations denoted by $H$,
+> if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
+> then operation $a$ is visible to operation $b$.
 
 ### Session Guarantees
 

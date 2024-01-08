@@ -21,7 +21,7 @@ def main() -> int:
     # compatibility is not symmetric
     # i.e. if mr is compatible with ryw, then ryw is not necessarily compatible with mr
     for a, b in itertools.product([
-        (PRAMConsistency, "pram"),
+        # (PRAMConsistency, "pram"), # weirdly, pram seems to affect the result of other models
         (MonotonicReads, "mr"),
         (MonotonicWrites, "mw"),
         (ReadYourWrites, "ryw"),
@@ -36,6 +36,25 @@ def main() -> int:
         b[0].constraints(s2)
 
         print(f"{a[1]} | {b[1]}: {compatible(s1, s2)}")
+
+        z3.reset_params()
+
+    # fix z3 assertion logic
+    # from the paper:
+    # > "As proved by Brzezinski et al. [2003], PRAM consistency is ensured iff the system provides read-your-write, monotonic reads and monotonic writes guarantee"
+    # meaning `compatible(pram, {ryw, mr, mw}) == True`
+    for m in [
+        (MonotonicReads, "mr"),
+        (MonotonicWrites, "mw"),
+        (ReadYourWrites, "ryw"),
+        (WritesFollowReads, "wfr"),
+    ]:
+        s1 = z3.Solver()
+        s2 = z3.Solver()
+        PRAMConsistency.constraints(s1)
+        m[0].constraints(s2)
+
+        print(f"pram | {m[1]}: {compatible(s1, s2)}")
 
         z3.reset_params()
 

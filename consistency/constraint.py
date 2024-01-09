@@ -2,6 +2,8 @@ import z3
 
 
 class Constraint:
+    __op_type__ = None
+
     @staticmethod
     def declare_operation() -> z3.DatatypeSortRef:
         """
@@ -27,7 +29,10 @@ class Constraint:
         """
         op_type, (rd, wr) = Constraint.declare_operation_type()
         """
-        return z3.EnumSort("OperationType", ["rd", "wr"])
+        if Constraint.__op_type__ is not None:
+            return Constraint.__op_type__
+        Constraint.__op_type__ = z3.EnumSort("OperationType", ["rd", "wr"])
+        return Constraint.__op_type__
 
 
     @staticmethod

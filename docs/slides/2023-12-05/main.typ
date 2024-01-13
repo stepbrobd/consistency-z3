@@ -32,11 +32,11 @@
 ]
 
 #slide[
-  == Definitions: Operation
+== Definitions: Operation
 
-  Operation are tuples: $("proc", "type", "obj", "ival", "oval", "stime", "rtime")$ @viotti2016consistency[pp.3].
+Operation are tuples: $("proc", "type", "obj", "ival", "oval", "stime", "rtime")$ @viotti2016consistency[pp.3].
 
-  ```py
+```py
       class Operation(NamedTuple):
           proc: int # process id
           type: str # operation type
@@ -66,15 +66,15 @@
 ]
 
 #slide[
-  == Definitions: History
+== Definitions: History
 
-  Relations:
-  - returns-before: $"rb" eq.delta {("a","b"): "a","b" in "H" and "a.rtime" < "b.stime"}$
-  - same-session: $"ss" eq.delta {("a","b"): "a","b" in "H" and "a.proc" = "b.proc"}$
-  - session-order: $"so" eq.delta "rb" sect "ss"$
-  // there are more relations
+Relations:
+- returns-before: $"rb" eq.delta {("a","b"): "a","b" in "H" and "a.rtime" < "b.stime"}$
+- same-session: $"ss" eq.delta {("a","b"): "a","b" in "H" and "a.proc" = "b.proc"}$
+- session-order: $"so" eq.delta "rb" sect "ss"$
+// there are more relations
 
-  ```py
+```py
       class History:
           def __init__(self: Self,
             ops: set[Operation],
@@ -93,15 +93,15 @@
 ]
 
 #slide[
-  == Definitions: Anstract Execution
-  Relations:
-  - $"vis"$ (visibility): $a arrow.r.long^"vis" b$
-  // - visibility
-  // - arbitration
-  - ...
-  // there are more relations
+== Definitions: Anstract Execution
+Relations:
+- $"vis"$ (visibility): $a arrow.r.long^"vis" b$
+// - visibility
+// - arbitration
+- ...
+// there are more relations
 
-  ```py
+```py
       class AbstractExecution:
           def __init__(self: Self,
             hist: History,
@@ -111,18 +111,18 @@
 ]
 
 #slide[
-  == Example: Monotonic Reads
+== Example: Monotonic Reads
 
-  ```txt
+```txt
       1: ___ op_a: set("somekey", "someval")
                op_b: get("somekey") -> "someval"
       2:       ___      ___
                         op_c: get("somekey") -> "someval"
       ```
-  - $a arrow.r.long^"vis" b$
-  - $b arrow.r.long^"so" c$
-    - $b arrow.r.long^"rb" c$
-    - $b arrow.r.long^"ss" c$
+- $a arrow.r.long^"vis" b$
+- $b arrow.r.long^"so" c$
+  - $b arrow.r.long^"rb" c$
+  - $b arrow.r.long^"ss" c$
 ]
 
 #slide[

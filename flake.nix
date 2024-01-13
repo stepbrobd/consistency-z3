@@ -20,7 +20,13 @@
       project = pyproject.lib.project.loadPyproject { projectRoot = ./.; };
     in
     {
-      formatter = pkgs.nixpkgs-fmt;
+      formatter = pkgs.writeShellScriptBin "formatter" ''
+        set -eoux pipefail
+        shopt -s globstar
+        ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt .
+        ${pkgs.ruff}/bin/ruff --fix --unsafe-fixes .
+        ${pkgs.typstfmt}/bin/typstfmt **/*.typ
+      '';
 
       packages.default = python.pkgs.buildPythonPackage (
         project.renderers.buildPythonPackage { inherit python; }

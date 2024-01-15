@@ -2,6 +2,7 @@ import z3
 
 
 class Constraint:
+    __op__ = None
     __op_type__ = None
 
     @staticmethod
@@ -9,6 +10,8 @@ class Constraint:
         """
         op = Constraint.declare_operation()
         """
+        if Constraint.__op__ is not None:
+            return Constraint.__op__
         OperationType, (_, _) = Constraint.declare_operation_type()
         Operation = z3.Datatype("Operation")
         Operation.declare("nil")
@@ -21,7 +24,8 @@ class Constraint:
             ("stime", z3.IntSort()),   # start time
             ("rtime", z3.IntSort())    # return time
         )
-        return Operation.create()
+        Constraint.__op__ = Operation.create()
+        return Constraint.__op__
 
 
     @staticmethod

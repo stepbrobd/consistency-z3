@@ -16,6 +16,9 @@ def compatible(s1: z3.Solver, s2: z3.Solver, verbose=False) -> bool:
     if verbose:
         z3.set_param("verbose", 10)
 
+    assert s1.check() == z3.sat
+    assert s2.check() == z3.sat
+
     s = z3.Solver()
 
     lhs = z3.And(*set(s1.assertions()))

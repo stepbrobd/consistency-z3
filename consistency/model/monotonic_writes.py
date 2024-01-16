@@ -17,22 +17,16 @@ class MonotonicWrites:
         op = Constraint.declare_operation()
         a, b = Constraint.declare_operation_symbols("a b")
 
-        ss = Constraint.same_session(s)
         so = Constraint.session_order(s)
         ar = Constraint.arbitration(s)
 
-        s.add([
-            # all operations and themselves are in the same session
-            ss(a, a),
-            ss(b, b),
-            # monotonic writes
-            z3.ForAll([a, b],
+        # monotonic writes
+        s.add(z3.ForAll([a, b],
                 z3.Implies(
                     z3.And(so(a, b), op.type(a) == wr, op.type(b) == wr),
                     ar(a, b)
                 )
-            ),
-        ])
+        ))
 
 
     @staticmethod

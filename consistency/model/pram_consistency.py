@@ -17,19 +17,11 @@ class PRAMConsistency:
         Constraint.declare_operation()
         a, b = Constraint.declare_operation_symbols("a b")
 
-        ss = Constraint.same_session(s)
         so = Constraint.session_order(s)
         vis = Constraint.visibility(s)
 
-        s.add(
-            [
-                # all operations and themselves are in the same session
-                ss(a, a),
-                ss(b, b),
-                # PRAM consistency
-                z3.ForAll([a, b], z3.Implies(so(a, b), vis(a, b))),
-            ]
-        )
+        # PRAM consistency
+        s.add(z3.ForAll([a, b], z3.Implies(so(a, b), vis(a, b))))
 
     @staticmethod
     def check(ae: AbstractExecution) -> bool:

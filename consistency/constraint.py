@@ -119,17 +119,19 @@ class Constraint:
         op = Constraint.declare_operation()
         a, b, c = Constraint.declare_operation_symbols("a b c")
         vis = Constraint.declare_operation_function("vis", op, op, z3.BoolSort())
-        # op a's effect is visible to op b
-        s.add(z3.ForAll([a, b],
-            z3.Implies(
-                vis(a, b),
-                z3.And(op.type(a) == wr, op.type(b) == rd, op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
-            )
+        s.add(z3.And(
+            # op a's effect is visible to op b
+            z3.ForAll([a, b],
+                z3.Implies(
+                    vis(a, b),
+                    z3.And(op.type(a) == wr, op.type(b) == rd, op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
+                )
+            ),
+            # acyclicity
+            z3.ForAll([a, b], z3.Implies(vis(a, b), z3.Not(vis(b, a)))),
+            # transitivity
+            z3.ForAll([a, b, c], z3.Implies(z3.And(vis(a, b), vis(b, c)), vis(a, c))),
         ))
-        # acyclicity
-        s.add(z3.ForAll([a, b], z3.Implies(vis(a, b), z3.Not(vis(b, a)))))
-        # transitivity
-        s.add(z3.ForAll([a, b, c], z3.Implies(z3.And(vis(a, b), vis(b, c)), vis(a, c))))
         return vis
 
 
@@ -138,12 +140,14 @@ class Constraint:
         op = Constraint.declare_operation()
         a, b, c = Constraint.declare_operation_symbols("a b c")
         ar = Constraint.declare_operation_function("ar", op, op, z3.BoolSort())
-        # ordering
-        s.add(z3.ForAll([a, b],
-            z3.Implies(ar(a, b), op.rtime(a) < op.stime(b))
+        s.add(z3.And(
+            # ordering
+            z3.ForAll([a, b],
+                z3.Implies(ar(a, b), op.rtime(a) < op.stime(b))
+            ),
+            # acyclicity
+            z3.ForAll([a, b], z3.Implies(ar(a, b), z3.Not(ar(b, a)))),
+            # transitivity
+            z3.ForAll([a, b, c], z3.Implies(z3.And(ar(a, b), ar(b, c)), ar(a, c))),
         ))
-        # acyclicity
-        s.add(z3.ForAll([a, b], z3.Implies(ar(a, b), z3.Not(ar(b, a)))))
-        # transitivity
-        s.add(z3.ForAll([a, b, c], z3.Implies(z3.And(ar(a, b), ar(b, c)), ar(a, c))))
         return ar

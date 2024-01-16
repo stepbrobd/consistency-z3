@@ -1,35 +1,4 @@
-from contextlib import ExitStack
-from functools import partial
-
 import z3
-from rich import print
-
-
-def check(s: z3.Solver, verbose=False) -> z3.ModelRef | None:
-    """
-    Check if the assertions in s are satisfiable.
-    """
-    solver = z3.Solver()
-    for a in set(s.assertions()):
-        solver.add(a)
-
-    if verbose:
-        z3.set_param("verbose", 10)
-        print(f"Constraints:\n{solver.assertions()}")
-
-        with ExitStack() as es:
-            es.callback(partial(print, f"Statistics:\n{solver.statistics()}"))
-
-    match solver.check():
-        case z3.sat:
-            # print(f"SAT (Model)\n{solver.model()}")
-            return solver.model()
-        case z3.unknown:
-            # print("Unknown")
-            return None
-        case z3.unsat:
-            # print(f"UNSAT (Counterexample)\n{solver.unsat_core()}")
-            return None
 
 
 def compatible(s1: z3.Solver, s2: z3.Solver, verbose=False) -> bool:
@@ -47,11 +16,11 @@ def compatible(s1: z3.Solver, s2: z3.Solver, verbose=False) -> bool:
     if verbose:
         z3.set_param("verbose", 10)
 
-    for a in set(s2.assertions()):
-        s1.push()
-        s1.add(a)
-        if s1.check() != z3.sat:
-            return False
-        s1.pop()
+    s = z3.Solver()
 
-    return True
+    lhs = z3.And(*set(s1.assertions()))
+    rhs = z3.And(*set(s2.assertions()))
+
+    s.add(z3.Not(z3.Implies(lhs, rhs)))
+
+    return s.check() == z3.unsat

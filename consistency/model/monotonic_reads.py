@@ -21,8 +21,7 @@ class MonotonicReads:
         Add monotonic read constraints.
         """
         _, (rd, wr) = Constraint.declare_operation_type()
-        op = Constraint.declare_operation()
-        a, b, c = z3.Consts("a b c", op)
+        a, b, c = Constraint.declare_operation_symbols("a b c")
 
         ss = Constraint.same_session(s)
         so = Constraint.session_order(s)

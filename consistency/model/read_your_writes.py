@@ -19,7 +19,7 @@ class ReadYourWrites:
         """
         _, (rd, wr) = Constraint.declare_operation_type()
         op = Constraint.declare_operation()
-        a, b = z3.Consts("a b", op)
+        a, b = Constraint.declare_operation_symbols("a b")
 
         ss = Constraint.same_session(s)
         so = Constraint.session_order(s)

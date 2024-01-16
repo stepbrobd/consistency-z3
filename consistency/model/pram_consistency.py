@@ -14,8 +14,8 @@ class PRAMConsistency:
 
     @staticmethod
     def constraints(s: z3.Solver) -> None:
-        op = Constraint.declare_operation()
-        a, b = z3.Consts("a b", op)
+        Constraint.declare_operation()
+        a, b = Constraint.declare_operation_symbols("a b")
 
         ss = Constraint.same_session(s)
         so = Constraint.session_order(s)

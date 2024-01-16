@@ -4,6 +4,9 @@ import z3
 class Constraint:
     __op__ = None
     __op_type__ = None
+    __op_symbols__ = None
+    __op_functions__ = None
+
 
     @staticmethod
     def declare_operation() -> z3.DatatypeSortRef:
@@ -40,10 +43,46 @@ class Constraint:
 
 
     @staticmethod
+    def declare_operation_symbol(symbol: str) -> z3.DatatypeRef:
+        """
+        a = Constraint.declare_operation_symbol("a")
+        """
+        if Constraint.__op_symbols__ is None:
+            Constraint.__op_symbols__ = {}
+        if symbol in Constraint.__op_symbols__:
+            return Constraint.__op_symbols__[symbol]
+        op = Constraint.declare_operation()
+        ref = z3.Const(symbol, op)
+        Constraint.__op_symbols__[symbol] = ref
+        return Constraint.__op_symbols__[symbol]
+
+
+    @staticmethod
+    def declare_operation_symbols(symbols: str) -> tuple[z3.DatatypeRef, ...]:
+        """
+        a, b = Constraint.declare_operation_symbols("a b")
+        """
+        return tuple(map(Constraint.declare_operation_symbol, symbols.split()))
+
+
+    @staticmethod
+    def declare_operation_function(name: str, *sig: z3.SortRef) -> z3.FuncDeclRef:
+        """
+        f = Constraint.declare_operation_function("f", z3.IntSort(), z3.IntSort())
+        """
+        if Constraint.__op_functions__ is None:
+            Constraint.__op_functions__ = {}
+        if name in Constraint.__op_functions__:
+            return Constraint.__op_functions__[name]
+        Constraint.__op_functions__[name] = z3.Function(name, *sig)
+        return Constraint.__op_functions__[name]
+
+
+    @staticmethod
     def returns_before(s: z3.Solver) -> z3.FuncDeclRef:
         op = Constraint.declare_operation()
-        a, b = z3.Consts("a b", op)
-        rb = z3.Function("rb", op, op, z3.BoolSort())
+        a, b = Constraint.declare_operation_symbols("a b")
+        rb = Constraint.declare_operation_function("rb", op, op, z3.BoolSort())
         s.add(z3.ForAll([a, b],
             z3.Implies(rb(a, b), op.rtime(a) < op.stime(b))
         ))
@@ -53,8 +92,8 @@ class Constraint:
     @staticmethod
     def same_session(s: z3.Solver) -> z3.FuncDeclRef:
         op = Constraint.declare_operation()
-        a, b = z3.Consts("a b", op)
-        ss = z3.Function("ss", op, op, z3.BoolSort())
+        a, b = Constraint.declare_operation_symbols("a b")
+        ss = Constraint.declare_operation_function("ss", op, op, z3.BoolSort())
         s.add(z3.ForAll([a, b],
             z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
         ))
@@ -64,10 +103,10 @@ class Constraint:
     @staticmethod
     def session_order(s: z3.Solver) -> z3.FuncDeclRef:
         op = Constraint.declare_operation()
-        a, b = z3.Consts("a b", op)
+        a, b = Constraint.declare_operation_symbols("a b")
         rb = Constraint.returns_before(s)
         ss = Constraint.same_session(s)
-        so = z3.Function("so", op, op, z3.BoolSort())
+        so = Constraint.declare_operation_function("so", op, op, z3.BoolSort())
         s.add(z3.ForAll([a, b],
             z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
         ))
@@ -78,8 +117,8 @@ class Constraint:
     def visibility(s: z3.Solver) -> z3.FuncDeclRef:
         _, (rd, wr) = Constraint.declare_operation_type()
         op = Constraint.declare_operation()
-        a, b, c = z3.Consts("a b c", op)
-        vis = z3.Function("vis", op, op, z3.BoolSort())
+        a, b, c = Constraint.declare_operation_symbols("a b c")
+        vis = Constraint.declare_operation_function("vis", op, op, z3.BoolSort())
         # op a's effect is visible to op b
         s.add(z3.ForAll([a, b],
             z3.Implies(
@@ -97,8 +136,8 @@ class Constraint:
     @staticmethod
     def arbitration(s: z3.Solver) -> z3.FuncDeclRef:
         op = Constraint.declare_operation()
-        a, b, c = z3.Consts("a b c", op)
-        ar = z3.Function("ar", op, op, z3.BoolSort())
+        a, b, c = Constraint.declare_operation_symbols("a b c")
+        ar = Constraint.declare_operation_function("ar", op, op, z3.BoolSort())
         # ordering
         s.add(z3.ForAll([a, b],
             z3.Implies(ar(a, b), op.rtime(a) < op.stime(b))

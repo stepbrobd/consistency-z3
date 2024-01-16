@@ -23,10 +23,9 @@
 
 ## Models
 
-![pairwise compatibility](docs/assets/table.png)
+![pairwise compatibility](docs/assets/table.svg)
 
-Preliminary results of pairwise compatibility between consistency models
-(compatibility assertion logic might have issues).
+Preliminary results of pairwise compatibility between consistency models.
 
 ### PRAM and Sequential Consistency
 

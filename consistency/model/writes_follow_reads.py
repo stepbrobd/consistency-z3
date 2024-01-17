@@ -1,6 +1,5 @@
 import z3
 
-from consistency.abstract_execution import AbstractExecution
 from consistency.constraint import Constraint
 
 
@@ -29,8 +28,3 @@ class WritesFollowReads:
                     ar(a, c)
                 )
         ))
-
-
-    @staticmethod
-    def check(ae: AbstractExecution) -> bool:
-        ...

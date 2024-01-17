@@ -1,6 +1,5 @@
 import z3
 
-from consistency.abstract_execution import AbstractExecution
 from consistency.constraint import Constraint
 
 
@@ -22,7 +21,3 @@ class PRAMConsistency:
 
         # PRAM consistency
         s.add(z3.ForAll([a, b], z3.Implies(so(a, b), vis(a, b))))
-
-    @staticmethod
-    def check(ae: AbstractExecution) -> bool:
-        ...

@@ -83,9 +83,7 @@ class Constraint:
         op = Constraint.declare_operation()
         a, b = Constraint.declare_operation_symbols("a b")
         rb = Constraint.declare_operation_function("rb", op, op, z3.BoolSort())
-        s.add(z3.ForAll([a, b],
-            z3.Implies(rb(a, b), op.rtime(a) < op.stime(b))
-        ))
+        s.add(z3.Implies(rb(a, b), op.rtime(a) < op.stime(b)))
         return rb
 
 
@@ -94,9 +92,7 @@ class Constraint:
         op = Constraint.declare_operation()
         a, b = Constraint.declare_operation_symbols("a b")
         ss = Constraint.declare_operation_function("ss", op, op, z3.BoolSort())
-        s.add(z3.ForAll([a, b],
-            z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
-        ))
+        s.add(z3.Implies(ss(a, b), op.proc(a) == op.proc(b)))
         return ss
 
 
@@ -107,9 +103,7 @@ class Constraint:
         rb = Constraint.returns_before(s)
         ss = Constraint.same_session(s)
         so = Constraint.declare_operation_function("so", op, op, z3.BoolSort())
-        s.add(z3.ForAll([a, b],
-            z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
-        ))
+        s.add(z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b))))
         return so
 
 

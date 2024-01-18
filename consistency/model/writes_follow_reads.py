@@ -1,6 +1,8 @@
 import z3
 
-from consistency.constraint import Constraint
+from consistency.abstract_execution import AbstractExecution as AE
+from consistency.history import History as H
+from consistency.operation import Operation as Op
 
 
 class WritesFollowReads:
@@ -12,19 +14,19 @@ class WritesFollowReads:
     then operation $a$ must precede operation $c$ in the total order imposed by arbitration.
     """
     @staticmethod
-    def constraints(s: z3.Solver) -> None:
-        _, (rd, wr) = Constraint.declare_operation_type()
-        op = Constraint.declare_operation()
-        a, b, c = Constraint.declare_operation_symbols("a b c")
+    def assertions() -> None:
+        _, (rd, wr) = Op.Sort()
+        op = Op.Create()
+        a, b, c = Op.Consts("a b c")
 
-        so = Constraint.session_order(s)
-        vis = Constraint.visibility(s)
-        ar = Constraint.arbitration(s)
+        so = H.Relation.session_order()
+        vis = AE.Relation.visibility()
+        ar = AE.Relation.arbitration()
 
         # writes follow reads
-        s.add(z3.ForAll([a, b, c],
+        return z3.ForAll([a, b, c],
                 z3.Implies(
                     z3.And(vis(a, b), so(b, c), op.type(a) == wr, op.type(c) == wr, op.type(b) == rd),
                     ar(a, c)
                 )
-        ))
+        )

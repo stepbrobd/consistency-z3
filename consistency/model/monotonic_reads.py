@@ -1,6 +1,8 @@
 import z3
 
-from consistency.constraint import Constraint
+from consistency.abstract_execution import AbstractExecution as AE
+from consistency.history import History as H
+from consistency.operation import Operation as Op
 
 
 class MonotonicReads:
@@ -12,21 +14,21 @@ class MonotonicReads:
     then operation $a$ is visible to operation $c$.
     """
     @staticmethod
-    def constraints(s: z3.Solver) -> None:
+    def assertions() -> z3.BoolRef:
         """
         Add monotonic read constraints.
         """
-        _, (rd, wr) = Constraint.declare_operation_type()
-        op = Constraint.declare_operation()
-        a, b, c = Constraint.declare_operation_symbols("a b c")
+        _, (rd, wr) = Op.Sort()
+        op = Op.Create()
+        a, b, c = Op.Consts("a b c")
 
-        so = Constraint.session_order(s)
-        vis = Constraint.visibility(s)
+        so = H.Relation.session_order()
+        vis = AE.Relation.visibility()
 
         # monotonic read
-        s.add(z3.ForAll([a, b, c],
+        return z3.ForAll([a, b, c],
                 z3.Implies(
                     z3.And(vis(a, b), so(b, c), op.type(b) == rd, op.type(c) == rd),
                     vis(a, c)
                 )
-        ))
+        )

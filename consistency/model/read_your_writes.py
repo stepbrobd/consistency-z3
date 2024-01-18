@@ -1,6 +1,8 @@
 import z3
 
-from consistency.constraint import Constraint
+from consistency.abstract_execution import AbstractExecution as AE
+from consistency.history import History as H
+from consistency.operation import Operation as Op
 
 
 class ReadYourWrites:
@@ -12,21 +14,21 @@ class ReadYourWrites:
     then operation $a$ is visible to operation $b$.
     """
     @staticmethod
-    def constraints(s: z3.Solver) -> None:
+    def assertions() -> None:
         """
         Add read-your-writes constraints.
         """
-        _, (rd, wr) = Constraint.declare_operation_type()
-        op = Constraint.declare_operation()
-        a, b = Constraint.declare_operation_symbols("a b")
+        _, (rd, wr) = Op.Sort()
+        op = Op.Create()
+        a, b = Op.Consts("a b")
 
-        so = Constraint.session_order(s)
-        vis = Constraint.visibility(s)
+        so = H.Relation.session_order()
+        vis = AE.Relation.visibility()
 
         # read-your-writes
-        s.add(z3.ForAll([a, b],
+        return z3.ForAll([a, b],
                 z3.Implies(
                     z3.And(so(a, b), op.type(a) == wr, op.type(b) == rd),
                     vis(a, b)
                 )
-        ))
+        )

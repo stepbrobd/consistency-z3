@@ -1,6 +1,8 @@
 import z3
 
-from consistency.constraint import Constraint
+from consistency.abstract_execution import AbstractExecution as AE
+from consistency.history import History as H
+from consistency.operation import Operation as Op
 
 
 class MonotonicWrites:
@@ -11,18 +13,18 @@ class MonotonicWrites:
     then operation $a$ must precede operation $b$ in the total order imposed by arbitration.
     """
     @staticmethod
-    def constraints(s: z3.Solver) -> None:
-        _, (rd, wr) = Constraint.declare_operation_type()
-        op = Constraint.declare_operation()
-        a, b = Constraint.declare_operation_symbols("a b")
+    def assertions() -> z3.BoolRef:
+        _, (rd, wr) = Op.Sort()
+        op = Op.Create()
+        a, b = Op.Consts("a b")
 
-        so = Constraint.session_order(s)
-        ar = Constraint.arbitration(s)
+        so = H.Relation.session_order()
+        ar = AE.Relation.arbitration()
 
         # monotonic writes
-        s.add(z3.ForAll([a, b],
+        return z3.ForAll([a, b],
                 z3.Implies(
                     z3.And(so(a, b), op.type(a) == wr, op.type(b) == wr),
                     ar(a, b)
                 )
-        ))
+        )

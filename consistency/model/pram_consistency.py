@@ -1,6 +1,8 @@
 import z3
 
-from consistency.constraint import Constraint
+from consistency.abstract_execution import AbstractExecution as AE
+from consistency.history import History as H
+from consistency.operation import Operation as Op
 
 
 class PRAMConsistency:
@@ -12,12 +14,11 @@ class PRAMConsistency:
     """
 
     @staticmethod
-    def constraints(s: z3.Solver) -> None:
-        Constraint.declare_operation()
-        a, b = Constraint.declare_operation_symbols("a b")
+    def assertions() -> None:
+        a, b = Op.Consts("a b")
 
-        so = Constraint.session_order(s)
-        vis = Constraint.visibility(s)
+        so = H.Relation.session_order()
+        vis = AE.Relation.visibility()
 
         # PRAM consistency
-        s.add(z3.ForAll([a, b], z3.Implies(so(a, b), vis(a, b))))
+        return z3.ForAll([a, b], z3.Implies(so(a, b), vis(a, b)))

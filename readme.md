@@ -8,24 +8,22 @@
 ## Roadmap
 
 - [x] basic project structure
-- [x] abstract monotonic reads
-- [ ] concrete monotonic reads
-- [x] abstract monotonic writes
-- [ ] concrete monotonic writes
-- [x] abstract read your writes
-- [ ] concrete read your writes
-- [x] abstract writes follow reads
-- [ ] concrete writes follow reads
+- [x] monotonic reads
+- [x] monotonic writes
+- [x] read your writes
+- [x] writes follow reads
 - [x] z3 compatibility check
-- [ ] hand verification of pairwise compatibility
 - [x] abstract pram consistency
-- [ ] concrete pram consistency
+- [ ] bounded staleness
+- [ ] hand verification of pairwise compatibility
+
+Jan. 17, 2024 - Jan. 24, 2024
+
+- [ ] bug fixes
+- [ ] create couple slides
+- [ ] bound staleness
 
 ## Models
-
-![pairwise compatibility](docs/assets/table.svg)
-
-Preliminary results of pairwise compatibility between consistency models.
 
 ### PRAM and Sequential Consistency
 
@@ -115,32 +113,39 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 > if operation $a$ is visible to operation $b$, and $b$ returns before $c$ starts within the same session,
 > then operation $a$ must precede operation $c$ in the total order imposed by arbitration.
 
-## Abstract Definition
-
-- Check the formal definition of a consistency model (WIP)
-- Check the pairwise compatibility of consistency models (WIP)
-- ...
-
-Example:
+## Example
 
 ```py
 import z3
-from consistency.common import compatible
 from consistency.model.monotonic_reads import MonotonicReads
-from consistency.model.read_your_writes import ReadYourWrites
+from consistency.model.monotonic_writes import MonotonicWrites
+from consistency.model.pram_consistency import PRAMConsistency
+from consistency.relation import Relation
 
-# add constraints for monotonic reads 
-mr = z3.Solver()
-MonotonicReads.constraints(mr)
+def check(assertions: z3.BoolRef) -> bool:
+    s = z3.Solver()
+    s.add([assertions, Relation.Constraints()])
+    return s.check() == z3.sat
 
-# add constraints for read your writes
-ryw = z3.Solver()
-ReadYourWrites.constraints(ryw)
+def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef) -> bool:
+    s = z3.Solver()
+    s.add([z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints()])
+    return s.check() == z3.unsat
 
-# compatibility is not symmetric
-# i.e. if mr is compatible with ryw, then ryw is not necessarily compatible with mr
-print(compatible(mr, ryw))
-print(compatible(ryw, mr))
+def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
+    return z3.And(*assertions)
+
+# standalone
+s1 = z3.Solver()
+print(check(MonotonicReads.assertions()))
+
+# pairwise: lhs <- rhs
+s2 = z3.Solver()
+print(compatible(MonotonicReads.assertions(), MonotonicWrites.assertions()))
+
+# composition
+s3 = z3.Solver()
+print(compatible(compose(MonotonicReads.assertions(), MonotonicWrites.assertions()), PRAMConsistency.assertions()))
 ```
 
 ## License

@@ -45,3 +45,12 @@ class Relation:
         Relation._functions[name] = z3.Function(name, *sig)
 
         return Relation._functions[name]
+
+
+    @staticmethod
+    def Reset() -> None:
+        """
+        Relation.Reset()
+        """
+        Relation._constraints = None
+        Relation._functions = None

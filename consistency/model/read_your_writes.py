@@ -14,7 +14,7 @@ class ReadYourWrites:
     then operation $a$ is visible to operation $b$.
     """
     @staticmethod
-    def assertions() -> None:
+    def assertions() -> z3.BoolRef:
         """
         Add read-your-writes constraints.
         """

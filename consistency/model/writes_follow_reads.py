@@ -14,7 +14,7 @@ class WritesFollowReads:
     then operation $a$ must precede operation $c$ in the total order imposed by arbitration.
     """
     @staticmethod
-    def assertions() -> None:
+    def assertions() -> z3.BoolRef:
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
         a, b, c = Op.Consts("a b c")

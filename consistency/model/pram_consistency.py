@@ -14,7 +14,7 @@ class PRAMConsistency:
     """
 
     @staticmethod
-    def assertions() -> None:
+    def assertions() -> z3.BoolRef:
         a, b = Op.Consts("a b")
 
         so = H.Relation.session_order()

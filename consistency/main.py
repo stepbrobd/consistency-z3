@@ -73,6 +73,12 @@ def main() -> int:
     composed = compose(ReadYourWrites.assertions(), MonotonicReads.assertions(), MonotonicWrites.assertions())
     print(f"PRAM <- {{RYW, MR, MW}}: {compatible(PRAMConsistency.assertions(), composed)}")
     print(f"{{RYW, MR, MW}} <- PRAM: {compatible(composed, PRAMConsistency.assertions())}")
+    Relation.Reset()
+    z3.reset_params()
+
+    composed = compose(MonotonicReads.assertions(), ReadYourWrites.assertions())
+    print(f"PRAM <- {{MR, RYW}}: {compatible(PRAMConsistency.assertions(), composed)}")
+    print(f"{{MR, RYW}} <- PRAM: {compatible(composed, PRAMConsistency.assertions())}")
 
     return 0
 

@@ -1,0 +1,34 @@
+viotti2016consistency:
+  type: misc
+  title: Consistency in Non-Transactional Distributed Storage Systems
+  author:
+  - Viotti, Paolo
+  - Vukolić, Marko
+  date: 2016
+
+burckhardt2014principles:
+  type: book
+  title: Principles of Eventual Consistency
+  author: Burckhardt, Sebastian
+  date: 2014-10
+  publisher: Now Publishers
+  volume: 1
+  edition: Principles of Eventual Consistency
+  page-range: 1–150
+  url: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
+  parent:
+    type: book
+    title: Foundations and Trends® in Programming Languages
+
+lamport1977proving:
+  type: article
+  title: Proving the Correctness of Multiprocess Programs
+  author: Lamport, L.
+  date: 1977
+  page-range: 125–143
+  serial-number:
+    doi: 10.1109/TSE.1977.229904
+  parent:
+    type: periodical
+    title: IEEE Transactions on Software Engineering
+    issue: 2

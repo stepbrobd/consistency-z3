@@ -19,9 +19,14 @@
 
 Jan. 17, 2024 - Jan. 24, 2024
 
-- [ ] bug fixes
-- [ ] create couple slides
+- [x] bug fixes
+- [x] create couple slides
 - [ ] bound staleness
+
+Jan. 24, 2024 - Jan. 31, 2024
+
+- [ ] bug fixes
+- [ ] model a simple online shop
 
 ## Models
 

@@ -23,8 +23,11 @@ class MonotonicWrites:
 
         # monotonic writes
         return z3.ForAll([a, b],
+            z3.If(z3.And(op.type(a) == wr, op.type(b) == wr),
                 z3.Implies(
-                    z3.And(so(a, b), op.type(a) == wr, op.type(b) == wr),
+                    so(a, b),
                     ar(a, b)
-                )
+                ),
+                z3.BoolVal(True)
+            )
         )

@@ -16,9 +16,12 @@ class AbstractExecution:
             AbstractExecution.Relation.AddConstraint("vis",
                 z3.And(
                     # op a's effect is visible to op b
-                    z3.Implies(
-                        vis(a, b),
-                        z3.And(op.type(a) == wr, op.type(b) == rd, op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
+                    z3.If(z3.And(op.type(a) == wr, op.type(b) == rd),
+                        z3.Implies(
+                            vis(a, b),
+                            z3.And(op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
+                        ),
+                        z3.BoolVal(True)
                     ),
                     # acyclicity
                     z3.ForAll([a, b], z3.Implies(vis(a, b), z3.Not(vis(b, a)))),

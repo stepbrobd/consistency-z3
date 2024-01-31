@@ -18,7 +18,13 @@ class PRAMConsistency:
         a, b = Op.Consts("a b")
 
         so = H.Relation.session_order()
+        ar = AE.Relation.arbitration()
         vis = AE.Relation.visibility()
 
         # PRAM consistency
-        return z3.ForAll([a, b], z3.Implies(so(a, b), vis(a, b)))
+        return z3.ForAll([a, b],
+            z3.Implies(
+                so(a, b),
+                z3.And(vis(a, b), ar(a, b))
+            )
+        )

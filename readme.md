@@ -5,6 +5,12 @@
 > [!Caution]
 > Experimental project, use at your own risk.
 
+Hydra Evaluation and Binary Cache:
+
+- Jobsets: <https://hydra.nixolo.gy/project/consistency-z3>
+- Cache: <https://cache.nixolo.gy>
+- Key: `cache.nixolo.gy:UDmjlw8J4sqDlBIPe5YnABPI1lkcJssN8niLozS2ltM=`
+
 ## Roadmap
 
 - [x] basic project structure
@@ -25,7 +31,7 @@ Jan. 17, 2024 - Jan. 24, 2024
 
 Jan. 24, 2024 - Jan. 31, 2024
 
-- [ ] bug fixes
+- [x] bug fixes
 - [ ] model a simple online shop
 
 ## Models

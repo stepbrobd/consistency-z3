@@ -18,20 +18,17 @@
       let
         pkgs = import nixpkgs { inherit system; };
         python = pkgs.python311;
-        project = pyproject.lib.project.loadPyproject { projectRoot = ./.; };
       in
       {
-        formatter = pkgs.writeShellScriptBin "formatter" ''
-          set -eoux pipefail
-          shopt -s globstar
-          ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt .
-          ${pkgs.ruff}/bin/ruff --fix --unsafe-fixes .
-          ${pkgs.typstfmt}/bin/typstfmt **/*.typ
-        '';
-
-        packages.default = python.pkgs.buildPythonPackage (
-          project.renderers.buildPythonPackage { inherit python; }
-        );
+        packages.default = (python.pkgs.buildPythonPackage (
+          (pyproject.lib.project.loadPyproject {
+            projectRoot = ./.;
+          }).renderers.buildPythonPackage { inherit python; }
+        )).overridePythonAttrs (_: {
+          doCheck = true;
+          nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
+          pythonImportsCheck = [ "consistency" ];
+        });
 
         apps.default = flake-utils.lib.mkApp { drv = self.packages.${system}.default; };
 
@@ -56,6 +53,14 @@
             pip --disable-pip-version-check install -e .
           '';
         };
+
+        formatter = pkgs.writeShellScriptBin "formatter" ''
+          set -eoux pipefail
+          shopt -s globstar
+          ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt .
+          ${pkgs.ruff}/bin/ruff --fix --unsafe-fixes .
+          ${pkgs.typstfmt}/bin/typstfmt **/*.typ
+        '';
       }) // {
       hydraJobs = {
         inherit (self)

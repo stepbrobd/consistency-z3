@@ -15,6 +15,7 @@ dependencies = [
     "click",
     "click-aliases",
     "click-option-group",
+    "pytest",
     "rich",
     "z3-solver",
 ]
@@ -26,6 +27,11 @@ Issues = "https://github.com/stepbrobd/consistency/issues"
 
 [project.scripts]
 consistency = "consistency.main:main"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
 
 [tool.ruff]
 select = [

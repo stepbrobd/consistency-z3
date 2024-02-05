@@ -28,6 +28,9 @@ class History:
             History.Relation.AddConstraint("ss",
                 z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
             )
+            # each op is in the same session with itself
+            History.Relation.AddConstraint("ss", ss(a, a))
+            History.Relation.AddConstraint("ss", ss(b, b))
 
             return ss
 

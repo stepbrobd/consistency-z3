@@ -1,4 +1,5 @@
 from consistency.common import compatible
+from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
 from consistency.model.pram_consistency import PRAMConsistency
@@ -15,29 +16,39 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 
 
 def test_known_compatible() -> None:
+    assert compatible(Linearizability.assertions(), MonotonicReads.assertions())
+    assert compatible(Linearizability.assertions(), MonotonicWrites.assertions())
+    assert compatible(Linearizability.assertions(), PRAMConsistency.assertions())
+    assert compatible(Linearizability.assertions(), ReadYourWrites.assertions())
+
     assert compatible(PRAMConsistency.assertions(), MonotonicReads.assertions())
     assert compatible(PRAMConsistency.assertions(), MonotonicWrites.assertions())
     assert compatible(PRAMConsistency.assertions(), ReadYourWrites.assertions())
 
 
 def test_known_incompatible() -> None:
+    assert not compatible(MonotonicReads.assertions(), Linearizability.assertions())
     assert not compatible(MonotonicReads.assertions(), MonotonicWrites.assertions())
     assert not compatible(MonotonicReads.assertions(), PRAMConsistency.assertions())
     assert not compatible(MonotonicReads.assertions(), ReadYourWrites.assertions())
     assert not compatible(MonotonicReads.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(MonotonicWrites.assertions(), Linearizability.assertions())
     assert not compatible(MonotonicWrites.assertions(), MonotonicReads.assertions())
     assert not compatible(MonotonicWrites.assertions(), PRAMConsistency.assertions())
     assert not compatible(MonotonicWrites.assertions(), ReadYourWrites.assertions())
     assert not compatible(MonotonicWrites.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(PRAMConsistency.assertions(), Linearizability.assertions())
     assert not compatible(PRAMConsistency.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(ReadYourWrites.assertions(), Linearizability.assertions())
     assert not compatible(ReadYourWrites.assertions(), MonotonicReads.assertions())
     assert not compatible(ReadYourWrites.assertions(), MonotonicWrites.assertions())
     assert not compatible(ReadYourWrites.assertions(), PRAMConsistency.assertions())
     assert not compatible(ReadYourWrites.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(WritesFollowReads.assertions(), Linearizability.assertions())
     assert not compatible(WritesFollowReads.assertions(), MonotonicReads.assertions())
     assert not compatible(WritesFollowReads.assertions(), MonotonicWrites.assertions())
     assert not compatible(WritesFollowReads.assertions(), PRAMConsistency.assertions())

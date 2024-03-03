@@ -12,9 +12,6 @@ class Linearizability:
     """
     @staticmethod
     def assertions() -> z3.BoolRef:
-        # single order imposes a single global order that defines both visibility and arbitration (very strong, probably can't be modeled)
-        # real time constrains arbitration to comply to the returns-before partial ordering
-        # return value consistency specifies the return value consistency of a replicated data type
 
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
@@ -26,7 +23,7 @@ class Linearizability:
         vis = AE.Relation.visibility()
         ar = AE.Relation.arbitration()
 
-        # single order
+        # single order imposes a single global order that defines both visibility and arbitration (very strong, probably can't be modeled)
         single_order = z3.ForAll([a, b],
             z3.If(z3.And(op.type(a) == wr, op.type(b) == wr),
                 z3.Or(
@@ -37,7 +34,8 @@ class Linearizability:
             )
         )
 
-        # real time: ar comply to rb or fail
+        # real time constrains arbitration to comply to the returns-before partial ordering
+        # ar comply to rb or fail
         # the non-transaction paper made a mistake at pp.8 formula 9 (swapped rb and ar)
         # however, due to arbitration is defined too relaxed in our code, swapping rb(a, b) with ar(a, b) will still satisfy the constraint
         real_time = z3.If(z3.And(ar(a, b), op.type(a) == wr, op.type(b) == wr), # only arbitrate ar, must add this condition or z3 will hang
@@ -45,6 +43,7 @@ class Linearizability:
                 z3.BoolVal(False)
         )
 
+        # return value consistency specifies the return value consistency of a replicated data type
         # rval is context dependent, skipped for now (see pp. 5)
         rval = z3.BoolVal(True)
 

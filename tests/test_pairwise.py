@@ -16,10 +16,11 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 
 
 def test_known_compatible() -> None:
+    assert compatible(Linearizability.assertions(), PRAMConsistency.assertions())
     assert compatible(Linearizability.assertions(), MonotonicReads.assertions())
     assert compatible(Linearizability.assertions(), MonotonicWrites.assertions())
-    assert compatible(Linearizability.assertions(), PRAMConsistency.assertions())
     assert compatible(Linearizability.assertions(), ReadYourWrites.assertions())
+    assert compatible(Linearizability.assertions(), WritesFollowReads.assertions())
 
     assert compatible(PRAMConsistency.assertions(), MonotonicReads.assertions())
     assert compatible(PRAMConsistency.assertions(), MonotonicWrites.assertions())

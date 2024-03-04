@@ -18,7 +18,6 @@ class Linearizability:
         a, b = Op.Consts("a b")
 
         rb = H.Relation.returns_before()
-        H.Relation.same_session()
         so = H.Relation.session_order()
         vis = AE.Relation.visibility()
         ar = AE.Relation.arbitration()

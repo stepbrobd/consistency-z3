@@ -1,0 +1,51 @@
+viotti2016consistency:
+  type: article
+  title: Consistency in Non-Transactional Distributed Storage Systems
+  author:
+  - Viotti, Paolo
+  - Vukolić, Marko
+  date: 2016-06
+  url: https://doi.org/10.1145/2926965
+  serial-number:
+    doi: 10.1145/2926965
+    issn: 0360-0300
+  parent:
+    type: periodical
+    title: ACM Comput. Surv.
+    publisher: Association for Computing Machinery
+    location: New York, NY, USA
+    issue: 1
+    volume: 49
+
+burckhardt2014principles:
+  type: book
+  title: Principles of Eventual Consistency
+  author: Burckhardt, Sebastian
+  date: 2014-10
+  publisher: Now Publishers
+  volume: 1
+  edition: Principles of Eventual Consistency
+  page-range: 1–150
+  url: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
+  parent:
+    type: book
+    title: Foundations and Trends® in Programming Languages
+
+demoura2008z3:
+  type: article
+  title: 'Z3: an efficient SMT solver'
+  author:
+  - De Moura, Leonardo
+  - Bj̸rner, Nikolaj
+  date: 2008
+  page-range: 337
+  serial-number:
+    isbn: '3540787992'
+  parent:
+    type: proceedings
+    title: Proceedings of the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems
+    publisher: Springer-Verlag
+    location: Budapest, Hungary
+    parent:
+      type: proceedings
+      title: TACAS'08/ETAPS'08

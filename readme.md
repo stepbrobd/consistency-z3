@@ -11,34 +11,15 @@ Hydra Evaluation and Binary Cache:
 - Cache: <https://cache.nixolo.gy>
 - Key: `cache.nixolo.gy:UDmjlw8J4sqDlBIPe5YnABPI1lkcJssN8niLozS2ltM=`
 
-## Roadmap
-
-- [x] basic project structure
-- [x] monotonic reads
-- [x] monotonic writes
-- [x] read your writes
-- [x] writes follow reads
-- [x] z3 compatibility check
-- [x] abstract pram consistency
-- [ ] bounded staleness
-- [ ] hand verification of pairwise compatibility
-
-Jan. 17, 2024 - Jan. 24, 2024
-
-- [x] bug fixes
-- [x] create couple slides
-- [ ] bound staleness
-
-Jan. 24, 2024 - Jan. 31, 2024
-
-- [x] bug fixes
-- [ ] model a simple online shop
-
 ## Models
 
-### PRAM and Sequential Consistency
+### Linearizability (arXiv:1512.00168 pp. 8)
 
-#### PRAM Consistency (arXiv:1512.00168 pp.11)
+[`consistency/model/linearizability.py`](consistency/model/linearizability.py)
+
+Liniearizability is a conjunction between Single Order, Real Time and Return Value consistency (pp. 5). Single Order imposes a single global order that defines both visibility and arbitration (very strong, probably can't be modeled), whereas Real Time constrains arbitration to comply to the returns-before partial ordering. Finally, Return Value consistency specifies the return value consistency of a replicated data type.
+
+### PRAM Consistency (arXiv:1512.00168 pp.11)
 
 [`consistency/model/pram_consistency.py`](consistency/model/pram_consistency.py)
 
@@ -48,16 +29,7 @@ Pipeline RAM (PRAM or FIFO) consistency prescribes that all processes see write 
 PRAM \triangleq \forall a,b \in H: a\overset{so}{\rightarrow} b \Rightarrow a \overset{vis}{\rightarrow} b \triangleq so \subseteq vis
 ```
 
-Modified from original definition: $PRAM \triangleq so \subseteq vis$.
-
-> PRAM consistency is defined as:
-> for all operations $a$ and $b$ in history, a set of operations denoted by $H$,
-> if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
-> then operation $a$ is visible to operation $b$.
-
-### Session Guarantees
-
-#### Monotonic Reads (arXiv:1512.00168 pp.12)
+### Monotonic Reads (arXiv:1512.00168 pp.12)
 
 [`consistency/model/monotonic_reads.py`](consistency/model/monotonic_reads.py)
 
@@ -67,13 +39,7 @@ Monotonic reads states that successive reads must reflect a non-decreasing set o
 MonotonicReads \triangleq \forall a \in H, \forall b, c \in H|_{rd}: a \overset{vis}{\rightarrow} b \wedge b \overset{so}{\rightarrow} c \Rightarrow a \overset{vis}{\rightarrow} c \triangleq (vis; so|_{rd \rightarrow rd}) \subseteq vis
 ```
 
-> Monotonic Reads are defined as:
-> for all operations $a$ in history, a set of operations denoted by $H$, and,
-> for all read operations $b$ and $c$ in history $H$,
-> if operation $a$ is visible to operation $b$, $b$ returns before $c$ starts, and $b, c$ are in the same session,
-> then operation $a$ is visible to operation $c$.
-
-#### Read Your Writes (arXiv:1512.00168 pp.13)
+### Read Your Writes (arXiv:1512.00168 pp.13)
 
 [`consistency/model/read_your_writes.py`](consistency/model/read_your_writes.py)
 and
@@ -85,13 +51,7 @@ Read-your-writes guarantee (also called read-my-writes) requires that a read ope
 ReadYourWrites \triangleq \forall a \in H|_{wr}, \forall b \in H|_{rd}: a\overset{so}{\rightarrow} b \Rightarrow a \overset{vis}{\rightarrow} b \triangleq so|_{wr \rightarrow rd} \subseteq vis
 ```
 
-> Read-Your-Writes are defined as:
-> for all write operations $a$ in history, a set of operations denoted by $H$, and,
-> for all read operations $b$ in history $H$,
-> if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
-> then operation $a$ is visible to operation $b$.
-
-#### Monotonic Writes (arXiv:1512.00168 pp.13)
+### Monotonic Writes (arXiv:1512.00168 pp.13)
 
 [`consistency/model/monotonic_writes.py`](consistency/model/monotonic_writes.py)
 
@@ -101,12 +61,7 @@ In a system that ensures monotonic writes a write is only performed on a replica
 MonotonicWrites \triangleq \forall a, b \in H_{wr}: a\overset{so}{\rightarrow} b \Rightarrow a \overset{ar}{\rightarrow} b \triangleq so|_{wr \rightarrow wr} \subseteq ar
 ```
 
-> Monotonic Writes are defined as:
-> for all write operations $a, b$ in history, a set of operations denoted by $H$,
-> if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
-> then operation $a$ must precede operation $b$ in the total order imposed by arbitration.
-
-#### Writes Follow Reads (arXiv:1512.00168 pp.13)
+### Writes Follow Reads (arXiv:1512.00168 pp.13)
 
 [`consistency/model/writes_follow_reads.py`](consistency/model/writes_follow_reads.py)
 and
@@ -118,45 +73,26 @@ Writes-follow-reads, sometimes called session causality, is somewhat the convers
 WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a \overset{vis}{\rightarrow} b \wedge b \overset{so}{\rightarrow} c \Rightarrow a \overset{ar}{\rightarrow} c \triangleq (vis;so|_{rd \rightarrow wr}) \subseteq ar
 ```
 
-> Writes Follow Reads are defined as:
-> for all write operations $a, c$ in history, a set of operations denoted by $H$, and,
-> for all read operation $b$ in history $H$,
-> if operation $a$ is visible to operation $b$, and $b$ returns before $c$ starts within the same session,
-> then operation $a$ must precede operation $c$ in the total order imposed by arbitration.
-
 ## Example
 
 ```py
-import z3
+from consistency.common import check, compatible
+from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
 from consistency.model.pram_consistency import PRAMConsistency
-from consistency.relation import Relation
+from consistency.model.read_your_writes import ReadYourWrites
 
-def check(assertions: z3.BoolRef) -> bool:
-    s = z3.Solver()
-    s.add([assertions, Relation.Constraints()])
-    return s.check() == z3.sat
-
-def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef) -> bool:
-    s = z3.Solver()
-    s.add([z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints()])
-    return s.check() == z3.unsat
-
-def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
-    return z3.And(*assertions)
 
 # standalone
-s1 = z3.Solver()
-print(check(MonotonicReads.assertions()))
+print(check(MonotonicReads.assertions())) # true
 
-# pairwise: lhs <- rhs
-s2 = z3.Solver()
-print(compatible(MonotonicReads.assertions(), MonotonicWrites.assertions()))
+# pairwise
+print(compatible(Linearizability.assertions(), PRAMConsistency.assertions())) # true
 
 # composition
-s3 = z3.Solver()
-print(compatible(compose(MonotonicReads.assertions(), MonotonicWrites.assertions()), PRAMConsistency.assertions()))
+composed = compose(ReadYourWrites.assertions(), MonotonicReads.assertions(), MonotonicWrites.assertions())
+print(compatible(PRAMConsistency.assertions(), composed)) # true
 ```
 
 ## License

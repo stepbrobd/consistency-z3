@@ -28,7 +28,6 @@ to mimic the behavior of the semantics.
 
 Relations are constraints between the fields of operations.
 
-
 = Bibliography
 
 #bibliography("bibliography.yml", title: none, style: "ieee")

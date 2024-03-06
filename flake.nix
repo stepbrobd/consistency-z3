@@ -1,11 +1,8 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/eabe8d3eface69f5bb16c18f8662a702f50c20d5";
     flake-utils.url = "github:numtide/flake-utils";
-    pyproject = {
-      url = "github:nix-community/pyproject.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    pyproject.url = "github:nix-community/pyproject.nix";
   };
 
   outputs =

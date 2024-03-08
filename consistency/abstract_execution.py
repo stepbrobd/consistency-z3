@@ -1,5 +1,6 @@
 import z3
 
+from consistency.history import History as H
 from consistency.operation import Operation as Op
 from consistency.relation import Relation as Rel
 
@@ -51,3 +52,21 @@ class AbstractExecution:
             )
 
             return ar
+
+
+        @staticmethod
+        def happens_before() -> z3.FuncDeclRef:
+            op = Op.Create()
+            hb = AbstractExecution.Relation.Declare("hb", op, op, z3.BoolSort())
+
+            a, b = Op.Consts("a b")
+            H.Relation.session_order()
+            AbstractExecution.Relation.visibility()
+
+            AbstractExecution.Relation.AddConstraint("hb",
+                z3.And(
+                    # hb is the transitive closure of the union of so and vis
+                )
+            )
+
+            return hb

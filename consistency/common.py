@@ -1,6 +1,6 @@
 from collections import namedtuple
 from functools import cache
-from itertools import chain, combinations
+from itertools import chain, combinations, product
 from typing import Iterable
 
 import z3
@@ -47,5 +47,47 @@ def composable(graph: dict) -> bool:
     ]
     powerset(tuple(session_guarantees))
 
-    # TODO
-    return False
+    # debug
+    # for t in session_guarantees_powerset:
+    #     print(f"[" + ", ".join([x.__name__ for x in t]) + "]")
+
+    stack = []
+    visited = set()
+    stack.append(next(iter(graph)))
+
+    # for i, (rhs, lhss) in enumerate(graph.items()):
+    #     print(f"iteration {i}")
+
+    #     for lhs in lhss:
+    #         print(f"origin: {rhs.name} -> target: {lhs.name}")
+    #         # false here means no semantic is applied
+    #         lhs_assertions = [x.assertions() for x in lhs.semantics] + [z3.BoolVal(False)]
+    #         print(f"lhs_assertions: {len(lhs_assertions)}")
+
+    def can_visit(lhs: namedtuple, rhs: namedtuple) -> bool:
+        lhs_assertions = [x.assertions() for x in lhs.semantics] + [z3.BoolVal(False)] \
+                if lhs.session_guarantees_applicable \
+                else [z3.BoolVal(False)]
+        rhs_assertions = [x.assertions() for x in rhs.semantics] + [z3.BoolVal(False)] \
+                if rhs.session_guarantees_applicable \
+                else [z3.BoolVal(False)]
+
+        # use itertools to get all combinations of semantics
+        for lhs, rhs in product(lhs_assertions, rhs_assertions):
+            if compatible(lhs, rhs):
+                return True
+
+        return False
+
+    while len(stack) > 0:
+        current = stack.pop()
+        visited.add(current)
+
+        for neighbor in graph[current]:
+            # current is rhs, neighbor is lhs (neighbor should provide whatever guarantees current wants)
+            print(f"origin: {current.name} -> target: {neighbor.name}")
+            if neighbor not in visited and can_visit(neighbor, current):
+                stack.append(neighbor)
+
+
+    return len(visited) == len(graph)

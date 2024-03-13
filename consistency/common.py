@@ -1,4 +1,5 @@
 from collections import namedtuple
+from dataclasses import dataclass
 from functools import cache
 from inspect import getmro
 from itertools import chain, combinations, product
@@ -29,14 +30,16 @@ def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
     return z3.And(*assertions)
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class Node:
     name: str
-    layerable: list[class] # list of classes with static medthod called `assertions`
-    nonlayerable: list[class] # list of classes with static medthod called `assertions`
+    layerable: list[type]    # list of classes with static medthod called `assertions`
+    lbound: tuple[int, int] # min (inclusive) and max (inclusive) number of layers
+    nonlayerable: list[type] # list of classes with static medthod called `assertions`
+    nbound: tuple[int, int] # min (inclusive) and max (inclusive) number of nonlayerable
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class Edge:
     src: Node
     dests: list[Node]
@@ -48,63 +51,25 @@ def powerset(s: Iterable) -> list:
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
 
 
-def composable(graph: dict) -> tuple[bool, dict]:
-    class Empty:
-        """
-        a class that represents no semantics applied
-        """
-        @staticmethod
-        def assertions() -> z3.BoolRef:
-            return z3.BoolVal(False)
+def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, dict]:
+    model = dict()
 
-    session_guarantees = [
-       MonotonicReads,
-       MonotonicWrites,
-       ReadYourWrites,
-       WritesFollowReads,
-    ]
-    session_guarantees_powerset = powerset(tuple(session_guarantees))[1:] # remove the empty set
-    # print(session_guarantees_powerset)
-    # for g in session_guarantees_powerset:
-    #     print([m.__name__ for m in g])
-
-    model = dict() # TODO: add selected semantics to the model
-
-    stack = []
+    stack = list()
     visited = set()
-    k = next(iter(graph))
-    v = next(iter(graph[k]))
-    # stack.append((k, v))
-    stack.append(next(iter(graph)))
 
-    def can_visit(lhs: namedtuple, rhs: namedtuple) -> tuple[bool, str, str]:
-        lhs_models = [m for m in lhs.semantics] + [Empty] if lhs.session_guarantees_applicable else [Empty]
-        rhs_models = [m for m in rhs.semantics] + [Empty] if rhs.session_guarantees_applicable else [Empty]
+    for node in nodes:
+        stack.append(node)
+        while stack:
+            current = stack.pop()
+            print(current.name, end=' ')
+            if current not in visited:
+                visited.add(current)
+                for edge in edges:
+                    if edge.src == current:
+                        for dest in edge.dests:
+                            if dest not in visited:
+                                stack.append(dest)
+                print(current.name, end=' ')
+        print()
 
-        # use itertools to get all combinations of semantics
-        for l, r in product(lhs_models, rhs_models):
-            lname = getmro(l)[0].__name__
-            rname = getmro(r)[0].__name__
-
-            if compatible(l.assertions(), r.assertions()): # TODO: l and r can't be empty at the same time
-                return True, lname, rname
-            else:
-                return False, lname, rname
-
-    while len(stack) > 0:
-        current = stack.pop()
-        visited.add(current)
-
-        for neighbor in graph[current]:
-            # current is rhs, neighbor is lhs (neighbor should provide whatever guarantees current wants)
-            print(f"origin: {current.name} -> target: {neighbor.name}")
-            if neighbor not in visited:
-                ok, n, c = can_visit(neighbor, current) # neighbor providing guarantees to current
-                print(f"    => {c} -> {n}")
-                if ok:
-                    stack.append(neighbor)
-            else:
-                print("    => already visited")
-
-
-    return len(visited) == len(graph), model
+    return True, model

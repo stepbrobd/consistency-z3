@@ -1,12 +1,11 @@
 import z3
 
-from consistency.common import composable, Edge, Node
+from consistency.common import Cons, Edge, Node, composable, powerset
+from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
 from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
-from consistency.model.linearizability import Linearizability
-from consistency.model.pram_consistency import PRAMConsistency
 
 
 def test_shop() -> None:
@@ -25,40 +24,42 @@ def test_shop() -> None:
     assuming the tx log system will handle payment and delivery
     when the inventory becomes 0, customers can no longer shop the product
     """
-    # usually session guarantees
-    layerable = [
-        MonotonicReads,
-        MonotonicWrites,
-        ReadYourWrites,
-        WritesFollowReads,
-    ]
     # on the two sides of operations
     # if either or both entity(ies) that wish to operate as a single centrualized server
     # session guarantees can be applied, even if one side cannot be precived as a storae system
     # operations between the two entities are considered to be in a "session"
-    # session guarantees must apply to all operations in a session (bidirectional arrow)
+    # session guarantees must apply to all operations in a session (bidirectional arrow, lives on edges)
     # for semantics that are not session guarantees
     # they apply to one signle type of operation (unidirectional arrow)
+    sg = list((Cons("N/A", z3.BoolVal(False)),) if x == () else x for x in powerset((
+        Cons("MR", MonotonicReads.assertions()),
+        Cons("MW", MonotonicWrites.assertions()),
+        Cons("RYW", ReadYourWrites.assertions()),
+        Cons("WFR", WritesFollowReads.assertions()),
+    )))
 
-    nonlayerable = [
-        Linearizability,
-        PRAMConsistency,
-    ]
+    # for x in sg: print(f"{x}\n")
 
-    client = Node("Client", layerable, (0, len(layerable)), set([]), (0, 0))
-    cart = Node("Cart", layerable, (0, len(layerable)), nonlayerable, (1, 1))
-    shop = Node("Shop", layerable, (0, len(layerable)), nonlayerable, (1, 1))
-    arbitrator = Node("Arbitrator", set([]), (0, 0), set([Linearizability]), (1, 1))
-    tx = Node("Tx", layerable, len(layerable), nonlayerable, (1, 1))
+    client = Node(name="Client", needs=sg, provs=None, cons=None)
+    cart = Node(name="Cart", needs=None, provs=sg, cons=None)
+    shop = Node(name="Shop", needs=None, provs=sg, cons=None)
+    arbitrator = Node(name="Arbitrator", needs=None, provs=[(Cons("LZ", Linearizability.assertions()),)], cons=None)
+    tx = Node(name="Tx", needs=None, provs=None, cons=None)
 
     nodes = [client, cart, shop, arbitrator, tx]
 
     edges = [
-        Edge(client, [cart, shop], z3.And()),
-        Edge(cart, [client], z3.And()),
-        Edge(shop, [client, arbitrator], z3.And()),
-        Edge(arbitrator, [shop, tx], z3.And()),
-        Edge(tx, [arbitrator], z3.And()),
+        Edge(src=client, dst=cart, cons=None),
+        Edge(src=cart, dst=client, cons=None),
+
+        Edge(src=client, dst=shop, cons=None),
+        Edge(src=shop, dst=client, cons=None),
+
+        Edge(src=client, dst=arbitrator, cons=None),
+        Edge(src=arbitrator, dst=client, cons=None),
+
+        Edge(src=arbitrator, dst=shop, cons=None),
+        Edge(src=arbitrator, dst=tx, cons=None),
     ]
 
     ok, _ = composable(nodes, edges)

@@ -1,16 +1,10 @@
-from collections import namedtuple
 from dataclasses import dataclass
 from functools import cache
-from inspect import getmro
 from itertools import chain, combinations, product
 from typing import Iterable
 
 import z3
 
-from consistency.model.monotonic_reads import MonotonicReads
-from consistency.model.monotonic_writes import MonotonicWrites
-from consistency.model.read_your_writes import ReadYourWrites
-from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.relation import Relation
 
 
@@ -27,23 +21,28 @@ def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(
 
 
 def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
-    return z3.And(*assertions)
+    return z3.And(*[assertion for assertion in assertions if assertion is not None])
+
+
+@dataclass(unsafe_hash=True)
+class Cons:
+    name: str
+    cons: z3.AstRef
 
 
 @dataclass(unsafe_hash=True)
 class Node:
     name: str
-    layerable: list[type]    # list of classes with static medthod called `assertions`
-    lbound: tuple[int, int] # min (inclusive) and max (inclusive) number of layers
-    nonlayerable: list[type] # list of classes with static medthod called `assertions`
-    nbound: tuple[int, int] # min (inclusive) and max (inclusive) number of nonlayerable
+    needs: list[tuple[Cons]] | None # list of required semantics
+    provs: list[tuple[Cons]] | None # list of provided semantics
+    cons: list[tuple[Cons]] | None  # additional constraints
 
 
 @dataclass(unsafe_hash=True)
 class Edge:
     src: Node
-    dests: list[Node]
-    constraints: z3.AstRef
+    dst: Node
+    cons: list[tuple[Cons]] | None  # additional constraints
 
 
 @cache
@@ -51,25 +50,37 @@ def powerset(s: Iterable) -> list:
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
 
 
-def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, dict]:
-    model = dict()
-
-    stack = list()
+def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
+    """
+    disjoint nodes might be present in the graph
+    returns: whether there's one possible composable assignment, list of resulting assignments
+    """
+    na = [(Cons("N/A", z3.BoolVal(False)),)]
     visited = set()
 
-    for node in nodes:
-        stack.append(node)
-        while stack:
-            current = stack.pop()
-            print(current.name, end=' ')
-            if current not in visited:
-                visited.add(current)
-                for edge in edges:
-                    if edge.src == current:
-                        for dest in edge.dests:
-                            if dest not in visited:
-                                stack.append(dest)
-                print(current.name, end=' ')
-        print()
+    # go through all edges
+    edge_result = []
+    for edge in edges:
+        src = edge.src
+        dst = edge.dst
 
-    return True, model
+        for sn, sp, dn, dp in product(
+            na if not src.needs else src.needs,
+            na if not src.provs else src.provs,
+            na if not dst.needs else dst.needs,
+            na if not dst.provs else dst.provs,
+        ):
+            for asn, asp, adn, adp in product(sn, sp, dn, dp):
+                sat = compatible(adp.cons, compose(asn.cons, edge.cons))
+                edge_result.append((edge, asn, asp, adn, adp, sat))
+
+        visited.add(edge.src.name)
+
+    # go through all disjoint nodes (tho might not be necessary)
+    for node in [n if n.name not in visited else None for n in nodes]:
+        if node is None:
+            continue
+
+        print(node)
+
+    return True, {}

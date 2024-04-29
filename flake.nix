@@ -1,16 +1,20 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/eabe8d3eface69f5bb16c18f8662a702f50c20d5";
-    flake-utils.url = "github:numtide/flake-utils";
+    compat.url = "github:edolstra/flake-compat";
+    compat.flake = false;
+    utils.url = "github:numtide/flake-utils";
     pyproject.url = "github:nix-community/pyproject.nix";
+    pyproject.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
     { self
     , nixpkgs
-    , flake-utils
+    , compat
+    , utils
     , pyproject
-    }: flake-utils.lib.eachDefaultSystem
+    }: utils.lib.eachDefaultSystem
       (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -27,7 +31,7 @@
           pythonImportsCheck = [ "consistency" ];
         });
 
-        apps.default = flake-utils.lib.mkApp { drv = self.packages.${system}.default; };
+        apps.default = utils.lib.mkApp { drv = self.packages.${system}.default; };
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [

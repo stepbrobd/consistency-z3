@@ -63,6 +63,14 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
     for edge in edges:
         src = edge.src
         dst = edge.dst
+        # unwrap edge cons with direct conjunction
+        ec = z3.BoolVal(True)
+        if edge.cons:
+            for t in edge.cons:
+                for c in t:
+                    if c:
+                        print(c)
+                        ec = compose(ec, c.cons)
 
         for sn, sp, dn, dp in product(
             na if not src.needs else src.needs,
@@ -71,7 +79,8 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
             na if not dst.provs else dst.provs,
         ):
             for asn, asp, adn, adp in product(sn, sp, dn, dp):
-                sat = compatible(adp.cons, compose(asn.cons, edge.cons))
+                print(type(ec))
+                sat = compatible(adp.cons, compose(asn.cons, ec))
                 edge_result.append((edge, asn, asp, adn, adp, sat))
 
         visited.add(edge.src.name)

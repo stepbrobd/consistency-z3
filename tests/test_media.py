@@ -122,6 +122,6 @@ def test_media() -> None:
     #     user_review: {compose_review},
     # }
 
-    ok, _ = composable(nodes, edges)
-
+    ok, res = composable(nodes, edges)
+    print(f"Possible assignments: {len(res)}")
     assert ok

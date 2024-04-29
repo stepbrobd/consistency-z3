@@ -62,6 +62,6 @@ def test_shop() -> None:
         Edge(src=arbitrator, dst=tx, cons=None),
     ]
 
-    ok, _ = composable(nodes, edges)
-
+    ok, res = composable(nodes, edges)
+    print(f"Possible assignments: {len(res)}")
     assert ok

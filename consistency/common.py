@@ -55,6 +55,7 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
     disjoint nodes might be present in the graph
     returns: whether there's one possible composable assignment, list of resulting assignments
     """
+    composable = False
     na = [(Cons("N/A", z3.BoolVal(False)),)]
     visited = set()
 
@@ -69,7 +70,6 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
             for t in edge.cons:
                 for c in t:
                     if c:
-                        print(c)
                         ec = compose(ec, c.cons)
 
         for sn, sp, dn, dp in product(
@@ -79,8 +79,9 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
             na if not dst.provs else dst.provs,
         ):
             for asn, asp, adn, adp in product(sn, sp, dn, dp):
-                print(type(ec))
                 sat = compatible(adp.cons, compose(asn.cons, ec))
+                if sat:
+                    composable = True
                 edge_result.append((edge, asn, asp, adn, adp, sat))
 
         visited.add(edge.src.name)
@@ -90,6 +91,6 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
         if node is None:
             continue
 
-        print(node)
+        # print(node)
 
-    return True, {}
+    return composable, edge_result

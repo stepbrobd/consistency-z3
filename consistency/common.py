@@ -15,12 +15,15 @@ def check(assertions: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
 
 
 def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
+    # assert the negation of lhs (base) => rhs (target) is unsatisfiable
+    # i.e. lhs implies rhs holds for all enumerated cases
     s = z3.Solver()
     s.add([z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints(), others])
     return s.check() == z3.unsat
 
 
 def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
+    # direct conjunction of all provided **boolean** constraints
     return z3.And(*[assertion for assertion in assertions if assertion is not None])
 
 
@@ -69,7 +72,8 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
             for t in edge.cons: # for terms in edge constraints
                 for c in t: # for each constraint in term
                     if c: # if exists
-                        ec = compose(ec, c.cons) # use True as governing constraint, compose with raw z3 clauses
+                        # note that `compose` will do direct conjunctions on all provided **boolean** constraints
+                        ec = compose(ec, c.cons) # use True as governing constraint, conjunct with raw z3 clauses
 
         for sn, sp, dn, dp in product( # generate all possible combinations of needs and provs for src and dst
             na if not src.needs else src.needs,
@@ -78,6 +82,8 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
             na if not dst.provs else dst.provs,
         ): # brute force all possible combinations
             for asn, asp, adn, adp in product(sn, sp, dn, dp): # for each combination
+                # direct conjunction of all source node "needs" constraints + edge constraints
+                # then assert the result to destination node "provs" constraints
                 sat = compatible(adp.cons, compose(asn.cons, ec))
                 if sat:
                     composable = True

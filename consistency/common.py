@@ -14,12 +14,16 @@ def check(assertions: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
     return s.check() == z3.sat
 
 
-def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
+def construct(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> z3.Solver:
     # assert the negation of lhs (base) => rhs (target) is unsatisfiable
     # i.e. lhs implies rhs holds for all enumerated cases
     s = z3.Solver()
     s.add([z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints(), others])
-    return s.check() == z3.unsat
+    return s
+
+
+def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
+    return construct(lhs, rhs, others).check() == z3.unsat
 
 
 def compose(*assertions: z3.BoolRef) -> z3.BoolRef:

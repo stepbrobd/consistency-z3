@@ -35,7 +35,6 @@ class Node:
     name: str
     needs: list[tuple[Cons]] | None # list of required semantics
     provs: list[tuple[Cons]] | None # list of provided semantics
-    cons: list[tuple[Cons]] | None  # additional constraints
 
 
 @dataclass(unsafe_hash=True)
@@ -65,20 +64,20 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
         src = edge.src
         dst = edge.dst
         # unwrap edge cons with direct conjunction
-        ec = z3.BoolVal(True)
+        ec = z3.BoolVal(True) # if no edge constraints, simply set it to True
         if edge.cons:
-            for t in edge.cons:
-                for c in t:
-                    if c:
-                        ec = compose(ec, c.cons)
+            for t in edge.cons: # for terms in edge constraints
+                for c in t: # for each constraint in term
+                    if c: # if exists
+                        ec = compose(ec, c.cons) # use True as governing constraint, compose with raw z3 clauses
 
-        for sn, sp, dn, dp in product(
+        for sn, sp, dn, dp in product( # generate all possible combinations of needs and provs for src and dst
             na if not src.needs else src.needs,
             na if not src.provs else src.provs,
             na if not dst.needs else dst.needs,
             na if not dst.provs else dst.provs,
-        ):
-            for asn, asp, adn, adp in product(sn, sp, dn, dp):
+        ): # brute force all possible combinations
+            for asn, asp, adn, adp in product(sn, sp, dn, dp): # for each combination
                 sat = compatible(adp.cons, compose(asn.cons, ec))
                 if sat:
                     composable = True

@@ -35,12 +35,12 @@ def test_media() -> None:
     # 3. ms rs are eventually consistent storage systems, but all reviews must tied to a movie (constraints expressed on the edges, not nodes)
     # *: all reads/writes to review storage must guarantee the movie exists in the movie storage
 
-    c = Node(name="client", needs=[(Cons("RMW", ReadMyWrites.assertions()),)], provs=None, cons=None) # c -> s rw satisfies eventual consistency, eventual is implied here
-    n = Node(name="netflix", needs=None, provs=None, cons=None) # n -> ms eventual is implied
-    r = Node(name="rental", needs=None, provs=[(Cons("RMW", ReadMyWrites.assertions()),)], cons=None)
-    s = Node(name="search", needs=None, provs=None, cons=None) # eventual is implied here
-    ms = Node(name="movie storage", needs=None, provs=None, cons=None) # no constraints applied to the node
-    rs = Node(name="review storage", needs=None, provs=None, cons=None) # no constraints applied to the node
+    c = Node(name="client", needs=[(Cons("RMW", ReadMyWrites.assertions()),)], provs=None) # c -> s rw satisfies eventual consistency, eventual is implied here
+    n = Node(name="netflix", needs=None, provs=None) # n -> ms eventual is implied
+    r = Node(name="rental", needs=None, provs=[(Cons("RMW", ReadMyWrites.assertions()),)])
+    s = Node(name="search", needs=None, provs=None) # eventual is implied here
+    ms = Node(name="movie storage", needs=None, provs=None) # no constraints applied to the node
+    rs = Node(name="review storage", needs=None, provs=None) # no constraints applied to the node
 
     nodes = [c, n, r, s, ms, rs]
 

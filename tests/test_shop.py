@@ -40,11 +40,11 @@ def test_shop() -> None:
 
     # for x in sg: print(f"{x}\n")
 
-    client = Node(name="Client", needs=sg, provs=None, cons=None)
-    cart = Node(name="Cart", needs=None, provs=sg, cons=None)
-    shop = Node(name="Shop", needs=None, provs=sg, cons=None)
-    arbitrator = Node(name="Arbitrator", needs=None, provs=[(Cons("LZ", Linearizability.assertions()),)], cons=None)
-    tx = Node(name="Tx", needs=None, provs=None, cons=None)
+    client = Node(name="Client", needs=sg, provs=None)
+    cart = Node(name="Cart", needs=None, provs=sg)
+    shop = Node(name="Shop", needs=None, provs=sg)
+    arbitrator = Node(name="Arbitrator", needs=None, provs=[(Cons("LZ", Linearizability.assertions()),)])
+    tx = Node(name="Tx", needs=None, provs=None)
 
     nodes = [client, cart, shop, arbitrator, tx]
 

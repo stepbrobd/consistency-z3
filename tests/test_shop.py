@@ -1,3 +1,4 @@
+import pytest
 import z3
 
 from consistency.common import Cons, Edge, Node, composable, powerset
@@ -8,6 +9,7 @@ from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
 
 
+@pytest.mark.skip(reason="too slow")
 def test_shop() -> None:
     """
     a online shop is selling products

@@ -1,8 +1,9 @@
-from dataclasses import dataclass
 from functools import cache
 from itertools import chain, combinations, product
-from typing import Iterable
+from typing import Generator, Iterable, NamedTuple
 
+import matplotlib.pyplot as plt
+import networkx as nx
 import z3
 
 from consistency.relation import Relation
@@ -31,21 +32,18 @@ def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
     return z3.And(*[assertion for assertion in assertions if assertion is not None])
 
 
-@dataclass(unsafe_hash=True)
-class Cons:
+class Cons(NamedTuple):
     name: str
     cons: z3.AstRef
 
 
-@dataclass(unsafe_hash=True)
-class Node:
+class Node(NamedTuple):
     name: str
     needs: list[tuple[Cons]] | None # list of required semantics
     provs: list[tuple[Cons]] | None # list of provided semantics
 
 
-@dataclass(unsafe_hash=True)
-class Edge:
+class Edge(NamedTuple):
     src: Node
     dst: Node
     cons: list[tuple[Cons]] | None  # additional constraints
@@ -54,6 +52,55 @@ class Edge:
 @cache
 def powerset(s: Iterable) -> list:
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
+
+
+def graph(nodes: list[Node], edges: list[Edge]) -> nx.MultiDiGraph:
+    g = nx.MultiDiGraph()
+
+    for node in nodes:
+        g.add_node(node.name, **node._asdict())
+    for edge in edges:
+        g.add_edge(edge.src.name, edge.dst.name, **edge._asdict())
+
+    # import matplotlib.pyplot as plt
+    # nx.draw(g, with_labels=True)
+    # plt.show()
+
+    return g
+
+
+def plot(g: nx.MultiDiGraph) -> plt.Figure:
+    # modified from networkx example
+    # https://networkx.org/documentation/stable/auto_examples/drawing/plot_clusters.html
+    communities = nx.community.greedy_modularity_communities(g)
+
+    # compute positions for the node clusters as if they were themselves nodes in a
+    # supergraph using a larger scale factor
+    superpos = nx.spring_layout(g)
+
+    # use the "supernode" positions as the center of each node cluster
+    centers = list(superpos.values())
+    pos = {}
+    for center, comm in zip(centers, communities):
+        pos.update(nx.spring_layout(nx.subgraph(g, comm), center=center))
+
+    # color generator
+    def colors(size: int) -> Generator[str, None, None]:
+        counter = 0
+        clrs = [f"tab:{clr}" for clr in ("blue", "orange", "green", "red", "purple", "cyan", "magenta", "yellow")]
+        while counter < size:
+            yield clrs[counter % len(clrs)]
+            counter += 1
+
+    # nodes colored by cluster
+    for nodes, clr in zip(communities, colors(len(communities))):
+        nx.draw_networkx_nodes(g, pos=pos, nodelist=nodes, node_color=clr)
+    nx.draw_networkx_edges(g, arrows=True, pos=pos)
+    nx.draw_networkx_labels(g, pos=pos)
+
+    plt.tight_layout()
+    figure = plt.get_current_fig_manager().canvas.figure
+    return figure
 
 
 def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
@@ -86,11 +133,13 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
             na if not dst.provs else dst.provs,
         ): # brute force all possible combinations
             for asn, asp, adn, adp in product(sn, sp, dn, dp): # for each combination
+                # print(f"Source Node Needs: {asn.name} | Destination Node Provides: {adp.name} | Edge Constraints: {ec}")
                 # direct conjunction of all source node "needs" constraints + edge constraints
                 # then assert the result to destination node "provs" constraints
                 sat = compatible(adp.cons, compose(asn.cons, ec))
                 if sat:
                     composable = True
+                else: print("Not Composable")
                 edge_result.append((edge, asn, asp, adn, adp, sat))
 
         visited.add(edge.src.name)

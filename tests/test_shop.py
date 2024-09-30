@@ -1,9 +1,19 @@
-import matplotlib.pyplot as plt
-
-from consistency.common import Cons, Edge, Node, composable, compose, graph, plot
+from consistency.common import (
+    Cons,
+    Edge,
+    Node,
+    composable,
+    composable_v2,
+    compose,
+    graph,
+    plot,
+)
 from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.read_your_writes import ReadYourWrites
+
+import matplotlib.pyplot as plt
+import z3
 
 
 # @pytest.mark.skip(reason="too slow")
@@ -74,5 +84,6 @@ def test_shop() -> None:
     ])
 
     g = graph(nodes, edges)
+    ok, res = composable_v2(g)
     plot(g)
     plt.show()

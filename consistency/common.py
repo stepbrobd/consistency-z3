@@ -1,6 +1,6 @@
 from functools import cache
 from itertools import chain, combinations, product
-from typing import Generator, Iterable, NamedTuple
+from typing import Generator, Iterable, Literal, NamedTuple
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -46,6 +46,7 @@ class Node(NamedTuple):
 class Edge(NamedTuple):
     src: Node
     dst: Node
+    # FIXME: seperate system constraints from application constraints
     cons: list[tuple[Cons]] | None  # additional constraints
 
 
@@ -101,6 +102,32 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
     plt.tight_layout()
     figure = plt.get_current_fig_manager().canvas.figure
     return figure
+
+
+
+def composable_v2(graph: nx.MultiDiGraph, method: Literal["edge_bfs", "edge_dfs"]="edge_bfs") -> tuple[bool, list[nx.MultiDiGraph]]:
+    # method must be one of the functions in nx.algorithms.traversal that traverse over edges
+    # returns whether there's one possible composable assignment
+    # and a list of all satisfiable assignments (in full graph form)
+    composable = False
+    candidates = []
+    results = []
+
+    for edge in getattr(nx.algorithms.traversal, method)(graph):
+        src, dst, key = edge
+        edge_cons = graph.get_edge_data(src, dst, key)["cons"]
+        src_provs = graph.nodes[src]["provs"]
+        src_needs = graph.nodes[src]["needs"]
+        dst_provs = graph.nodes[dst]["provs"]
+        dst_needs = graph.nodes[dst]["needs"]
+
+
+    for candidate in candidates:
+        # check each graph for satisfiability
+        ...
+
+
+    return composable, results
 
 
 def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:

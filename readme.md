@@ -11,6 +11,40 @@ Hydra Evaluation and Binary Cache:
 - Cache: <https://cache.nixolo.gy>
 - Key: `cache.nixolo.gy:UDmjlw8J4sqDlBIPe5YnABPI1lkcJssN8niLozS2ltM=`
 
+## Specifications
+
+Framework user: a framework user is someone who provides node and edge definitions (e.g. custom operations that should be supported originating from a node, or precedences of operations) and relations to the consistency checker.
+
+Operation: an operation is defined as a tuple of (from non-transactional survey):
+
+- `proc`: the process that issued the operation (used for session identification, e.g. same session constraint).
+- `type`: the type of the operation (e.g. read, write. or custom).
+- `obj`: the object the operation is performed on (e.g. a key in a key-value store).
+- `ival`: operation input value (e.g. the value to be written, not used anywhere yet).
+- `oval`: operation output value (e.g. the value read, not used anywhere yet).
+- `stime`: invocation time of the operation (i.e. the time the operation was issued).
+- `rtime`: response time of the operation (i.e. the time the operation was completed).
+
+Think of an operation as a request-response pair, where the request is the operation itself and the response is the operation itself with the response time set (assuming the delays between the request and the response are equal for all operations, the request takes `(rtime - stime)/2` time to be sent to the handling node and to be processed, vice versa for the response).
+
+(Our own interpretation) Operation does not contain the node that issued the operation, nor the node that handled the operation. It's defined as a generic entity that can be issued by any node and handled by any node. To add constraints on the nodes that can issue or handle an operation, the framework user must define nodes and edges.
+
+History: a set of operations. TODO: add relations between operations within history (returns before, same session, session order).
+
+Abstract execution: one or more "instantiation" of history. An abstract execution is a set of operations (i.e. history) that are further constrained by the nondeterminism of the asynchronous environment (e.g., message delivery order), and implementation-specific constraints (e.g., conflict resolution policies) (from non-transactional survey). AE specific relations: visibility, arbitration, happens before.
+
+Relation predicates: a set of predicates that define the relations between operations in a history (also includes those in AE). The predicates are used as base for consistency models (implementations in `relation.py`, `history.py`, `abstract_execution.py`).
+
+Node: node issues operations. They can be used to define custom operations (operations with types that are not read or write) that should be supported originating from a node. Definitions of those custom operations must be provided by the framework user and the clauses defining the custom operations must be included in the node definition.
+
+Edge:
+
+Graph:
+
+Compatible:
+
+Composable:
+
 ## Models
 
 ### Linearizability (arXiv:1512.00168 pp. 8)

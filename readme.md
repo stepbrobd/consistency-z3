@@ -95,12 +95,13 @@ Graph: a directed multigraph that contains nodes and edges.
 
 Compatible: compatibility is a relation between two consistency models. Two
 consistency models are compatible if the the negation of the implication is
-unsatisfiable.
+unsatisfiable (compatibility is not symmetric).
 
 Composable: composition is an additional operator that combines two or more
 consistency models into a single consistency model. It's represented as a direct
-conjunction of the consistency models' constraints (relation predicates remain
-the same and will only be added if any clause refers to them).
+conjunction of the consistency models' constraints (the ordering of the
+composition does not affect the result, relation predicates remain the same and
+will only be added if any clause refers to them).
 
 ## Models
 

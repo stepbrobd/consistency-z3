@@ -192,28 +192,6 @@ object whose effects were seen by previous reads in the same session.
 WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a \overset{vis}{\rightarrow} b \wedge b \overset{so}{\rightarrow} c \Rightarrow a \overset{ar}{\rightarrow} c \triangleq (vis;so|_{rd \rightarrow wr}) \subseteq ar
 ```
 
-## Example
-
-```py
-from consistency.common import check, compatible
-from consistency.model.linearizability import Linearizability
-from consistency.model.monotonic_reads import MonotonicReads
-from consistency.model.monotonic_writes import MonotonicWrites
-from consistency.model.pram_consistency import PRAMConsistency
-from consistency.model.read_your_writes import ReadYourWrites
-
-
-# standalone
-print(check(MonotonicReads.assertions())) # true
-
-# pairwise
-print(compatible(Linearizability.assertions(), PRAMConsistency.assertions())) # true
-
-# composition
-composed = compose(ReadYourWrites.assertions(), MonotonicReads.assertions(), MonotonicWrites.assertions())
-print(compatible(PRAMConsistency.assertions(), composed)) # true
-```
-
 ## License
 
 Based on

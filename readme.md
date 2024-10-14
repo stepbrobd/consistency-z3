@@ -2,7 +2,8 @@
 
 [![Built with Nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
 
-> [!Caution] Experimental project, use at your own risk.
+> [!Caution]
+> Experimental project, use at your own risk.
 
 Hydra Evaluation and Binary Cache:
 

@@ -78,15 +78,29 @@ In the implementation, a node is defined as tuple of:
 - `needs`: a list of tuples of constraints. TODO
 - `provs`: a list of tuples of constraints. TODO
 
-Edge:
+Edge: edge connects nodes. Edges can be used to define the precedence of
+operations on different nodes (one edge can only store exactly one type of
+operation, if multiple types of operations are needed, multiple edges must be
+defined). Definitions of those custom operations must be provided by the
+framework user and the clauses defining the custom operations must be included
+in the source node definition (specifically in the `needs` field).
 
-Constraint:
+Constraint: a constraint is a set of clauses that define the relations between
+operations in a history (or abstract execution). Constraints can be used to
+define the precedence of operations on the same node (e.g. the order of
+operations issued by the same node). Or application-specific constraints (e.g.
+assign data to operations' fields).
 
-Graph:
+Graph: a directed multigraph that contains nodes and edges.
 
-Compatible:
+Compatible: compatibility is a relation between two consistency models. Two
+consistency models are compatible if the the negation of the implication is
+unsatisfiable.
 
-Composable:
+Composable: composition is an additional operator that combines two or more
+consistency models into a single consistency model. It's represented as a direct
+conjunction of the consistency models' constraints (relation predicates remain
+the same and will only be added if any clause refers to them).
 
 ## Models
 

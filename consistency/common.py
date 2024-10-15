@@ -46,7 +46,6 @@ class Node(NamedTuple):
 class Edge(NamedTuple):
     src: Node
     dst: Node
-    # FIXME: seperate system constraints from application constraints
     cons: list[tuple[Cons]] | None  # additional constraints
 
 
@@ -110,10 +109,15 @@ def composable_v2(graph: nx.MultiDiGraph, method: Literal["edge_bfs", "edge_dfs"
     # returns whether there's one possible composable assignment
     # and a list of all satisfiable assignments (in full graph form)
     composable = False
-    candidates = []
+    candidates: list[nx.MultiDiGraph] = []
     results = []
 
-    for edge in getattr(nx.algorithms.traversal, method)(graph):
+    na = [(Cons("N/A", z3.BoolVal(False)),)]
+
+    # generate candidates (all possible combinations of needs and provs for each node)
+    edge_traversal_order = list(getattr(nx.algorithms.traversal, method)(graph))
+    edge_traversal_depth = len(edge_traversal_order)
+    for edge in edge_traversal_order:
         src, dst, key = edge
         edge_cons = graph.get_edge_data(src, dst, key)["cons"]
         src_provs = graph.nodes[src]["provs"]
@@ -121,10 +125,21 @@ def composable_v2(graph: nx.MultiDiGraph, method: Literal["edge_bfs", "edge_dfs"
         dst_provs = graph.nodes[dst]["provs"]
         dst_needs = graph.nodes[dst]["needs"]
 
+        # generate all possible combinations of needs and provs for src and dst
+        for sn, sp, dn, dp in product(
+            na if not src_needs else src_needs,
+            na if not src_provs else src_provs,
+            na if not dst_needs else dst_needs,
+            na if not dst_provs else dst_provs,
+        ):
+            new_src = Node(src, sn, sp)
+            new_dst = Node(dst, dn, dp)
+            new_edge = Edge(new_src, new_dst, edge_cons)
+
 
     for candidate in candidates:
         # check each graph for satisfiability
-        ...
+        pass
 
 
     return composable, results

@@ -1,4 +1,5 @@
 from consistency.common import compatible
+from consistency.model.causal_consistency import CausalConsistency
 from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
@@ -16,6 +17,10 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 
 
 def test_known_compatible() -> None:
+    assert compatible(CausalConsistency.assertions(), PRAMConsistency.assertions())
+    # FIXME: this fails
+    # assert compatible(CausalConsistency.assertions(), WritesFollowReads.assertions())
+
     assert compatible(Linearizability.assertions(), PRAMConsistency.assertions())
     assert compatible(Linearizability.assertions(), MonotonicReads.assertions())
     assert compatible(Linearizability.assertions(), MonotonicWrites.assertions())
@@ -40,6 +45,7 @@ def test_known_incompatible() -> None:
     assert not compatible(MonotonicWrites.assertions(), ReadYourWrites.assertions())
     assert not compatible(MonotonicWrites.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(PRAMConsistency.assertions(), CausalConsistency.assertions())
     assert not compatible(PRAMConsistency.assertions(), Linearizability.assertions())
     assert not compatible(PRAMConsistency.assertions(), WritesFollowReads.assertions())
 

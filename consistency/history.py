@@ -49,3 +49,16 @@ class History:
             )
 
             return so
+
+
+        @staticmethod
+        def same_object() -> z3.FuncDeclRef:
+            op = Op.Create()
+            ob = History.Relation.Declare("ob", op, op, z3.BoolSort())
+
+            a, b = Op.Consts("a b")
+            History.Relation.AddConstraint("ob",
+                z3.Implies(ob(a, b), op.obj(a) == op.obj(b))
+            )
+
+            return ob

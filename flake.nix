@@ -56,9 +56,10 @@
         };
 
         formatter = pkgs.writeShellScriptBin "formatter" ''
-          set -eoux pipefail
+          set -x
           shopt -s globstar
           ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt .
+          ${pkgs.mypy}/bin/mypy --disable-error-code=import .
           ${pkgs.ruff}/bin/ruff --fix --unsafe-fixes .
           ${pkgs.typstfmt}/bin/typstfmt **/*.typ
         '';

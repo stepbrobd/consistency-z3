@@ -16,6 +16,7 @@ dependencies = [
     "click-aliases",
     "click-option-group",
     "matplotlib",
+    "mypy",
     "networkx",
     "pytest",
     "rich",

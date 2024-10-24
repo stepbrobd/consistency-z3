@@ -2,8 +2,7 @@
 
 [![Built with Nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
 
-> [!Caution]
-> Experimental project, use at your own risk.
+> [!Caution] Experimental project, use at your own risk.
 
 Hydra Evaluation and Binary Cache:
 
@@ -102,7 +101,11 @@ Composable: composition is an additional operator that combines two or more
 consistency models into a single consistency model. It's represented as a direct
 conjunction of the consistency models' constraints (the ordering of the
 composition does not affect the result, relation predicates remain the same and
-will only be added if any clause refers to them).
+will only be added if any clause refers to them). Premise will be added as a
+part of the composition, instead of being conjuncted with each node/edge, use
+`z3.Solver.add` to add the premise to the solver. Framework users must defined
+the premises as non-implicit constraints (i.e. don't use quantifiers like
+`ForAll`, `Exists` and don't use `Implies`).
 
 ## Models
 

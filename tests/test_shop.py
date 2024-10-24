@@ -80,6 +80,6 @@ def test_shop() -> None:
     ])
 
     g = graph(nodes, edges)
-    ok, res = composable_v2(g)
+    ok, res = composable_v2(g, client)
     # plot(g)
     # plt.show()

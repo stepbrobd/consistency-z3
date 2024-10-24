@@ -103,44 +103,47 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
     return figure
 
 
-
-def composable_v2(graph: nx.MultiDiGraph, method: Literal["edge_bfs", "edge_dfs"]="edge_bfs") -> tuple[bool, list[nx.MultiDiGraph]]:
+def composable_v2(graph: nx.MultiDiGraph, source: Node) -> tuple[bool, nx.MultiDiGraph]:
     # method must be one of the functions in nx.algorithms.traversal that traverse over edges
     # returns whether there's one possible composable assignment
-    # and a list of all satisfiable assignments (in full graph form)
+    # and the first satisfying assignment
     composable = False
-    candidates: list[nx.MultiDiGraph] = []
-    results = []
+    results = nx.MultiDiGraph()
 
     na = [(Cons("N/A", z3.BoolVal(False)),)]
 
-    # generate candidates (all possible combinations of needs and provs for each node)
-    edge_traversal_order = list(getattr(nx.algorithms.traversal, method)(graph))
-    edge_traversal_depth = len(edge_traversal_order)
-    for edge in edge_traversal_order:
-        src, dst, key = edge
-        edge_cons = graph.get_edge_data(src, dst, key)["cons"]
-        src_provs = graph.nodes[src]["provs"]
-        src_needs = graph.nodes[src]["needs"]
-        dst_provs = graph.nodes[dst]["provs"]
-        dst_needs = graph.nodes[dst]["needs"]
+    plan = []
+    for edge in nx.algorithms.traversal.edge_dfs(graph, source=source.name, orientation="original"):
+        edge: tuple[str, str, int, Literal["forward", "reverse"]]
+        src, dst, key, _ = edge # _: direction
+        src_node = graph.nodes[src]
+        dst_node = graph.nodes[dst]
+        cons = graph.get_edge_data(src, dst, key)["cons"]
+        plan.append(Edge(src_node, dst_node, cons))
 
-        # generate all possible combinations of needs and provs for src and dst
-        for sn, sp, dn, dp in product(
-            na if not src_needs else src_needs,
-            na if not src_provs else src_provs,
-            na if not dst_needs else dst_needs,
-            na if not dst_provs else dst_provs,
-        ):
-            new_src = Node(src, sn, sp)
-            new_dst = Node(dst, dn, dp)
-            new_edge = Edge(new_src, new_dst, edge_cons)
+    def get(e: Edge) -> tuple[Node, Node, list[tuple[Cons]]]:
+        src, dst, key, _ = e
+        src_node = graph.nodes[src]
+        dst_node = graph.nodes[dst]
+        cons = graph.get_edge_data(src, dst, key)["cons"]
+        if not cons:
+            cons = [(na,)]
+        return src_node, dst_node, cons
 
+    # source node is the src of the first edge
+    def traverse(visited: list[Edge|None], planned: list[Edge|None]) -> None:
+        nonlocal composable
 
-    for candidate in candidates:
-        # check each graph for satisfiability
-        pass
+        if not planned:
+            return
 
+        e = planned.pop(0)
+        src, dst, ec = get(e)
+
+        chosen = Edge(Node(src.name, ..., ...), Node(dst.name, ..., ...), ...) # TODO: replace ... with a single Cons picked from the available choices
+        visited.append(chosen)
+
+    traverse([], plan)
 
     return composable, results
 
@@ -181,7 +184,8 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
                 sat = compatible(adp.cons, compose(asn.cons, ec))
                 if sat:
                     composable = True
-                else: print("Not Composable")
+                else:
+                    print("Not Composable")
                 edge_result.append((edge, asn, asp, adn, adp, sat))
 
         visited.add(edge.src.name)

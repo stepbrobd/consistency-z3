@@ -31,12 +31,36 @@ def test_media() -> None:
     # login requests are abstracted as rd operations, the read to db guarantees a previous write
     op_client_login = Op.Const("Op Client Login")
 
-    op_web_rd = Op.Const("Op Web Read") # read to login node
-    op_web_wr = Op.Const("Op Web Write") # write to account creation node
+    # admin login (its assumed that admin users are pre-registred)
+    op_admin_login = Op.Const("Op Admin Login")
+    # admin modify user
+    op_admin_modify = Op.Const("Op Admin Modify")
+
+    # user db operations
+    op_user_db_rd = Op.Const("Op User DB Read")
+    op_user_db_wr = Op.Const("Op User DB Write")
+
+    # client read metadata
+    op_client_read_metadata = Op.Const("Op Client Read Metadata")
+    # client rent video (clients must first be logged in)
+    op_client_rent_video = Op.Const("Op Client Rent Video")
+    # renting service check the video existence by reading the metadata
+    op_rent_check_metadata = Op.Const("Op Rent Check Metadata")
+    # client read and write reviews
+    op_client_read_review = Op.Const("Op Client Read Review")
+    op_client_write_review = Op.Const("Op Client Write Review")
+    # review db operations
+    op_review_db_rd = Op.Const("Op Review DB Read")
+    op_review_db_wr = Op.Const("Op Review DB Write")
+    # client watch video
+    op_client_watch_video = Op.Const("Op Client Watch Video")
+
+    # admin write video metadata
+    op_admin_write_metadata = Op.Const("Op Admin Write Metadata")
+    # admin write video
+    op_admin_write_video = Op.Const("Op Admin Write Video")
 
     cons_precedence = z3.And(
-        # write to account creation must be visible to read to login (use `ob` to implicitly check whether the operations are on the same object or concretely, account)
-        z3.Exists([op_web_rd, op_client_register], z3.And(ob(op_web_wr, op_web_rd), vis(op_web_wr, op_web_rd))),
     )
 
     cons_client_web = z3.And(
@@ -65,6 +89,6 @@ def test_media() -> None:
     nodes.extend([admin, rent, review, video, metadata, review_db])
 
     g = graph(nodes, edges)
-    ok, res = composable_v2(g)
+    ok, res = composable_v2(g, client)
     # TODO: enable assert after composable_v2 implementation
     # assert ok

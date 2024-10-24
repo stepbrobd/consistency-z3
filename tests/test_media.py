@@ -58,26 +58,26 @@ def test_media() -> None:
     # admin write video
     op_admin_write_video = Op.Const("Op Admin Write Video")
 
-    cons_precedence = z3.And(
+    cons_op_types = z3.And(
+        op.type(op_client_register) == wr,
+        op.type(op_client_login) == rd,
+        op.type(op_admin_login) == rd,
+        op.type(op_admin_modify) == wr,
+        op.type(op_user_db_rd) == rd,
+        op.type(op_user_db_wr) == wr,
+        op.type(op_client_read_metadata) == rd,
+        op.type(op_client_rent_video) == wr,
+        op.type(op_rent_check_metadata) == rd,
+        op.type(op_client_read_review) == rd,
+        op.type(op_client_write_review) == wr,
+        op.type(op_review_db_rd) == rd,
+        op.type(op_review_db_wr) == wr,
+        op.type(op_client_watch_video) == rd,
+        op.type(op_admin_write_metadata) == wr,
+        op.type(op_admin_write_video) == wr,
     )
 
-    cons_op_types = z3.And(
-        z3.ForAll(op_client_register, op.type(op_client_register) == wr),
-        z3.ForAll(op_client_login, op.type(op_client_login) == rd),
-        z3.ForAll(op_admin_login, op.type(op_admin_login) == rd),
-        z3.ForAll(op_admin_modify, op.type(op_admin_modify) == wr),
-        z3.ForAll(op_user_db_rd, op.type(op_user_db_rd) == rd),
-        z3.ForAll(op_user_db_wr, op.type(op_user_db_wr) == wr),
-        z3.ForAll(op_client_read_metadata, op.type(op_client_read_metadata) == rd),
-        z3.ForAll(op_client_rent_video, op.type(op_client_rent_video) == wr),
-        z3.ForAll(op_rent_check_metadata, op.type(op_rent_check_metadata) == rd),
-        z3.ForAll(op_client_read_review, op.type(op_client_read_review) == rd),
-        z3.ForAll(op_client_write_review, op.type(op_client_write_review) == wr),
-        z3.ForAll(op_review_db_rd, op.type(op_review_db_rd) == rd),
-        z3.ForAll(op_review_db_wr, op.type(op_review_db_wr) == wr),
-        z3.ForAll(op_client_watch_video, op.type(op_client_watch_video) == rd),
-        z3.ForAll(op_admin_write_metadata, op.type(op_admin_write_metadata) == wr),
-        z3.ForAll(op_admin_write_video, op.type(op_admin_write_video) == wr),
+    cons_precedence = z3.And(
     )
 
     nodes = [
@@ -115,7 +115,7 @@ def test_media() -> None:
 
 
     g = graph(nodes, edges)
-    ok, res = composable_v2(g, client)
+    ok, res = composable_v2(g, client, cons_op_types)
     # TODO: enable assert after composable_v2 implementation
     # assert ok
 

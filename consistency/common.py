@@ -95,40 +95,47 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
     # nodes colored by cluster
     for nodes, clr in zip(communities, colors(len(communities))):
         nx.draw_networkx_nodes(g, pos=pos, nodelist=nodes, node_color=clr)
-    nx.draw_networkx_edges(g, arrows=True, pos=pos)
+
     nx.draw_networkx_labels(g, pos=pos)
+
+    # only draws straight edges
+    # nx.draw_networkx_edges(g, arrows=True, pos=pos)
+    # draw edges with curves
+    # https://stackoverflow.com/a/60641770/17129151
+    ax = plt.gca()
+    for e in g.edges:
+        ax.annotate("", xy=pos[e[0]], xycoords="data",
+            xytext=pos[e[1]], textcoords="data",
+            arrowprops=dict(
+                arrowstyle="->", color="0",
+                shrinkA=5, shrinkB=5,
+                patchA=None, patchB=None,
+                connectionstyle="arc3,rad=rrr".replace('rrr',str(0.3*e[2])),
+            ),
+        )
 
     plt.tight_layout()
     figure = plt.get_current_fig_manager().canvas.figure
     return figure
 
 
-def composable_v2(graph: nx.MultiDiGraph, source: Node) -> tuple[bool, nx.MultiDiGraph]:
+def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.BoolVal(True)) -> tuple[bool, nx.MultiDiGraph]:
     # method must be one of the functions in nx.algorithms.traversal that traverse over edges
     # returns whether there's one possible composable assignment
     # and the first satisfying assignment
     composable = False
     results = nx.MultiDiGraph()
 
-    na = [(Cons("N/A", z3.BoolVal(False)),)]
+    na = [(Cons("N/A", z3.BoolVal(True)),)]
 
     plan = []
     for edge in nx.algorithms.traversal.edge_dfs(graph, source=source.name, orientation="original"):
         edge: tuple[str, str, int, Literal["forward", "reverse"]]
         src, dst, key, _ = edge # _: direction
-        src_node = graph.nodes[src]
-        dst_node = graph.nodes[dst]
+        src_node = Node(**graph.nodes[src])
+        dst_node = Node(**graph.nodes[dst])
         cons = graph.get_edge_data(src, dst, key)["cons"]
         plan.append(Edge(src_node, dst_node, cons))
-
-    def get(e: Edge) -> tuple[Node, Node, list[tuple[Cons]]]:
-        src, dst, key, _ = e
-        src_node = graph.nodes[src]
-        dst_node = graph.nodes[dst]
-        cons = graph.get_edge_data(src, dst, key)["cons"]
-        if not cons:
-            cons = [(na,)]
-        return src_node, dst_node, cons
 
     # source node is the src of the first edge
     def traverse(visited: list[Edge|None], planned: list[Edge|None]) -> None:
@@ -138,7 +145,7 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node) -> tuple[bool, nx.MultiD
             return
 
         e = planned.pop(0)
-        src, dst, ec = get(e)
+        src, dst, ec = e.src, e.dst, e.cons
 
         chosen = Edge(Node(src.name, ..., ...), Node(dst.name, ..., ...), ...) # TODO: replace ... with a single Cons picked from the available choices
         visited.append(chosen)
@@ -154,7 +161,7 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
     returns: whether there's one possible composable assignment, list of resulting assignments
     """
     composable = False
-    na = [(Cons("N/A", z3.BoolVal(False)),)]
+    na = [(Cons("N/A", z3.BoolVal(True)),)]
     visited = set()
 
     # go through all edges

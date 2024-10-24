@@ -14,17 +14,15 @@ def test_media() -> None:
     ob = H.Relation.same_object()
 
     # check in parts
-    client = Node(name="Client", needs=None, provs=None)
-    web = Node(name="Web", needs=None, provs=None)
-    account_creation = Node(name="Account Creation", needs=None, provs=None)
-    user_db = Node(name="User DB", needs=None, provs=None)
-    login = Node(name="Login", needs=None, provs=None)
     admin = Node(name="Admin", needs=None, provs=None)
+    client = Node(name="Client", needs=None, provs=None)
+    login = Node(name="Login", needs=None, provs=None)
+    user_db = Node(name="User DB", needs=None, provs=None)
+    metadata_db = Node(name="Metadata DB", needs=None, provs=None)
     rent = Node(name="Rent", needs=None, provs=None)
     review = Node(name="Review", needs=None, provs=None)
-    video = Node(name="Video", needs=None, provs=None)
-    metadata = Node(name="Metadata", needs=None, provs=None)
     review_db = Node(name="Review DB", needs=None, provs=None)
+    video = Node(name="Video", needs=None, provs=None)
 
     # register requests are abstracted as wr operations
     op_client_register = Op.Const("Op Client Register")
@@ -63,32 +61,67 @@ def test_media() -> None:
     cons_precedence = z3.And(
     )
 
-    cons_client_web = z3.And(
-        # all rd operations between client and web are either client register or client login
+    cons_op_types = z3.And(
         z3.ForAll(op_client_register, op.type(op_client_register) == wr),
         z3.ForAll(op_client_login, op.type(op_client_login) == rd),
+        z3.ForAll(op_admin_login, op.type(op_admin_login) == rd),
+        z3.ForAll(op_admin_modify, op.type(op_admin_modify) == wr),
+        z3.ForAll(op_user_db_rd, op.type(op_user_db_rd) == rd),
+        z3.ForAll(op_user_db_wr, op.type(op_user_db_wr) == wr),
+        z3.ForAll(op_client_read_metadata, op.type(op_client_read_metadata) == rd),
+        z3.ForAll(op_client_rent_video, op.type(op_client_rent_video) == wr),
+        z3.ForAll(op_rent_check_metadata, op.type(op_rent_check_metadata) == rd),
+        z3.ForAll(op_client_read_review, op.type(op_client_read_review) == rd),
+        z3.ForAll(op_client_write_review, op.type(op_client_write_review) == wr),
+        z3.ForAll(op_review_db_rd, op.type(op_review_db_rd) == rd),
+        z3.ForAll(op_review_db_wr, op.type(op_review_db_wr) == wr),
+        z3.ForAll(op_client_watch_video, op.type(op_client_watch_video) == rd),
+        z3.ForAll(op_admin_write_metadata, op.type(op_admin_write_metadata) == wr),
+        z3.ForAll(op_admin_write_video, op.type(op_admin_write_video) == wr),
     )
 
     nodes = [
+        admin,
         client,
-        web,
-        account_creation,
-        user_db,
         login,
+        user_db,
+        metadata_db,
+        rent,
+        review,
+        review_db,
+        video,
     ]
 
     edges = [
-        Edge(client, web, cons=[(Cons("Client Web Edge Constraints", z3.And(cons_precedence, cons_client_web)),)]),
-        Edge(web, account_creation, cons=None),
-        Edge(account_creation, user_db, cons=None),
-        Edge(web, login, cons=None),
-        Edge(login, user_db, cons=None),
+        Edge(client, login, None), # client register
+        Edge(client, login, None), # client login
+        Edge(admin, login, None), # admin login
+        Edge(admin, login, None), # admin modify
+        Edge(login, user_db, None), # user db read
+        Edge(login, user_db, None), # user db write
+
+        Edge(client, metadata_db, None), # client read metadata
+        Edge(client, rent, None), # client rent
+        Edge(rent, metadata_db, None), # rent read metadata
+        Edge(client, review, None), # client read review
+        Edge(client, review, None), # client write review
+        Edge(review, review_db, None), # review db read
+        Edge(review, review_db, None), # review db write
+        Edge(client, video, None), # client watch video
+
+        Edge(admin, metadata_db, None), # admin write metadata
+        Edge(admin, video, None), # admin write video
     ]
 
-    # part 2 of the check
-    nodes.extend([admin, rent, review, video, metadata, review_db])
 
     g = graph(nodes, edges)
     ok, res = composable_v2(g, client)
     # TODO: enable assert after composable_v2 implementation
     # assert ok
+
+    import matplotlib.pyplot as plt
+
+    from consistency.common import plot
+
+    plot(g)
+    plt.show()

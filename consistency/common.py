@@ -123,12 +123,13 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
     # method must be one of the functions in nx.algorithms.traversal that traverse over edges
     # returns whether there's one possible composable assignment
     # and the first satisfying assignment
+    # premise will be directly added to the solver as the context
     composable = False
     results = nx.MultiDiGraph()
 
-    na = [(Cons("N/A", z3.BoolVal(True)),)]
+    na = [(Cons("N/A", z3.Empty(z3.BoolSort())),)]
 
-    plan = []
+    plan: list[Edge] = []
     for edge in nx.algorithms.traversal.edge_dfs(graph, source=source.name, orientation="original"):
         edge: tuple[str, str, int, Literal["forward", "reverse"]]
         src, dst, key, _ = edge # _: direction
@@ -161,8 +162,7 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
     returns: whether there's one possible composable assignment, list of resulting assignments
     """
     composable = False
-    node_na = [(Cons("N/A", z3.BoolVal(False)),)]
-    edge_na = [(Cons("N/A", z3.BoolVal(True)),)]
+    na = [(Cons("N/A", z3.Empty(z3.BoolSort())),)]
     visited = set()
 
     # go through all edges
@@ -171,7 +171,7 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
         src = edge.src
         dst = edge.dst
         # unwrap edge cons with direct conjunction
-        ec = edge_na[0][0].cons # if no edge constraints, simply set it to True
+        ec = na[0][0].cons # if no edge constraints, simply set it to True
         if edge.cons:
             for t in edge.cons: # for terms in edge constraints
                 for c in t: # for each constraint in term
@@ -180,10 +180,10 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
                         ec = compose(ec, c.cons) # use True as governing constraint, conjunct with raw z3 clauses
 
         for sn, sp, dn, dp in product( # generate all possible combinations of needs and provs for src and dst
-            node_na if not src.needs else src.needs,
-            node_na if not src.provs else src.provs,
-            node_na if not dst.needs else dst.needs,
-            node_na if not dst.provs else dst.provs,
+            na if not src.needs else src.needs,
+            na if not src.provs else src.provs,
+            na if not dst.needs else dst.needs,
+            na if not dst.provs else dst.provs,
         ): # brute force all possible combinations
             for asn, asp, adn, adp in product(sn, sp, dn, dp): # for each combination
                 # print(f"Source Node Needs: {asn.name} | Destination Node Provides: {adp.name} | Edge Constraints: {ec}")

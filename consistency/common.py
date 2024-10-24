@@ -107,7 +107,7 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
         ax.annotate("", xy=pos[e[0]], xycoords="data",
             xytext=pos[e[1]], textcoords="data",
             arrowprops=dict(
-                arrowstyle="->", color="0",
+                arrowstyle="<-", color="0",
                 shrinkA=5, shrinkB=5,
                 patchA=None, patchB=None,
                 connectionstyle="arc3,rad=rrr".replace('rrr',str(0.3*e[2])),

@@ -161,7 +161,8 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
     returns: whether there's one possible composable assignment, list of resulting assignments
     """
     composable = False
-    na = [(Cons("N/A", z3.BoolVal(True)),)]
+    node_na = [(Cons("N/A", z3.BoolVal(False)),)]
+    edge_na = [(Cons("N/A", z3.BoolVal(True)),)]
     visited = set()
 
     # go through all edges
@@ -170,7 +171,7 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
         src = edge.src
         dst = edge.dst
         # unwrap edge cons with direct conjunction
-        ec = z3.BoolVal(True) # if no edge constraints, simply set it to True
+        ec = edge_na[0][0].cons # if no edge constraints, simply set it to True
         if edge.cons:
             for t in edge.cons: # for terms in edge constraints
                 for c in t: # for each constraint in term
@@ -179,10 +180,10 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
                         ec = compose(ec, c.cons) # use True as governing constraint, conjunct with raw z3 clauses
 
         for sn, sp, dn, dp in product( # generate all possible combinations of needs and provs for src and dst
-            na if not src.needs else src.needs,
-            na if not src.provs else src.provs,
-            na if not dst.needs else dst.needs,
-            na if not dst.provs else dst.provs,
+            node_na if not src.needs else src.needs,
+            node_na if not src.provs else src.provs,
+            node_na if not dst.needs else dst.needs,
+            node_na if not dst.provs else dst.provs,
         ): # brute force all possible combinations
             for asn, asp, adn, adp in product(sn, sp, dn, dp): # for each combination
                 # print(f"Source Node Needs: {asn.name} | Destination Node Provides: {adp.name} | Edge Constraints: {ec}")

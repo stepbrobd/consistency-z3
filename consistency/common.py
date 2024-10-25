@@ -19,7 +19,8 @@ def construct(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(T
     # assert the negation of lhs (base) => rhs (target) is unsatisfiable
     # i.e. lhs implies rhs holds for all enumerated cases
     s = z3.Solver()
-    s.add([z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints(), others])
+    s.add(others)
+    s.add(z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints())
     return s
 
 
@@ -126,7 +127,9 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
     composable = False
     results = nx.MultiDiGraph()
 
-    na = [(Cons("N/A", z3.BoolVal(True)),)]
+    edge_na = [(Cons("N/A", z3.BoolVal(True)),)]
+    node_prov_na = [(Cons("N/A", z3.BoolVal(False)),)]
+    node_need_na = edge_na
 
     plan = []
     for edge in nx.algorithms.traversal.edge_dfs(graph, source=source.name, orientation="original"):
@@ -138,17 +141,72 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
         plan.append(Edge(src_node, dst_node, cons))
 
     # source node is the src of the first edge
-    def traverse(visited: list[Edge|None], planned: list[Edge|None]) -> None:
+    # for the first call, visited must be an empty list
+    # planned must be the list of edges in **DFS** order (use networkx to get the initial plan)
+    def traverse(visited: list[Edge], planned: list[Edge]) -> list[Edge]:
         nonlocal composable
 
+        # return the path with choices once if the graph is deemed as composable
+        # or if all edges have been visited
+        # or if there's no more planned edges
         if not planned:
-            return
+            composable = True
+            return visited
 
+        # dfs
         e = planned.pop(0)
         src, dst, ec = e.src, e.dst, e.cons
+        curr_needs = None
+        curr_ec = None
+        curr_provs = None
 
-        chosen = Edge(Node(src.name, ..., ...), Node(dst.name, ..., ...), ...) # TODO: replace ... with a single Cons picked from the available choices
-        visited.append(chosen)
+        # unwrap source node needs
+        if src.needs and len(src.needs) > 1:
+            for i, n in enumerate(src.needs):
+                if i == 0:
+                    curr_needs = n if n else node_need_na[0]
+                else:
+                    planned.append(Edge(Node(src.name, [n], src.provs), dst, ec))
+        else:
+            curr_needs = node_need_na[0]
+
+        # unwrap edge cons
+        if ec and len(ec) > 1:
+            for i, t in enumerate(ec):
+                if i == 0:
+                    curr_ec = t if t else edge_na[0]
+                else:
+                    planned.append(Edge(src, dst, [t]))
+        else:
+            curr_ec = edge_na[0]
+
+        # unwrap destination node provs
+        if dst.provs and len(dst.provs) > 1:
+            for i, p in enumerate(dst.provs):
+                if i == 0:
+                    curr_provs = p if p else node_prov_na[0]
+                else:
+                    planned.append(Edge(src, Node(dst.name, dst.needs, [p]), ec))
+        else:
+            curr_provs = node_prov_na[0]
+
+        # actual checking
+        check_needs = compose(*[n.cons for n in curr_needs])
+        check_ec = compose(*[t.cons for t in curr_ec])
+        check_provs = compose(*[p.cons for p in curr_provs])
+        visited.append(Edge(
+            Node(src.name, [(Cons("", check_needs),)], src.provs),
+            Node(dst.name, dst.needs, [(Cons("", check_provs),)]),
+            [(Cons("", check_ec),)],
+        ))
+        sat = compatible(check_provs, compose(check_needs, check_ec), premise)
+        print(f"{src.name} -> {dst.name}")
+        if sat:
+            traverse(visited, planned)
+        else:
+            # backtrack
+            visited.pop()
+            return traverse(visited, planned)
 
     traverse([], plan)
 

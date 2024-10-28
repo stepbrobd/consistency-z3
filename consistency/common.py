@@ -121,7 +121,6 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
 
 
 def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.BoolVal(True)) -> tuple[bool, nx.MultiDiGraph]:
-    # method must be one of the functions in nx.algorithms.traversal that traverse over edges
     # returns whether there's one possible composable assignment
     # and the first satisfying assignment
     result = nx.MultiDiGraph()

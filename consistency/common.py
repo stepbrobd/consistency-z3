@@ -1,6 +1,6 @@
 from functools import cache
 from itertools import chain, combinations, product
-from typing import Generator, Iterable, Literal, NamedTuple
+from typing import Generator, Iterable, NamedTuple
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -124,93 +124,120 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
     # method must be one of the functions in nx.algorithms.traversal that traverse over edges
     # returns whether there's one possible composable assignment
     # and the first satisfying assignment
-    composable = False
-    results = nx.MultiDiGraph()
-
+    result = nx.MultiDiGraph()
     edge_na = [(Cons("N/A", z3.BoolVal(True)),)]
     node_prov_na = [(Cons("N/A", z3.BoolVal(False)),)]
     node_need_na = edge_na
 
-    plan = []
-    for edge in nx.algorithms.traversal.edge_dfs(graph, source=source.name, orientation="original"):
-        edge: tuple[str, str, int, Literal["forward", "reverse"]]
-        src, dst, key, _ = edge # _: direction
-        src_node = Node(**graph.nodes[src])
-        dst_node = Node(**graph.nodes[dst])
-        cons = graph.get_edge_data(src, dst, key)["cons"]
-        plan.append(Edge(src_node, dst_node, cons))
+    def get_outgoing_edges(node_name: str) -> dict[tuple[str, str], list[int]]:
+        # get all outgoing edges grouped by source-destination pairs
+        edges = {}
+        for (u, v, k) in graph.edges(node_name, keys=True):
+            edges.setdefault((u, v), []).append(k)
+        return edges
 
-    # source node is the src of the first edge
-    # for the first call, visited must be an empty list
-    # planned must be the list of edges in **DFS** order (use networkx to get the initial plan)
-    def traverse(visited: list[Edge], planned: list[Edge]) -> list[Edge]:
-        nonlocal composable
+    def traverse(curr_node: str, visited_edges: set, path_premise: z3.BoolRef) -> bool:
+        # DFS traverse with backtracking:
+        # curr_node: current node name
+        # visited_edges: set of (u, v, k) tuples of visited edges
+        # path_premise: accumulated constraints from path so far
+        # success if we've visited all edges
+        if len(visited_edges) == graph.number_of_edges():
+            return True
 
-        # return the path with choices once if the graph is deemed as composable
-        # or if all edges have been visited
-        # or if there's no more planned edges
-        if not planned:
-            composable = True
-            return visited
+        # get unvisited outgoing edges grouped by dst node
+        outgoing = get_outgoing_edges(curr_node)
+        unvisited_pairs = {
+            (u, v): keys for (u, v), keys in outgoing.items()
+            if not all((u, v, k) in visited_edges for k in keys)
+        }
 
-        # dfs
-        e = planned.pop(0)
-        src, dst, ec = e.src, e.dst, e.cons
-        curr_needs = None
-        curr_ec = None
-        curr_provs = None
+        # try each unvisited src-dst pair
+        # u: src, v: dst, k: edge id in nx
+        for (u, v), edge_keys in unvisited_pairs.items():
+            src_node = Node(**graph.nodes[u])
+            dst_node = Node(**graph.nodes[v])
+            print(f"{u} -> {v}")
 
-        # unwrap source node needs
-        if src.needs and len(src.needs) > 1:
-            for i, n in enumerate(src.needs):
-                if i == 0:
-                    curr_needs = n if n else node_need_na[0]
+            # all unvisited edges between this pair
+            unvisited_keys = [k for k in edge_keys if (u, v, k) not in visited_edges]
+
+            # combinations for src.needs and dst.provs
+            src_needs = src_node.needs if src_node.needs else [node_need_na[0]]
+            dst_provs = dst_node.provs if dst_node.provs else [node_prov_na[0]]
+            # try each combination
+            for needs, provs in product(src_needs, dst_provs):
+                check_needs = compose(*[n.cons for n in needs])
+                check_provs = compose(*[p.cons for p in provs])
+
+                # track edges that pass checks at this level
+                valid_edges = []
+                edge_constraints = []
+
+                # check all edges between this pair with same premise
+                for k in unvisited_keys:
+                    edge_data = graph.get_edge_data(u, v, k)
+                    edge_cons = edge_data["cons"] if edge_data["cons"] else [edge_na[0]]
+
+                    # try each edge constraint
+                    for cons in edge_cons:
+                        check_ec = compose(*[c.cons for c in cons])
+
+                        # check compatibility with path so far
+                        if compatible(check_provs, compose(check_needs, check_ec), path_premise):
+                            valid_edges.append(k)
+                            edge_constraints.append(cons)
+
+                # case 1:
+                # if all edges between this pair are valid
+                if len(valid_edges) == len(unvisited_keys):
+                    # add all valid edges to visited and results
+                    for k, cons in zip(valid_edges, edge_constraints):
+                        visited_edges.add((u, v, k))
+
+                        # add to resulting graph
+                        if not result.has_node(u):
+                            result.add_node(u, needs=[needs], provs=src_node.provs)
+                        if not result.has_node(v):
+                            result.add_node(v, needs=dst_node.needs, provs=[provs])
+                        result.add_edge(u, v, key=k, cons=[cons])
+
+                    # compose new premise
+                    # since 'others' is added as a separate constraint in the solver
+                    # include all constraints from the current level
+                    all_ec = compose(*[compose(*[c.cons for c in cons]) for cons in edge_constraints])
+                    new_premise = compose(path_premise, check_provs, check_needs, all_ec)
+
+                    # continue DFS
+                    if traverse(v, visited_edges, new_premise):
+                        return True
+
+                    # backtrack: remove all previously added nodes and edges
+                    for k in valid_edges:
+                        result.remove_edge(u, v, k)
+                        visited_edges.remove((u, v, k))
+                    if result.degree(u) == 0:
+                        result.remove_node(u)
+                    if result.degree(v) == 0:
+                        result.remove_node(v)
+
+                # case 2:
+                # also backtrack if no valid edges found for the current level
                 else:
-                    planned.append(Edge(Node(src.name, [n], src.provs), dst, ec))
-        else:
-            curr_needs = node_need_na[0]
+                    for k in valid_edges:
+                        if result.has_edge(u, v, k):
+                            result.remove_edge(u, v, k)
+                        if (u, v, k) in visited_edges:
+                            visited_edges.remove((u, v, k))
+                    if result.has_node(u) and result.degree(u) == 0:
+                        result.remove_node(u)
+                    if result.has_node(v) and result.degree(v) == 0:
+                        result.remove_node(v)
 
-        # unwrap edge cons
-        if ec and len(ec) > 1:
-            for i, t in enumerate(ec):
-                if i == 0:
-                    curr_ec = t if t else edge_na[0]
-                else:
-                    planned.append(Edge(src, dst, [t]))
-        else:
-            curr_ec = edge_na[0]
+        return False
 
-        # unwrap destination node provs
-        if dst.provs and len(dst.provs) > 1:
-            for i, p in enumerate(dst.provs):
-                if i == 0:
-                    curr_provs = p if p else node_prov_na[0]
-                else:
-                    planned.append(Edge(src, Node(dst.name, dst.needs, [p]), ec))
-        else:
-            curr_provs = node_prov_na[0]
-
-        # actual checking
-        check_needs = compose(*[n.cons for n in curr_needs])
-        check_ec = compose(*[t.cons for t in curr_ec])
-        check_provs = compose(*[p.cons for p in curr_provs])
-        visited.append(Edge(
-            Node(src.name, [(Cons("", check_needs),)], src.provs),
-            Node(dst.name, dst.needs, [(Cons("", check_provs),)]),
-            [(Cons("", check_ec),)],
-        ))
-        sat = compatible(check_provs, compose(check_needs, check_ec), premise)
-        print(f"{src.name} -> {dst.name}")
-        if sat:
-            traverse(visited, planned)
-        else:
-            # backtrack
-            visited.pop()
-            return traverse(visited, planned)
-
-    traverse([], plan)
-
-    return composable, results
+    # start DFS from src
+    return traverse(source.name, set(), premise), result
 
 
 def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:

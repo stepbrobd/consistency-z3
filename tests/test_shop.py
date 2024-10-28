@@ -76,5 +76,13 @@ def test_shop() -> None:
 
     g = graph(nodes, edges)
     ok, res = composable(g, client)
+    assert ok
+    assert len(res.nodes) == 5
+    assert len(res.edges) == 5
+
+    # import matplotlib.pyplot as plt
+
+    # from consistency.common import plot
+
     # plot(g)
     # plt.show()

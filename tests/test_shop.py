@@ -3,7 +3,6 @@ from consistency.common import (
     Edge,
     Node,
     composable,
-    composable_v2,
     compose,
     graph,
 )
@@ -64,10 +63,6 @@ def test_shop() -> None:
         Edge(src=arbitrator, dst=tx, cons=None),
     ]
 
-    ok, res = composable(nodes, edges)
-    print(f"Possible assignments: {len(res)}")
-    assert ok
-
     # nodes outside of the arbitrator group
     client = Node(name="Client", needs=None, provs=None)
     cart = Node(name="Cart", needs=None, provs=None)
@@ -80,6 +75,6 @@ def test_shop() -> None:
     ])
 
     g = graph(nodes, edges)
-    ok, res = composable_v2(g, client)
+    ok, res = composable(g, client)
     # plot(g)
     # plt.show()

@@ -1,7 +1,7 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
-from consistency.common import Cons, Edge, Node, composable_v2, graph
+from consistency.common import Edge, Node, composable, graph
 from consistency.history import History as H
 from consistency.operation import Operation as Op
 
@@ -10,8 +10,8 @@ def test_media() -> None:
     # predicates
     _, (rd, wr) = Op.Sort()
     op = Op.Create()
-    vis = AE.Relation.visibility()
-    ob = H.Relation.same_object()
+    AE.Relation.visibility()
+    H.Relation.same_object()
 
     # check in parts
     admin = Node(name="Admin", needs=None, provs=None)
@@ -77,7 +77,7 @@ def test_media() -> None:
         op.type(op_admin_write_video) == wr,
     )
 
-    cons_precedence = z3.And(
+    z3.And(
     )
 
     nodes = [
@@ -115,8 +115,8 @@ def test_media() -> None:
 
 
     g = graph(nodes, edges)
-    ok, res = composable_v2(g, client, cons_op_types)
-    # TODO: enable assert after composable_v2 implementation
+    ok, res = composable(g, client, cons_op_types)
+    # TODO: enable assert after composable implementation
     # assert ok
 
     # import matplotlib.pyplot as plt

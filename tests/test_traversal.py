@@ -1,6 +1,6 @@
 import z3
 
-from consistency.common import Cons, Edge, Node, composable_v2, graph
+from consistency.common import Cons, Edge, Node, composable, graph
 
 cons = [(Cons("True", z3.BoolVal(True)),)]
 
@@ -19,7 +19,7 @@ def test_linear_path() -> None:
     ]
 
     g = graph(nodes, edges)
-    is_composable, result = composable_v2(g, a)
+    is_composable, result = composable(g, a)
 
     assert is_composable
     assert len(result.edges()) == 2
@@ -38,7 +38,7 @@ def test_parallel_path() -> None:
     ]
 
     g = graph(nodes, edges)
-    is_composable, result = composable_v2(g, a)
+    is_composable, result = composable(g, a)
 
     assert is_composable
     assert len(result.edges()) == 2
@@ -63,8 +63,7 @@ def test_branching_path() -> None:
     ]
 
     g = graph(nodes, edges)
-    is_composable, result = composable_v2(g, a)
-    print(result.edges())
+    is_composable, result = composable(g, a)
 
     assert is_composable
     assert len(result.edges()) == 4
@@ -87,7 +86,7 @@ def test_cyclic_path() -> None:
     ]
 
     g = graph(nodes, edges)
-    is_composable, result = composable_v2(g, a)
+    is_composable, result = composable(g, a)
 
     assert is_composable
     assert len(result.edges()) == 3
@@ -114,7 +113,7 @@ def test_complex_path() -> None:
     ]
 
     g = graph(nodes, edges)
-    is_composable, result = composable_v2(g, a)
+    is_composable, result = composable(g, a)
 
     assert is_composable
     assert len(result.edges()) == 6

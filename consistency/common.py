@@ -120,7 +120,7 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
     return figure
 
 
-def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.BoolVal(True)) -> tuple[bool, nx.MultiDiGraph]:
+def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.BoolVal(True)) -> tuple[bool, nx.MultiDiGraph]:
     # method must be one of the functions in nx.algorithms.traversal that traverse over edges
     # returns whether there's one possible composable assignment
     # and the first satisfying assignment
@@ -257,12 +257,10 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
     # start DFS from src
     return traverse(source.name, set(), premise), result
 
-
+"""
 def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
-    """
-    disjoint nodes might be present in the graph
-    returns: whether there's one possible composable assignment, list of resulting assignments
-    """
+    # disjoint nodes might be present in the graph
+    # returns: whether there's one possible composable assignment, list of resulting assignments
     composable = False
     node_na = [(Cons("N/A", z3.BoolVal(False)),)]
     edge_na = [(Cons("N/A", z3.BoolVal(True)),)]
@@ -309,3 +307,4 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
         # print(node)
 
     return composable, edge_result
+"""

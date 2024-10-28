@@ -20,13 +20,13 @@ def test_media() -> None:
     # check in parts
     admin = Node(name="Admin", needs=None, provs=None)
     client = Node(name="Client", needs=None, provs=None)
-    login = Node(name="Login", needs=None, provs=[(Cons("PRAM", PRAMConsistency.assertions()),)]) # match whatever user db provides
+    login = Node(name="Login", needs=[(Cons("PRAM", PRAMConsistency.assertions()),)], provs=None) # match whatever user db provides
     user_db = Node(name="User DB", needs=None, provs=[(Cons("PRAM", PRAMConsistency.assertions()),)]) # but staleness is not bounded
     metadata_db = Node(name="Metadata DB", needs=None, provs=[(Cons("RYW", ReadYourWrites.assertions()),)]) # reflect last write on admin users, but user read may be outdated
-    rent = Node(name="Rent", needs=None, provs=[(Cons("MR+RYW", compose(MonotonicReads.assertions(), ReadYourWrites.assertions())),)]) # rent node's action depends on the read output of the metadata db
-    review = Node(name="Review", needs=None, provs=[(Cons("RYW", ReadYourWrites.assertions()),)]) # match whatever review db provides
+    rent = Node(name="Rent", needs=[(Cons("MR", MonotonicReads.assertions()),)], provs=[(Cons("MR+RYW", compose(MonotonicReads.assertions(), ReadYourWrites.assertions())),)]) # rent node's action depends on the read output of the metadata db
+    review = Node(name="Review", needs=[(Cons("RYW", ReadYourWrites.assertions()),)], provs=None) # match whatever review db provides
     review_db = Node(name="Review DB", needs=None, provs=[(Cons("RYW", ReadYourWrites.assertions()),)]) # users see their own reviews reflected right away, other users may see outdated reviews
-    video = Node(name="Video", needs=None, provs=[(Cons("WFR+MR", compose(WritesFollowReads.assertions(), MonotonicReads.assertions())),)]) # video node's action depends on the read output of the metadata db
+    video = Node(name="Video", needs=[(Cons("MR", MonotonicReads.assertions()),)], provs=[(Cons("WFR", WritesFollowReads.assertions()),)]) # video node's action depends on the read output of the metadata db
 
     # register requests are abstracted as wr operations
     op_client_register = Op.Const("Op Client Register")
@@ -146,9 +146,9 @@ def test_media() -> None:
         dp = res.nodes[dst]["provs"]
         print(f"{src} -> {dst}:\n\t{sn=}\n\t{ec=}\n\t{dp=}\n")
 
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
-    from consistency.common import plot
+    # from consistency.common import plot
 
-    plot(g)
-    plt.show()
+    # plot(g)
+    # plt.show()

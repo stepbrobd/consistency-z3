@@ -1,8 +1,12 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
-from consistency.common import Cons, Edge, Node, composable, graph
+from consistency.common import Cons, Edge, Node, composable, compose, graph
 from consistency.history import History as H
+from consistency.model.monotonic_reads import MonotonicReads
+from consistency.model.pram_consistency import PRAMConsistency
+from consistency.model.read_your_writes import ReadYourWrites
+from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.operation import Operation as Op
 
 
@@ -16,13 +20,13 @@ def test_media() -> None:
     # check in parts
     admin = Node(name="Admin", needs=None, provs=None)
     client = Node(name="Client", needs=None, provs=None)
-    login = Node(name="Login", needs=None, provs=None)
-    user_db = Node(name="User DB", needs=None, provs=None)
-    metadata_db = Node(name="Metadata DB", needs=None, provs=None)
-    rent = Node(name="Rent", needs=None, provs=None)
-    review = Node(name="Review", needs=None, provs=None)
-    review_db = Node(name="Review DB", needs=None, provs=None)
-    video = Node(name="Video", needs=None, provs=None)
+    login = Node(name="Login", needs=None, provs=[(Cons("PRAM", PRAMConsistency.assertions()),)]) # match whatever user db provides
+    user_db = Node(name="User DB", needs=None, provs=[(Cons("PRAM", PRAMConsistency.assertions()),)]) # but staleness is not bounded
+    metadata_db = Node(name="Metadata DB", needs=None, provs=[(Cons("RYW", ReadYourWrites.assertions()),)]) # reflect last write on admin users, but user read may be outdated
+    rent = Node(name="Rent", needs=None, provs=[(Cons("MR+RYW", compose(MonotonicReads.assertions(), ReadYourWrites.assertions())),)]) # rent node's action depends on the read output of the metadata db
+    review = Node(name="Review", needs=None, provs=[(Cons("RYW", ReadYourWrites.assertions()),)]) # match whatever review db provides
+    review_db = Node(name="Review DB", needs=None, provs=[(Cons("RYW", ReadYourWrites.assertions()),)]) # users see their own reviews reflected right away, other users may see outdated reviews
+    video = Node(name="Video", needs=None, provs=[(Cons("WFR+MR", compose(WritesFollowReads.assertions(), MonotonicReads.assertions())),)]) # video node's action depends on the read output of the metadata db
 
     # register requests are abstracted as wr operations
     op_client_register = Op.Const("Op Client Register")
@@ -80,7 +84,7 @@ def test_media() -> None:
 
     # edge constraints
     ec_client_wr_login = None
-    ec_client_rd_login = [(Cons("", z3.Exists([op_client_login, op_client_register], z3.And(ob(op_client_login, op_client_register), vis(op_client_register, op_client_login)))),)]
+    ec_client_rd_login = [(Cons("User must register before login", z3.Exists([op_client_login, op_client_register], z3.And(ob(op_client_login, op_client_register), vis(op_client_register, op_client_login)))),)]
     ec_admin_rd_login = None
     ec_admin_wr_login = None
     ec_login_rd_user_db = None
@@ -93,6 +97,7 @@ def test_media() -> None:
     ec_review_rd_review_db = None
     ec_review_wr_review_db = None
     ec_client_rd_video = None
+    ec_video_rd_metadata_db = None
     ec_admin_wr_metadata_db = None
     ec_admin_wr_video = None
 
@@ -124,6 +129,7 @@ def test_media() -> None:
         Edge(review, review_db, ec_review_rd_review_db), # review db read
         Edge(review, review_db, ec_review_wr_review_db), # review db write
         Edge(client, video, ec_client_rd_video), # client watch video
+        Edge(video, metadata_db, ec_video_rd_metadata_db), # checked if a title is valid
 
         Edge(admin, metadata_db, ec_admin_wr_metadata_db), # admin write metadata
         Edge(admin, video, ec_admin_wr_video), # admin write video

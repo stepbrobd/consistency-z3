@@ -2,17 +2,17 @@ import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
 from consistency.history import History as H
+from consistency.model.model import Model
 from consistency.operation import Operation as Op
 
 
-class PRAMConsistency:
+class PRAMConsistency(Model):
     """
     PRAM consistency is defined as:
     for all operations $a$ and $b$ in history, a set of operations denoted by $H$,
     if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
     then operation $a$ is visible to operation $b$.
     """
-
     @staticmethod
     def assertions() -> z3.BoolRef:
         a, b = Op.Consts("a b")

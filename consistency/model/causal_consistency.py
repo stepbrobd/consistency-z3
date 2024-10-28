@@ -2,10 +2,11 @@ import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
 from consistency.history import History as H
+from consistency.model.model import Model
 from consistency.operation import Operation as Op
 
 
-class CausalConsistency:
+class CausalConsistency(Model):
     @staticmethod
     def assertions() -> z3.BoolRef:
         op = Op.Create()

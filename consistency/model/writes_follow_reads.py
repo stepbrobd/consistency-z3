@@ -2,10 +2,11 @@ import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
 from consistency.history import History as H
+from consistency.model.model import Model
 from consistency.operation import Operation as Op
 
 
-class WritesFollowReads:
+class WritesFollowReads(Model):
     """
     Writes Follow Reads are defined as:
     for all write operations $a, c$ in history, a set of operations denoted by $H$, and,

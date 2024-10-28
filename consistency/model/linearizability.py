@@ -2,17 +2,17 @@ import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
 from consistency.history import History as H
+from consistency.model.model import Model
 from consistency.operation import Operation as Op
 
 
-class Linearizability:
+class Linearizability(Model):
     """
     Incomplete
     Too strong, standalone check will fail but the compatibility will pass as expected
     """
     @staticmethod
     def assertions() -> z3.BoolRef:
-
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
         a, b = Op.Consts("a b")

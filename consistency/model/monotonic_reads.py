@@ -2,10 +2,11 @@ import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
 from consistency.history import History as H
+from consistency.model.model import Model
 from consistency.operation import Operation as Op
 
 
-class MonotonicReads:
+class MonotonicReads(Model):
     """
     Monotonic Reads are defined as:
     for all operations $a$ in history, a set of operations denoted by $H$, and,

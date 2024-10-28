@@ -152,12 +152,28 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
             if not all((u, v, k) in visited_edges for k in keys)
         }
 
+        # if no unvisited outgoing edges from current node,
+        # try continuing from any node that has unvisited outgoing edges
+        if not unvisited_pairs:
+            for node in graph.nodes():
+                if node == curr_node:
+                    continue
+                node_outgoing = get_outgoing_edges(node)
+                unvisited_from_node = {
+                    (u, v): keys for (u, v), keys in node_outgoing.items()
+                    if not all((u, v, k) in visited_edges for k in keys)
+                }
+                if unvisited_from_node:
+                    if traverse(node, visited_edges, path_premise):
+                        return True
+            return False
+
         # try each unvisited src-dst pair
         # u: src, v: dst, k: edge id in nx
         for (u, v), edge_keys in unvisited_pairs.items():
             src_node = Node(**graph.nodes[u])
             dst_node = Node(**graph.nodes[v])
-            print(f"{u} -> {v}")
+            # print(f"{u} -> {v}")
 
             # all unvisited edges between this pair
             unvisited_keys = [k for k in edge_keys if (u, v, k) not in visited_edges]
@@ -208,7 +224,8 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
                     all_ec = compose(*[compose(*[c.cons for c in cons]) for cons in edge_constraints])
                     new_premise = compose(path_premise, check_provs, check_needs, all_ec)
 
-                    # continue DFS
+                    # continue DFS:
+                    # try continuing from either the destination node or any other node with unvisited edges
                     if traverse(v, visited_edges, new_premise):
                         return True
 
@@ -224,6 +241,7 @@ def composable_v2(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.B
                 # case 2:
                 # also backtrack if no valid edges found for the current level
                 else:
+                    # clean up partial progress
                     for k in valid_edges:
                         if result.has_edge(u, v, k):
                             result.remove_edge(u, v, k)

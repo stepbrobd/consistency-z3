@@ -1,7 +1,7 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
-from consistency.common import Edge, Node, composable, graph
+from consistency.common import Cons, Edge, Node, composable, graph
 from consistency.history import History as H
 from consistency.operation import Operation as Op
 
@@ -10,8 +10,8 @@ def test_media() -> None:
     # predicates
     _, (rd, wr) = Op.Sort()
     op = Op.Create()
-    AE.Relation.visibility()
-    H.Relation.same_object()
+    vis = AE.Relation.visibility()
+    ob = H.Relation.same_object()
 
     # check in parts
     admin = Node(name="Admin", needs=None, provs=None)
@@ -58,6 +58,7 @@ def test_media() -> None:
     # admin write video
     op_admin_write_video = Op.Const("Op Admin Write Video")
 
+    # premise
     cons_op_types = z3.And(
         op.type(op_client_register) == wr,
         op.type(op_client_login) == rd,
@@ -77,8 +78,23 @@ def test_media() -> None:
         op.type(op_admin_write_video) == wr,
     )
 
-    z3.And(
-    )
+    # edge constraints
+    ec_client_wr_login = None
+    ec_client_rd_login = [(Cons("", z3.Exists([op_client_login, op_client_register], z3.And(ob(op_client_login, op_client_register), vis(op_client_register, op_client_login)))),)]
+    ec_admin_rd_login = None
+    ec_admin_wr_login = None
+    ec_login_rd_user_db = None
+    ec_login_wr_user_db = None
+    ec_client_rd_metadata_db = None
+    ec_client_wr_rent = None
+    ec_rent_rd_metadata_db = None
+    ec_client_rd_review = None
+    ec_client_wr_review = None
+    ec_review_rd_review_db = None
+    ec_review_wr_review_db = None
+    ec_client_rd_video = None
+    ec_admin_wr_metadata_db = None
+    ec_admin_wr_video = None
 
     nodes = [
         admin,
@@ -93,24 +109,24 @@ def test_media() -> None:
     ]
 
     edges = [
-        Edge(client, login, None), # client register
-        Edge(client, login, None), # client login
-        Edge(admin, login, None), # admin login
-        Edge(admin, login, None), # admin modify
-        Edge(login, user_db, None), # user db read
-        Edge(login, user_db, None), # user db write
+        Edge(client, login, ec_client_wr_login), # client register
+        Edge(client, login, ec_client_rd_login), # client login
+        Edge(admin, login, ec_admin_rd_login), # admin login
+        Edge(admin, login, ec_admin_wr_login), # admin modify
+        Edge(login, user_db, ec_login_rd_user_db), # user db read
+        Edge(login, user_db, ec_login_wr_user_db), # user db write
 
-        Edge(client, metadata_db, None), # client read metadata
-        Edge(client, rent, None), # client rent
-        Edge(rent, metadata_db, None), # rent read metadata
-        Edge(client, review, None), # client read review
-        Edge(client, review, None), # client write review
-        Edge(review, review_db, None), # review db read
-        Edge(review, review_db, None), # review db write
-        Edge(client, video, None), # client watch video
+        Edge(client, metadata_db, ec_client_rd_metadata_db), # client read metadata
+        Edge(client, rent, ec_client_wr_rent), # client rent
+        Edge(rent, metadata_db, ec_rent_rd_metadata_db), # rent read metadata
+        Edge(client, review, ec_client_rd_review), # client read review
+        Edge(client, review, ec_client_wr_review), # client write review
+        Edge(review, review_db, ec_review_rd_review_db), # review db read
+        Edge(review, review_db, ec_review_wr_review_db), # review db write
+        Edge(client, video, ec_client_rd_video), # client watch video
 
-        Edge(admin, metadata_db, None), # admin write metadata
-        Edge(admin, video, None), # admin write video
+        Edge(admin, metadata_db, ec_admin_wr_metadata_db), # admin write metadata
+        Edge(admin, video, ec_admin_wr_video), # admin write video
     ]
 
     g = graph(nodes, edges)
@@ -124,9 +140,9 @@ def test_media() -> None:
         dp = res.nodes[dst]["provs"]
         print(f"{src} -> {dst}:\n\t{sn=}\n\t{ec=}\n\t{dp=}\n")
 
-    # import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-    # from consistency.common import plot
+    from consistency.common import plot
 
-    # plot(g)
-    # plt.show()
+    plot(g)
+    plt.show()

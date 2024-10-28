@@ -2,8 +2,8 @@ import z3
 
 
 class Relation:
-    _constraints = None
-    _functions = None
+    _constraints: dict[str, z3.AstVector] | None = None
+    _functions: dict[str, z3.FuncDeclRef] | None = None
 
 
     @staticmethod
@@ -25,6 +25,7 @@ class Relation:
         vec = z3.AstVector()
 
         if Relation._constraints is not None:
+            assert Relation._functions is not None
             for func in Relation._functions.keys():
                 vec.push(Relation._constraints[func])
 

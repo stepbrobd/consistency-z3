@@ -4,7 +4,7 @@ import z3
 class Operation:
     _op = None
     _op_type = None
-    _op_symbols = None
+    _op_symbols: dict[str, z3.DatatypeRef] | None = None
 
 
     @staticmethod

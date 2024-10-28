@@ -1,6 +1,6 @@
 from functools import cache
 from itertools import chain, combinations, product
-from typing import Generator, Iterable, NamedTuple
+from typing import Collection, Generator, NamedTuple
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -51,7 +51,7 @@ class Edge(NamedTuple):
 
 
 @cache
-def powerset(s: Iterable) -> list:
+def powerset(s: Collection) -> list:
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
 
 
@@ -130,7 +130,7 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
 
     def get_outgoing_edges(node_name: str) -> dict[tuple[str, str], list[int]]:
         # get all outgoing edges grouped by source-destination pairs
-        edges = {}
+        edges: dict[tuple[str, str], list[int]] = {}
         for (u, v, k) in graph.edges(node_name, keys=True):
             edges.setdefault((u, v), []).append(k)
         return edges

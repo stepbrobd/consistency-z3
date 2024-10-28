@@ -113,11 +113,16 @@ def test_media() -> None:
         Edge(admin, video, None), # admin write video
     ]
 
-
     g = graph(nodes, edges)
     ok, res = composable(g, client, cons_op_types)
-    # TODO: enable assert after composable implementation
-    # assert ok
+    assert ok
+
+    for edge in res.edges(keys=True):
+        src, dst, _ = edge
+        ec = res.get_edge_data(*edge)["cons"]
+        sn = res.nodes[src]["needs"]
+        dp = res.nodes[dst]["provs"]
+        print(f"{src} -> {dst}:\n\t{sn=}\n\t{ec=}\n\t{dp=}\n")
 
     # import matplotlib.pyplot as plt
 

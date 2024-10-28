@@ -254,7 +254,17 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
         return False
 
     # start DFS from src
-    return traverse(source.name, set(), premise), result
+    is_composable = traverse(source.name, set(), premise)
+    # replace all N/A with None
+    for node in result.nodes():
+        if result.nodes[node]["needs"] == node_need_na:
+            result.nodes[node]["needs"] = None
+        if result.nodes[node]["provs"] == node_prov_na:
+            result.nodes[node]["provs"] = None
+    for edge in result.edges(keys=True):
+        if result.get_edge_data(*edge)["cons"] == edge_na:
+            result.get_edge_data(*edge)["cons"] = None
+    return is_composable, result
 
 """
 def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:

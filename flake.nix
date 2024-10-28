@@ -1,23 +1,17 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/eabe8d3eface69f5bb16c18f8662a702f50c20d5";
-    compat.url = "github:edolstra/flake-compat";
-    compat.flake = false;
-    utils.url = "github:numtide/flake-utils";
+    parts.url = "github:hercules-ci/flake-parts";
+    systems.url = "github:nix-systems/default";
     pyproject.url = "github:nix-community/pyproject.nix";
     pyproject.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs =
-    { self
-    , nixpkgs
-    , compat
-    , utils
-    , pyproject
-    }: utils.lib.eachDefaultSystem
-      (system:
+  outputs = inputs @ { self, nixpkgs, parts, systems, pyproject }: parts.lib.mkFlake { inherit inputs; } {
+    systems = import inputs.systems;
+
+    perSystem = { pkgs, ... }:
       let
-        pkgs = import nixpkgs { inherit system; };
         python = pkgs.python311;
       in
       {
@@ -30,8 +24,6 @@
           nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
           pythonImportsCheck = [ "consistency" ];
         });
-
-        apps.default = utils.lib.mkApp { drv = self.packages.${system}.default; };
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
@@ -63,10 +55,8 @@
           ${pkgs.ruff}/bin/ruff --fix --unsafe-fixes .
           ${pkgs.typstfmt}/bin/typstfmt **/*.typ
         '';
-      }) // {
-      hydraJobs = {
-        inherit (self)
-          packages devShells;
       };
-    };
+
+    flake.hydraJobs = { inherit (self) packages devShells; };
+  };
 }

@@ -20,7 +20,6 @@ dependencies = [
     "networkx",
     "pytest",
     "rich",
-    "types-cffi",
     "z3-solver",
 ]
 

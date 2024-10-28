@@ -119,9 +119,9 @@ def test_media() -> None:
     # TODO: enable assert after composable_v2 implementation
     # assert ok
 
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
-    from consistency.common import plot
+    # from consistency.common import plot
 
-    plot(g)
-    plt.show()
+    # plot(g)
+    # plt.show()

@@ -14,8 +14,9 @@ def test_media() -> None:
     # predicates
     _, (rd, wr) = Op.Sort()
     op = Op.Create()
-    vis = AE.Relation.visibility()
     ob = H.Relation.same_object()
+    rb = H.Relation.returns_before()
+    vis = AE.Relation.visibility()
 
     # check in parts
     admin = Node(name="Admin", needs=None, provs=None)
@@ -83,23 +84,36 @@ def test_media() -> None:
     )
 
     # edge constraints
+    # each node requires a login before any other operation
+    ec_common_login = z3.And(
+        rb(op_client_login, op_client_read_metadata),
+        rb(op_client_login, op_client_read_review),
+        rb(op_client_login, op_client_rent_video),
+        rb(op_client_login, op_client_write_review),
+        rb(op_client_login, op_client_watch_video),
+    )
+    ec_common_admin = z3.And(
+        rb(op_admin_login, op_admin_modify),
+        rb(op_admin_login, op_admin_write_metadata),
+        rb(op_admin_login, op_admin_write_video),
+    )
     ec_client_wr_login = None
-    ec_client_rd_login = [(Cons("User must register before login", z3.Exists([op_client_login, op_client_register], z3.And(ob(op_client_login, op_client_register), vis(op_client_register, op_client_login)))),)]
-    ec_admin_rd_login = None
-    ec_admin_wr_login = None
-    ec_login_rd_user_db = None
-    ec_login_wr_user_db = None
-    ec_client_rd_metadata_db = None
-    ec_client_wr_rent = None
-    ec_rent_rd_metadata_db = None
-    ec_client_rd_review = None
-    ec_client_wr_review = None
+    ec_client_rd_login = [(Cons("User must register before login", z3.And(ec_common_login, z3.Exists([op_client_login, op_client_register], z3.And(ob(op_client_login, op_client_register), vis(op_client_register, op_client_login))))),)]
+    ec_admin_rd_login = None # admins are pre-registered, no need to assign constraints here
+    ec_admin_wr_login = [(Cons("Admin writes requires login", ec_common_admin),)] # admin writes require a previous admin login
+    ec_login_rd_user_db = [(Cons("", z3.And(z3.Exists([op_user_db_rd, op_user_db_wr], z3.And(ob(op_user_db_rd, op_user_db_wr), vis(op_user_db_wr, op_user_db_rd))), z3.Exists([op_user_db_rd, op_admin_modify], z3.And(ob(op_admin_modify, op_user_db_rd), vis(op_admin_modify, op_user_db_rd))))),)] # user db reads require a previous write, admin writes must reflect on user reads
+    ec_login_wr_user_db = None # assume all user db writes are valid
+    ec_client_rd_metadata_db = [(Cons("Client login before access metadata", z3.And(ec_common_login)),)]
+    ec_client_wr_rent = [(Cons("Client login before rent movie", z3.And(ec_common_login)),)] # TODO: return after the rent service reads the metadata
+    ec_rent_rd_metadata_db = [(Cons("", z3.And()),)] # TODO: rent service reads metadata before renting
+    ec_client_rd_review = [(Cons("", z3.And(ec_common_login)),)]
+    ec_client_wr_review = [(Cons("", z3.And(ec_common_login)),)]
     ec_review_rd_review_db = None
     ec_review_wr_review_db = None
-    ec_client_rd_video = None
-    ec_video_rd_metadata_db = None
-    ec_admin_wr_metadata_db = None
-    ec_admin_wr_video = None
+    ec_client_rd_video = [(Cons("Client watch video", z3.And(ec_common_login)),)] # TODO: return after video checks the metadata
+    ec_video_rd_metadata_db = None # TODO: video checks metadata before playing
+    ec_admin_wr_metadata_db = [(Cons("Admin login before write metadata", z3.And(ec_common_admin)),)]
+    ec_admin_wr_video = [(Cons("Admin login before update video", z3.And(ec_common_admin)),)]
 
     nodes = [
         admin,
@@ -146,9 +160,9 @@ def test_media() -> None:
         dp = res.nodes[dst]["provs"]
         print(f"{src} -> {dst}:\n\t{sn=}\n\t{ec=}\n\t{dp=}\n")
 
-    # import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-    # from consistency.common import plot
+    from consistency.common import plot
 
-    # plot(g)
-    # plt.show()
+    plot(g)
+    plt.show()

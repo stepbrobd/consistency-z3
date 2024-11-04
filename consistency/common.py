@@ -25,7 +25,13 @@ def construct(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(T
 
 
 def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
-    return construct(lhs, rhs, others).check() == z3.unsat
+    solver = construct(lhs, rhs, others)
+    result = solver.check() == z3.unsat
+    # print(solver.to_smt2())
+    # if result:
+    #     print(solver.unsat_core())
+    # print(solver.statistics())
+    return result
 
 
 def compose(*assertions: z3.BoolRef) -> z3.BoolRef:

@@ -17,13 +17,16 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 
 
 def test_known_compatible() -> None:
+    assert compatible(CausalConsistency.assertions(), MonotonicReads.assertions())
+    assert compatible(CausalConsistency.assertions(), MonotonicWrites.assertions())
     assert compatible(CausalConsistency.assertions(), PRAMConsistency.assertions())
-    # FIXME: this fails
-    # assert compatible(CausalConsistency.assertions(), WritesFollowReads.assertions())
+    assert compatible(CausalConsistency.assertions(), ReadYourWrites.assertions())
+    # FIXME: failing causal <- wfr
+    assert compatible(CausalConsistency.assertions(), WritesFollowReads.assertions())
 
-    assert compatible(Linearizability.assertions(), PRAMConsistency.assertions())
     assert compatible(Linearizability.assertions(), MonotonicReads.assertions())
     assert compatible(Linearizability.assertions(), MonotonicWrites.assertions())
+    assert compatible(Linearizability.assertions(), PRAMConsistency.assertions())
     assert compatible(Linearizability.assertions(), ReadYourWrites.assertions())
     assert compatible(Linearizability.assertions(), WritesFollowReads.assertions())
 
@@ -33,12 +36,15 @@ def test_known_compatible() -> None:
 
 
 def test_known_incompatible() -> None:
+    assert not compatible(CausalConsistency.assertions(), Linearizability.assertions())
+
     assert not compatible(MonotonicReads.assertions(), Linearizability.assertions())
     assert not compatible(MonotonicReads.assertions(), MonotonicWrites.assertions())
     assert not compatible(MonotonicReads.assertions(), PRAMConsistency.assertions())
     assert not compatible(MonotonicReads.assertions(), ReadYourWrites.assertions())
     assert not compatible(MonotonicReads.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(MonotonicWrites.assertions(), CausalConsistency.assertions())
     assert not compatible(MonotonicWrites.assertions(), Linearizability.assertions())
     assert not compatible(MonotonicWrites.assertions(), MonotonicReads.assertions())
     assert not compatible(MonotonicWrites.assertions(), PRAMConsistency.assertions())
@@ -49,12 +55,14 @@ def test_known_incompatible() -> None:
     assert not compatible(PRAMConsistency.assertions(), Linearizability.assertions())
     assert not compatible(PRAMConsistency.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(ReadYourWrites.assertions(), CausalConsistency.assertions())
     assert not compatible(ReadYourWrites.assertions(), Linearizability.assertions())
     assert not compatible(ReadYourWrites.assertions(), MonotonicReads.assertions())
     assert not compatible(ReadYourWrites.assertions(), MonotonicWrites.assertions())
     assert not compatible(ReadYourWrites.assertions(), PRAMConsistency.assertions())
     assert not compatible(ReadYourWrites.assertions(), WritesFollowReads.assertions())
 
+    assert not compatible(WritesFollowReads.assertions(), CausalConsistency.assertions())
     assert not compatible(WritesFollowReads.assertions(), Linearizability.assertions())
     assert not compatible(WritesFollowReads.assertions(), MonotonicReads.assertions())
     assert not compatible(WritesFollowReads.assertions(), MonotonicWrites.assertions())

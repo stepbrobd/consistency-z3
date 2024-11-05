@@ -103,17 +103,17 @@ def test_media() -> None:
     ec_login_wr_user_db = None # assume all user db writes are valid
 
     ec_client_wr_rent = [(Cons("Client login before rent movie", ec_common_login),)]
-    ec_rent_rd_metadata_db = [(Cons("Client login before rent movie", z3.Exists([op_client_rent_video, op_rent_check_metadata], z3.And(ob(op_client_rent_video, op_rent_check_metadata), rb(op_rent_check_metadata, op_client_rent_video)))),)] # TODO: replace rb with so? return after the rent service reads the metadata
+    ec_rent_rd_metadata_db = [(Cons("Client login before rent movie", z3.Exists([op_client_rent_video, op_rent_check_metadata], z3.And(ob(op_client_rent_video, op_rent_check_metadata), rb(op_rent_check_metadata, op_client_rent_video)))),)] # Q: replace rb with so? A: rb only. return after the rent service reads the metadata
     ec_rent_wr_rent_db = None # assume all rent db writes are valid
 
     ec_client_rd_review = [(Cons("Require login before read review", ec_common_login),)]
     ec_client_wr_review = [(Cons("Require login before write review", ec_common_login),)]
-    ec_review_rd_metadata_db = [(Cons("Check metadata before read review", z3.Exists([op_client_read_review, op_review_check_metadata], z3.And(ob(op_client_read_review, op_review_check_metadata), rb(op_review_check_metadata, op_client_read_review)))),)] # TODO: replace rb with so? return after the review service reads the metadata
+    ec_review_rd_metadata_db = [(Cons("Check metadata before read review", z3.Exists([op_client_read_review, op_review_check_metadata], z3.And(ob(op_client_read_review, op_review_check_metadata), rb(op_review_check_metadata, op_client_read_review)))),)] # see above about rb/so return after the review service reads the metadata
     ec_review_rd_review_db = [(Cons("Match review read metadata constraints", ec_review_rd_metadata_db[0][0].cons),)]
     ec_review_wr_review_db = None # assume all review db writes are valid
 
     ec_client_rd_video = [(Cons("Client watch video", ec_common_login),)]
-    ec_video_rd_metadata_db = [(Cons("Check metadata before watch video", z3.Exists([op_client_watch_video, op_video_check_metadata], z3.And(ob(op_client_watch_video, op_video_check_metadata), rb(op_video_check_metadata, op_client_watch_video)))),)] # TODO: replace rb with so? return after the video service reads the metadata
+    ec_video_rd_metadata_db = [(Cons("Check metadata before watch video", z3.Exists([op_client_watch_video, op_video_check_metadata], z3.And(ob(op_client_watch_video, op_video_check_metadata), rb(op_video_check_metadata, op_client_watch_video)))),)] # see above for rb so. return after the video service reads the metadata
     ec_video_rd_video_db = [(Cons("Match video read metadata constraints", ec_video_rd_metadata_db[0][0].cons),)]
 
     ec_admin_wr_metadata_db = [(Cons("Admin login before write metadata", z3.And(ec_common_admin)),)]

@@ -13,7 +13,7 @@ class CausalConsistency(Model):
         _, (rd, wr) = Op.Sort()
         a, b = Op.Consts("a b")
 
-        # writes-into: https://repository.gatech.edu/server/api/core/bitstreams/a083b72e-3e3d-4252-9f10-5ab71fa7f6c5/conten
+        # writes-into: https://repository.gatech.edu/server/api/core/bitstreams/a083b72e-3e3d-4252-9f10-5ab71fa7f6c5/content
         wi = H.Relation.Declare("wi", op, op, z3.BoolSort())
         H.Relation.AddConstraint("wi",
             z3.Implies(wi(a, b), z3.And(

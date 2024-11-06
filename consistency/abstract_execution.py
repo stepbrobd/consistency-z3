@@ -20,7 +20,16 @@ class AbstractExecution:
                     z3.If(z3.And(op.type(a) == wr, op.type(b) == rd),
                         z3.Implies(
                             vis(a, b),
-                            z3.And(op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b))
+                            z3.And(op.obj(a) == op.obj(b), z3.Or(
+                                # non-concurrent
+                                op.rtime(a) < op.stime(b),
+                                # FIXME: concurrent
+                                # this only captures the case where a and b *MIGHT* be concurrent
+                                z3.And(op.stime(a) <= op.stime(b), op.rtime(a) >= op.rtime(a)),
+                                z3.And(op.stime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)),
+                                z3.And(op.stime(b) <= op.rtime(a), op.rtime(a) <= op.rtime(b)),
+                                z3.And(op.stime(b) <= op.stime(a), op.stime(a) <= op.rtime(b)),
+                            ))
                         ),
                         z3.BoolVal(True)
                     ),

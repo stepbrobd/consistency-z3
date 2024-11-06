@@ -20,7 +20,8 @@ class CausalConsistency(Model):
                 # a must be a write, b must be a read
                 # a and b must be wr/rd on the same object (shared memory location)
                 z3.If(op.type(a) == wr, z3.And(op.type(b) == rd, op.obj(a) == op.obj(b)), z3.BoolVal(True)),
-
+                # acyclicity
+                z3.ForAll([a, b], z3.Implies(wi(a, b), z3.Not(wi(b, a)))),
             ))
         )
 

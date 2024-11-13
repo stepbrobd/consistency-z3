@@ -25,13 +25,19 @@ class MonotonicReads(Model):
 
         so = H.Relation.session_order()
         vis = AE.Relation.visibility()
+        viewed = AE.Relation.viewed()
 
         # monotonic read
         return z3.And(
             # (a -vis-> b /\ b --so-> c) -> a -vis-> c
             z3.ForAll([a, b, c],
                 z3.Implies(
-                    z3.And(vis(a, b), so(b, c), op.type(b) == rd, op.type(c) == rd),
+                    z3.And(
+                        op.type(b) == rd, op.type(c) == rd,
+                        vis(a, b),
+                        so(b, c),
+                        viewed(a, c),
+                    ),
                     vis(a, c)
                 )
             ),

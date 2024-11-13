@@ -27,7 +27,13 @@ class WritesFollowReads(Model):
         # writes follow reads
         return z3.ForAll([a, b, c],
                 z3.Implies(
-                    z3.And(vis(a, b), so(b, c), op.type(a) == wr, op.type(c) == wr, op.type(b) == rd),
+                    z3.And(
+                         op.type(a) == wr,
+                         op.type(b) == rd,
+                         op.type(c) == wr,
+                         vis(a, b),
+                         so(b, c),
+                    ),
                     ar(a, c)
                 )
         )

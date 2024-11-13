@@ -64,9 +64,11 @@ class AbstractExecution:
                 z3.And(
                     # op a's effect is visible to op b
                     z3.If(z3.And(op.type(a) == wr, op.type(b) == rd),
-                        z3.Implies(
-                            vis(a, b),
-                            z3.And(op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b)) # definitive encoding, if this condition is met, a must be visible to b
+                        z3.Implies(vis(a, b),
+                            z3.And( # definitive encoding, if this condition is met, a must be visible to b
+                                op.obj(a) == op.obj(b),
+                                op.rtime(a) < op.stime(b),
+                            )
                             # capture the ambiguity due to concurrent operations
                             # but not needed as the monotonic read will include the new "viewed" partial order
                             # z3.And(op.obj(a) == op.obj(b), z3.Or(

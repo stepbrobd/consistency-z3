@@ -20,16 +20,19 @@ class AbstractExecution:
                     z3.If(z3.And(op.type(a) == wr, op.type(b) == rd),
                         z3.Implies(
                             vis(a, b),
-                            z3.And(op.obj(a) == op.obj(b), z3.Or(
-                                # non-concurrent
-                                op.rtime(a) < op.stime(b),
-                                # FIXME: concurrent
-                                # this only captures the case where a and b *MIGHT* be concurrent
-                                z3.And(op.stime(a) <= op.stime(b), op.rtime(a) >= op.rtime(a)),
-                                z3.And(op.stime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)),
-                                z3.And(op.stime(b) <= op.rtime(a), op.rtime(a) <= op.rtime(b)),
-                                z3.And(op.stime(b) <= op.stime(a), op.stime(a) <= op.rtime(b)),
-                            ))
+                            z3.And(op.obj(a) == op.obj(b), op.rtime(a) < op.stime(b)) # definitive encoding, if this condition is met, a must be visible to b
+                            # capture the ambiguity due to concurrent operations
+                            # but not needed as the monotonic read will include the new "viewed" partial order
+                            # z3.And(op.obj(a) == op.obj(b), z3.Or(
+                            #     # non-concurrent
+                            #     op.rtime(a) < op.stime(b),
+                            #     # concurrent
+                            #     # this only captures the case where a and b *MIGHT* be concurrent
+                            #     z3.And(op.stime(a) <= op.stime(b), op.rtime(a) >= op.rtime(a)),
+                            #     z3.And(op.stime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)),
+                            #     z3.And(op.stime(b) <= op.rtime(a), op.rtime(a) <= op.rtime(b)),
+                            #     z3.And(op.stime(b) <= op.stime(a), op.stime(a) <= op.rtime(b)),
+                            # ))
                         ),
                         z3.BoolVal(True)
                     ),

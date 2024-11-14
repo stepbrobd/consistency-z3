@@ -6,7 +6,6 @@ class Operation:
     _op_type = None
     _op_symbols: dict[str, z3.DatatypeRef] | None = None
 
-
     @staticmethod
     def Create() -> z3.DatatypeSortRef:
         """
@@ -19,19 +18,19 @@ class Operation:
         Operation._op = z3.Datatype("Operation")
         # nil constructor must not be declared
         # Operation.declare("nil")
-        Operation._op.declare("cons",
-            ("proc", z3.IntSort()),    # process id
-            ("type", OperationType),   # operation type
-            ("obj", z3.IntSort()),     # invoking object
-            ("ival", z3.StringSort()), # input value
-            ("oval", z3.StringSort()), # output value
-            ("stime", z3.IntSort()),   # start time
-            ("rtime", z3.IntSort())    # return time
+        Operation._op.declare(
+            "cons",
+            ("proc", z3.IntSort()),  # process id
+            ("type", OperationType),  # operation type
+            ("obj", z3.IntSort()),  # invoking object
+            ("ival", z3.StringSort()),  # input value
+            ("oval", z3.StringSort()),  # output value
+            ("stime", z3.IntSort()),  # start time
+            ("rtime", z3.IntSort()),  # return time
         )
         Operation._op = Operation._op.create()
 
         return Operation._op
-
 
     @staticmethod
     def Sort() -> tuple[z3.DatatypeSortRef, tuple[z3.DatatypeRef, ...]]:
@@ -43,8 +42,7 @@ class Operation:
 
         Operation._op_type = z3.EnumSort("OperationType", ["rd", "wr"])
 
-        return Operation._op_type
-
+        return Operation._op_type  # type: ignore
 
     @staticmethod
     def Const(name: str) -> z3.DatatypeRef:
@@ -58,10 +56,9 @@ class Operation:
             return Operation._op_symbols[name]
 
         op = Operation.Create()
-        Operation._op_symbols[name]= z3.Const(name, op)
+        Operation._op_symbols[name] = z3.Const(name, op)  # type: ignore
 
         return Operation._op_symbols[name]
-
 
     @staticmethod
     def Consts(names: str) -> tuple[z3.DatatypeRef, ...]:

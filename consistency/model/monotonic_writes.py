@@ -24,7 +24,7 @@ class MonotonicWrites(Model):
 
         # monotonic writes
         return z3.ForAll([a, b],
-            z3.If(z3.And(op.type(a) == wr, op.type(b) == wr),
+            z3.If(z3.And(op.type(a) == wr, op.type(b) == wr), # type: ignore
                 z3.Implies(
                     so(a, b),
                     ar(a, b)

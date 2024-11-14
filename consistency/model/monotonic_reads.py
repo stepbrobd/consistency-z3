@@ -14,6 +14,7 @@ class MonotonicReads(Model):
     if operation $a$ is visible to operation $b$, $b$ returns before $c$ starts, and $b, c$ are in the same session,
     then operation $a$ is visible to operation $c$.
     """
+
     @staticmethod
     def assertions() -> z3.BoolRef:
         """
@@ -28,18 +29,20 @@ class MonotonicReads(Model):
         viewed = AE.Relation.viewed()
 
         # monotonic read
-        return z3.And(
+        return z3.And(  # type: ignore
             # (a -vis-> b /\ b --so-> c) -> a -vis-> c
-            z3.ForAll([a, b, c],
+            z3.ForAll(
+                [a, b, c],
                 z3.Implies(
                     z3.And(
-                        op.type(b) == rd, op.type(c) == rd,
+                        op.type(b) == rd,  # type: ignore
+                        op.type(c) == rd,  # type: ignore
                         vis(a, b),
                         so(b, c),
                         viewed(a, c),
                     ),
-                    vis(a, c)
-                )
+                    vis(a, c),
+                ),
             ),
             # monotonically increase
             # for example:

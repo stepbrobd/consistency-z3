@@ -15,7 +15,9 @@ def check(assertions: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
     return s.check() == z3.sat
 
 
-def construct(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> z3.Solver:
+def construct(
+    lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)
+) -> z3.Solver:
     # assert the negation of lhs (base) => rhs (target) is unsatisfiable
     # i.e. lhs implies rhs holds for all enumerated cases
     s = z3.Solver()
@@ -24,7 +26,9 @@ def construct(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(T
     return s
 
 
-def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
+def compatible(
+    lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)
+) -> bool:
     solver = construct(lhs, rhs, others)
     result = solver.check() == z3.unsat
     # print(solver.to_smt2())
@@ -36,7 +40,7 @@ def compatible(lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(
 
 def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
     # direct conjunction of all provided **boolean** constraints
-    return z3.And(*[assertion for assertion in assertions if assertion is not None])
+    return z3.And(*[assertion for assertion in assertions if assertion is not None])  # type: ignore
 
 
 class Cons(NamedTuple):
@@ -46,8 +50,8 @@ class Cons(NamedTuple):
 
 class Node(NamedTuple):
     name: str
-    needs: list[tuple[Cons]] | None # list of required semantics
-    provs: list[tuple[Cons]] | None # list of provided semantics
+    needs: list[tuple[Cons]] | None  # list of required semantics
+    provs: list[tuple[Cons]] | None  # list of provided semantics
 
 
 class Edge(NamedTuple):
@@ -76,7 +80,7 @@ def graph(nodes: list[Node], edges: list[Edge]) -> nx.MultiDiGraph:
     return g
 
 
-def plot(g: nx.MultiDiGraph) -> plt.Figure:
+def plot(g: nx.MultiDiGraph) -> plt.Figure:  # type: ignore
     # modified from networkx example
     # https://networkx.org/documentation/stable/auto_examples/drawing/plot_clusters.html
     communities = nx.community.greedy_modularity_communities(g)
@@ -94,7 +98,19 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
     # color generator
     def colors(size: int) -> Generator[str, None, None]:
         counter = 0
-        clrs = [f"tab:{clr}" for clr in ("blue", "orange", "green", "red", "purple", "cyan", "magenta", "yellow")]
+        clrs = [
+            f"tab:{clr}"
+            for clr in (
+                "blue",
+                "orange",
+                "green",
+                "red",
+                "purple",
+                "cyan",
+                "magenta",
+                "yellow",
+            )
+        ]
         while counter < size:
             yield clrs[counter % len(clrs)]
             counter += 1
@@ -111,22 +127,31 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:
     # https://stackoverflow.com/a/60641770/17129151
     ax = plt.gca()
     for e in g.edges:
-        ax.annotate("", xy=pos[e[0]], xycoords="data",
-            xytext=pos[e[1]], textcoords="data",
+        ax.annotate(
+            "",
+            xy=pos[e[0]],
+            xycoords="data",
+            xytext=pos[e[1]],
+            textcoords="data",
             arrowprops=dict(
-                arrowstyle="<-", color="0",
-                shrinkA=5, shrinkB=5,
-                patchA=None, patchB=None,
-                connectionstyle="arc3,rad=rrr".replace('rrr',str(0.3*e[2])),
+                arrowstyle="<-",
+                color="0",
+                shrinkA=5,
+                shrinkB=5,
+                patchA=None,
+                patchB=None,
+                connectionstyle="arc3,rad=rrr".replace("rrr", str(0.3 * e[2])),  # type: ignore
             ),
         )
 
     plt.tight_layout()
-    figure = plt.get_current_fig_manager().canvas.figure
+    figure = plt.get_current_fig_manager().canvas.figure  # type: ignore
     return figure
 
 
-def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.BoolVal(True)) -> tuple[bool, nx.MultiDiGraph]:
+def composable(
+    graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef = z3.BoolVal(True)
+) -> tuple[bool, nx.MultiDiGraph]:
     # returns whether there's one possible composable assignment
     # and the first satisfying assignment
     result = nx.MultiDiGraph()
@@ -137,7 +162,7 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
     def get_outgoing_edges(node_name: str) -> dict[tuple[str, str], list[int]]:
         # get all outgoing edges grouped by source-destination pairs
         edges: dict[tuple[str, str], list[int]] = {}
-        for (u, v, k) in graph.edges(node_name, keys=True):
+        for u, v, k in graph.edges(node_name, keys=True):  # type: ignore
             edges.setdefault((u, v), []).append(k)
         return edges
 
@@ -153,7 +178,8 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
         # get unvisited outgoing edges grouped by dst node
         outgoing = get_outgoing_edges(curr_node)
         unvisited_pairs = {
-            (u, v): keys for (u, v), keys in outgoing.items()
+            (u, v): keys
+            for (u, v), keys in outgoing.items()
             if not all((u, v, k) in visited_edges for k in keys)
         }
 
@@ -165,7 +191,8 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
                     continue
                 node_outgoing = get_outgoing_edges(node)
                 unvisited_from_node = {
-                    (u, v): keys for (u, v), keys in node_outgoing.items()
+                    (u, v): keys
+                    for (u, v), keys in node_outgoing.items()
                     if not all((u, v, k) in visited_edges for k in keys)
                 }
                 if unvisited_from_node:
@@ -188,8 +215,8 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
             dst_provs = dst_node.provs if dst_node.provs else [node_prov_na[0]]
             # try each combination
             for needs, provs in product(src_needs, dst_provs):
-                check_needs = compose(*[n.cons for n in needs])
-                check_provs = compose(*[p.cons for p in provs])
+                check_needs = compose(*[n.cons for n in needs])  # type: ignore
+                check_provs = compose(*[p.cons for p in provs])  # type: ignore
 
                 # track edges that pass checks at this level
                 valid_edges = []
@@ -202,10 +229,12 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
 
                     # try each edge constraint
                     for cons in edge_cons:
-                        check_ec = compose(*[c.cons for c in cons])
+                        check_ec = compose(*[c.cons for c in cons])  # type: ignore
 
                         # check compatibility with path so far
-                        if compatible(check_provs, compose(check_needs, check_ec), path_premise):
+                        if compatible(
+                            check_provs, compose(check_needs, check_ec), path_premise
+                        ):
                             valid_edges.append(k)
                             edge_constraints.append(cons)
 
@@ -226,8 +255,12 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
                     # compose new premise
                     # since 'others' is added as a separate constraint in the solver
                     # include all constraints from the current level
-                    all_ec = compose(*[compose(*[c.cons for c in cons]) for cons in edge_constraints])
-                    new_premise = compose(path_premise, check_provs, check_needs, all_ec)
+                    all_ec = compose(
+                        *[compose(*[c.cons for c in cons]) for cons in edge_constraints]
+                    )
+                    new_premise = compose(
+                        path_premise, check_provs, check_needs, all_ec
+                    )
 
                     # continue DFS:
                     # try continuing from either the destination node or any other node with unvisited edges
@@ -267,10 +300,11 @@ def composable(graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef=z3.Bool
             result.nodes[node]["needs"] = None
         if result.nodes[node]["provs"] == node_prov_na:
             result.nodes[node]["provs"] = None
-    for edge in result.edges(keys=True):
+    for edge in result.edges(keys=True):  # type: ignore
         if result.get_edge_data(*edge)["cons"] == edge_na:
             result.get_edge_data(*edge)["cons"] = None
     return is_composable, result
+
 
 """
 def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:

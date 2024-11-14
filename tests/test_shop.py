@@ -34,7 +34,7 @@ def test_shop() -> None:
     # operations between the two entities are considered to be in a "session"
     # session guarantees must apply to all operations in a session (bidirectional arrow, lives on edges)
     # for semantics that are not session guarantees
-    # they apply to one signle type of operation (unidirectional arrow)
+    # they apply to one single type of operation (unidirectional arrow)
 
     # all possible combinations of session guarantees
     # sg = list((Cons("N/A", z3.BoolVal(False)),) if x == () else x for x in powerset((

@@ -22,13 +22,15 @@ class CausalConsistency(Model):
         # writes-into: https://repository.gatech.edu/server/api/core/bitstreams/a083b72e-3e3d-4252-9f10-5ab71fa7f6c5/content
         wi = H.Relation.Declare("wi", op, op, z3.BoolSort())
         H.Relation.AddConstraint("wi",
-            z3.Implies(wi(a, b), z3.And(
+            z3.Implies(wi(a, b), z3.And( # type: ignore
                 # a must be a write, b must be a read
                 # a and b must be wr/rd on the same object (shared memory location)
-                z3.If(op.type(a) == wr, z3.And(op.type(b) == rd, op.obj(a) == op.obj(b)), z3.And(
+                z3.If(op.type(a) == wr, z3.And(op.type(b) == rd, op.obj(a) == op.obj(b)), z3.And( # type: ignore
                     ar(a, b),
-                    op.ival(a) == op.oval(b), # values must match
-                    z3.ForAll([a, b, c], z3.Implies(z3.And(op.type(c) == rd, wi(a, b)), z3.Not(wi(a, c)))), # at most one write a can write-into a read b
+                    # values must match
+                    op.ival(a) == op.oval(b), # type: ignore
+                    # at most one write a can write-into a read b
+                    z3.ForAll([a, b, c], z3.Implies(z3.And(op.type(c) == rd, wi(a, b)), z3.Not(wi(a, c)))), # type: ignore
                 )),
                 # acyclicity
                 z3.ForAll([a, b], z3.Implies(wi(a, b), z3.Not(wi(b, a)))),

@@ -13,7 +13,7 @@ class History:
 
             a, b = Op.Consts("a b")
             History.Relation.AddConstraint("rb",
-                z3.Implies(rb(a, b), op.rtime(a) < op.stime(b))
+                z3.Implies(rb(a, b), op.rtime(a) < op.stime(b)) # type: ignore
             )
 
             return rb
@@ -26,11 +26,11 @@ class History:
 
             a, b = Op.Consts("a b")
             History.Relation.AddConstraint("ss",
-                z3.Implies(ss(a, b), op.proc(a) == op.proc(b))
+                z3.Implies(ss(a, b), op.proc(a) == op.proc(b)) # type: ignore
             )
             # each op is in the same session with itself
-            History.Relation.AddConstraint("ss", ss(a, a))
-            History.Relation.AddConstraint("ss", ss(b, b))
+            History.Relation.AddConstraint("ss", ss(a, a)) # type: ignore
+            History.Relation.AddConstraint("ss", ss(b, b)) # type: ignore
 
             return ss
 
@@ -45,7 +45,7 @@ class History:
             ss = History.Relation.same_session()
             History.Relation.AddConstraint("so",
                 # so is the intersection of rb and ss
-                z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
+               z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b))) # type: ignore
             )
 
             return so
@@ -58,7 +58,7 @@ class History:
 
             a, b = Op.Consts("a b")
             History.Relation.AddConstraint("ob",
-                z3.Implies(ob(a, b), op.obj(a) == op.obj(b))
+               z3.Implies(ob(a, b), op.obj(a) == op.obj(b)) # type: ignore
             )
 
             return ob

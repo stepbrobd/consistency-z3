@@ -1,6 +1,5 @@
 import z3
 
-from consistency.history import History as H
 from consistency.operation import Operation as Op
 from consistency.relation import Relation as Rel
 
@@ -8,48 +7,65 @@ from consistency.relation import Relation as Rel
 class AbstractExecution:
     class Relation(Rel):
         @staticmethod
+        def can_view() -> z3.FuncDeclRef:
+            op = Op.Create()
+            can_view = AbstractExecution.Relation.Declare(
+                "can_view", op, op, z3.BoolSort()
+            )
+
+            _, (rd, wr) = Op.Sort()
+            a, b = Op.Consts("a b")
+            AbstractExecution.Relation.AddConstraint(
+                "can_view",
+                z3.Implies(
+                    can_view(a, b),
+                    z3.If(
+                        # conditions: write-read pair invoked on the same object
+                        z3.And(
+                            op.type(a) == wr,  # type: ignore
+                            op.type(b) == rd,  # type: ignore
+                            op.obj(a) == op.obj(b),  # type: ignore
+                        ),
+                        # then
+                        z3.And(
+                            # allow atomic ops
+                            op.rtime(a) >= op.stime(a),  # type: ignore
+                            op.rtime(b) >= op.stime(b),  # type: ignore
+                            # timing constraints
+                            z3.Or(
+                                # non-concurrent
+                                op.rtime(a) < op.stime(b),  # type: ignore
+                                # concurrent
+                                # this only captures the case where a and b *MIGHT* be concurrent
+                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
+                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
+                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)), # type: ignore
+                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)), # type: ignore
+                            ),
+                        ),
+                        # else
+                        z3.BoolVal(True),
+                    ),
+                ),
+            )
+
+            return can_view
+
+
+        @staticmethod
         def viewed() -> z3.FuncDeclRef:
             op = Op.Create()
             viewed = AbstractExecution.Relation.Declare("viewed", op, op, z3.BoolSort())
+            can_view = AbstractExecution.Relation.can_view()
 
-            _, (rd, wr) = Op.Sort()
-            a, b, c = Op.Consts("a b c")
-            vis = AbstractExecution.Relation.visibility()
-            AbstractExecution.Relation.AddConstraint("viewed", z3.And( # type: ignore
-                # write-read: if b has seen a, subsequent reads after b must see data as up-to-date as a
-                # this also applies to concurrent writes
-                z3.If(z3.And(op.type(a) == wr, op.type(b) == rd, op.obj(a) == op.obj(b)), z3.Implies(viewed(a, b), # type: ignore
-                    z3.If(z3.Or(
-                        # non-concurrent
-                        op.rtime(a) < op.stime(b), # type: ignore
-                        # concurrent
-                        # this only captures the case where a and b *MIGHT* be concurrent
-                        # all of the below 4 are considered as the constraints for CAN VIEW
-                        z3.And(op.stime(a) <= op.stime(b), op.rtime(a) >= op.rtime(a)), # type: ignore
-                        z3.And(op.stime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
-                        z3.And(op.stime(b) <= op.rtime(a), op.rtime(a) <= op.rtime(b)), # type: ignore
-                        z3.And(op.stime(b) <= op.stime(a), op.stime(a) <= op.rtime(b)), # type: ignore
-                    ),
-                    # then
-                    vis(a, b), # FIXME
-                    # else
-                    z3.BoolVal(True)
-                )), z3.BoolVal(True)),
-                # read-read: b's value being returned must track the closest write that's visible to a
-                # c -> ... -> a -> b
-                # wr...rd...rd...rd
-                z3.If(z3.And(op.type(a) == rd, op.type(b) == rd, op.obj(a) == op.obj(b)), z3.Implies(viewed(a, b), # type: ignore
-                    z3.Exists([c], z3.And(
-                        op.type(c) == wr, # type: ignore
-                        vis(c, a), # FIXME: should be can view
-                        op.ival(c) == op.oval(a), op.ival(c) == op.oval(b), op.obj(b) == op.obj(a), # type: ignore
-                    ))
-                ), z3.BoolVal(True)),
-                # acyclicity
-                z3.ForAll([a, b], z3.Implies(viewed(a, b), z3.Not(viewed(b, a)))),
-                # transitivity
-                z3.ForAll([a, b, c], z3.Implies(z3.And(viewed(a, b), viewed(b, c)), viewed(a, c))),
-            ))
+            a, b = Op.Consts("a b")
+            AbstractExecution.Relation.AddConstraint(
+                "viewed",
+                z3.Implies(
+                    viewed(a, b),
+                    z3.And(can_view(a, b), op.ival(a) == op.oval(b)), # type: ignore
+                ),
+            )
 
             return viewed
 
@@ -58,38 +74,65 @@ class AbstractExecution:
         def visibility() -> z3.FuncDeclRef:
             op = Op.Create()
             vis = AbstractExecution.Relation.Declare("vis", op, op, z3.BoolSort())
+            ar = AbstractExecution.Relation.arbitration()
+            viewed = AbstractExecution.Relation.viewed()
 
             _, (rd, wr) = Op.Sort()
-            a, b, c = Op.Consts("a b c")
-            AbstractExecution.Relation.AddConstraint("vis",
+            a, b, c, x = Op.Consts("a b c x")
+            AbstractExecution.Relation.AddConstraint(
+                "vis",
                 z3.And( # type: ignore
-                    # op a's effect is visible to op b
-                    z3.If(z3.And(op.type(a) == wr, op.type(b) == rd), # type: ignore
-                        z3.Implies(vis(a, b),
-                            z3.And( # definitive encoding, if this condition is met, a must be visible to b
-                                op.obj(a) == op.obj(b),    # type: ignore
-                                op.rtime(a) < op.stime(b), # type: ignore
-                            )
-                            # capture the ambiguity due to concurrent operations
-                            # but not needed as the monotonic read will include the new "viewed" partial order
-                            # z3.And(op.obj(a) == op.obj(b), z3.Or(
-                            #     # non-concurrent
-                            #     op.rtime(a) < op.stime(b),
-                            #     # concurrent
-                            #     # this only captures the case where a and b *MIGHT* be concurrent
-                            #     z3.And(op.stime(a) <= op.stime(b), op.rtime(a) >= op.rtime(a)),
-                            #     z3.And(op.stime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)),
-                            #     z3.And(op.stime(b) <= op.rtime(a), op.rtime(a) <= op.rtime(b)),
-                            #     z3.And(op.stime(b) <= op.stime(a), op.stime(a) <= op.rtime(b)),
-                            # ))
+                    # case analysis on op type
+                    # i think 4 explicit z3.If statements can work here but it's not clear
+                    # that only 1 of them can be true at a time, so i'm using z3.Or
+                    z3.Or(
+                        # case 1: read-read pair
+                        # previous read needs to track to its closest visible write if any
+                        # and propagate the write to the later read
+                        z3.If( # type: ignore
+                            z3.And(op.type(a) == rd, op.type(b) == rd), # type: ignore
+                            z3.And(
+                                z3.Exists(
+                                    x,
+                                    z3.And(
+                                        op.type(x) == wr, # type: ignore
+                                        vis(x, a),
+                                        vis(x, b),
+                                    ),
+                                ),
+                            ),
+                            z3.BoolVal(True),
                         ),
-                        z3.BoolVal(True)
+                        # case 2: read-write pair
+                        # undefined
+                        z3.If( # type: ignore
+                            z3.And(op.type(a) == rd, op.type(b) == wr), # type: ignore
+                            z3.BoolVal(True),
+                            z3.BoolVal(True),
+                        ),
+                        # case 3: write-read pair
+                        # equivalent to viewed + arbitration
+                        # i.e. make sure the write and read have a linearization point
+                        z3.If( # type: ignore
+                            z3.And(op.type(a) == wr, op.type(b) == rd), # type: ignore
+                            z3.Implies(viewed(a, b), ar(a, b)),
+                            z3.BoolVal(True),
+                        ),
+                        # case 4: write-write pair
+                        # undefined
+                        z3.If( # type: ignore
+                            z3.And(op.type(a) == wr, op.type(b) == wr), # type: ignore
+                            z3.BoolVal(True),
+                            z3.BoolVal(True),
+                        ),
                     ),
                     # acyclicity
                     z3.ForAll([a, b], z3.Implies(vis(a, b), z3.Not(vis(b, a)))),
                     # transitivity
-                    z3.ForAll([a, b, c], z3.Implies(z3.And(vis(a, b), vis(b, c)), vis(a, c))),
-                )
+                    z3.ForAll(
+                        [a, b, c], z3.Implies(z3.And(vis(a, b), vis(b, c)), vis(a, c))
+                    ),
+                ),
             )
 
             return vis
@@ -101,15 +144,18 @@ class AbstractExecution:
             ar = AbstractExecution.Relation.Declare("ar", op, op, z3.BoolSort())
 
             a, b, c = Op.Consts("a b c")
-            AbstractExecution.Relation.AddConstraint("ar",
-                z3.And( # type: ignore
+            AbstractExecution.Relation.AddConstraint(
+                "ar",
+                z3.And(  # type: ignore
                     # ordering
-                    z3.Implies(ar(a, b), op.rtime(a) < op.stime(b)), # type: ignore
+                    z3.Implies(ar(a, b), op.rtime(a) < op.stime(b)),  # type: ignore
                     # acyclicity
                     z3.ForAll([a, b], z3.Implies(ar(a, b), z3.Not(ar(b, a)))),
                     # transitivity
-                    z3.ForAll([a, b, c], z3.Implies(z3.And(ar(a, b), ar(b, c)), ar(a, c))),
-                )
+                    z3.ForAll(
+                        [a, b, c], z3.Implies(z3.And(ar(a, b), ar(b, c)), ar(a, c))
+                    ),
+                ),
             )
 
             return ar
@@ -121,13 +167,12 @@ class AbstractExecution:
             hb = AbstractExecution.Relation.Declare("hb", op, op, z3.BoolSort())
 
             a, b = Op.Consts("a b")
-            H.Relation.session_order()
-            AbstractExecution.Relation.visibility()
 
-            AbstractExecution.Relation.AddConstraint("hb",
-                z3.And( # type: ignore
+            AbstractExecution.Relation.AddConstraint(
+                "hb",
+                z3.And(  # type: ignore
                     # hb is the transitive closure of the union of so and vis
-                )
+                ),
             )
 
             return hb

@@ -26,7 +26,6 @@ class MonotonicReads(Model):
 
         so = H.Relation.session_order()
         vis = AE.Relation.visibility()
-        viewed = AE.Relation.viewed()
 
         # monotonic read
         return z3.And(  # type: ignore
@@ -39,7 +38,6 @@ class MonotonicReads(Model):
                         op.type(c) == rd,  # type: ignore
                         vis(a, b),
                         so(b, c),
-                        viewed(a, c),
                     ),
                     vis(a, c),
                 ),

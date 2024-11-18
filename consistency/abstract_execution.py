@@ -8,6 +8,7 @@ class AbstractExecution:
     class Relation(Rel):
         @staticmethod
         def can_view() -> z3.FuncDeclRef:
+            # can_view(a, b) -> a (rd) can view b (wr)
             op = Op.Create()
             can_view = AbstractExecution.Relation.Declare(
                 "can_view", op, op, z3.BoolSort()
@@ -22,8 +23,8 @@ class AbstractExecution:
                     z3.If(
                         # conditions: write-read pair invoked on the same object
                         z3.And(
-                            op.type(a) == wr,  # type: ignore
-                            op.type(b) == rd,  # type: ignore
+                            op.type(a) == rd,  # type: ignore
+                            op.type(b) == wr,  # type: ignore
                             op.obj(a) == op.obj(b),  # type: ignore
                         ),
                         # then
@@ -34,13 +35,13 @@ class AbstractExecution:
                             # timing constraints
                             z3.Or(
                                 # non-concurrent
-                                op.rtime(a) < op.stime(b),  # type: ignore
+                                op.stime(a) > op.rtime(b),  # type: ignore
                                 # concurrent
                                 # this only captures the case where a and b *MIGHT* be concurrent
-                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
-                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
-                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)), # type: ignore
                                 z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)), # type: ignore
+                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)), # type: ignore
+                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
+                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
                             ),
                         ),
                         # else
@@ -54,6 +55,7 @@ class AbstractExecution:
 
         @staticmethod
         def viewed() -> z3.FuncDeclRef:
+            # viewed(a, b) -> a (rd) viewed b (wr)
             op = Op.Create()
             viewed = AbstractExecution.Relation.Declare("viewed", op, op, z3.BoolSort())
             can_view = AbstractExecution.Relation.can_view()
@@ -63,7 +65,7 @@ class AbstractExecution:
                 "viewed",
                 z3.Implies(
                     viewed(a, b),
-                    z3.And(can_view(a, b), op.ival(a) == op.oval(b)), # type: ignore
+                    z3.And(can_view(a, b), op.oval(a) == op.ival(b)), # type: ignore
                 ),
             )
 
@@ -91,15 +93,15 @@ class AbstractExecution:
                         # and propagate the write to the later read
                         z3.If( # type: ignore
                             z3.And(op.type(a) == rd, op.type(b) == rd), # type: ignore
-                            z3.And(
+                            z3.Implies(
                                 z3.Exists(
                                     x,
                                     z3.And(
                                         op.type(x) == wr, # type: ignore
                                         vis(x, a),
-                                        vis(x, b),
                                     ),
                                 ),
+                                vis(x, b),
                             ),
                             z3.BoolVal(True),
                         ),
@@ -115,7 +117,7 @@ class AbstractExecution:
                         # i.e. make sure the write and read have a linearization point
                         z3.If( # type: ignore
                             z3.And(op.type(a) == wr, op.type(b) == rd), # type: ignore
-                            z3.Implies(viewed(a, b), ar(a, b)),
+                            z3.Implies(viewed(b, a), ar(b, a)),
                             z3.BoolVal(True),
                         ),
                         # case 4: write-write pair

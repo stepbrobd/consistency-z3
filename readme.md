@@ -148,7 +148,10 @@ logical start time equal to its logical end time.
 - Viewed: A non-deterministic pairwise partial ordering between a write
   operation and a read operation that builds atop "can view". Aside from the
   timestamps fall into one of the "can view" cases, `ival` of the write must
-  match the `oval` of the read.
+  match the `oval` of the read. In case of a write happened after or concurrent
+  to the aforementioned write, viewed relation enforces the output of the read
+  to be either of writes (only one can be chosen). In visible/visibility
+  definition, the transitivity of viewed relation is implicitly enforced.
 
 - Visible = viewed + arbitration: A deterministic pairwise between any
   operation.

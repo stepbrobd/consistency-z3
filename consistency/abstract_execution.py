@@ -60,12 +60,46 @@ class AbstractExecution:
             viewed = AbstractExecution.Relation.Declare("viewed", op, op, z3.BoolSort())
             can_view = AbstractExecution.Relation.can_view()
 
-            a, b = Op.Consts("a b")
+            _, (rd, wr) = Op.Sort()
+            a, b, x = Op.Consts("a b x")
             AbstractExecution.Relation.AddConstraint(
                 "viewed",
                 z3.Implies(
                     viewed(a, b),
-                    z3.And(can_view(a, b), op.oval(a) == op.ival(b)), # type: ignore
+                    z3.And(
+                        can_view(a, b),
+                        z3.Or(
+                            # b -vis-> a
+                            # x -vis-> a
+                            # where x concur b
+                            # strict value equavalence
+                            op.oval(a) == op.ival(b), # type: ignore
+                            # there might be a write that happened after the write b or concurrent to write b
+                            # that changes the value of read a (still legal)
+                            # need to ensure the output of read a is either the value of write b or the value of a write x that happened
+                            z3.Exists(
+                                x,
+                                z3.And(
+                                    op.type(x) == wr, # type: ignore
+                                    # make sure x is after write b or concurrent to write b
+                                    # allow atomic ops
+                                    op.rtime(x) >= op.stime(x),  # type: ignore
+                                    op.rtime(b) >= op.stime(b),  # type: ignore
+                                    # timing constraints
+                                    z3.Or(
+                                        # non-concurrent
+                                        op.stime(x) > op.rtime(b),  # type: ignore
+                                        # concurrent
+                                        z3.And(op.stime(x) <= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) >= op.rtime(b)), # type: ignore
+                                        z3.And(op.stime(x) >= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) >= op.rtime(b)), # type: ignore
+                                        z3.And(op.stime(x) <= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) <= op.rtime(b)), # type: ignore
+                                        z3.And(op.stime(x) >= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) <= op.rtime(b)), # type: ignore
+                                    ),
+                                    op.oval(a) == op.ival(x), # type: ignore
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
             )
 

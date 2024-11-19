@@ -101,7 +101,8 @@ class AbstractExecution:
                                         vis(x, a),
                                     ),
                                 ),
-                                vis(x, b),
+                                vis(x, b), # thought about changing this to ar(x, b)
+                                # but vis(x, b) is more relaxed
                             ),
                             z3.BoolVal(True),
                         ),

@@ -7,9 +7,9 @@
 
 Hydra Evaluation and Binary Cache:
 
-- Jobsets: <https://hydra.nixolo.gy/jobset/stepbrobd/consistency-z3>
-- Cache: <https://cache.nixolo.gy>
-- Key: `cache.nixolo.gy:UDmjlw8J4sqDlBIPe5YnABPI1lkcJssN8niLozS2ltM=`
+- Jobsets: <https://hydra.ysun.co/jobset/stepbrobd/consistency-z3>
+- Cache: <https://cache.ysun.co/public>
+- Key: `public:Y9EARSt+KLUY1JrY4X8XWmzs6uD+Zh2hRqN9eCUg55U=`
 
 ## Specifications
 

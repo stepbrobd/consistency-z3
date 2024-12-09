@@ -1,0 +1,106 @@
+viotti2016consistency:
+  type: article
+  title: Consistency in Non-Transactional Distributed Storage Systems
+  author:
+  - Viotti, Paolo
+  - Vukolić, Marko
+  date: 2016-06
+  url: https://doi.org/10.1145/2926965
+  serial-number:
+    doi: 10.1145/2926965
+    issn: 0360-0300
+  parent:
+    type: periodical
+    title: ACM Comput. Surv.
+    publisher: Association for Computing Machinery
+    location: New York, NY, USA
+    issue: 1
+    volume: 49
+
+burckhardt2014principles:
+  type: book
+  title: Principles of Eventual Consistency
+  author: Burckhardt, Sebastian
+  date: 2014-10
+  publisher: Now Publishers
+  volume: 1
+  edition: Principles of Eventual Consistency
+  page-range: 1–150
+  url: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
+  parent:
+    type: book
+    title: Foundations and Trends® in Programming Languages
+
+demoura2008z3:
+  type: article
+  title: 'Z3: an efficient SMT solver'
+  author:
+  - De Moura, Leonardo
+  - Bj̸rner, Nikolaj
+  date: 2008
+  page-range: 337
+  serial-number:
+    isbn: '3540787992'
+  parent:
+    type: proceedings
+    title: Proceedings of the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems
+    publisher: Springer-Verlag
+    location: Budapest, Hungary
+    parent:
+      type: proceedings
+      title: TACAS'08/ETAPS'08
+
+barbosa2022cvc5:
+  type: article
+  title: 'cvc5: A Versatile and Industrial-Strength SMT Solver'
+  author:
+  - Barbosa, Haniel
+  - Barrett, Clark
+  - Brain, Martin
+  - Kremer, Gereon
+  - Lachnitt, Hanna
+  - Mann, Makai
+  - Mohamed, Abdalrhman
+  - Mohamed, Mudathir
+  - Niemetz, Aina
+  - Nötzli, Andres
+  - Ozdemir, Alex
+  - Preiner, Mathias
+  - Reynolds, Andrew
+  - Sheng, Ying
+  - Tinelli, Cesare
+  - Zohar, Yoni
+  date: 2022
+  page-range: 415
+  url: https://doi.org/10.1007/978-3-030-99524-9_24
+  serial-number:
+    doi: 10.1007/978-3-030-99524-9_24
+    isbn: 978-3-030-99523-2
+  parent:
+    type: proceedings
+    title: 'Tools and Algorithms for the Construction and Analysis of Systems: 28th International Conference, TACAS 2022, Held as Part of the European Joint Conferences on Theory and Practice of Software, ETAPS 2022, Munich, Germany, April 2–7, 2022, Proceedings, Part I'
+    publisher: Springer-Verlag
+    location: Munich, Germany
+
+bryant2002modeling:
+  type: article
+  title: Modeling and Verifying Systems Using a Logic of Counter Arithmetic with Lambda Expressions and Uninterpreted Functions
+  author:
+  - Bryant, Randal E.
+  - Lahiri, Shuvendu K.
+  - Seshia, Sanjit A.
+  date: 2002
+  page-range: 78-92
+  serial-number:
+    isbn: '3540439978'
+  abstract: In this paper, we present the logic of Counter Arithmetic with Lambda Expressions and Uninterpreted Functions (CLU). CLU generalizes the logic of equality with uninterpreted functions (EUF) with constrained lambda expressions, ordering, and successor and predecessor functions. In addition to modeling pipelined processors that EUF has proved useful for, CLU can be used to model many infinite-state systems including those with infinite memories, finite and infinite queues including lossy channels, and networks of identical processes. Even with this richer expressive power, the validity of a CLU formula can be efficiently decided by translating it to a propositional formula, and then using Boolean methods to check validity. We give theoretical and empirical evidence for the efficiency of our decision procedure. We also describe verification techniques that we have used on a variety of systems, including an out-of-order execution unit and the load-store unit of an industrial microprocessor.
+  parent:
+    type: proceedings
+    title: Proceedings of the 14th International Conference on Computer Aided Verification
+    publisher:
+      name: Springer-Verlag
+      location: Berlin, Heidelberg
+    parent:
+      type: proceedings
+      title: CAV '02
+

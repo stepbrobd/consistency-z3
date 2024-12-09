@@ -1,6 +1,7 @@
+from collections.abc import Collection, Generator
 from functools import cache
 from itertools import chain, combinations, product
-from typing import Collection, Generator, NamedTuple
+from typing import NamedTuple
 
 import matplotlib.pyplot as plt
 import networkx as nx

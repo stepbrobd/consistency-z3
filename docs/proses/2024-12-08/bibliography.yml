@@ -93,7 +93,6 @@ bryant2002modeling:
   page-range: 78-92
   serial-number:
     isbn: '3540439978'
-  abstract: In this paper, we present the logic of Counter Arithmetic with Lambda Expressions and Uninterpreted Functions (CLU). CLU generalizes the logic of equality with uninterpreted functions (EUF) with constrained lambda expressions, ordering, and successor and predecessor functions. In addition to modeling pipelined processors that EUF has proved useful for, CLU can be used to model many infinite-state systems including those with infinite memories, finite and infinite queues including lossy channels, and networks of identical processes. Even with this richer expressive power, the validity of a CLU formula can be efficiently decided by translating it to a propositional formula, and then using Boolean methods to check validity. We give theoretical and empirical evidence for the efficiency of our decision procedure. We also describe verification techniques that we have used on a variety of systems, including an out-of-order execution unit and the load-store unit of an industrial microprocessor.
   parent:
     type: proceedings
     title: Proceedings of the 14th International Conference on Computer Aided Verification
@@ -104,3 +103,72 @@ bryant2002modeling:
       type: proceedings
       title: CAV '02
 
+viotti2016towards:
+  type: article
+  title: Towards property-based consistency verification
+  author:
+  - Viotti, Paolo
+  - Meiklejohn, Christopher
+  - Vukolić, Marko
+  date: 2016
+  url: https://doi.org/10.1145/2911151.2911162
+  serial-number:
+    doi: 10.1145/2911151.2911162
+    isbn: '9781450342964'
+  parent:
+    type: proceedings
+    title: Proceedings of the 2nd Workshop on the Principles and Practice of Consistency for Distributed Data
+    publisher:
+      name: Association for Computing Machinery
+      location: London, United Kingdom
+    parent:
+      type: proceedings
+      title: PaPoC '16
+
+zhang2018building:
+  type: article
+  title: Building Consistent Transactions with Inconsistent Replication
+  author:
+  - Zhang, Irene
+  - Sharma, Naveen Kr.
+  - Szekeres, Adriana
+  - Krishnamurthy, Arvind
+  - Ports, Dan R. K.
+  date: 2018-12
+  url: https://doi.org/10.1145/3269981
+  serial-number:
+    doi: 10.1145/3269981
+    issn: 0734-2071
+  parent:
+    type: periodical
+    title: ACM Trans. Comput. Syst.
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    issue: 4
+    volume: 35
+
+ferreira2023antipode:
+  type: article
+  title: 'Antipode: Enforcing Cross-Service Causal Consistency in Distributed Applications'
+  author:
+  - Ferreira Loff, João
+  - Porto, Daniel
+  - Garcia, João
+  - Mace, Jonathan
+  - Rodrigues, Rodrigo
+  date: 2023
+  page-range: 298-313
+  url: https://doi.org/10.1145/3600006.3613176
+  serial-number:
+    doi: 10.1145/3600006.3613176
+    isbn: '9798400702297'
+  parent:
+    type: proceedings
+    title: Proceedings of the 29th Symposium on Operating Systems Principles
+    publisher:
+      name: Association for Computing Machinery
+      location: Koblenz, Germany
+    parent:
+      type: proceedings
+      title: SOSP '23

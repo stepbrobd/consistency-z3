@@ -145,10 +145,97 @@ Axioms defined for operations within a history:
 
 === Abstract Execution
 
+/*
+* Abstract execution (in the actual writing, layout the actual Z3 clauses used to
+* encode the relational constraints): one or more "instantiation" of history. An
+* abstract execution is a set of operations (i.e. history) that are further
+* constrained by the nondeterminism of the asynchronous environment (e.g., message
+* delivery order), and implementation-specific constraints (e.g., conflict
+* resolution policies) (from non-transactional survey).
+*/
+
+Abstract executions are instantiated from a given history by specifying which
+operations are visible to each other and how they are ordered. Multiple multiple
+abstract executions are possible for a single history as observed event oderings
+can differ between nodes. AE encode the *nondeterministic* effects of
+asynchronous execution environments and implementation-specific constraints
+@viotti2016consistency.
+
+Axioms defined for operations within abstract executions:
+
+- visibility (vis): visibility definition used in all literatures we've reviewed
+  are ambiguous
+in the sense that they don't specify the exact behavior under concurrent
+settings @viotti2016consistency @viotti2016towards @zhang2018building
+@ferreira2023antipode. In our implementation, we restructured visibility as a
+binary relation and performed explicit case analysis on all possible
+combinations of read and write operations that can be "visible" to each other.
+To achieve visibility, two operations must first fall in one of the categories
+in
+"can-view":
+
+// FIXME: way too ugly
+can-view (cv): $"cv" eq.delta {(a, b) : a in H_"rd", b in H_"wr" and a."obj" = b."obj" and (
+a."stime" > b."rtime" // non-concurrent
+or
+(a."stime" <= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" >= b."rtime")
+or
+(a."stime" >= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" >= b."rtime")
+or
+(a."stime" <= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" <= b."rtime")
+or
+(a."stime" >= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" <= b."rtime")
+)}$
+
+In the above encoding, "can-view" is defined as a non-deterministic pairwise
+partial ordering that solely depends on time stamps (conceptually, it captures
+all cases where reads happened before or after or during writes). And is a set
+of operations where, the first element of the tuple is a read and the second
+element is a write. The read *can view* (nondeterminism included) the write if:
+1. (a1) The read-write pair contains non-concurrent operations.
+2. (a2) The read started before the write starts and ended after the write ends.
+3. (a3) The read started after the write starts and ended after the write ends.
+4. (a4) The read started before the write starts and ended before the write ends.
+5. (a5) The read started after the write starts and ended before the write ends.
+
+```txt
+  a1         a2
+|---|      |---|
+
+           b (rd)
+       |------------|
+
+     a3              a4
+|---------|     |----------|
+
+            a5
+ |----------------------|
+```
+
+While "can-view" captures the possible visibility between read and write, the
+result dependency between them is captured by the "viewed" relation:
+
+// how do I use sect on logical definition and set definition?
+$$
+
+// FIXME: copied from readme
+In the encoding above, "viewed" is a non-deterministic pairwise partial ordering
+between a write and a read that builds atop "can-view". Aside from the
+timestamps fall into one of the "can-view" cases, input of the write must match
+the output of the read. In case of a write happened after or concurrent to the
+aforementioned write, viewed relation enforces the output of the read to be
+either of writes (but only one can be chosen). In visibility definition, the
+transitivity of viewed relation is implicitly enforced.
+
+// TODO: actual vis
+
+- arbitration (ar): provides a total order on conflicting
+operations, ensuring that observed executions follow a single coherent timeline.
+
 == Session Guarantees
 
 === Monotonic Reads
-//
+
 === Monotonic Writes
 
 === Read Your Writes

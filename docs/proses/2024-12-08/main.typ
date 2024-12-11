@@ -20,6 +20,88 @@
   body
 }
 
+// https://github.com/pgbiel/typst-diagbox
+#let bdiagbox(
+  text_left, text_right, width: none, height: none, inset: 5pt, text_pad: none, box_stroke: none, line_stroke: 1pt, inner_width: none, left_sep: 0pt, right_sep: 0pt, left_outer_sep: 0pt, right_outer_sep: 0pt,
+) = style(
+  styles => {
+    let left_measure = measure(text_left, styles)
+    let right_measure = measure(text_right, styles)
+
+    let text_pad = if text_pad == none {
+      -2 * inset / 3 + 3pt
+    } else {
+      text_pad
+    }
+
+    let height = if height != none {
+      height
+    } else {
+      2 * (left_measure.height + right_measure.height)
+    }
+
+    let inner_width = if inner_width != none {
+      inner_width
+    } else if width != none {
+      width - 2 * inset
+    } else {
+      2 * calc.max(left_measure.width, right_measure.width)
+    }
+
+    box(
+      width: inner_width, height: height, stroke: box_stroke,
+    )[
+      #show line: place.with(top + left)
+      #place(top + right, move(dx: -right_sep - text_pad, dy: text_pad, text_right))
+      #line(
+        start: (left_outer_sep - inset, -inset), end: (inner_width + inset - right_outer_sep, height + inset), stroke: line_stroke,
+      )
+      #place(bottom + left, move(dx: left_sep + text_pad, dy: -text_pad, text_left))
+    ]
+  },
+)
+#let tdiagbox(
+  text_left, text_right, width: none, height: none, inset: 5pt, text_pad: none, box_stroke: none, line_stroke: 1pt, inner_width: none, left_sep: 0pt, right_sep: 0pt, left_outer_sep: 0pt, right_outer_sep: 0pt,
+) = style(
+  styles => {
+    let left_measure = measure(text_left, styles)
+    let right_measure = measure(text_right, styles)
+
+    let text_pad = if text_pad == none {
+      -2 * inset / 3 + 3pt
+    } else {
+      text_pad
+    }
+
+    let height = if height != none {
+      height
+    } else {
+      2 * (left_measure.height + right_measure.height)
+    }
+
+    let inner_width = if inner_width != none {
+      inner_width
+    } else if width != none {
+      width - 2 * inset
+    } else {
+      2 * calc.max(left_measure.width, right_measure.width)
+    }
+
+    box(
+      width: inner_width, height: height, stroke: box_stroke,
+    )[
+      #show line: place.with(top + left)
+      #place(top + left, move(dx: left_sep + text_pad, dy: text_pad, text_left))
+      #line(
+        start: (left_outer_sep - inset, height + inset), end: (inner_width + inset - right_outer_sep, -inset), stroke: line_stroke,
+      )
+      #place(
+        bottom + right, move(dx: -right_sep - text_pad, dy: -text_pad, text_right),
+      )
+    ]
+  },
+)
+
 #show: doc.with(
   title: "CS 8674 Project Report", authors: ((name: "Yifei Sun", email: "ysun@ccs.neu.edu"),), date: "December 11, 2024",
 )
@@ -404,6 +486,13 @@ checking if it is unsatisfiable using our SMT-based approach. If no
 counterexample can be found, it implies that $M_1$
 refines/subsumes $M_2$. This compatibility check is not symmetric: $M_1 arrow.double M_2$
 holding does not necessarily mean that $M_2 arrow.double M_1$ also holds.
+
+#let table_na = bdiagbox(width: 2.275cm, height: 0.73cm)[][]
+#let table_t = [#text(green)[T]]
+#let table_f = [#text(red)[F]]
+#table(
+  columns: (auto, auto, auto, auto, auto, auto, auto), bdiagbox(width: 2.275cm, height: 1.25cm)[*LHS*][*RHS*], [*PRAM*], [*Monotonic Reads*], [*Monotonic Writes*], [*Read Your Writes*], [*Writes Follow Reads*], [*Lineariza-bility*], [*PRAM*], [#table_na], [#table_t], [#table_t], [#table_t], [#table_f], [#table_f], [*Monotonic Reads*], [#table_f], [#table_na], [#table_f], [#table_f], [#table_f], [#table_f], [*Monotonic Writes*], [#table_f], [#table_f], [#table_na], [#table_f], [#table_f], [#table_f], [*Read Your Writes*], [#table_f], [#table_f], [#table_f], [#table_na], [#table_f], [#table_f], [*Writes Follow Reads*], [#table_f], [#table_f], [#table_f], [#table_f], bdiagbox(width: 2.3cm, height: 1.25cm)[][], [#table_f], [*Lineariza-bility*], [#table_t], [#table_t], [#table_t], [#table_t], [#table_t], bdiagbox(width: 2.3cm, height: 1.25cm)[][],
+)
 
 To combine multiple consistency models into a single stronger model, we used
 logical conjunctions on each model's constraints. By taking the constraints

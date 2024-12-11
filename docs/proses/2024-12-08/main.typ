@@ -105,17 +105,18 @@ axioms of that model are violated.
 * Operation does not contain the node that issued the operation, nor the node that handled the operation. It's defined as a generic entity that can be issued by any node and handled by any node. To add constraints on the nodes that can issue or handle an operation, the framework user must define nodes and edges.
 */
 
-== Axioms
+== Axiom
 
 /*
 * Relation predicates:
 * A set of predicates that define the relations between operations in a history (also includes those in AE).
 * The predicates are used as base/premise for consistency models (implementations in relation.py, history.py, abstract_execution.py). In the implementation, the predicates are singletons and will be added ad-hoc if any clause refers to them.
 */
-
-Axioms are relations defined over operations. These relations are declared as
-uninterpreted functions, where the SMT solvers are free to interpret them so
-long as they satisfy the imposed constraints.
+Similar to how Lamport et al. @lamport1977proving defines axioms, they are
+operational invariants defined over operations. In our implementation, these
+axioms/invariants/relations are declared as uninterpreted functions, where the
+SMT solvers are free to interpret them so long as they satisfy the imposed
+constraints.
 
 === History
 
@@ -133,13 +134,11 @@ identical to the set of operations that have been executed in the system.
 
 Axioms defined for operations within a history:
 
-// TODO: add descriptions
-
 - returns-before: $"rb" eq.delta {(a, b) : a, b in H and a."rtime" < b."stime"}$
 
 - same-session: $"ss" eq.delta {(a, b) : a, b in H and a."proc" = b."proc"}$
 
-- session-order: $"so" eq.delta {(a, b) : a, b in H and "rb" sect "ss"}$
+- session-order: $"so" eq.delta "rb" sect "ss"$
 
 - same-object: $"ob" eq.delta {(a, b) : a, b in H and a."obj" = b."obj"}$
 
@@ -157,9 +156,9 @@ Axioms defined for operations within a history:
 Abstract executions are instantiated from a given history by specifying which
 operations are visible to each other and how they are ordered. Multiple multiple
 abstract executions are possible for a single history as observed event oderings
-can differ between nodes. AE encode the *nondeterministic* effects of
+can differ between nodes. AE encode the *non-deterministic* effects of
 asynchronous execution environments and implementation-specific constraints
-@viotti2016consistency.
+@burckhardt2014principles @viotti2016consistency.
 
 Axioms defined for operations within abstract executions:
 
@@ -171,8 +170,7 @@ settings @viotti2016consistency @viotti2016towards @zhang2018building
 binary relation and performed explicit case analysis on all possible
 combinations of read and write operations that can be "visible" to each other.
 To achieve visibility, two operations must first fall in one of the categories
-in
-"can-view":
+in "can-view":
 
 // FIXME: way too ugly
 can-view (cv): $"cv" eq.delta {(a, b) : a in H_"rd", b in H_"wr" and a."obj" = b."obj" and (
@@ -192,61 +190,234 @@ partial ordering that solely depends on time stamps (conceptually, it captures
 all cases where reads happened before or after or during writes). And is a set
 of operations where, the first element of the tuple is a read and the second
 element is a write. The read *can view* (nondeterminism included) the write if:
-1. (a1) The read-write pair contains non-concurrent operations.
-2. (a2) The read started before the write starts and ended after the write ends.
-3. (a3) The read started after the write starts and ended after the write ends.
-4. (a4) The read started before the write starts and ended before the write ends.
-5. (a5) The read started after the write starts and ended before the write ends.
 
++ (a1) The read-write pair contains non-concurrent operations.
+
++ (a2) The read started before the write starts and ended after the write ends.
+
++ (a3) The read started after the write starts and ended after the write ends.
+
++ (a4) The read started before the write starts and ended before the write ends.
+
++ (a5) The read started after the write starts and ended before the write ends.
+
+#align(center)[
 ```txt
-  a1         a2
-|---|      |---|
+    a1         a2
+  |---|      |---|
 
-           b (rd)
-       |------------|
+             b (rd)
+         |------------|
 
-     a3              a4
-|---------|     |----------|
+       a3              a4
+  |---------|     |----------|
 
-            a5
- |----------------------|
+              a5
+   |----------------------|
 ```
+]
 
 While "can-view" captures the possible visibility between read and write, the
 result dependency between them is captured by the "viewed" relation:
 
-// how do I use sect on logical definition and set definition?
-$$
+$"viewed" eq.delta {(a, b) : a in H_"rd", b in H_"wr" and (
+a."oval" = b."ival"
+or
+(exists x in H_"wr" and (x, b) in "cv" and a."oval" = x."ival")
+)}$
 
-// FIXME: copied from readme
 In the encoding above, "viewed" is a non-deterministic pairwise partial ordering
-between a write and a read that builds atop "can-view". Aside from the
-timestamps fall into one of the "can-view" cases, input of the write must match
-the output of the read. In case of a write happened after or concurrent to the
+between a write and a read that build atop "can-view". Aside from the timestamps
+fall into one of the "can-view" cases, we assigned additional value related
+constraints to operations: either the input of the write must match the output
+of the read, or, in case of a write happened after or concurrent to the
 aforementioned write, viewed relation enforces the output of the read to be
 either of writes (but only one can be chosen). In visibility definition, the
 transitivity of viewed relation is implicitly enforced.
 
-// TODO: actual vis
+// actual vis
+In our visible/visibility definition, it is defined as a *deterministic* binary
+relationship between any two operations in the history. It also enforces the
+transitivity (propagation) and acyclicity (cannot go back in time) of the viewed
+relation. We do not enforce transitivity and acyclicity in the viewed relation
+as the orderings of concurrent operations are non-deterministic, and viewed
+should include all pairs of operations that can be viewed by each other only
+from logical time and value equality perspective. The following cases are
+considered:
 
-- arbitration (ar): provides a total order on conflicting
+// simplest form: can-view -> viewed -> vis + ar
++ write-read: $"viewed" sect "ar"$, simply viewed (value equivalence) +
+  arbitration (preserve the previously viewed ordering as if it's a linearized
+  ordering in the first place)
+
++ write-write: no constraints
+
+// later read tracks earlier read's closest visible write
+// FIXME: probably wrong
++ read-read: ${(a, b) : a, b in H_"rd" and (exists x in H_"wr" and (x, a) in "vis") arrow (x, b)}$,
+  previous read needs to track it's closest visible write, then propagate the
+  closest visible write to the latest read
+
++ read-write: no constraints
+
+// FIXME: rework needed
+Note that the read-read case is recursively defined, where $a$ and $b$ are in $"vis"_"read-read"$ iff.
+there's a write $x$ that is visible to $a$ and $x$ is in $"vis"_"read-read"$ with $b$.
+
+- arbitration (ar): an application specific, transitive and acyclic relation that
+  provides a total order on conflicting
 operations, ensuring that observed executions follow a single coherent timeline.
 
 == Session Guarantees
 
+In the implementation, the models follow the exact axiomatic definition provide
+in Terry et al. @terry1994session and Viotti et al. @viotti2016consistency.
+Below definitions are copied from the paper.
+
 === Monotonic Reads
+
+Monotonic reads states that successive reads must reflect a non-decreasing set
+of writes. Namely, if a process has read a certain value v from an object, any
+successive read operation will not return any value written before v.
+Intuitively, a read operation can be served only by those replicas that have
+executed all write operations whose effects have already been observed by the
+requesting process. In effect, we can represent this by saying that, given three
+operations $a, b, c in H$, if $a arrow.long^"vis" b$ and
+$b arrow.long^"so" c$, where $b$ and $c$ are read operations, then
+$a arrow.long^"vis" c$, i.e., the transitive closure of vis and so is included
+in vis.
+
+$
+  "MonotonicReads" eq.delta forall a in H, forall b, c in H_"rd": a arrow.long^"vis" b and b arrow.long^"so" c => a arrow.long^"vis" c
+$
 
 === Monotonic Writes
 
+In a system that ensures monotonic writes a write is only performed on a replica
+if the replica has already performed all previous writes of the same session. In
+other words, replicas shall apply all writes belonging to the same session
+according to the order in which they were issued.
+
+$
+  "MonotonicWrites" eq.delta forall a, b in H_"wr": a arrow.long^"so" b => a arrow.long^"ar" b
+$
+
 === Read Your Writes
+
+Read-your-writes guarantee (also called read-my-writes) requires that a read
+operation invoked by a process can only be carried out by replicas that have
+already applied all writes previously invoked by the same process.
+
+$
+  "ReadYourWrites" eq.delta forall a in H_"wr", forall b in H_"rd": a arrow.long^"so" b => a arrow.long^"vis" b
+$
 
 === Write Follows Read
 
+Writes-follow-reads, sometimes called session causality, is somewhat the
+converse concept of read-your-write guarantee as it ensures that writes made
+during the session are ordered after any writes made by any process on any
+object whose effects were seen by previous reads in the same session.
+
+$
+  "WriteFollowsRead" eq.delta forall a, c in H_"wr", forall b in H_"rd": a arrow.long^"vis" b and b arrow.long^"so" c => a arrow.long^"ar" c
+$
+
 == PRAM Consistency
+
+Pipeline RAM (PRAM or FIFO) consistency prescribes that all processes see write
+operations issued by a given process in the same order as they were invoked by
+that process. On the other hand, processes may observe writes issued by
+different processes in different orders. Thus, no global total ordering is
+required. However, the writes from any given process (session) must be
+serialized in order, as if they were in a pipeline - hence the name.
+
+$
+  "PRAM" eq.delta forall a, b in H: a arrow.long^"so" b => a arrow.long^"vis" b
+$
 
 == Causal Consistency
 
-= Semantic Composition
+Our causal consistency is a combinition of Voitti et al. @viotti2016consistency
+and causal memory @baldoni2002an extends beyond PRAM and session guarantees. The
+*writes-into* relation @baldoni2002an links write operations directly to the
+reads that return their values (at the same memory region). This ensures that if
+a read observes a particular write, all subsequent writes in the same session
+respect that causal ordering. Formally, it aligns session order (`so`),
+arbitration (`ar`), visibility (`vis`), and writes-into (`wi`) to maintain
+coherent causal histories.
+
+To for operations to be in the `wi` set: a write `a` writes into a read `b` iff `b` returns
+the value originally written by `a`, and `a`/`b` to reference the same object
+(same memory region). There must be at most one `a` for each `b`, and `wi` is
+acyclic.
+
+If one operation follows another in session order, their relationship in the
+abstract execution is further constrained. Specifically, if $(a, b) in "so"$,
+then `a` must write-into `b` if `b` is a read, and `a` must be visible and
+arbitrated before `b`. Thus, session order induces a causal ordering that is
+reflected in the relations `wi`, `vis`, and `ar`.
+
+// TODO: vis(a, b) -> (a, b) in "vis"
+To incorporate session causility, we conjunct write-follow-reads with
+writes-into set: if a read `b` observes a write `a` (i.e. `vis(a, b)`) and `b` is
+followed by a write `c` in the same session (`so(b, c)`), then `ar(a, c)` ensures
+that the causal dependency introduced by reading `a`'s value is respected by the
+subsequent write `c`.
+
+// TODO: need double check
+$
+  "Causal" eq.delta (forall a, b in H: (a, b) in "so" arrow.double (a, b) in "wi" sect "vis" sect "ar") and "WriteFollowsRead"
+$
+
+These conditions together ensure a causal memory model where session order,
+observed values, and write sequences are all aligned, causally dependent writes
+appear in the correct order from any observer's perspective.
+
+== Liniearizability
+
+Although linearizability is widely considered the gold standard for strong
+consistency, our initial attempts resulted in a incomplete model. In our draft
+encoding, we introduced a single global order to unify visibility and
+arbitration for all write operations, and tried to enforce real-time ordering to
+ensure that the observed histories comply with returns-before relations
+(linearization as operations comes in instead of lazily ordering events when
+reads occur @zhang2018building). However, the resulting formulas were too
+restrictive and did not yield a complete model, as linearizability mandates a
+very strong global ordering property that is non-trivial to capture in our
+current axiomatic formulation.
+
+= Semantic Comparison and Composition
+
+A core contribution of our framework is the ability to reason not only about
+individual consistency semantics in isolation but also about their pairwise
+compatibility and compositional properties. This enables exploration of how
+different models relate to each other and whether they can be combined to
+produce stronger or more application-specific consistency guarantees.
+
+We define compatibility between two consistency semantics $M_1$ and $M_2$ using
+an implication-based criterion. $M_1$ is considered compatible with
+$M_2$ if the formula $M_1 arrow.double M_2$ is valid, i.e., there is no
+execution that satisfies all constraints of $M_1$ without also satisfying $M_2$.
+We implement this by asserting the negation $not (M_1 arrow.double M_2)$ and
+checking if it is unsatisfiable using our SMT-based approach. If no
+counterexample can be found, it implies that $M_1$
+refines/subsumes $M_2$. This compatibility check is not symmetric: $M_1 arrow.double M_2$
+holding does not necessarily mean that $M_2 arrow.double M_1$ also holds.
+
+To combine multiple consistency models into a single stronger model, we used
+logical conjunctions on each model's constraints. By taking the constraints
+representing each model's semantics and forming their conjunction, we derive a
+composed model that enforces all included constraints simultaneously. Unlike
+compatibility checks, where direction and implication matter, composition is
+commutative-adding more models simply layers their constraints on top of one
+another. This approach allows incremental composition, users can start from a
+base model and iteratively strengthen it by adding new sets of constraints
+(either from our implemented models or user-defined constraints) representing
+additional consistency guarantees. For example, the conjunction of monotonic
+reads, monotonic writes, and read-your-writes can yield PRAM consistency
+@brzezinski2004session. Similarly, layering these and writes-follow-reads
+recovers a form of causal consistency @perrin2016causal.
 
 = Modeling Real-World Applications
 

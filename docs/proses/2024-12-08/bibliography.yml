@@ -172,3 +172,148 @@ ferreira2023antipode:
     parent:
       type: proceedings
       title: SOSP '23
+
+baldoni2002an:
+  type: article
+  title: An Implementation of Causal Memories using the Writing Semantic
+  author:
+  - Baldoni, Roberto
+  - Sparziani, C.
+  - Tucci Piergiovanni, Sara
+  - Tulone, Daniela
+  date: 2002
+  editor:
+  - Bui, Alain
+  - Fouchal, Hacène
+  page-range: 41-50
+  parent:
+    type: proceedings
+    title: Procedings of the 6th International Conference on Principles of Distributed Systems. {OPODIS} 2002, Reims, France, December 11-13, 2002
+    publisher: Suger, Saint-Denis, rue Catulienne, France
+    volume: 3
+    parent:
+      type: proceedings
+      title: Studia Informatica Universalis
+
+zhang2015building:
+  type: article
+  title: Building consistent transactions with inconsistent replication
+  author:
+  - Zhang, Irene
+  - Sharma, Naveen Kr.
+  - Szekeres, Adriana
+  - Krishnamurthy, Arvind
+  - Ports, Dan R. K.
+  date: 2015
+  page-range: 263-278
+  url: https://doi.org/10.1145/2815400.2815404
+  serial-number:
+    doi: 10.1145/2815400.2815404
+    isbn: '9781450338349'
+  parent:
+    type: proceedings
+    title: Proceedings of the 25th Symposium on Operating Systems Principles
+    publisher:
+      name: Association for Computing Machinery
+      location: Monterey, California
+    parent:
+      type: proceedings
+      title: SOSP '15
+
+brzezinski2004session:
+  type: article
+  title: Session Guarantees to Achieve PRAM Consistency of Replicated Shared Objects
+  author:
+  - Brzezinski, Jerzy
+  - Sobaniec, Cezary
+  - Wawrzyniak, Dariusz
+  date: 2004
+  editor:
+  - Wyrzykowski, Roman
+  - Dongarra, Jack
+  - Paprzycki, Marcin
+  - Waśniewski, Jerzy
+  page-range: 1-8
+  serial-number:
+    isbn: 978-3-540-24669-5
+  parent:
+    type: proceedings
+    title: Parallel Processing and Applied Mathematics
+    publisher:
+      name: Springer Berlin Heidelberg
+      location: Berlin, Heidelberg
+
+terry1994session:
+  type: article
+  title: Session guarantees for weakly consistent replicated data
+  author:
+  - Terry, D.B.
+  - Demers, A.J.
+  - Petersen, K.
+  - Spreitzer, M.J.
+  - Theimer, M.M.
+  - Welch, B.B.
+  date: 1994
+  page-range: 140-149
+  serial-number:
+    doi: 10.1109/PDIS.1994.331722
+  parent:
+    type: proceedings
+    title: Proceedings of 3rd International Conference on Parallel and Distributed Information Systems
+    issue: ''
+    volume: 0
+10.1145/2851141.2851170:
+  type: article
+  title: 'Causal consistency: beyond memory'
+  author:
+  - Perrin, Matthieu
+  - Mostefaoui, Achour
+  - Jard, Claude
+  date: 2016
+  url: https://doi.org/10.1145/2851141.2851170
+  serial-number:
+    doi: 10.1145/2851141.2851170
+    isbn: '9781450340922'
+  parent:
+    type: proceedings
+    title: Proceedings of the 21st ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming
+    publisher:
+      name: Association for Computing Machinery
+      location: Barcelona, Spain
+    parent:
+      type: proceedings
+      title: PPoPP '16
+
+perrin2016causal:
+  type: article
+  title: 'Causal consistency: beyond memory'
+  author:
+  - Perrin, Matthieu
+  - Mostefaoui, Achour
+  - Jard, Claude
+  date: 2016-02
+  url: https://doi.org/10.1145/3016078.2851170
+  serial-number:
+    doi: 10.1145/3016078.2851170
+    issn: 0362-1340
+  parent:
+    type: periodical
+    title: SIGPLAN Not.
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    issue: 8
+    volume: 51
+
+lamport1977proving:
+  type: article
+  title: Proving the Correctness of Multiprocess Programs
+  author: Lamport, L.
+  date: 1977
+  page-range: 125-143
+  serial-number:
+    doi: 10.1109/TSE.1977.229904
+  parent:
+    type: periodical
+    title: IEEE Transactions on Software Engineering
+    issue: 2

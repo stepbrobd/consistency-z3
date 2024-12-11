@@ -508,7 +508,92 @@ reads, monotonic writes, and read-your-writes can yield PRAM consistency
 @brzezinski2004session. Similarly, layering these and writes-follow-reads
 recovers a form of causal consistency @perrin2016causal.
 
+// see tests/test_composition.py for examples
+
 = Modeling Real-World Applications
+
+Beyond theoretical explorations, our framework also supports practical modeling
+distributed applications that may rely on complex combinations of semantics.
+Instead of checking at source code level tracing possible code paths like Noctua
+@ma2024noctua with SMT solvers, our approach operates at axiomatic logic and
+optionally application level, allowing researchers and system designers to
+encode nodes (representing intermediate API endpoints or storage systems
+providing consistency semantics) and edges (representing interactions or data
+flows) within their systems. Each node may require or provide specific
+consistency guarantees, while edges capture the ordering/visibility constraints
+and optional application specific logics between events across services.
+
+The `composable` function operates over a directed multigraph whose nodes and
+edges represent services (nodes) and interactions (edges) in a distributed
+system. Each node and edge can specify which consistency guarantees it needs or
+provides in the form of constraints (e.g., monotonic reads, read-your-writes).
+
+- *Nodes:* each node represents a logical component like services or storage
+  systems, each node can:
+  - Issue operations (e.g., read or write to shared state)
+  - Require certain consistency properties (e.g., monotonic reads) for these
+    operations
+  - Provide certain consistency guarantees to downstream consumers
+
+  In the current implementation, each node stores:
+  - `name`: a unique identifier
+  - `needs`: a set of constraints that must be satisfied to uphold the node's
+    required semantics
+  - `provs`: a set of constraints that characterize what the node provides to other
+    nodes
+
+- *Edges:* edges represent interactions or data flows between nodes, capturing:
+  - Precedence constraints (e.g., write `a` must return before read `b` starts)
+  - Required or optional additional constraints representing custom operations or
+    relations that must hold between the source and destination nodes
+
+The `composable` function attempts to find an assignment of constraints that
+makes the entire graph "composable". In other words, it seeks a model in which
+all nodes' `needs` can be matched with some nodes' `provs`, and all edges'
+constraints are satisfied simultaneously. This corresponds to verifying if there
+is a coherent assignment of semantics across the system's interactions. Users
+may provide zero or more semantics to `needs` and `provs` for each node, and
+similarly, zero or more constraints for each edge. During the check at each
+level of the graph traversal, a *pairwise* check between source node `needs` in
+conjunction of edge constraints against destination node `provs` is performed.
+If the pairwise check is successful, all previous assignments are recorded and
+used as context for further checks. In case of pairwise check failure
+(contradiction), the function backtracks and selects other possible assignments
+if there are more than one provide in each of the source
+`needs`, edge constraints, and destination `provs`.
+
+// TODO: do we need pseudocode here?
+
+*Implementation:* given a starting node (conceptually, usually a client) and a
+set of premise constraints, the function begins a DFS through the graph. At each
+node:
+- The function examines outgoing edges and their associated constraints.
+- Each edge can impose conditions on the relationship between the source node's
+  requirements (`needs`), the destination node's provided guarantees (`provs`),
+  and any additional edge-specific constraints.
+- The solver checks whether combining these constraints with the accumulated
+  premise remains satisfiable.
+If no consistent assignment is found for outgoing edges, the function
+backtracks, exploring alternative paths or constraint combinations. During
+traversal, the function uses the `compatible` checks behind the scenes. For each
+candidate combination of node-level and edge-level constraints, it calls `compatible` to
+ensure that no contradictions arise. If the DFS manages to visit all edges and
+find consistent assignments for all node needs and provided constraints, the
+function returns a `True` value along with a subgraph (`result`) that records a
+satisfying assignment. The returned subgraph shows which edges and nodes were
+selected and how their constraints were matched. If no satisfying assignment is
+found, the function returns `False`, and `None` for the graph.
+
+== Example: Online Shopping
+
+== Example: Streaming Service
+
+== Example: Antipode @ferreira2023antipode
+
+// TODO: rewrite after wrapping up
+Basic encodings of lineage and cross-service causal consistency (XCY) are
+finished but full implementation is still in progress. See `tests/test_antipode.py` for
+details.
 
 = Bibliography
 

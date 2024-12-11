@@ -317,3 +317,29 @@ lamport1977proving:
     type: periodical
     title: IEEE Transactions on Software Engineering
     issue: 2
+
+ma2024noctua:
+  type: article
+  title: 'Noctua: Towards Automated and Practical Fine-grained Consistency Analysis'
+  author:
+  - Ma, Kai
+  - Li, Cheng
+  - Zhu, Enzuo
+  - Chen, Ruichuan
+  - Yan, Feng
+  - Chen, Kang
+  date: 2024
+  page-range: 704-719
+  url: https://doi.org/10.1145/3627703.3629570
+  serial-number:
+    doi: 10.1145/3627703.3629570
+    isbn: '9798400704376'
+  parent:
+    type: proceedings
+    title: Proceedings of the Nineteenth European Conference on Computer Systems
+    publisher:
+      name: Association for Computing Machinery
+      location: Athens, Greece
+    parent:
+      type: proceedings
+      title: EuroSys '24

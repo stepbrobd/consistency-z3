@@ -343,3 +343,59 @@ ma2024noctua:
     parent:
       type: proceedings
       title: EuroSys '24
+
+lamport2001paxos:
+  type: article
+  title: Paxos Made Simple
+  author: Lamport, Leslie
+  date: 2001-12
+  page-range: 51-58
+  url: https://www.microsoft.com/en-us/research/publication/paxos-made-simple/
+  parent:
+    type: periodical
+    title: ACM SIGACT News (Distributed Computing Column) 32, 4 (Whole Number 121, December 2001)
+    edition: ACM SIGACT News (Distributed Computing Column) 32, 4 (Whole Number 121, December 2001)
+
+gan2019an:
+  type: article
+  title: An Open-Source Benchmark Suite for Microservices and Their Hardware-Software Implications for Cloud & Edge Systems
+  author:
+  - Gan, Yu
+  - Zhang, Yanqi
+  - Cheng, Dailun
+  - Shetty, Ankitha
+  - Rathi, Priyal
+  - Katarki, Nayan
+  - Bruno, Ariana
+  - Hu, Justin
+  - Ritchken, Brian
+  - Jackson, Brendon
+  - Hu, Kelvin
+  - Pancholi, Meghna
+  - He, Yuan
+  - Clancy, Brett
+  - Colen, Chris
+  - Wen, Fukang
+  - Leung, Catherine
+  - Wang, Siyuan
+  - Zaruvinsky, Leon
+  - Espinosa, Mateo
+  - Lin, Rick
+  - Liu, Zhongling
+  - Padilla, Jake
+  - Delimitrou, Christina
+  date: 2019
+  page-range: 3-18
+  url: https://doi.org/10.1145/3297858.3304013
+  serial-number:
+    doi: 10.1145/3297858.3304013
+    isbn: '9781450362405'
+  parent:
+    type: proceedings
+    title: Proceedings of the Twenty-Fourth International Conference on Architectural Support for Programming Languages and Operating Systems
+    publisher:
+      name: Association for Computing Machinery
+      location: Providence, RI, USA
+    parent:
+      type: proceedings
+      title: ASPLOS '19

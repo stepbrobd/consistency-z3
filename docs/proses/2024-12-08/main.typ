@@ -586,7 +586,112 @@ found, the function returns `False`, and `None` for the graph.
 
 == Example: Online Shopping
 
+Consider an online shop scenario where multiple services and components interact
+to process customer interactions and purchases. The shop maintains an inventory
+of products, and a shopping cart service, a transaction log to record purchases,
+and the the client itself. Additionally, an arbitrator node to coordinate
+interactions between the interactions between clients and the entire service
+stack.
+
+A customer uses a shopping cart service to preserve the state of the items they
+intend to buy. The customer can read or write the cart's contents, adjusting
+their intended purchases as they browse products. Let's say in this example,
+clients do not care to see their latest update to the cart being propagated to
+other devices immediately, but the states will eventually converge.
+
+The shop holds the canonical inventory state. Before finalizing a purchase, the
+customer's requested items must be checked against the shop's current inventory.
+If items are available, the transaction can proceed, if not, the request fails
+due to insufficient stock.
+
+Once the shop confirms inventory, it records the customer's purchase in the
+transaction log, and replicated across multiple nodes for fault tolerance.
+
+An arbitrator acts as a gatekeeper that serializes requests and interacts with
+both the shop (update inventory) and the transaction log (bookkeeping). When the
+customer decides to make a purchase, the arbitrator:
++ Receives requests from client and write to a intermediate location (capturing
+  the customer's intent)
++ Reads from the shop's inventory to verify item availability
++ If available, writes back to the shop to decrement the inventory and write and
+  replicate the transaction to the log
++ If not available, reply back to the client with an error
+
+The arbitrator or serialization point pattern is commonly used in other system
+implementations like Paxos @lamport2001paxos to maintain a consistent order of
+events at critial locations, ensuring that purchase requests are applied to the
+shop and recorded in the transaction log in a well-defined sequence.
+
+*Nodes:*
+- *Arbitrator:* Provides linearizability
+- *Tx:* Provides linearizability
+- *Shop:* Provides RYW + MR, ensuring that once arbitrator updates inventory, all
+  subsequent reads observe the writes
+- *Client and Cart:* Represent endpoints that do not enforce any semantic by
+  themselves but rely on the guarantees of the nodes they interact with
+
+*Edges:*
+- `Client` to `Cart` edge represent the customer adding items to their cart
+- `Client` to `Shop` edge represent price checks or browsing inventory
+- `Client` to `Arbitrator` edge represents a purchase request
+- `Arbitrator` to `Shop` and `Arbitrator` to `Tx` edges represent the arbitrator's
+  mediation: writing to the transaction log, reading and updating the shop's
+  inventory state in sequential order
+
+In this example, the `composable` function succeeds with a graph containing one
+of the possible satisfiable constraint assignments.
+
 == Example: Streaming Service
+
+Another example (simplified from DeathStarBench Media Service @gan2019an):
+consider a streaming service with multiple components handling user
+authentication, content delivery, and user interactions. The system comprises:
+
+- Admin: admin interface for content and user management operations
+- Client: end-user interface for accessing streaming content and features
+- Login: authentication service that acts like a user session manager
+- User DB: user credential storage
+- Metadata DB: content metadata storage
+- Rent: rental transaction service
+- Rent DB: transaction record storage
+- Review: user review service
+- Review DB: review storage
+- Video: video streaming service for content delivery
+- Video DB: video content storage providing
+
+A user must first register and login through the authentication service before
+accessing any content. The login service verifies credentials against the User
+DB, which maintains consistent user states through Monotonic Writes and Writes
+Follow Reads guarantees as updates performed by users needs to be reflected to
+themselves right after.
+
+When browsing content, the client interacts with the metadata services. Before
+serving any content, users must first be authenticated through the login
+service, then clients can issue read to metadata database to retrieve titles.
+After selecting a media, clients can issue write to the Rent service to rent the
+media for viewing. The Rent service must ensure that the title is available
+through read to the metadata database. The Metadata DB provides Monotonic Reads
+and Read Your Writes guarantees, allowing admin updates to be reflected visible
+while tolerating some staleness for user reads.
+
+Users can also write reviews for content they've watched. The review service
+verifies content existence in Metadata DB. Writes the review to Review DB with
+Read-Your-Writes ensuring users see their own reviews immediately while other
+users may see slightly stale data.
+
+Administrators use a separate interface to manage content and user access. When
+uploading new content, the admin service updates metadata in Metadata DB,
+uploads video content to Video DB. Both operations require prior admin
+authentication (assuming admin users are pre-granted access). Video DB's Writes
+Follow Reads guarantee ensures content version consistency.
+
+As this example demonstrates, it's more complex than the online shopping mall
+example. Listing of nodes and edges is not exhaustive, please see the actual
+implementation for more details. The overall operational constraints are
+captured through custom operation types with quantified constraints optionally
+enforced at each node level.
+
+// TODO: rewrite needed in the actual paper
 
 == Example: Antipode @ferreira2023antipode
 

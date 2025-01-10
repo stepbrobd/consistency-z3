@@ -441,7 +441,6 @@ fan2023satisfiability:
   serial-number:
     doi: 10.1145/3579835
     issn: 0164-0925
-  abstract: Automatically verifying multi-threaded programs is difficult because of the vast number of thread interleavings, a problem aggravated by weak memory consistency. Partial orders can help with verification because they can represent many thread interleavings concisely. However, there is no dedicated decision procedure for solving partial-order constraints.In this article, we propose a novel ordering consistency theory for concurrent program verification that is applicable not only under sequential consistency, but also under the TSO and PSO weak memory models. We further develop an efficient theory solver, which checks consistency incrementally, generates minimal conflict clauses, and includes a custom propagation procedure. We have implemented our approach in a tool, called Zord, and have conducted extensive experiments on the SV-COMP 2020 ConcurrencySafety benchmarks. Our experimental results show a significant improvement over the state-of-the-art.
   parent:
     type: periodical
     title: ACM Trans. Program. Lang. Syst.
@@ -450,3 +449,70 @@ fan2023satisfiability:
       location: New York, NY, USA
     issue: 1
     volume: 45
+
+vazou2014liquidhaskell:
+  type: article
+  title: 'LiquidHaskell: experience with refinement types in the real world'
+  author:
+  - Vazou, Niki
+  - Seidel, Eric L.
+  - Jhala, Ranjit
+  date: 2014-09
+  page-range: 39-51
+  url: https://doi.org/10.1145/2775050.2633366
+  serial-number:
+    doi: 10.1145/2775050.2633366
+    issn: 0362-1340
+  parent:
+    type: periodical
+    title: SIGPLAN Not.
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    issue: 12
+    volume: 49
+
+torlak2014a:
+  type: article
+  title: A lightweight symbolic virtual machine for solver-aided host languages
+  author:
+  - Torlak, Emina
+  - Bodik, Rastislav
+  date: 2014-06
+  page-range: 530-541
+  url: https://doi.org/10.1145/2666356.2594340
+  serial-number:
+    doi: 10.1145/2666356.2594340
+    issn: 0362-1340
+  parent:
+    type: periodical
+    title: SIGPLAN Not.
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    issue: 6
+    volume: 49
+
+sivaramakrishnan2015declarative:
+  type: article
+  title: Declarative programming over eventually consistent data stores
+  author:
+  - Sivaramakrishnan, KC
+  - Kaki, Gowtham
+  - Jagannathan, Suresh
+  date: 2015
+  page-range: 413-424
+  url: https://doi.org/10.1145/2737924.2737981
+  serial-number:
+    doi: 10.1145/2737924.2737981
+    isbn: '9781450334686'
+  parent:
+    type: proceedings
+    title: Proceedings of the 36th ACM SIGPLAN Conference on Programming Language Design and Implementation
+    publisher:
+      name: Association for Computing Machinery
+      location: Portland, OR, USA
+    parent:
+      type: proceedings
+      title: PLDI '15
+

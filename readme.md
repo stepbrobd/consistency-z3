@@ -7,7 +7,7 @@
 
 Hydra Evaluation and Binary Cache:
 
-- Jobsets: <https://hydra.ysun.co/jobset/stepbrobd/consistency-z3>
+- Jobset: <https://hydra.ysun.co/jobset/stepbrobd/consistency-z3>
 - Cache: <https://cache.ysun.co/public>
 - Key: `public:Y9EARSt+KLUY1JrY4X8XWmzs6uD+Zh2hRqN9eCUg55U=`
 
@@ -162,6 +162,98 @@ logical start time equal to its logical end time.
     (preserve the previously viewed ordering as if it's a linearized ordering in
     the first place)
   - Case 4: write-write pair: undefined for now
+
+## General guidelines
+
+The verification/checking scopes of our tool are on the axiomatic level, i.e.
+relational constraints between read/write events. When modeling a consistency
+model (different from a system/protocol), users are expected to use SMT clauses
+to capture the additional partial orderings of reads and writes aside from
+same-object, same-session, returns-before, visibility, etc., which are
+predefined as axioms in the tool as described in the non-transactional survey.
+Each read/write event is represented as a product type the same way as the
+non-transactional survey. Predefined axioms assign precedence to events based on
+the fields of the product type. The user can define additional axioms to capture
+the additional partial orderings of reads and writes, but deriving total
+ordering of events in our tool possible but cumbersome. To derive total
+orderings, users would need to assign a unique sortable value to `ival` and/or
+`oval` of events where total ordering is needed, and extend
+`AbstractExecution.arbitration` and/or `AbstractExecution.happens_before` to
+reflect the total ordering by marshaling and unmarshalling the sortable values.
+
+Relations like same-object and same-session are implemented as uninterpreted
+functions taking two events as arguments. These function labels act as lookup
+keys for lazily added clauses (similar to custom notations in Coq), relation
+constraints are only added when first used. To create custom binary relations:
+
+- Create a class inheriting from `consistency.relation.Relation`
+
+- In a member function:
+  - Call `op = consistency.operation.Operation.Create()` to instantiate the
+    Operation sort
+  - Create operation symbols using
+    `a, b = consistency.operation.Operation.Consts("a b")`
+  - Register the relation via `<classname>.Relation.AddConstraint`
+
+- To use the relation:
+  - Import the module
+  - Call the member function with a symbolic name, e.g.:
+    `rb = consistency.history.History.Relation.returns_before()`
+
+We can compose consistency models by combining additional constraints and those
+predefined axioms with logic connectives. Say we want monotonic read, in words,
+a read operation can be served only by replicas that have executed all write
+operations whose effects have already been observed by the requesting entity.
+Axiomatically, $a, b, c \in H$, if $a \overset{vis}{\rightarrow} b$ and
+$b \overset{so}{\rightarrow} c$, where $b$ and $c$ are read operations, then
+$a \overset{vis}{\rightarrow} c$, i.e., the transitive closure of $vis$ and $so$
+is included in $vis$.
+
+The implementation is a literal translation of the above definition (we can also
+use `z3.If` to encode the above properties, i.e. there could be multiple ways to
+encode the same property, choose the one that is most readable and efficient):
+
+```py
+_, (rd, wr) = Op.Sort()
+op = Op.Create()
+a, b, c = Op.Consts("a b c")
+
+so = H.Relation.session_order()
+vis = AE.Relation.visibility()
+
+# (a -vis-> b /\ b --so-> c) -> a -vis-> c
+return z3.And(
+    z3.ForAll(
+        [a, b, c],
+        z3.Implies(
+            z3.And(
+                op.type(b) == rd,
+                op.type(c) == rd,
+                vis(a, b),
+                so(b, c),
+            ),
+            vis(a, c),
+        ),
+    ),
+)
+```
+
+Three things you can do with consistency models, 1. standalone checking, 2.
+compatibility checking between models, 3. compositions of models. The standalone
+check will generate SMT clauses for the model along with all used axioms and
+feed into Z3 to find whether there is at least one solution (i.e. there is at
+least 1 plausible ordering of events that can satisfy all constraints of the
+given model, see the test file under `tests/test_standalone.py` for the exact
+usage). The compatibility check will generate SMT clauses for the negation of
+the implication between two models (whether LHS implies RHS) and feed into Z3 to
+find whether the negation is unsatisfiable (if usat, LHS model is guarantee to
+provide all semantical constraints LHS model provides). Since the compatibility
+check is not symmetric, you might need to check both directions if needed. Given
+the way we define the constraints, the composition of models is a direct
+conjunction of the constraints, the ordering of the composition does not affect
+the result. The `compose` function takes arbitrary number of models and returns
+a `z3.BoolRef`, the result can be further used in standalone checking or
+compatibility checking.
 
 ## Models
 

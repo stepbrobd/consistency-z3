@@ -451,6 +451,20 @@ object whose effects were seen by previous reads in the same session.
 WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a \overset{vis}{\rightarrow} b \wedge b \overset{so}{\rightarrow} c \Rightarrow a \overset{ar}{\rightarrow} c \triangleq (vis;so|_{rd \rightarrow wr}) \subseteq ar
 ```
 
+## Meeting notes
+
+### 2025-01-17
+
+- revise `check` function implementation, make sure aggregated nodes/edges
+  internal behavior is consistent with external view
+- add new shopping mall example to demonstrate and test the node/edge
+  aggregation
+- antipode XCY should be a semantic constraint, not sys/app level modeling
+- data flow within a lineage can be considered as if they are within the same
+  session
+- revisit antipode paper sect. 4.2 (XCY is stronger than lamport causality)
+- shim layer IO? experimental implementation
+
 ## License
 
 Based on

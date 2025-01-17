@@ -255,6 +255,114 @@ the result. The `compose` function takes arbitrary number of models and returns
 a `z3.BoolRef`, the result can be further used in standalone checking or
 compatibility checking.
 
+When modeling a system or protocol, define an unambiguous flow graph from
+consumer's perspective (the consumer here can be any entity with consistency
+requirement, from a client to a server, or from a server to a server). The flow
+graph should contain nodes and edges, where nodes represent entities that
+require or provide consistency guarantees, and edges represent the data flow
+between entities. If multiple operations are needed between two nodes, multiple
+edges must be defined (the general guideline is one edge for one type, i.e. say
+a client need to send request directly to a OpenAPI server, and the server
+supports both GET and POST, then two edges must be defined).
+
+A more complex example is a system with one client and one OpenAPI server, but
+POST requests need to be authenticated first before being processed. In this
+case, a third node needs to be defined to act as the arbitrator between the
+client and the server, where clients' credentials needs to be validated on the
+server side via a GET request to the arbitrator node. The flow graph should look
+like this:
+
+```txt
+client ---[POST/wr]---> auth <----------------------| [GET/rd]/[reply[G]]
+       <---[creds]-----                             v
+       --------------------[POST(creds)/wr]-----> server
+       <-------------------[reply(P)]------------
+       --------------------[GET/rd]------------->
+       <-------------------[reply[G]]------------
+```
+
+Although it might look like there are only 3 nodes, but in reality, each node
+represents a cluster of machines that can handle the operations. To avoid
+unexpected behaviors, clients' writes to auth node must be immediately be made
+visible to the server, and all clients' write to the server must be causally
+ordered after the POST to server requesting the credentials. To simplify the
+formalization, we can enforce linearizability on auth nodes and leave server
+nodes on eventual consistency if client does not care about the freshness of the
+data from server. Also note that clients' states are independent of each other,
+so no enforcement is needed on the client side.
+
+```py
+auth = Node(name="Auth", needs=None, provs=[(Cons("LZ", Linearizability.assertions()),)])
+server = Node(name="Server", needs=None, provs=None)
+client = Node(name="client", needs=None, provs=None)
+
+nodes = [auth, server, client]
+edges = [
+    Edge(src=client, dst=auth, cons=None),
+    Edge(src=client, dst=server, cons=None),
+    Edge(src=server, dst=auth, cons=None),
+]
+
+g = graph(nodes, edges)
+ok, res = composable(g, client)
+assert ok
+```
+
+If more complex modelings are needed, framework users need to manually define
+custom instantiations of operations and assign read/write confinement to limit
+the scope of checking. Nodes and edges can be used to assign precedences of
+custom operations, and application-specific constraints can be defined either on
+the node edge (the checking function will add previously checked constraints to
+context), and extrations of commonly used nodes and edges can be done by
+individually checking the subcomponents and directly add a node with
+`z3.BoolVal(True)` to treat the subcomponents as a verified node if the
+subcomponent's `composable` call on a specific start node returns `True`.
+
+Consider a streaming service with multiple components handling user
+authentication, content delivery, and user interactions (simplified from
+DeathStarBench Media Service). The system comprises:
+
+- Admin: admin interface for content and user management operations
+- Client: end-user interface for accessing streaming content and features
+- Login: authentication service that acts like a user session manager
+- User DB: user credential storage
+- Metadata DB: content metadata storage
+- Rent: rental transaction service
+- Rent DB: transaction record storage
+- Review: user review service
+- Review DB: review storage
+- Video: video streaming service for content delivery
+- Video DB: video content storage providing
+
+A user must first register and login through the authentication service before
+accessing any content. The login service verifies credentials against the User
+DB, which maintains consistent user states through Monotonic Writes and Writes
+Follow Reads guarantees as updates performed by users needs to be reflected to
+themselves right after.
+
+When browsing content, the client interacts with the metadata services. Before
+serving any content, users must first be authenticated through the login
+service, then clients can issue read to metadata database to retrieve titles.
+After selecting a media, clients can issue write to the Rent service to rent the
+media for viewing. The Rent service must ensure that the title is available
+through read to the metadata database. The Metadata DB provides Monotonic Reads
+and Read Your Writes guarantees, allowing admin updates to be reflected visible
+while tolerating some staleness for user reads.
+
+Users can also write reviews for content they've watched. The review service
+verifies content existence in Metadata DB. Writes the review to Review DB with
+Read-Your-Writes ensuring users see their own reviews immediately while other
+users may see slightly stale data.
+
+Administrators use a separate interface to manage content and user access. When
+uploading new content, the admin service updates metadata in Metadata DB,
+uploads video content to Video DB. Both operations require prior admin
+authentication (assuming admin users are pre-granted access). Video DB's Writes
+Follow Reads guarantee ensures content version consistency.
+
+The annotated flow graph can be generated by modifying the implementation in
+`tests/test_media.py` and uncomment the plotting call.
+
 ## Models
 
 ### Linearizability (arXiv:1512.00168 pp. 8)

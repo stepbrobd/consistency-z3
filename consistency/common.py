@@ -358,3 +358,17 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
 
     return composable, edge_result
 """
+
+
+def extract(
+    inode: Node, onode: Node, compose_result: tuple[bool, nx.MultiDiGraph]
+) -> z3.AstRef:
+    # extract equivalent constraints from `compose` result
+    # inode: aggregate node's constraint flow entrance
+    # onode: aggregate node's constraint flow exit
+    composable, graph = compose_result
+    assert composable, "No composable assignment found"
+
+    # TODO: missing implementation
+
+    return z3.BoolVal(True)

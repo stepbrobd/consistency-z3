@@ -461,10 +461,36 @@ Before meeting:
   _equivalent_ constraints from aggregated nodes/edges
 - `extract` should work properly if entry/exit node are the same
 - what if entry/exit node are different? what if there are cross edges?
-- when cross edges exist, should we consider all incoming edges to the aggregate connect to the weakest node of all nodes with outgoing edge, or the strongest or what else?
+- when cross edges exist, should we consider all incoming edges to the aggregate
+  connect to the weakest node of all nodes with outgoing edge, or the strongest
+  or what else?
 - antipode refactoring and tests for antipode
 
 After meeting:
+
+- do not allow cross edges on the aggregate nodes if there are dependencies
+- if no dependency exists between the cross edge, create a new node and edge to
+  simulate the constraint (functionally equivalent)
+
+```txt
+A -> B -> C
+     |
+     | -> D
+        | ^
+     E -|
+```
+
+Say BCD is an aggregate node, and for A, operations on C and D must go through
+B, and operations from client E only interacts with D, users can call `extract`
+on subgraph BCD with entry/exit node B and connect A through the result of the
+call. And for D, user can create a completely new node say F that has an
+incoming edge from E to replace D. This is functionally equivalent to the
+original graph. This could only work iff. the cross edge from E to D does not
+interact with rest of the subgraph BCD, and if there are dependencies, you
+cannot use `extract` at all (limitation of the tool).
+
+- antipode: use the transitive closure of vis and so for lamport happens before
+- xcy should be a semantic instead of binary relation between events.
 
 ### 2025-01-17
 

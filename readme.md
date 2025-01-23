@@ -453,7 +453,22 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-01-23
+
+Before meeting:
+
+- `check` seem to do its job but need additional function to extract
+  _equivalent_ constraints from aggregated nodes/edges
+- `extract` should work properly if entry/exit node are the same
+- what if entry/exit node are different? what if there are cross edges?
+- when cross edges exist, should we consider all incoming edges to the aggregate connect to the weakest node of all nodes with outgoing edge, or the strongest or what else?
+- antipode refactoring and tests for antipode
+
+After meeting:
+
 ### 2025-01-17
+
+After meeting:
 
 - revise `check` function implementation, make sure aggregated nodes/edges
   internal behavior is consistent with external view

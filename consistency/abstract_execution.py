@@ -1,5 +1,6 @@
 import z3
 
+from consistency.history import History
 from consistency.operation import Operation as Op
 from consistency.relation import Relation as Rel
 
@@ -202,13 +203,37 @@ class AbstractExecution:
         def happens_before() -> z3.FuncDeclRef:
             op = Op.Create()
             hb = AbstractExecution.Relation.Declare("hb", op, op, z3.BoolSort())
+            so = History.Relation.session_order()
+            vis = AbstractExecution.Relation.visibility()
 
             a, b = Op.Consts("a b")
+
+            # hb is the transitive closure of the union of so and vis
+            # can't do it this way, z3.TransitiveClosure expects a z3 function def
+            # def so_u_vis(x: z3.ExprRef, y: z3.ExprRef) -> z3.ExprRef:
+            #     return z3.Or(so(x, y), vis(x, y)) # type: ignore
+            so_u_vis = AbstractExecution.Relation.Declare(
+                "so_u_vis",
+                op,
+                op,
+                z3.BoolSort()
+            )
+            AbstractExecution.Relation.AddConstraint(
+                "so_u_vis",
+                z3.ForAll([a, b], # type: ignore
+                    so_u_vis(a, b) == z3.Or(so(a, b), vis(a, b))
+                )
+            )
+            # https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-transitive-closure
+            rel = z3.TransitiveClosure(so_u_vis)
 
             AbstractExecution.Relation.AddConstraint(
                 "hb",
                 z3.And(  # type: ignore
-                    # hb is the transitive closure of the union of so and vis
+                    # transitive closure
+                    z3.ForAll([a, b], hb(a, b) == rel(a, b)),
+                    # acyclicity
+                    z3.ForAll([a, b], z3.Implies(hb(a, b), z3.Not(hb(b, a)))),
                 ),
             )
 

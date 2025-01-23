@@ -1,3 +1,4 @@
+
 from consistency.common import (
     Cons,
     Edge,

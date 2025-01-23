@@ -1,7 +1,7 @@
 from collections.abc import Collection, Generator
 from functools import cache
 from itertools import chain, combinations, product
-from typing import NamedTuple
+from typing import Literal, NamedTuple
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -366,6 +366,25 @@ def composable(nodes: list[Node], edges: list[Edge]) -> tuple[bool, list]:
 """
 
 
+def dfs(
+    graph: nx.MultiDiGraph, src: str
+) -> Generator[tuple[Node, Node, z3.AstRef], None, None]:
+    # yields src node, dst node, and edge constraints in DFS order
+    # only works if the graph has _single_ constraint assignment
+    # i.e. the resulting graph from `composable` call
+    for name_src, name_dst, key, _ in nx.edge_dfs(
+        graph, source=src, orientation="original"
+    ):
+        node_src = Node(name_src, **graph.nodes[name_src])
+        node_dst = Node(name_dst, **graph.nodes[name_dst])
+        edge_data = graph.get_edge_data(name_src, name_dst, key)["cons"]
+        try:
+            edge_cons = edge_data[0][0].cons
+        except (AttributeError, TypeError):
+            edge_cons = z3.BoolVal(True)
+        yield node_src, node_dst, edge_cons
+
+
 def extract(
     inode: Node, onode: Node, compose_result: tuple[bool, nx.MultiDiGraph]
 ) -> z3.AstRef:
@@ -375,6 +394,24 @@ def extract(
     composable, graph = compose_result
     assert composable, "No composable assignment found"
 
-    # TODO: missing implementation
+    aggcons = []
 
-    return z3.BoolVal(True)
+    def get_node_cons(node: Node, attr: Literal["needs", "provs"]) -> z3.AstRef:
+        try:
+            return node._asdict()[attr][0][0].cons
+        except (AttributeError, TypeError):
+            return z3.BoolVal(True)
+
+    # if inode and onode are the same
+    # conjunct reachable node& edge constraints from inode
+    if inode == onode:
+        for src, dst, ec in dfs(graph, inode.name):
+            aggcons.append(
+                compose(get_node_cons(src, "provs"), ec, get_node_cons(dst, "needs"))  # type: ignore
+            )
+    else:
+        # TODO: missing implementation
+        # what if inode and onode are not the same?
+        ...
+
+    return compose(*aggcons)

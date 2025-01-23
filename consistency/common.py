@@ -13,7 +13,13 @@ from consistency.relation import Relation
 def check(assertions: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
     s = z3.Solver()
     s.add([assertions, Relation.Constraints(), others])
+    # print(s.to_smt2())
     return s.check() == z3.sat
+    # result = s.check()
+    # model = s.model()
+    # print(model)
+    # print(model.eval(assertions))
+    # return result == z3.sat
 
 
 def construct(

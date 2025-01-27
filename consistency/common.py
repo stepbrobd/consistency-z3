@@ -391,6 +391,10 @@ def extract(
     # extract equivalent constraints from `compose` result
     # inode: aggregate node's constraint flow entrance
     # onode: aggregate node's constraint flow exit
+    # disallow extraction when inode and onode are different
+    if inode.name != onode.name:
+        raise NotImplementedError("inode and onode must be the same, please refer to docs")
+
     composable, graph = compose_result
     assert composable, "No composable assignment found"
 
@@ -404,14 +408,9 @@ def extract(
 
     # if inode and onode are the same
     # conjunct reachable node& edge constraints from inode
-    if inode == onode:
-        for src, dst, ec in dfs(graph, inode.name):
-            aggcons.append(
-                compose(get_node_cons(src, "provs"), ec, get_node_cons(dst, "needs"))  # type: ignore
-            )
-    else:
-        # TODO: missing implementation
-        # what if inode and onode are not the same?
-        ...
+    for src, dst, ec in dfs(graph, inode.name):
+        aggcons.append(
+            compose(get_node_cons(src, "provs"), ec, get_node_cons(dst, "needs"))  # type: ignore
+        )
 
     return compose(*aggcons)

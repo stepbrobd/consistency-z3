@@ -70,7 +70,6 @@ def test_shop() -> None:
         Edge(src=agg, dst=shop, cons=None),
     ]
 
-    # FIXME: this test is passing only because of `extract` call above returns True all the time
     g = graph(nodes, edges)
     ok, res = composable(g, client)
     assert ok

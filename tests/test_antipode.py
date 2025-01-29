@@ -1,22 +1,24 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
+from consistency.common import cleanup
 from consistency.history import History as H
 from consistency.operation import Operation as Op
 from consistency.relation import Relation as Rel
 
 
+@cleanup
 def test_antipode() -> None:
     # predicates
     _, (rd, wr) = Op.Sort()
     op = Op.Create()
     a, b, x, y, z = Op.Consts("a b x y z")
 
-    hb = AE.Relation.happens_before()
+    AE.Relation.happens_before()
     ar = AE.Relation.arbitration()
-    so = H.Relation.same_object()
-    rb = H.Relation.returns_before()
-    vis = AE.Relation.visibility()
+    H.Relation.same_object()
+    H.Relation.returns_before()
+    AE.Relation.visibility()
 
     # FIXME: temporary scaffolding
     # review lineage and xcy defs

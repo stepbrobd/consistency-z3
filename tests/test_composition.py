@@ -1,4 +1,4 @@
-from consistency.common import compatible, compose
+from consistency.common import cleanup, compatible, compose
 from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
@@ -13,12 +13,14 @@ pram_alt = compose(ReadYourWrites.assertions(), MonotonicReads.assertions(), Mon
 causal_alt = compose(ReadYourWrites.assertions(), MonotonicReads.assertions(), MonotonicWrites.assertions(), WritesFollowReads.assertions())
 
 
+@cleanup
 def test_known_compatible() -> None:
     assert compatible(Linearizability.assertions(), causal_alt)
     assert compatible(Linearizability.assertions(), pram_alt)
     assert compatible(causal_alt, pram_alt)
 
 
+@cleanup
 def test_known_incompatible() -> None:
     assert not compatible(causal_alt, Linearizability.assertions())
     assert not compatible(pram_alt, Linearizability.assertions())

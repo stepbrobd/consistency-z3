@@ -1,7 +1,7 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
-from consistency.common import Cons, Edge, Node, composable, compose, graph
+from consistency.common import Cons, Edge, Node, cleanup, composable, compose, graph
 from consistency.history import History as H
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
@@ -10,6 +10,7 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.operation import Operation as Op
 
 
+@cleanup
 def test_media() -> None:
     # predicates
     _, (rd, wr) = Op.Sort()

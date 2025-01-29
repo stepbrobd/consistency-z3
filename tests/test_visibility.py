@@ -1,12 +1,13 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
-from consistency.common import construct
+from consistency.common import cleanup, construct
 from consistency.history import History as H
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.operation import Operation as Op
 
 
+@cleanup
 def test_visibility_transitivity_under_monotonic_reads() -> None:
     _, (rd, wr) = Op.Sort()
     op = Op.Create()

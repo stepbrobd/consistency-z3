@@ -2,6 +2,7 @@ from consistency.common import (
     Cons,
     Edge,
     Node,
+    cleanup,
     composable,
     compose,
     graph,
@@ -12,6 +13,7 @@ from consistency.model.read_your_writes import ReadYourWrites
 
 
 # @pytest.mark.skip(reason="too slow")
+@cleanup
 def test_shop() -> None:
     """
     a online shop is selling products

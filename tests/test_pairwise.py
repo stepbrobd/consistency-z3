@@ -1,4 +1,4 @@
-from consistency.common import compatible
+from consistency.common import cleanup, compatible
 from consistency.model.causal_consistency import CausalConsistency
 from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
@@ -16,6 +16,7 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 # i.e. if mr is compatible with ryw, then ryw is not necessarily compatible with mr
 
 
+@cleanup
 def test_known_compatible() -> None:
     assert compatible(CausalConsistency.assertions(), MonotonicReads.assertions())
     assert compatible(CausalConsistency.assertions(), MonotonicWrites.assertions())

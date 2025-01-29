@@ -1,13 +1,44 @@
 from collections.abc import Collection, Generator
-from functools import cache
+from functools import cache, wraps
 from itertools import chain, combinations, product
-from typing import Literal, NamedTuple
+from typing import Callable, Literal, NamedTuple, ParamSpec, TypeVar, Union, overload
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import z3
 
 from consistency.relation import Relation
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+@overload
+def cleanup(func: Callable[P, R]) -> Callable[P, R]: ...
+# for type hinting only
+
+@overload
+def cleanup() -> Callable[[Callable[P, R]], Callable[P, R]]: ...
+# for type hinting only
+
+
+def cleanup(func: Union[Callable[P, R], None] = None) -> Union[Callable[P, R], Callable[[Callable[P, R]], Callable[P, R]]]:
+    # use this decorator to reset constraint singletons
+    def decorator(f: Callable[P, R]) -> Callable[P, R]:
+        @wraps(f)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+            try:
+                return f(*args, **kwargs)
+            finally:
+                from consistency.history import History as H
+                H.Relation.Reset()
+                from consistency.abstract_execution import AbstractExecution as AE
+                AE.Relation.Reset()
+        return wrapper
+
+    if func is None:
+        return decorator
+    return decorator(func)
 
 
 def check(assertions: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:

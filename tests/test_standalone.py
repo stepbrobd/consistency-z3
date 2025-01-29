@@ -1,6 +1,6 @@
 import z3
 
-from consistency.common import check
+from consistency.common import check, cleanup
 from consistency.model.causal_consistency import CausalConsistency
 from consistency.model.model import Model
 from consistency.model.monotonic_reads import MonotonicReads
@@ -13,6 +13,7 @@ from consistency.relation import Relation
 # from consistency.model.linearizability import Linearizability
 
 
+@cleanup
 def test_standalone() -> None:
     models: list[type[Model]] = [
         CausalConsistency,

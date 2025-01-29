@@ -2,6 +2,7 @@ from consistency.common import (
     Cons,
     Edge,
     Node,
+    cleanup,
     composable,
     compose,
     extract,
@@ -12,6 +13,7 @@ from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.read_your_writes import ReadYourWrites
 
 
+@cleanup
 def test_shop() -> None:
     arbitrator = Node(
         name="Arbitrator",

@@ -1,4 +1,3 @@
-
 import z3
 
 from consistency.common import check

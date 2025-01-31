@@ -460,20 +460,31 @@ Before meeting:
 - finished happen before
 - graph constraints extraction entry/exit guard
 - cleanup decorator to remove side effects
-- op declaration extension (maybe add op field extension to allow other types of op other than rd/wr?)
+- op declaration extension (maybe add op field extension to allow other types of
+  op other than rd/wr?)
 
 lineage:
+
 - dag properties (acyclic, transitivity)
-- single root: 1. all ops have a single root, 2. root have no predecessor, 3. paper requires lineage begins from that single root
+- single root: 1. all ops have a single root, 2. root have no predecessor, 3.
+  paper requires lineage begins from that single root
 - strict ordering within lineage: use session order, check op.proc
-- service correspondence: 1. use lamport happen before, dont care about op type, 2. add new op field svc and check equivalence
-- invocation correspondence (vague): 1. use same object 2. force wr on caller rd on callee
+- service correspondence: 1. use lamport happen before, dont care about op
+  type, 2. add new op field svc and check equivalence
+- invocation correspondence (vague): 1. use same object 2. force wr on caller rd
+  on callee
 - reply correspondence: 1. use viewed, 2. inheriently undeterministic
 
 xcy:
+
 - tilted arrow equal to arrow? assuming equivalence
 - read from lineage failing
 - how to test?
+
+After meeting:
+
+- revisit rule 4 of lineage, how to use wr/rd
+- test XCY rule 1 with only hb, and recursive definition
 
 ### 2025-01-23
 

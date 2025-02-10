@@ -50,7 +50,7 @@ def test_antipode() -> None:
                                 ),
                             ),
                         ),
-                        # 2. strict ordering within the same process of a lineage
+                        # 2. strict ordering within same process
                         z3.ForAll(
                             [a, b],
                             z3.Implies(
@@ -61,7 +61,7 @@ def test_antipode() -> None:
                                 lineage(a, b),
                             ),
                         ),
-                        # 3: send/receive pairs in same service correspondence
+                        # 3. send/receive pairs in same service
                         z3.ForAll(
                             [a, b],
                             z3.Implies(
@@ -72,20 +72,29 @@ def test_antipode() -> None:
                                 lineage(a, b),
                             ),
                         ),
-                        # 4. invocation correspondence
+                        # 4. invocation correspondence between services
                         z3.ForAll(
                             [a, b],
                             z3.Implies(
                                 z3.And(
                                     ob(a, b),
-                                    op.type(a) == wr,  # type: ignore
-                                    op.type(b) == rd,  # type: ignore
+                                    hb(a, b),  # a happens before b
+                                    op.svc(a) != op.svc(b),  # different services # type: ignore
                                 ),
                                 lineage(a, b),
                             ),
                         ),
-                        # 5. reply correspondence
-                        z3.ForAll([a, b], z3.Implies(viewed(b, a), lineage(a, b))),
+                        # 5. reply correspondence through reads
+                        z3.ForAll(
+                            [a, b],
+                            z3.Implies(
+                                z3.And(
+                                    viewed(b, a),  # b reads value written by a
+                                    op.svc(a) != op.svc(b),  # different services # type: ignore
+                                ),
+                                lineage(a, b)
+                            )
+                        ),
                     ),
                 )
                 return lineage

@@ -64,7 +64,7 @@ def check(
     others: z3.AstRef = z3.BoolVal(True),
     witness: Optional[pathlib.Path] = None,
 ) -> bool:
-    s = z3.Solver()
+    s = z3.SolverFor("ALL")
     s.add([assertions, Relation.Constraints(), others])
 
     if witness:
@@ -87,7 +87,7 @@ def construct(
 ) -> z3.Solver:
     # assert the negation of lhs (base) => rhs (target) is unsatisfiable
     # i.e. lhs implies rhs holds for all enumerated cases
-    s = z3.Solver()
+    s = z3.SolverFor("ALL")
     s.add(others)
     s.add(z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints())
     return s

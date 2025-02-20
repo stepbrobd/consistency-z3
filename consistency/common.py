@@ -9,6 +9,8 @@ import z3
 
 from consistency.relation import Relation
 
+z3.set_param("parallel.enable", True)
+
 P = ParamSpec("P")
 R = TypeVar("R")
 
@@ -17,12 +19,15 @@ R = TypeVar("R")
 def cleanup(func: Callable[P, R]) -> Callable[P, R]: ...
 # for type hinting only
 
+
 @overload
 def cleanup() -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 # for type hinting only
 
 
-def cleanup(func: Union[Callable[P, R], None] = None) -> Union[Callable[P, R], Callable[[Callable[P, R]], Callable[P, R]]]:
+def cleanup(
+    func: Union[Callable[P, R], None] = None,
+) -> Union[Callable[P, R], Callable[[Callable[P, R]], Callable[P, R]]]:
     # use this decorator to reset constraint singletons
     def decorator(f: Callable[P, R]) -> Callable[P, R]:
         @wraps(f)
@@ -31,9 +36,12 @@ def cleanup(func: Union[Callable[P, R], None] = None) -> Union[Callable[P, R], C
                 return f(*args, **kwargs)
             finally:
                 from consistency.history import History as H
+
                 H.Relation.Reset()
                 from consistency.abstract_execution import AbstractExecution as AE
+
                 AE.Relation.Reset()
+
         return wrapper
 
     if func is None:
@@ -424,7 +432,9 @@ def extract(
     # onode: aggregate node's constraint flow exit
     # disallow extraction when inode and onode are different
     if inode.name != onode.name:
-        raise NotImplementedError("inode and onode must be the same, please refer to docs")
+        raise NotImplementedError(
+            "inode and onode must be the same, please refer to docs"
+        )
 
     composable, graph = compose_result
     assert composable, "No composable assignment found"

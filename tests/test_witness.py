@@ -37,7 +37,15 @@ def test_standalone() -> None:
 
         assert (
             subprocess.run(  # noqa: S603
-                [shutil.which("cvc5"), "--fresh-binders", f.absolute()],  # type: ignore
+                [
+                    str(shutil.which("cvc5")),
+                    "--lang=smtlib2",
+                    "--fresh-binders",
+                    "--macros-quant",
+                    "--macros-quant-mode=all",
+                    "--sygus",
+                    f.absolute(),
+                ],  # type: ignore
                 check=True,
                 capture_output=True,
             ).returncode

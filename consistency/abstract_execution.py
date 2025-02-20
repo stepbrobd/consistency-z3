@@ -203,8 +203,8 @@ class AbstractExecution:
         def happens_before() -> z3.FuncDeclRef:
             op = Op.Create()
             hb = AbstractExecution.Relation.Declare("hb", op, op, z3.BoolSort())
-            History.Relation.session_order()
-            AbstractExecution.Relation.visibility()
+            so = History.Relation.session_order()
+            vis = AbstractExecution.Relation.visibility()
 
             a, b = Op.Consts("a b")
             AbstractExecution.Relation.AddConstraint(
@@ -214,14 +214,14 @@ class AbstractExecution:
                     # hb is the transitive closure of the union of so and vis
                     # https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-transitive-closure
                     # FIXME: root cause, use https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-special-relations
-                    # z3.ForAll(
-                    #     [a, b],
-                    #     hb(a, b)
-                    #     == z3.Or(
-                    #         z3.TransitiveClosure(so)(a, b),
-                    #         z3.TransitiveClosure(vis)(a, b),
-                    #     ),
-                    # ),
+                    z3.ForAll(
+                        [a, b],
+                        hb(a, b)
+                        == z3.Or(
+                            z3.TransitiveClosure(so)(a, b),
+                            z3.TransitiveClosure(vis)(a, b),
+                        ),
+                    ),
                     # acyclicity
                     z3.ForAll([a, b], z3.Implies(hb(a, b), z3.Not(hb(b, a)))),
                 ),

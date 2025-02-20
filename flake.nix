@@ -30,6 +30,7 @@
 
         devShells.default = unstable.mkShell {
           packages = with unstable; [
+            cvc5
             direnv
             git
             hayagriva

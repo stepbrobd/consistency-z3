@@ -1,7 +1,17 @@
+import pathlib
 from collections.abc import Collection, Generator
 from functools import cache, wraps
 from itertools import chain, combinations, product
-from typing import Callable, Literal, NamedTuple, ParamSpec, TypeVar, Union, overload
+from typing import (
+    Callable,
+    Literal,
+    NamedTuple,
+    Optional,
+    ParamSpec,
+    TypeVar,
+    Union,
+    overload,
+)
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -49,20 +59,31 @@ def cleanup(
     return decorator(func)
 
 
-def check(assertions: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)) -> bool:
+def check(
+    assertions: z3.BoolRef,
+    others: z3.AstRef = z3.BoolVal(True),
+    witness: Optional[pathlib.Path] = None,
+) -> bool:
     s = z3.Solver()
     s.add([assertions, Relation.Constraints(), others])
-    # print(s.to_smt2())
-    return s.check() == z3.sat
-    # result = s.check()
+
+    if witness:
+        with witness.open("w") as f:
+            f.write(s.to_smt2())
+
+    # return s.check() == z3.sat
+    result = s.check()
     # model = s.model()
     # print(model)
     # print(model.eval(assertions))
-    # return result == z3.sat
+    # print(s.unsat_core())
+    return result == z3.sat
 
 
 def construct(
-    lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)
+    lhs: z3.BoolRef,
+    rhs: z3.BoolRef,
+    others: z3.AstRef = z3.BoolVal(True),
 ) -> z3.Solver:
     # assert the negation of lhs (base) => rhs (target) is unsatisfiable
     # i.e. lhs implies rhs holds for all enumerated cases
@@ -73,10 +94,18 @@ def construct(
 
 
 def compatible(
-    lhs: z3.BoolRef, rhs: z3.BoolRef, others: z3.AstRef = z3.BoolVal(True)
+    lhs: z3.BoolRef,
+    rhs: z3.BoolRef,
+    others: z3.AstRef = z3.BoolVal(True),
+    witness: Optional[pathlib.Path] = None,
 ) -> bool:
-    solver = construct(lhs, rhs, others)
-    result = solver.check() == z3.unsat
+    s = construct(lhs, rhs, others)
+
+    if witness:
+        with witness.open("w") as f:
+            f.write(s.to_smt2())
+
+    result = s.check() == z3.unsat
     # print(solver.to_smt2())
     # if result:
     #     print(solver.unsat_core())
@@ -196,8 +225,16 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:  # type: ignore
 
 
 def composable(
-    graph: nx.MultiDiGraph, source: Node, premise: z3.BoolRef = z3.BoolVal(True)
+    graph: nx.MultiDiGraph,
+    source: Node,
+    premise: z3.BoolRef = z3.BoolVal(True),
+    witness: Optional[pathlib.Path] = None,  # TODO: might or might not implement
 ) -> tuple[bool, nx.MultiDiGraph]:
+    if witness:
+        raise NotImplementedError(
+            "witness generation for `composable` check not implemented yet"
+        )
+
     # returns whether there's one possible composable assignment
     # and the first satisfying assignment
     result = nx.MultiDiGraph()

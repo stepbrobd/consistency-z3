@@ -453,6 +453,20 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-02-20
+
+- discharge to smt2 (working for standalone checks and compatibility checks,
+  composable check not implemented)
+- fix operation sort definition leaking (will only happen if using `Op.Create`
+  with custom fields) in tests
+- note on lamport happen-before
+  (<https://microsoft.github.io/z3guide/docs/theories/Special%20Relations/#transitive-closures>):
+  - transitive closure of a relation is not first-order axiomatizable
+  - decision problem for ground formulas is decidable because:
+    - for every binary relation over a finite domain
+    - the transitive closure of the binary relation is defined over the finite
+      graph of the relation
+
 ### 2025-01-31
 
 Before meeting:

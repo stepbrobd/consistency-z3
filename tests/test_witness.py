@@ -17,7 +17,7 @@ from consistency.relation import Relation
 
 
 @cleanup
-def test_standalone() -> None:
+def test_witness() -> None:
     models: list[type[Model]] = [
         CausalConsistency,
         MonotonicReads,

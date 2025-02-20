@@ -8,6 +8,18 @@ from consistency.model.model import Model
 from consistency.operation import Operation as Op
 from consistency.relation import Relation as Rel
 
+op = Op.Create(
+    [
+        ("svc", z3.IntSort()),
+        ("is_init", z3.BoolSort()),
+        ("is_exit", z3.BoolSort()),
+        ("is_send", z3.BoolSort()),
+        ("is_recv", z3.BoolSort()),
+        ("is_invoke", z3.BoolSort()),
+        ("is_reply", z3.BoolSort()),
+    ]
+)
+
 
 class Antipode:
     class Relation(Rel):

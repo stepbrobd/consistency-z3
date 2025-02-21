@@ -19,8 +19,6 @@ import z3
 
 from consistency.relation import Relation
 
-z3.set_param("parallel.enable", True)
-
 P = ParamSpec("P")
 R = TypeVar("R")
 
@@ -59,12 +57,35 @@ def cleanup(
     return decorator(func)
 
 
+def params() -> None:
+    # why is pyz3 and z3 showing different mbqi behaviors?
+    """
+    z3 \
+      verbose=3 \
+      parallel.enable=true \
+      sat.local_search_threads=32 \
+      sat.ddfw_search=true \
+      sat.ddfw.threads=32 \
+      smt.mbqi.trace=true \
+      smt.pull_nested_quantifiers=true \
+      -smt2 <file>.smt2
+    """
+    z3.set_param("parallel.enable", True)
+    # z3.set_param("smt.mbqi.trace", True)
+    z3.set_param("smt.pull_nested_quantifiers", True)
+    # z3.set_param("smtlib2_compliant", True)
+    z3.set_param("sat.local_search_threads", 32)
+    z3.set_param("sat.ddfw_search", True)
+    z3.set_param("sat.ddfw.threads", 32)
+
+
 def check(
     assertions: z3.BoolRef,
     others: z3.AstRef = z3.BoolVal(True),
     witness: Optional[pathlib.Path] = None,
 ) -> bool:
     s = z3.SolverFor("ALL")
+    params()
     s.add([assertions, Relation.Constraints(), others])
 
     if witness:
@@ -88,6 +109,7 @@ def construct(
     # assert the negation of lhs (base) => rhs (target) is unsatisfiable
     # i.e. lhs implies rhs holds for all enumerated cases
     s = z3.SolverFor("ALL")
+    params()
     s.add(others)
     s.add(z3.Not(z3.Implies(lhs, rhs)), Relation.Constraints())
     return s

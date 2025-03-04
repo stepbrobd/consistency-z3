@@ -38,6 +38,7 @@
             ruff
             typst
             typstfmt
+            z3
           ];
 
           venvDir = "./.venv";

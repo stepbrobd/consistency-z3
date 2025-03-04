@@ -203,5 +203,5 @@ def test_antipode() -> None:
     # an execution x is XCY consistent if for each process p_i
     # there is a serialization of the all write and p_i's read
     # events of x that respects happens-before (not exactly)
-    assert check(XCY.assertions())
     assert compatible(XCY.assertions(), CausalConsistency.assertions())
+    assert check(XCY.assertions())

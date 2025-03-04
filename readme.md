@@ -453,6 +453,17 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-03-04
+
+- just the shim layer for weak consistency + happen-before
+- review lineage definition
+- XCY definition currently uses hb instead of xcy (fix needed)
+- low priority:
+  - https://dl.acm.org/doi/10.1145/1345169.1345178
+  - https://dl.acm.org/doi/10.1007/s00165-014-0303-1
+  - https://link.springer.com/chapter/10.1007/978-3-319-67531-2_17
+  - https://team.inria.fr/veridis/publications/
+
 ### 2025-02-20
 
 - discharge to smt2 (working for standalone checks and compatibility checks,

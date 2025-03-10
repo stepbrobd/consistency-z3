@@ -139,6 +139,53 @@ class Antipode:
             )
             return lineage
 
+        @staticmethod
+        def xcy() -> z3.FuncDeclRef:
+            _, (rd, wr) = Op.Sort()
+            op = Op.Create(
+                [
+                    ("svc", z3.IntSort()),
+                    ("is_init", z3.BoolSort()),
+                    ("is_exit", z3.BoolSort()),
+                    ("is_send", z3.BoolSort()),
+                    ("is_recv", z3.BoolSort()),
+                    ("is_invoke", z3.BoolSort()),
+                    ("is_reply", z3.BoolSort()),
+                ]
+            )
+            xcy = Antipode.Relation.Declare("xcy", op, op, z3.BoolSort())
+            lineage = Antipode.Relation.lineage()
+            hb = AE.Relation.happens_before()
+            viewed = AE.Relation.viewed()
+            a, b, c, x = Op.Consts("a b c x")
+            Antipode.Relation.AddConstraint(
+                "xcy",
+                z3.And(  # type: ignore
+                    # 1. happened-before
+                    z3.ForAll([a, b], z3.Implies(hb(a, b), xcy(a, b))),
+                    # 2. reads-from-lineage
+                    z3.ForAll(
+                        [x, b],  # x denotes a'
+                        z3.Implies(
+                            z3.And(
+                                op.type(x) == wr,  # type: ignore # a' is a write
+                                op.type(b) == rd,  # type: ignore # b  is a read
+                                viewed(b, x),  # b returns value written by a'
+                            ),
+                            z3.And(
+                                xcy(a, b),
+                                z3.ForAll([a], lineage(a, x)),  # a in a's lineage
+                            ),
+                        ),
+                    ),
+                    # 3. transitivity
+                    z3.ForAll(
+                        [a, b, c], z3.Implies(z3.And(xcy(a, b), xcy(b, c)), xcy(a, c))
+                    ),
+                ),
+            )
+            return xcy
+
 
 class XCY(Model):
     @staticmethod
@@ -155,45 +202,15 @@ class XCY(Model):
                 ("is_reply", z3.BoolSort()),
             ]
         )
-        a, b, x = Op.Consts("a b x")
-
-        hb = AE.Relation.happens_before()
-        vis = AE.Relation.visibility()
-        viewed = AE.Relation.viewed()
-        lineage = Antipode.Relation.lineage()
-        return z3.And(
-            # hb
-            z3.ForAll([a, b], z3.Implies(hb(a, b), vis(a, b))),
-            # transitivity already implied by hb and lineage
-            # read from lineage
-            # try 1:
-            # reading from a write creates dependencies with its lineage
-            # z3.ForAll([a, b, x],
-            #     z3.Implies(
-            #         z3.And(
-            #             viewed(b, a),  # b reads from a
-            #             lineage(x, a)   # x is in a's lineage
-            #         ),
-            #         vis(x, b)  # x must be visible to b
-            #     )
-            # ),
-            # try 2:
-            z3.ForAll(
-                [a, b],
-                z3.Implies(
-                    z3.And(
-                        viewed(b, a),  # b reads from a
-                        op.type(a) == wr,  # type: ignore # a is a write
-                        op.type(b) == rd,  # type: ignore # b is a read
-                    ),
-                    z3.ForAll(
-                        [x],
-                        z3.Implies(
-                            lineage(x, a),  # x is in a's lineage
-                            hb(x, b),  # x is ordered before b
-                        ),
-                    ),
-                ),
+        read, write = Op.Consts("read write")
+        xcy = Antipode.Relation.xcy()
+        return z3.Exists(
+            [write],
+            z3.And(
+                op.type(read) == rd,  # type: ignore
+                op.type(write) == wr,  # type: ignore
+                op.proc(read) == op.proc(write),  # type: ignore
+                z3.ForAll([read], xcy(write, read)),
             ),
         )
 

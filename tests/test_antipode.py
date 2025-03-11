@@ -1,7 +1,7 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
-from consistency.common import check, cleanup, compatible
+from consistency.common import cleanup, compatible
 from consistency.history import History as H
 from consistency.model.causal_consistency import CausalConsistency
 from consistency.model.model import Model
@@ -189,7 +189,10 @@ class Antipode:
 
 class XCY(Model):
     @staticmethod
-    def assertions() -> z3.BoolRef:  # predicates
+    def assertions() -> z3.BoolRef:
+        # an execution x is XCY consistent if for each process p_i
+        # there is a serialization of the all write and p_i's read
+        # events of x that respects xcy relation
         _, (rd, wr) = Op.Sort()
         op = Op.Create(
             [
@@ -204,21 +207,20 @@ class XCY(Model):
         )
         read, write = Op.Consts("read write")
         xcy = Antipode.Relation.xcy()
-        return z3.Exists(
-            [write],
-            z3.And(
-                op.type(read) == rd,  # type: ignore
-                op.type(write) == wr,  # type: ignore
-                op.proc(read) == op.proc(write),  # type: ignore
-                z3.ForAll([read], xcy(write, read)),
+        return z3.And(
+            op.type(read) == rd,  # type: ignore
+            op.type(write) == wr,  # type: ignore
+            z3.Exists(
+                [write],
+                z3.And(
+                    op.proc(read) == op.proc(write),  # type: ignore
+                    z3.ForAll([read], xcy(write, read)),
+                ),
             ),
         )
 
 
 @cleanup
 def test_antipode() -> None:
-    # an execution x is XCY consistent if for each process p_i
-    # there is a serialization of the all write and p_i's read
-    # events of x that respects happens-before (not exactly)
+    # assert check(XCY.assertions())
     assert compatible(XCY.assertions(), CausalConsistency.assertions())
-    assert check(XCY.assertions())

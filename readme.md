@@ -453,6 +453,36 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-03-14
+
+pre-meeting:
+
+- lineage checked
+- fixed xcy pairwise using hb instead of recursive xcy
+- xcy relation (pairwise) v.s. xcy consistent (model)
+
+```py
+# how to slap a shim on any binary relation
+class XCYShim(Model):
+    @staticmethod
+    def assertions() -> z3.BoolRef:
+        _, (rd, wr) = Op.Sort()
+        op = Op.Create()
+        read, write = Op.Consts("read write")
+        xcy = Antipode.Relation.xcy()
+        return z3.And(
+            op.type(read) == rd,  # type: ignore
+            op.type(write) == wr,  # type: ignore
+            z3.Exists(
+                [write],
+                z3.And(
+                    op.proc(read) == op.proc(write),  # type: ignore
+                    z3.ForAll([read], xcy(write, read)),
+                ),
+            ),
+        )
+```
+
 ### 2025-03-04
 
 - just the shim layer for weak consistency + happen-before

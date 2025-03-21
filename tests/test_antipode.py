@@ -189,7 +189,7 @@ class Antipode:
 
 class XCY(Model):
     @staticmethod
-    def assertions() -> z3.BoolRef:
+    def existential() -> z3.BoolRef:
         # an execution x is XCY consistent if for each process p_i
         # there is a serialization of the all write and p_i's read
         # events of x that respects xcy relation
@@ -219,8 +219,66 @@ class XCY(Model):
             ),
         )
 
+    @staticmethod
+    def assertions() -> z3.BoolRef:
+        _, (rd, wr) = Op.Sort()
+        op = Op.Create(
+            [
+                ("svc", z3.IntSort()),
+                ("is_init", z3.BoolSort()),
+                ("is_exit", z3.BoolSort()),
+                ("is_send", z3.BoolSort()),
+                ("is_recv", z3.BoolSort()),
+                ("is_invoke", z3.BoolSort()),
+                ("is_reply", z3.BoolSort()),
+            ]
+        )
+        a, b, p = Op.Consts("a b p")
+        xcy = Antipode.Relation.xcy()
+        so = H.Relation.session_order()
+        # for each process p, all reads and writes respect XCY order
+        return z3.ForAll(
+            [p],  # for each process
+            z3.ForAll(
+                [a, b],  # for all op a and b
+                z3.Implies(
+                    z3.And(
+                        a != b,
+                        z3.Or(
+                            # a is read in process p
+                            z3.And(
+                                op.type(a) == rd,  # type: ignore
+                                op.proc(a) == op.proc(p),  # type: ignore
+                            ),
+                            # a is any write
+                            op.type(a) == wr,  # type: ignore
+                        ),
+                        z3.Or(
+                            # b is read in process p
+                            z3.And(
+                                op.type(b) == rd,  # type: ignore
+                                op.proc(b) == op.proc(p),  # type: ignore
+                            ),
+                            # b is any write
+                            op.type(b) == wr,  # type: ignore
+                        ),
+                        z3.If(
+                            # write a and read b in have some serialization
+                            z3.And(op.type(a) == wr, op.type(b) == rd),  # type: ignore
+                            so(a, b),
+                            # skip
+                            z3.BoolVal(True),
+                        ),
+                    ),
+                    # a before b in XCY order
+                    xcy(a, b),
+                ),
+            ),
+        )
+
 
 @cleanup
 def test_antipode() -> None:
     # assert check(XCY.assertions())
-    assert compatible(XCY.assertions(), CausalConsistency.assertions())
+    # all XCY executions are causally consistent
+    assert compatible(CausalConsistency.assertions(), XCY.assertions())

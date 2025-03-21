@@ -453,6 +453,11 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-03-21
+
+- put XCY consistency on hold
+- impl 4 session semantics with causal cross storage
+
 ### 2025-03-14
 
 pre-meeting:

@@ -1,0 +1,401 @@
+viotti2016consistency:
+  type: article
+  title: Consistency in Non-Transactional Distributed Storage Systems
+  author:
+  - Viotti, Paolo
+  - Vukolić, Marko
+  date: 2016-06
+  url: https://doi.org/10.1145/2926965
+  serial-number:
+    doi: 10.1145/2926965
+    issn: 0360-0300
+  parent:
+    type: periodical
+    title: ACM Comput. Surv.
+    publisher: Association for Computing Machinery
+    location: New York, NY, USA
+    issue: 1
+    volume: 49
+
+burckhardt2014principles:
+  type: book
+  title: Principles of Eventual Consistency
+  author: Burckhardt, Sebastian
+  date: 2014-10
+  publisher: Now Publishers
+  volume: 1
+  edition: Principles of Eventual Consistency
+  page-range: 1–150
+  url: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
+  parent:
+    type: book
+    title: Foundations and Trends® in Programming Languages
+
+demoura2008z3:
+  type: article
+  title: 'Z3: an efficient SMT solver'
+  author:
+  - De Moura, Leonardo
+  - Bj̸rner, Nikolaj
+  date: 2008
+  page-range: 337
+  serial-number:
+    isbn: '3540787992'
+  parent:
+    type: proceedings
+    title: Proceedings of the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems
+    publisher: Springer-Verlag
+    location: Budapest, Hungary
+    parent:
+      type: proceedings
+      title: TACAS'08/ETAPS'08
+
+barbosa2022cvc5:
+  type: article
+  title: 'cvc5: A Versatile and Industrial-Strength SMT Solver'
+  author:
+  - Barbosa, Haniel
+  - Barrett, Clark
+  - Brain, Martin
+  - Kremer, Gereon
+  - Lachnitt, Hanna
+  - Mann, Makai
+  - Mohamed, Abdalrhman
+  - Mohamed, Mudathir
+  - Niemetz, Aina
+  - Nötzli, Andres
+  - Ozdemir, Alex
+  - Preiner, Mathias
+  - Reynolds, Andrew
+  - Sheng, Ying
+  - Tinelli, Cesare
+  - Zohar, Yoni
+  date: 2022
+  page-range: 415
+  url: https://doi.org/10.1007/978-3-030-99524-9_24
+  serial-number:
+    doi: 10.1007/978-3-030-99524-9_24
+    isbn: 978-3-030-99523-2
+  parent:
+    type: proceedings
+    title: 'Tools and Algorithms for the Construction and Analysis of Systems: 28th International Conference, TACAS 2022, Held as Part of the European Joint Conferences on Theory and Practice of Software, ETAPS 2022, Munich, Germany, April 2–7, 2022, Proceedings, Part I'
+    publisher: Springer-Verlag
+    location: Munich, Germany
+
+bryant2002modeling:
+  type: article
+  title: Modeling and Verifying Systems Using a Logic of Counter Arithmetic with Lambda Expressions and Uninterpreted Functions
+  author:
+  - Bryant, Randal E.
+  - Lahiri, Shuvendu K.
+  - Seshia, Sanjit A.
+  date: 2002
+  page-range: 78-92
+  serial-number:
+    isbn: '3540439978'
+  parent:
+    type: proceedings
+    title: Proceedings of the 14th International Conference on Computer Aided Verification
+    publisher:
+      name: Springer-Verlag
+      location: Berlin, Heidelberg
+    parent:
+      type: proceedings
+      title: CAV '02
+
+viotti2016towards:
+  type: article
+  title: Towards property-based consistency verification
+  author:
+  - Viotti, Paolo
+  - Meiklejohn, Christopher
+  - Vukolić, Marko
+  date: 2016
+  url: https://doi.org/10.1145/2911151.2911162
+  serial-number:
+    doi: 10.1145/2911151.2911162
+    isbn: '9781450342964'
+  parent:
+    type: proceedings
+    title: Proceedings of the 2nd Workshop on the Principles and Practice of Consistency for Distributed Data
+    publisher:
+      name: Association for Computing Machinery
+      location: London, United Kingdom
+    parent:
+      type: proceedings
+      title: PaPoC '16
+
+zhang2018building:
+  type: article
+  title: Building Consistent Transactions with Inconsistent Replication
+  author:
+  - Zhang, Irene
+  - Sharma, Naveen Kr.
+  - Szekeres, Adriana
+  - Krishnamurthy, Arvind
+  - Ports, Dan R. K.
+  date: 2018-12
+  url: https://doi.org/10.1145/3269981
+  serial-number:
+    doi: 10.1145/3269981
+    issn: 0734-2071
+  parent:
+    type: periodical
+    title: ACM Trans. Comput. Syst.
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    issue: 4
+    volume: 35
+
+ferreira2023antipode:
+  type: article
+  title: 'Antipode: Enforcing Cross-Service Causal Consistency in Distributed Applications'
+  author:
+  - Ferreira Loff, João
+  - Porto, Daniel
+  - Garcia, João
+  - Mace, Jonathan
+  - Rodrigues, Rodrigo
+  date: 2023
+  page-range: 298-313
+  url: https://doi.org/10.1145/3600006.3613176
+  serial-number:
+    doi: 10.1145/3600006.3613176
+    isbn: '9798400702297'
+  parent:
+    type: proceedings
+    title: Proceedings of the 29th Symposium on Operating Systems Principles
+    publisher:
+      name: Association for Computing Machinery
+      location: Koblenz, Germany
+    parent:
+      type: proceedings
+      title: SOSP '23
+
+baldoni2002an:
+  type: article
+  title: An Implementation of Causal Memories using the Writing Semantic
+  author:
+  - Baldoni, Roberto
+  - Sparziani, C.
+  - Tucci Piergiovanni, Sara
+  - Tulone, Daniela
+  date: 2002
+  editor:
+  - Bui, Alain
+  - Fouchal, Hacène
+  page-range: 41-50
+  parent:
+    type: proceedings
+    title: Procedings of the 6th International Conference on Principles of Distributed Systems. {OPODIS} 2002, Reims, France, December 11-13, 2002
+    publisher: Suger, Saint-Denis, rue Catulienne, France
+    volume: 3
+    parent:
+      type: proceedings
+      title: Studia Informatica Universalis
+
+zhang2015building:
+  type: article
+  title: Building consistent transactions with inconsistent replication
+  author:
+  - Zhang, Irene
+  - Sharma, Naveen Kr.
+  - Szekeres, Adriana
+  - Krishnamurthy, Arvind
+  - Ports, Dan R. K.
+  date: 2015
+  page-range: 263-278
+  url: https://doi.org/10.1145/2815400.2815404
+  serial-number:
+    doi: 10.1145/2815400.2815404
+    isbn: '9781450338349'
+  parent:
+    type: proceedings
+    title: Proceedings of the 25th Symposium on Operating Systems Principles
+    publisher:
+      name: Association for Computing Machinery
+      location: Monterey, California
+    parent:
+      type: proceedings
+      title: SOSP '15
+
+brzezinski2004session:
+  type: article
+  title: Session Guarantees to Achieve PRAM Consistency of Replicated Shared Objects
+  author:
+  - Brzezinski, Jerzy
+  - Sobaniec, Cezary
+  - Wawrzyniak, Dariusz
+  date: 2004
+  editor:
+  - Wyrzykowski, Roman
+  - Dongarra, Jack
+  - Paprzycki, Marcin
+  - Waśniewski, Jerzy
+  page-range: 1-8
+  serial-number:
+    isbn: 978-3-540-24669-5
+  parent:
+    type: proceedings
+    title: Parallel Processing and Applied Mathematics
+    publisher:
+      name: Springer Berlin Heidelberg
+      location: Berlin, Heidelberg
+
+terry1994session:
+  type: article
+  title: Session guarantees for weakly consistent replicated data
+  author:
+  - Terry, D.B.
+  - Demers, A.J.
+  - Petersen, K.
+  - Spreitzer, M.J.
+  - Theimer, M.M.
+  - Welch, B.B.
+  date: 1994
+  page-range: 140-149
+  serial-number:
+    doi: 10.1109/PDIS.1994.331722
+  parent:
+    type: proceedings
+    title: Proceedings of 3rd International Conference on Parallel and Distributed Information Systems
+    issue: ''
+    volume: 0
+10.1145/2851141.2851170:
+  type: article
+  title: 'Causal consistency: beyond memory'
+  author:
+  - Perrin, Matthieu
+  - Mostefaoui, Achour
+  - Jard, Claude
+  date: 2016
+  url: https://doi.org/10.1145/2851141.2851170
+  serial-number:
+    doi: 10.1145/2851141.2851170
+    isbn: '9781450340922'
+  parent:
+    type: proceedings
+    title: Proceedings of the 21st ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming
+    publisher:
+      name: Association for Computing Machinery
+      location: Barcelona, Spain
+    parent:
+      type: proceedings
+      title: PPoPP '16
+
+perrin2016causal:
+  type: article
+  title: 'Causal consistency: beyond memory'
+  author:
+  - Perrin, Matthieu
+  - Mostefaoui, Achour
+  - Jard, Claude
+  date: 2016-02
+  url: https://doi.org/10.1145/3016078.2851170
+  serial-number:
+    doi: 10.1145/3016078.2851170
+    issn: 0362-1340
+  parent:
+    type: periodical
+    title: SIGPLAN Not.
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    issue: 8
+    volume: 51
+
+lamport1977proving:
+  type: article
+  title: Proving the Correctness of Multiprocess Programs
+  author: Lamport, L.
+  date: 1977
+  page-range: 125-143
+  serial-number:
+    doi: 10.1109/TSE.1977.229904
+  parent:
+    type: periodical
+    title: IEEE Transactions on Software Engineering
+    issue: 2
+
+ma2024noctua:
+  type: article
+  title: 'Noctua: Towards Automated and Practical Fine-grained Consistency Analysis'
+  author:
+  - Ma, Kai
+  - Li, Cheng
+  - Zhu, Enzuo
+  - Chen, Ruichuan
+  - Yan, Feng
+  - Chen, Kang
+  date: 2024
+  page-range: 704-719
+  url: https://doi.org/10.1145/3627703.3629570
+  serial-number:
+    doi: 10.1145/3627703.3629570
+    isbn: '9798400704376'
+  parent:
+    type: proceedings
+    title: Proceedings of the Nineteenth European Conference on Computer Systems
+    publisher:
+      name: Association for Computing Machinery
+      location: Athens, Greece
+    parent:
+      type: proceedings
+      title: EuroSys '24
+
+lamport2001paxos:
+  type: article
+  title: Paxos Made Simple
+  author: Lamport, Leslie
+  date: 2001-12
+  page-range: 51-58
+  url: https://www.microsoft.com/en-us/research/publication/paxos-made-simple/
+  parent:
+    type: periodical
+    title: ACM SIGACT News (Distributed Computing Column) 32, 4 (Whole Number 121, December 2001)
+    edition: ACM SIGACT News (Distributed Computing Column) 32, 4 (Whole Number 121, December 2001)
+
+gan2019an:
+  type: article
+  title: An Open-Source Benchmark Suite for Microservices and Their Hardware-Software Implications for Cloud & Edge Systems
+  author:
+  - Gan, Yu
+  - Zhang, Yanqi
+  - Cheng, Dailun
+  - Shetty, Ankitha
+  - Rathi, Priyal
+  - Katarki, Nayan
+  - Bruno, Ariana
+  - Hu, Justin
+  - Ritchken, Brian
+  - Jackson, Brendon
+  - Hu, Kelvin
+  - Pancholi, Meghna
+  - He, Yuan
+  - Clancy, Brett
+  - Colen, Chris
+  - Wen, Fukang
+  - Leung, Catherine
+  - Wang, Siyuan
+  - Zaruvinsky, Leon
+  - Espinosa, Mateo
+  - Lin, Rick
+  - Liu, Zhongling
+  - Padilla, Jake
+  - Delimitrou, Christina
+  date: 2019
+  page-range: 3-18
+  url: https://doi.org/10.1145/3297858.3304013
+  serial-number:
+    doi: 10.1145/3297858.3304013
+    isbn: '9781450362405'
+  parent:
+    type: proceedings
+    title: Proceedings of the Twenty-Fourth International Conference on Architectural Support for Programming Languages and Operating Systems
+    publisher:
+      name: Association for Computing Machinery
+      location: Providence, RI, USA
+    parent:
+      type: proceedings
+      title: ASPLOS '19

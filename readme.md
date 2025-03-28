@@ -453,6 +453,13 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-03-28
+
+- parameterize all models' symbol usage
+- for tests other than cross causal, set the models to use the same set of
+  symbols
+- check the composition of 3 causals
+
 ### 2025-03-21
 
 - put XCY consistency on hold

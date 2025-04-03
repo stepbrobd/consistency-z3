@@ -8,15 +8,20 @@ from consistency.relation import Relation as Rel
 class AbstractExecution:
     class Relation(Rel):
         @staticmethod
-        def can_view() -> z3.FuncDeclRef:
+        def can_view(symbols: list[str] | None = None) -> z3.FuncDeclRef:
             # can_view(a, b) -> a (rd) can view b (wr)
+
+            if symbols is None:
+                symbols = ["a", "b"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             can_view = AbstractExecution.Relation.Declare(
                 "can_view", op, op, z3.BoolSort()
             )
 
             _, (rd, wr) = Op.Sort()
-            a, b = Op.Consts("a b")
+            a, b, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "can_view",
                 z3.Implies(
@@ -55,14 +60,19 @@ class AbstractExecution:
 
 
         @staticmethod
-        def viewed() -> z3.FuncDeclRef:
+        def viewed(symbols: list[str] | None = None) -> z3.FuncDeclRef:
             # viewed(a, b) -> a (rd) viewed b (wr)
+
+            if symbols is None:
+                symbols = ["a", "b", "x"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             viewed = AbstractExecution.Relation.Declare("viewed", op, op, z3.BoolSort())
             can_view = AbstractExecution.Relation.can_view()
 
             _, (rd, wr) = Op.Sort()
-            a, b, x = Op.Consts("a b x")
+            a, b, x, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "viewed",
                 z3.Implies(
@@ -108,14 +118,18 @@ class AbstractExecution:
 
 
         @staticmethod
-        def visibility() -> z3.FuncDeclRef:
+        def visibility(symbols: list[str] | None = None) -> z3.FuncDeclRef:
+            if symbols is None:
+                symbols = ["a", "b", "c", "x"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             vis = AbstractExecution.Relation.Declare("vis", op, op, z3.BoolSort())
             ar = AbstractExecution.Relation.arbitration()
             viewed = AbstractExecution.Relation.viewed()
 
             _, (rd, wr) = Op.Sort()
-            a, b, c, x = Op.Consts("a b c x")
+            a, b, c, x, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "vis",
                 z3.And( # type: ignore
@@ -177,11 +191,15 @@ class AbstractExecution:
 
 
         @staticmethod
-        def arbitration() -> z3.FuncDeclRef:
+        def arbitration(symbols: list[str] | None = None) -> z3.FuncDeclRef:
+            if symbols is None:
+                symbols = ["a", "b", "c"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             ar = AbstractExecution.Relation.Declare("ar", op, op, z3.BoolSort())
 
-            a, b, c = Op.Consts("a b c")
+            a, b, c, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "ar",
                 z3.And(  # type: ignore
@@ -200,13 +218,17 @@ class AbstractExecution:
 
 
         @staticmethod
-        def happens_before() -> z3.FuncDeclRef:
+        def happens_before(symbols: list[str] | None = None) -> z3.FuncDeclRef:
+            if symbols is None:
+                symbols = ["a", "b"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             hb = AbstractExecution.Relation.Declare("hb", op, op, z3.BoolSort())
             so = History.Relation.session_order()
             vis = AbstractExecution.Relation.visibility()
 
-            a, b = Op.Consts("a b")
+            a, b, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "hb",
                 z3.And(  # type: ignore

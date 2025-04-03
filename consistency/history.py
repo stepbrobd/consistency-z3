@@ -7,11 +7,15 @@ from consistency.relation import Relation as Rel
 class History:
     class Relation(Rel):
         @staticmethod
-        def returns_before() -> z3.FuncDeclRef:
+        def returns_before(symbols: list[str] | None = None) -> z3.FuncDeclRef:
+            if symbols is None:
+                symbols = ["a", "b"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             rb = History.Relation.Declare("rb", op, op, z3.BoolSort())
 
-            a, b = Op.Consts("a b")
+            a, b, *_ = Op.Consts(decl)
             History.Relation.AddConstraint("rb",
                 z3.Implies(rb(a, b), op.rtime(a) < op.stime(b)) # type: ignore
             )
@@ -20,11 +24,15 @@ class History:
 
 
         @staticmethod
-        def same_session() -> z3.FuncDeclRef:
+        def same_session(symbols: list[str] | None = None) -> z3.FuncDeclRef:
+            if symbols is None:
+                symbols = ["a", "b"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             ss = History.Relation.Declare("ss", op, op, z3.BoolSort())
 
-            a, b = Op.Consts("a b")
+            a, b, *_ = Op.Consts(decl)
             History.Relation.AddConstraint("ss",
                 z3.Implies(ss(a, b), op.proc(a) == op.proc(b)) # type: ignore
             )
@@ -36,11 +44,15 @@ class History:
 
 
         @staticmethod
-        def session_order() -> z3.FuncDeclRef:
+        def session_order(symbols: list[str] | None = None) -> z3.FuncDeclRef:
+            if symbols is None:
+                symbols = ["a", "b"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             so = History.Relation.Declare("so", op, op, z3.BoolSort())
 
-            a, b = Op.Consts("a b")
+            a, b, *_ = Op.Consts(decl)
             rb = History.Relation.returns_before()
             ss = History.Relation.same_session()
             History.Relation.AddConstraint("so",
@@ -52,11 +64,15 @@ class History:
 
 
         @staticmethod
-        def same_object() -> z3.FuncDeclRef:
+        def same_object(symbols: list[str] | None = None) -> z3.FuncDeclRef:
+            if symbols is None:
+                symbols = ["a", "b"]
+            decl = " ".join(symbols)
+
             op = Op.Create()
             ob = History.Relation.Declare("ob", op, op, z3.BoolSort())
 
-            a, b = Op.Consts("a b")
+            a, b, *_ = Op.Consts(decl)
             History.Relation.AddConstraint("ob",
                z3.Implies(ob(a, b), op.obj(a) == op.obj(b)) # type: ignore
             )

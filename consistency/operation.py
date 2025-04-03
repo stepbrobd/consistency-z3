@@ -48,14 +48,17 @@ class Operation:
 
 
     @staticmethod
-    def Sort() -> tuple[z3.DatatypeSortRef, tuple[z3.DatatypeRef, ...]]:
+    def Sort(types: list[str] | None = None) -> tuple[z3.DatatypeSortRef, tuple[z3.DatatypeRef, ...]]:
         """
         OperationType, (rd, wr) = Operation.Sort()
         """
+        if types is None:
+            types = ["rd", "wr"]
+
         if Operation._op_type is not None:
             return Operation._op_type
 
-        Operation._op_type = z3.EnumSort("OperationType", ["rd", "wr"])
+        Operation._op_type = z3.EnumSort("OperationType", types)
 
         return Operation._op_type  # type: ignore
 

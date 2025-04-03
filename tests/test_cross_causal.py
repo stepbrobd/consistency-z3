@@ -16,7 +16,7 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 
 
 @cleanup
-def test_shop() -> None:
+def test_cross_causal() -> None:
     mr = Node(
         name="MR",
         needs=None,

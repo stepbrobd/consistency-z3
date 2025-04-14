@@ -3,12 +3,16 @@
     nixpkgs.url = "github:nixos/nixpkgs/eabe8d3eface69f5bb16c18f8662a702f50c20d5";
     unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     parts.url = "github:hercules-ci/flake-parts";
+    parts.inputs.nixpkgs-lib.follows = "nixpkgs";
     systems.url = "github:nix-systems/default";
-    pyproject.url = "github:nix-community/pyproject.nix";
+    pyproject.url = "github:pyproject-nix/pyproject.nix";
     pyproject.inputs.nixpkgs.follows = "nixpkgs";
+    uv2nix.url = "github:pyproject-nix/uv2nix";
+    uv2nix.inputs.nixpkgs.follows = "nixpkgs";
+    uv2nix.inputs.pyproject-nix.follows = "pyproject";
   };
 
-  outputs = inputs @ { self, parts, pyproject, ... }: parts.lib.mkFlake { inherit inputs; } {
+  outputs = inputs @ { self, parts, pyproject, uv2nix, ... }: parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
 
     perSystem = { system, pkgs, unstable, ... }:
@@ -38,6 +42,7 @@
             ruff
             typst
             typstfmt
+            uv
             z3
           ];
 

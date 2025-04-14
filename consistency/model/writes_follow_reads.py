@@ -15,10 +15,14 @@ class WritesFollowReads(Model):
     then operation $a$ must precede operation $c$ in the total order imposed by arbitration.
     """
     @staticmethod
-    def assertions() -> z3.BoolRef:
-        _, (rd, wr) = Op.Sort()
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+        if symbols is None:
+            symbols = ["a", "b", "c"]
+        decl = " ".join(symbols)
+
         op = Op.Create()
-        a, b, c = Op.Consts("a b c")
+        _, (rd, wr) = Op.Sort()
+        a, b, c, *_ = Op.Consts(decl)
 
         so = H.Relation.session_order()
         vis = AE.Relation.visibility()

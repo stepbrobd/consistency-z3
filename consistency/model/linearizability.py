@@ -12,10 +12,14 @@ class Linearizability(Model):
     Too strong, standalone check will fail but the compatibility will pass as expected
     """
     @staticmethod
-    def assertions() -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+        if symbols is None:
+            symbols = ["a", "b"]
+        decl = " ".join(symbols)
+
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
-        a, b = Op.Consts("a b")
+        a, b, *_ = Op.Consts(decl)
 
         rb = H.Relation.returns_before()
         so = H.Relation.session_order()

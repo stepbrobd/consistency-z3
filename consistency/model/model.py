@@ -6,5 +6,5 @@ from z3 import BoolRef
 class Model(ABC):
     @staticmethod
     @abstractmethod
-    def assertions() -> BoolRef:
+    def assertions(symbols: list[str] | None = None) -> BoolRef:
         pass

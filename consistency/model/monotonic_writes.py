@@ -14,10 +14,14 @@ class MonotonicWrites(Model):
     then operation $a$ must precede operation $b$ in the total order imposed by arbitration.
     """
     @staticmethod
-    def assertions() -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+        if symbols is None:
+            symbols = ["a", "b"]
+        decl = " ".join(symbols)
+
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
-        a, b = Op.Consts("a b")
+        a, b, *_ = Op.Consts(decl)
 
         so = H.Relation.session_order()
         ar = AE.Relation.arbitration()

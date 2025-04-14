@@ -15,13 +15,17 @@ class ReadYourWrites(Model):
     then operation $a$ is visible to operation $b$.
     """
     @staticmethod
-    def assertions() -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         """
         Add read-your-writes constraints.
         """
+        if symbols is None:
+            symbols = ["a", "b"]
+        decl = " ".join(symbols)
+
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
-        a, b = Op.Consts("a b")
+        a, b, *_ = Op.Consts(decl)
 
         so = H.Relation.session_order()
         vis = AE.Relation.visibility()

@@ -14,8 +14,14 @@ class PRAMConsistency(Model):
     then operation $a$ is visible to operation $b$.
     """
     @staticmethod
-    def assertions() -> z3.BoolRef:
-        a, b = Op.Consts("a b")
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+        if symbols is None:
+            symbols = ["a", "b"]
+        decl = " ".join(symbols)
+
+        # _, (rd, wr) = Op.Sort()
+        # op = Op.Create()
+        a, b, *_ = Op.Consts(decl)
 
         so = H.Relation.session_order()
         ar = AE.Relation.arbitration()

@@ -16,13 +16,17 @@ class MonotonicReads(Model):
     """
 
     @staticmethod
-    def assertions() -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         """
         Add monotonic read constraints.
         """
-        _, (rd, wr) = Op.Sort()
+        if symbols is None:
+            symbols = ["a", "b", "c"]
+        decl = " ".join(symbols)
+
         op = Op.Create()
-        a, b, c = Op.Consts("a b c")
+        _, (rd, wr) = Op.Sort()
+        a, b, c, *_ = Op.Consts(decl)
 
         so = H.Relation.session_order()
         vis = AE.Relation.visibility()

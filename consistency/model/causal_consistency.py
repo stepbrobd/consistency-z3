@@ -10,10 +10,14 @@ from consistency.operation import Operation as Op
 
 class CausalConsistency(Model):
     @staticmethod
-    def assertions() -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+        if symbols is None:
+            symbols = ["a", "b", "c"]
+        decl = " ".join(symbols)
+
         op = Op.Create()
         _, (rd, wr) = Op.Sort()
-        a, b, c = Op.Consts("a b c")
+        a, b, c, *_ = Op.Consts(decl)
 
         so = H.Relation.session_order()
         ar = AE.Relation.arbitration()

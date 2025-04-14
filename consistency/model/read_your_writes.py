@@ -20,15 +20,15 @@ class ReadYourWrites(Model):
         Add read-your-writes constraints.
         """
         if symbols is None:
-            symbols = ["a", "b"]
+            symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
 
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
         a, b, *_ = Op.Consts(decl)
 
-        so = H.Relation.session_order()
-        vis = AE.Relation.visibility()
+        so = H.Relation.session_order(symbols)
+        vis = AE.Relation.visibility(symbols)
 
         # read-your-writes
         return z3.ForAll([a, b],

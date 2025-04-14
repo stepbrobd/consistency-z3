@@ -13,26 +13,26 @@ class MonotonicWrites(Model):
     if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
     then operation $a$ must precede operation $b$ in the total order imposed by arbitration.
     """
+
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         if symbols is None:
-            symbols = ["a", "b"]
+            symbols = ["a", "b", "c"]
         decl = " ".join(symbols)
 
         _, (rd, wr) = Op.Sort()
         op = Op.Create()
         a, b, *_ = Op.Consts(decl)
 
-        so = H.Relation.session_order()
-        ar = AE.Relation.arbitration()
+        so = H.Relation.session_order(symbols)
+        ar = AE.Relation.arbitration(symbols)
 
         # monotonic writes
-        return z3.ForAll([a, b],
-            z3.If(z3.And(op.type(a) == wr, op.type(b) == wr), # type: ignore
-                z3.Implies(
-                    so(a, b),
-                    ar(a, b)
-                ),
-                z3.BoolVal(True)
-            )
+        return z3.ForAll(
+            [a, b],
+            z3.If(
+                z3.And(op.type(a) == wr, op.type(b) == wr),  # type: ignore
+                z3.Implies(so(a, b), ar(a, b)),
+                z3.BoolVal(True),
+            ),
         )

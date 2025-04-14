@@ -1,15 +1,12 @@
 import pathlib
-from collections.abc import Collection, Generator
+from collections.abc import Callable, Collection, Generator
 from functools import cache, wraps
 from itertools import chain, combinations, product
 from typing import (
-    Callable,
     Literal,
     NamedTuple,
-    Optional,
     ParamSpec,
     TypeVar,
-    Union,
     overload,
 )
 
@@ -34,8 +31,8 @@ def cleanup() -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 
 
 def cleanup(
-    func: Union[Callable[P, R], None] = None,
-) -> Union[Callable[P, R], Callable[[Callable[P, R]], Callable[P, R]]]:
+    func: Callable[P, R] | None = None,
+) -> Callable[P, R] | Callable[[Callable[P, R]], Callable[P, R]]:
     # use this decorator to reset constraint singletons
     def decorator(f: Callable[P, R]) -> Callable[P, R]:
         @wraps(f)
@@ -82,7 +79,7 @@ def params() -> None:
 def check(
     assertions: z3.BoolRef,
     others: z3.AstRef = z3.BoolVal(True),
-    witness: Optional[pathlib.Path] = None,
+    witness: pathlib.Path | None = None,
 ) -> bool:
     s = z3.SolverFor("QF_LRA")
     params()
@@ -119,7 +116,7 @@ def compatible(
     lhs: z3.BoolRef,
     rhs: z3.BoolRef,
     others: z3.AstRef = z3.BoolVal(True),
-    witness: Optional[pathlib.Path] = None,
+    witness: pathlib.Path | None = None,
 ) -> bool:
     s = construct(lhs, rhs, others)
 
@@ -189,7 +186,7 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:  # type: ignore
     # use the "supernode" positions as the center of each node cluster
     centers = list(superpos.values())
     pos = {}
-    for center, comm in zip(centers, communities):
+    for center, comm in zip(centers, communities, strict=False):
         pos.update(nx.spring_layout(nx.subgraph(g, comm), center=center))
 
     # color generator
@@ -213,7 +210,7 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:  # type: ignore
             counter += 1
 
     # nodes colored by cluster
-    for nodes, clr in zip(communities, colors(len(communities))):
+    for nodes, clr in zip(communities, colors(len(communities)), strict=False):
         nx.draw_networkx_nodes(g, pos=pos, nodelist=nodes, node_color=clr)
 
     nx.draw_networkx_labels(g, pos=pos)
@@ -250,7 +247,7 @@ def composable(
     graph: nx.MultiDiGraph,
     source: Node,
     premise: z3.BoolRef = z3.BoolVal(True),
-    witness: Optional[pathlib.Path] = None,  # TODO: might or might not implement
+    witness: pathlib.Path | None = None,  # TODO: might or might not implement
 ) -> tuple[bool, nx.MultiDiGraph]:
     if witness:
         raise NotImplementedError(
@@ -347,7 +344,7 @@ def composable(
                 # if all edges between this pair are valid
                 if len(valid_edges) == len(unvisited_keys):
                     # add all valid edges to visited and results
-                    for k, cons in zip(valid_edges, edge_constraints):
+                    for k, cons in zip(valid_edges, edge_constraints, strict=False):
                         visited_edges.add((u, v, k))
 
                         # add to resulting graph

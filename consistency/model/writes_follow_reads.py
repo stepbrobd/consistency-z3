@@ -17,16 +17,16 @@ class WritesFollowReads(Model):
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         if symbols is None:
-            symbols = ["a", "b", "c"]
+            symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
 
         op = Op.Create()
         _, (rd, wr) = Op.Sort()
         a, b, c, *_ = Op.Consts(decl)
 
-        so = H.Relation.session_order()
-        vis = AE.Relation.visibility()
-        ar = AE.Relation.arbitration()
+        so = H.Relation.session_order(symbols)
+        vis = AE.Relation.visibility(symbols)
+        ar = AE.Relation.arbitration(symbols)
 
         # writes follow reads
         return z3.ForAll([a, b, c],

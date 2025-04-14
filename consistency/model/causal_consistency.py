@@ -12,16 +12,16 @@ class CausalConsistency(Model):
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         if symbols is None:
-            symbols = ["a", "b", "c"]
+            symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
 
         op = Op.Create()
         _, (rd, wr) = Op.Sort()
         a, b, c, *_ = Op.Consts(decl)
 
-        so = H.Relation.session_order()
-        ar = AE.Relation.arbitration()
-        vis = AE.Relation.visibility()
+        so = H.Relation.session_order(symbols)
+        ar = AE.Relation.arbitration(symbols)
+        vis = AE.Relation.visibility(symbols)
 
         # writes-into: https://repository.gatech.edu/server/api/core/bitstreams/a083b72e-3e3d-4252-9f10-5ab71fa7f6c5/content
         wi = H.Relation.Declare("wi", op, op, z3.BoolSort())

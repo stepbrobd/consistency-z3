@@ -16,16 +16,16 @@ class PRAMConsistency(Model):
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         if symbols is None:
-            symbols = ["a", "b"]
+            symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
 
         # _, (rd, wr) = Op.Sort()
         # op = Op.Create()
         a, b, *_ = Op.Consts(decl)
 
-        so = H.Relation.session_order()
-        ar = AE.Relation.arbitration()
-        vis = AE.Relation.visibility()
+        so = H.Relation.session_order(symbols)
+        ar = AE.Relation.arbitration(symbols)
+        vis = AE.Relation.visibility(symbols)
 
         # PRAM consistency
         return z3.ForAll([a, b],

@@ -21,15 +21,15 @@ class MonotonicReads(Model):
         Add monotonic read constraints.
         """
         if symbols is None:
-            symbols = ["a", "b", "c"]
+            symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
 
         op = Op.Create()
         _, (rd, wr) = Op.Sort()
         a, b, c, *_ = Op.Consts(decl)
 
-        so = H.Relation.session_order()
-        vis = AE.Relation.visibility()
+        so = H.Relation.session_order(symbols)
+        vis = AE.Relation.visibility(symbols)
 
         # monotonic read
         return z3.And(  # type: ignore

@@ -12,9 +12,11 @@
     }:
     let lib = builtins // nixpkgs.lib // parts.lib // pypuv.lib; in
     parts.lib.mkFlake { inherit inputs; } {
-      debug = true;
-
       systems = import inputs.systems;
+
+      debug = true;
+      flake = { inherit lib; };
+      flake.hydraJobs = { inherit (self) packages devShells; };
 
       perSystem = { pkgs, ... }:
         let
@@ -73,8 +75,6 @@
             ${lib.getExe pkgs.typstfmt} **/*.typ
           '';
         };
-
-      flake.hydraJobs = { inherit (self) packages devShells; };
     };
 
   inputs = {

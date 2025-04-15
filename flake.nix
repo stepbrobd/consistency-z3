@@ -24,10 +24,19 @@
             lib.composeManyExtensions [
               pypbs.overlays.default
               (workspace.mkPyprojectOverlay { sourcePreference = "wheel"; })
+              (final: prev: {
+                # broken (devshell still works, standalone build fail):
+                # uv#4088, possibly a bug in uv2nix
+                z3-solver = prev.z3-solver.overrideAttrs (old: {
+                  nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.cmake ] ++ final.resolveBuildSystem ({ setuptools = [ ]; });
+                });
+              })
             ]);
         in
         {
-          packages.default = pythonPackages.mkVirtualEnv "venv" workspace.deps.default;
+          packages.default = pythonPackages.mkVirtualEnv
+            (let meta = lib.importTOML ./pyproject.toml; in with meta.project; "${name}-${version}")
+            workspace.deps.default;
 
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [

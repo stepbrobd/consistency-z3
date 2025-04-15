@@ -20,24 +20,24 @@ def test_cross_causal() -> None:
     mr = Node(
         name="MR",
         needs=None,
-        provs=[(Cons("MR", MonotonicReads.assertions()),)],
+        provs=[(Cons("MR", MonotonicReads.assertions(["mr_a", "mr_b", "mr_c", "mr_x"])),)],
     )
     mw = Node(
-        name="MW", needs=None, provs=[(Cons("MW", MonotonicWrites.assertions()),)]
+        name="MW", needs=None, provs=[(Cons("MW", MonotonicWrites.assertions(["mw_a", "mw_b", "mw_c"])),)]
     )
     ryw = Node(
         name="RYW",
         needs=None,
-        provs=[(Cons("RYW", ReadYourWrites.assertions()),)],
+        provs=[(Cons("RYW", ReadYourWrites.assertions(["ryw_a", "ryw_b", "ryw_c", "ryw_x"])),)],
     )
     wfr = Node(
         name="WFR",
         needs=None,
-        provs=[(Cons("WFR", WritesFollowReads.assertions()),)],
+        provs=[(Cons("WFR", WritesFollowReads.assertions(["wfr_a", "wfr_b", "wfr_c", "wfr_x"])),)],
     )
     svc = Node(
         name="SVC",
-        needs=[(Cons("SVC", CausalConsistency.assertions()),)],
+        needs=[(Cons("SVC", CausalConsistency.assertions(["c_a", "c_b", "c_c", "c_x"])),)],
         provs=None,
     )
 
@@ -51,6 +51,7 @@ def test_cross_causal() -> None:
                     Cons(
                         "EC",
                         compose(
+                            # TODO
                             MonotonicWrites.assertions(),
                             ReadYourWrites.assertions(),
                             WritesFollowReads.assertions(),

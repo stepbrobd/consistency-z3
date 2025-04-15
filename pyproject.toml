@@ -3,10 +3,10 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-requires-python = ">=3.11"
+requires-python = ">=3.11" # tested with 3.11, 3.12, 3.13
 name = "consistency"
 version = "0.0.0"
-description = ""
+description = "consistency semantics with z3"
 readme = "readme.md"
 license = { file = "license.txt" }
 authors = [{ name = "Yifei Sun", email = "ysun@hey.com" }]

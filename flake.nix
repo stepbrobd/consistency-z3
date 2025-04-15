@@ -1,72 +1,86 @@
 {
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/eabe8d3eface69f5bb16c18f8662a702f50c20d5";
-    unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    parts.url = "github:hercules-ci/flake-parts";
-    parts.inputs.nixpkgs-lib.follows = "nixpkgs";
-    systems.url = "github:nix-systems/default";
-    pyproject.url = "github:pyproject-nix/pyproject.nix";
-    pyproject.inputs.nixpkgs.follows = "nixpkgs";
-    uv2nix.url = "github:pyproject-nix/uv2nix";
-    uv2nix.inputs.nixpkgs.follows = "nixpkgs";
-    uv2nix.inputs.pyproject-nix.follows = "pyproject";
-  };
+  outputs =
+    inputs
+    @
+    { self
+    , nixpkgs
+    , parts
+    , pyp
+    , pypbs
+    , pypuv
+    , ...
+    }:
+    let lib = builtins // nixpkgs.lib // parts.lib // pypuv.lib; in
+    parts.lib.mkFlake { inherit inputs; } {
+      debug = true;
 
-  outputs = inputs @ { self, parts, pyproject, uv2nix, ... }: parts.lib.mkFlake { inherit inputs; } {
-    systems = import inputs.systems;
+      systems = import inputs.systems;
 
-    perSystem = { system, pkgs, unstable, ... }:
-      let
-        python = pkgs.python311;
-      in
-      {
-        _module.args.unstable = import inputs.unstable { inherit system; };
+      perSystem = { pkgs, ... }:
+        let
+          python = pkgs.python313;
+          workspace = lib.workspace.loadWorkspace { workspaceRoot = ./.; };
+          pythonPackages = (pkgs.callPackage pyp.build.packages { inherit python; }).overrideScope (
+            lib.composeManyExtensions [
+              pypbs.overlays.default
+              (workspace.mkPyprojectOverlay { sourcePreference = "wheel"; })
+            ]);
+        in
+        {
+          packages.default = pythonPackages.mkVirtualEnv "venv" workspace.deps.default;
 
-        packages.default = (python.pkgs.buildPythonPackage (
-          (pyproject.lib.project.loadPyproject {
-            projectRoot = ./.;
-          }).renderers.buildPythonPackage { inherit python; }
-        )).overridePythonAttrs (_: {
-          doCheck = true;
-          nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
-          pythonImportsCheck = [ "consistency" ];
-        });
+          devShells.default = pkgs.mkShell {
+            packages = with pkgs; [
+              cvc5
+              direnv
+              git
+              hayagriva
+              nix-direnv
+              python
+              python.pkgs.venvShellHook
+              ruff
+              typst
+              typstfmt
+              uv
+              z3
+            ];
 
-        devShells.default = unstable.mkShell {
-          packages = with unstable; [
-            cvc5
-            direnv
-            git
-            hayagriva
-            nix-direnv
-            ruff
-            typst
-            typstfmt
-            uv
-            z3
-          ];
+            UV_PYTHON_DOWNLOADS = "never";
+            UV_PYTHON = python.interpreter;
 
-          venvDir = "./.venv";
-          buildInputs = [ python ] ++ (with python.pkgs; [
-            venvShellHook
-            setuptools
-            wheel
-          ]);
-          postShellHook = ''
-            pip --disable-pip-version-check install -e .
+            venvDir = "./.venv";
+            preShellHook = ''
+              uv sync
+              unset PYTHONPATH
+            '';
+          };
+
+          formatter = pkgs.writeShellScriptBin "formatter" ''
+            set -x
+            shopt -s globstar
+            ${lib.getExe pkgs.nixpkgs-fmt} .
+            ${lib.getExe pkgs.mypy} --disable-error-code=import .
+            ${lib.getExe pkgs.ruff} check --fix --unsafe-fixes .
+            ${lib.getExe pkgs.typstfmt} **/*.typ
           '';
         };
 
-        formatter = unstable.writeShellScriptBin "formatter" ''
-          set -x
-          shopt -s globstar
-          ${unstable.nixpkgs-fmt}/bin/nixpkgs-fmt .
-          ${unstable.mypy}/bin/mypy --disable-error-code=import .
-          ${unstable.ruff}/bin/ruff check --fix --unsafe-fixes .
-          ${unstable.typstfmt}/bin/typstfmt **/*.typ
-        '';
-      };
+      flake.hydraJobs = { inherit (self) packages devShells; };
+    };
 
-    flake.hydraJobs = { inherit (self) packages devShells; };
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    parts.url = "github:hercules-ci/flake-parts";
+    parts.inputs.nixpkgs-lib.follows = "nixpkgs";
+    systems.url = "github:nix-systems/default";
+    pyp.url = "github:pyproject-nix/pyproject.nix";
+    pyp.inputs.nixpkgs.follows = "nixpkgs";
+    pypbs.url = "github:pyproject-nix/build-system-pkgs";
+    pypbs.inputs.pyproject-nix.follows = "pyp";
+    pypbs.inputs.uv2nix.follows = "pypuv";
+    pypbs.inputs.nixpkgs.follows = "nixpkgs";
+    pypuv.url = "github:pyproject-nix/uv2nix";
+    pypuv.inputs.nixpkgs.follows = "nixpkgs";
+    pypuv.inputs.pyproject-nix.follows = "pyp";
   };
 }

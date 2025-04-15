@@ -224,7 +224,7 @@ class XCY(Model):
     # enforce serialization on global writes
     # and xcy pairwise on p_i read and writes
     @staticmethod
-    def assertions() -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         _, (rd, wr) = Op.Sort()
         op = Op.Create(
             [

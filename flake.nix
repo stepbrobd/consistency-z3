@@ -60,10 +60,8 @@
             UV_PYTHON = python.interpreter;
 
             venvDir = "./.venv";
-            preShellHook = ''
-              uv sync
-              unset PYTHONPATH
-            '';
+            preShellHook = "uv venv $venvDir";
+            postShellHook = "uv sync";
           };
 
           formatter = pkgs.writeShellScriptBin "formatter" ''

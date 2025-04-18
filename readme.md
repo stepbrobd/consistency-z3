@@ -453,6 +453,17 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-04-18
+
+- explain cross causal in writing (due Apr. 26)
+- from the inline docs, mr, mw, ... on the rhs are "pseudo nodes" (directly
+  added to svc*'s prov)
+- at first level check, upper level's svc node need field will be empty, need
+  will be causal
+- after aggregation, svc's prov will be pseudo node' semantic + result of
+  aggregation from lower layers
+- symbol equivalence added to edges
+
 ### 2025-03-28
 
 - parameterize all models' symbol usage

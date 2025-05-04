@@ -42,6 +42,7 @@
 
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
+              bibtex-tidy
               cvc5
               direnv
               git
@@ -50,6 +51,8 @@
               python
               python.pkgs.venvShellHook
               ruff
+              tex-fmt
+              texliveFull
               typst
               typstfmt
               uv

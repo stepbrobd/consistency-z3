@@ -1,0 +1,275 @@
+@article{viotti2016consistency,
+  title = {Consistency in Non-Transactional Distributed Storage Systems},
+  author = {Viotti, Paolo and Vukolić, Marko},
+  year = {2016},
+  month = {6},
+  journal = {ACM Comput. Surv.},
+  volume = {49},
+  number = {1},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2926965},
+  issn = {0360-0300}
+}
+
+@book{burckhardt2014principles,
+  title = {Principles of Eventual Consistency},
+  author = {Burckhardt, Sebastian},
+  year = {2014},
+  month = {10},
+  publisher = {Now Publishers},
+  volume = {1},
+  edition = {Principles of Eventual Consistency},
+  pages = {1--150},
+  series = {Foundations and Trends® in Programming Languages},
+  url = {https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/}
+}
+
+@inproceedings{demoura2008z3,
+  title = {Z3: an efficient SMT solver},
+  author = {De Moura, Leonardo and Bj̸rner, Nikolaj},
+  year = {2008},
+  pages = {337},
+  booktitle = {Proceedings of the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems},
+  series = {TACAS'08/ETAPS'08},
+  publisher = {Springer-Verlag},
+  address = {Budapest, Hungary},
+  isbn = {3540787992}
+}
+
+@inproceedings{barbosa2022cvc5,
+  title = {cvc5: A Versatile and Industrial-Strength SMT Solver},
+  author = {Barbosa, Haniel and Barrett, Clark and Brain, Martin and Kremer, Gereon and Lachnitt, Hanna and Mann, Makai and Mohamed, Abdalrhman and Mohamed, Mudathir and Niemetz, Aina and Nötzli, Andres and Ozdemir, Alex and Preiner, Mathias and Reynolds, Andrew and Sheng, Ying and Tinelli, Cesare and Zohar, Yoni},
+  year = {2022},
+  pages = {415},
+  booktitle = {Tools and Algorithms for the Construction and Analysis of Systems: 28th International Conference, TACAS 2022, Held as Part of the European Joint Conferences on Theory and Practice of Software, ETAPS 2022, Munich, Germany, April 2–7, 2022, Proceedings, Part I},
+  publisher = {Springer-Verlag},
+  address = {Munich, Germany},
+  doi = {10.1007/978-3-030-99524-9_24},
+  isbn = {978-3-030-99523-2}
+}
+
+@inproceedings{bryant2002modeling,
+  title = {Modeling and Verifying Systems Using a Logic of Counter Arithmetic with Lambda Expressions and Uninterpreted Functions},
+  author = {Bryant, Randal E. and Lahiri, Shuvendu K. and Seshia, Sanjit A.},
+  year = {2002},
+  pages = {78--92},
+  booktitle = {Proceedings of the 14th International Conference on Computer Aided Verification},
+  series = {CAV '02},
+  publisher = {Springer-Verlag},
+  address = {Berlin, Heidelberg},
+  isbn = {3540439978}
+}
+
+@inproceedings{viotti2016towards,
+  title = {Towards property-based consistency verification},
+  author = {Viotti, Paolo and Meiklejohn, Christopher and Vukolić, Marko},
+  year = {2016},
+  booktitle = {Proceedings of the 2nd Workshop on the Principles and Practice of Consistency for Distributed Data},
+  series = {PaPoC '16},
+  publisher = {Association for Computing Machinery},
+  address = {London, United Kingdom},
+  doi = {10.1145/2911151.2911162},
+  isbn = {9781450342964}
+}
+
+@article{zhang2018building,
+  title = {Building Consistent Transactions with Inconsistent Replication},
+  author = {Zhang, Irene and Sharma, Naveen Kr. and Szekeres, Adriana and Krishnamurthy, Arvind and Ports, Dan R. K.},
+  year = {2018},
+  month = {12},
+  journal = {ACM Trans. Comput. Syst.},
+  volume = {35},
+  number = {4},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/3269981},
+  issn = {0734-2071}
+}
+
+@inproceedings{ferreira2023antipode,
+  title = {Antipode: Enforcing Cross-Service Causal Consistency in Distributed Applications},
+  author = {Ferreira Loff, João and Porto, Daniel and Garcia, João and Mace, Jonathan and Rodrigues, Rodrigo},
+  year = {2023},
+  pages = {298--313},
+  booktitle = {Proceedings of the 29th Symposium on Operating Systems Principles},
+  series = {SOSP '23},
+  publisher = {Association for Computing Machinery},
+  address = {Koblenz, Germany},
+  doi = {10.1145/3600006.3613176},
+  isbn = {9798400702297}
+}
+
+@inproceedings{baldoni2002an,
+  title = {An Implementation of Causal Memories using the Writing Semantic},
+  author = {Baldoni, Roberto and Sparziani, C. and Tucci Piergiovanni, Sara and Tulone, Daniela},
+  year = {2002},
+  editor = {Bui, Alain and Fouchal, Hacène},
+  pages = {41--50},
+  booktitle = {Procedings of the 6th International Conference on Principles of Distributed Systems. {OPODIS} 2002, Reims, France, December 11-13, 2002},
+  series = {Studia Informatica Universalis},
+  volume = {3},
+  publisher = {Suger, Saint-Denis, rue Catulienne, France}
+}
+
+@inproceedings{zhang2015building,
+  title = {Building consistent transactions with inconsistent replication},
+  author = {Zhang, Irene and Sharma, Naveen Kr. and Szekeres, Adriana and Krishnamurthy, Arvind and Ports, Dan R. K.},
+  year = {2015},
+  pages = {263--278},
+  booktitle = {Proceedings of the 25th Symposium on Operating Systems Principles},
+  series = {SOSP '15},
+  publisher = {Association for Computing Machinery},
+  address = {Monterey, California},
+  doi = {10.1145/2815400.2815404},
+  isbn = {9781450338349}
+}
+
+@inproceedings{brzezinski2004session,
+  title = {Session Guarantees to Achieve PRAM Consistency of Replicated Shared Objects},
+  author = {Brzezinski, Jerzy and Sobaniec, Cezary and Wawrzyniak, Dariusz},
+  year = {2004},
+  editor = {Wyrzykowski, Roman and Dongarra, Jack and Paprzycki, Marcin and Waśniewski, Jerzy},
+  pages = {1--8},
+  booktitle = {Parallel Processing and Applied Mathematics},
+  publisher = {Springer Berlin Heidelberg},
+  address = {Berlin, Heidelberg},
+  isbn = {978-3-540-24669-5}
+}
+
+@inproceedings{terry1994session,
+  title = {Session guarantees for weakly consistent replicated data},
+  author = {Terry, D.B. and Demers, A.J. and Petersen, K. and Spreitzer, M.J. and Theimer, M.M. and Welch, B.B.},
+  year = {1994},
+  pages = {140--149},
+  booktitle = {Proceedings of 3rd International Conference on Parallel and Distributed Information Systems},
+  volume = {0},
+  doi = {10.1109/PDIS.1994.331722}
+}
+
+@inproceedings{perrin2016causal_conf,
+  title = {Causal consistency: beyond memory},
+  author = {Perrin, Matthieu and Mostefaoui, Achour and Jard, Claude},
+  year = {2016},
+  booktitle = {Proceedings of the 21st ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming},
+  series = {PPoPP '16},
+  publisher = {Association for Computing Machinery},
+  address = {Barcelona, Spain},
+  doi = {10.1145/2851141.2851170},
+  isbn = {9781450340922}
+}
+
+@article{perrin2016causal,
+  title = {Causal consistency: beyond memory},
+  author = {Perrin, Matthieu and Mostefaoui, Achour and Jard, Claude},
+  year = {2016},
+  month = {2},
+  journal = {SIGPLAN Not.},
+  volume = {51},
+  number = {8},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/3016078.2851170},
+  issn = {0362-1340}
+}
+
+@article{lamport1977proving,
+  title = {Proving the Correctness of Multiprocess Programs},
+  author = {Lamport, L.},
+  year = {1977},
+  pages = {125--143},
+  journal = {IEEE Transactions on Software Engineering},
+  number = {2},
+  doi = {10.1109/TSE.1977.229904}
+}
+
+@inproceedings{ma2024noctua,
+  title = {Noctua: Towards Automated and Practical Fine-grained Consistency Analysis},
+  author = {Ma, Kai and Li, Cheng and Zhu, Enzuo and Chen, Ruichuan and Yan, Feng and Chen, Kang},
+  year = {2024},
+  pages = {704--719},
+  booktitle = {Proceedings of the Nineteenth European Conference on Computer Systems},
+  series = {EuroSys '24},
+  publisher = {Association for Computing Machinery},
+  address = {Athens, Greece},
+  doi = {10.1145/3627703.3629570},
+  isbn = {9798400704376}
+}
+
+@article{lamport2001paxos,
+  title = {Paxos Made Simple},
+  author = {Lamport, Leslie},
+  year = {2001},
+  month = {12},
+  pages = {51--58},
+  journal = {ACM SIGACT News (Distributed Computing Column) 32, 4 (Whole Number 121, December 2001)},
+  url = {https://www.microsoft.com/en-us/research/publication/paxos-made-simple/}
+}
+
+@inproceedings{gan2019an,
+  title = {An Open-Source Benchmark Suite for Microservices and Their Hardware-Software Implications for Cloud \& Edge Systems},
+  author = {Gan, Yu and Zhang, Yanqi and Cheng, Dailun and Shetty, Ankitha and Rathi, Priyal and Katarki, Nayan and Bruno, Ariana and Hu, Justin and Ritchken, Brian and Jackson, Brendon and Hu, Kelvin and Pancholi, Meghna and He, Yuan and Clancy, Brett and Colen, Chris and Wen, Fukang and Leung, Catherine and Wang, Siyuan and Zaruvinsky, Leon and Espinosa, Mateo and Lin, Rick and Liu, Zhongling and Padilla, Jake and Delimitrou, Christina},
+  year = {2019},
+  pages = {3--18},
+  booktitle = {Proceedings of the Twenty-Fourth International Conference on Architectural Support for Programming Languages and Operating Systems},
+  series = {ASPLOS '19},
+  publisher = {Association for Computing Machinery},
+  address = {Providence, RI, USA},
+  doi = {10.1145/3297858.3304013},
+  isbn = {9781450362405}
+}
+
+@article{herlihy1990linearizability,
+  title = {Linearizability: a correctness condition for concurrent objects},
+  author = {Herlihy, Maurice P. and Wing, Jeannette M.},
+  year = {1990},
+  month = {7},
+  pages = {463--492},
+  journal = {ACM Trans. Program. Lang. Syst.},
+  volume = {12},
+  number = {3},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/78969.78972},
+  issn = {0164-0925}
+}
+
+@inproceedings{petersen1997flexible,
+  title = {Flexible update propagation for weakly consistent replication},
+  author = {Petersen, Karin and Spreitzer, Mike J. and Terry, Douglas B. and Theimer, Marvin M. and Demers, Alan J.},
+  year = {1997},
+  pages = {288--301},
+  booktitle = {Proceedings of the Sixteenth ACM Symposium on Operating Systems Principles},
+  series = {SOSP '97},
+  publisher = {Association for Computing Machinery},
+  address = {Saint Malo, France},
+  doi = {10.1145/268998.266711},
+  isbn = {0897919165}
+}
+
+@inproceedings{diego2014raft,
+  title = {In search of an understandable consensus algorithm},
+  author = {Ongaro, Diego and Ousterhout, John},
+  year = {2014},
+  pages = {305--320},
+  booktitle = {Proceedings of the 2014 USENIX Conference on USENIX Annual Technical Conference},
+  series = {USENIX ATC'14},
+  publisher = {USENIX Association},
+  address = {Philadelphia, PA},
+  isbn = {9781931971102}
+}
+
+@article{lamport1998paxos,
+  title = {The part-time parliament},
+  author = {Lamport, Leslie},
+  year = {1998},
+  month = {5},
+  pages = {133--169},
+  journal = {ACM Trans. Comput. Syst.},
+  volume = {16},
+  number = {2},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/279227.279229},
+  issn = {0734-2071}
+}

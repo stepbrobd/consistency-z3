@@ -1,0 +1,391 @@
+\section{Consistency Semantics}
+
+In Viotti et al.~\cite{viotti2016consistency}, authors provided a structured overview
+of different consistency semantics appeared in distributed systems. Building
+upon it's semantic definitions, we propose to use predicate logic derived from
+those definitions to model consistency semantics, and reason about the
+compositional properties of these semantics with SMT solvers (while Z3
+\cite{demoura2008z3} is used in our implementation, it's easily extensible with other
+solver backends like CVC5 \cite{barbosa2022cvc5}).
+
+% TODO: summarize operations, axioms, and models
+
+However, our current framework abstracts system-wide behavior from a single
+node's perspective, applying constraints to operations primarily within the
+scope of a single history and its corresponding abstract executions. While this
+focuses the analysis and simplifies reasoning on local consistency properties
+from the observing node's perspective, it also means that global behaviors
+across multiple nodes need to be modeled separately on different set of symbols
+to avoid conflicts in quantified variables. Further, to reason about cross
+system behaviors, ``glue'' constraints need to be added to represent data flow
+between different systems.
+
+\subsection{Operations}
+
+To capture behaviors in distributed system executions, we model state
+transitions on individual nodes using the notion of \textit{operations}. Similar to
+Viotti et al.~\cite{viotti2016consistency}, we define an operation as a tuple
+containing: \texttt{proc} (process or node), \texttt{type} (read or write), \texttt{obj} (the object
+being acted upon), \texttt{ival} (input value), \texttt{oval} (output value), \texttt{stime}
+(start time), and \texttt{rtime} (return time). In our SMT encoding, this tuple is
+modeled as a sort, serving as the atomic building block for capturing system
+behaviors and state transition constraints.
+
+Partial and total orderings of operations are assigned through relation
+functions defined in history and abstract execution~\cite{burckhardt2014principles}
+\cite{viotti2016consistency}. In the implementation, they are defined as uninterpreted
+functions with constraints~\cite{bryant2002modeling}. History represent the set of all
+operations executed in the system, while abstract execution instantiates/refines
+the history by specifying which operations are visible to, or are arbitrated
+over each other. By embedding these relations in first order logic, we can
+leverage SMT solvers to check the satisfiability of a given configuration,
+thereby determining whether a particular consistency model holds or if certain
+axioms of that model are violated.
+
+When modeling multiple interacting systems or components within a single
+analysis context, using distinct symbols for the operations belonging to each
+system is crucial. Consistency semantics are typically defined using universally
+quantified formulas (e.g., $\forall a, b: \dots$) applied to relations treated as
+uninterpreted functions by the SMT solver (e.g., $\text{``vis''}(a, b)$, $\text{``so''}(a, b)$).
+If the same symbolic operations (like $a, b$) and relation functions (like $\text{``vis''}$)
+were reused across the models of different systems within the same solver query,
+the solver would treat them as the \textit{same} entities. This could lead to
+unintended interactions and logical conflicts: constraints from one system's
+model might implicitly and incorrectly restrict the behavior of operations
+logically belonging to another system. By assigning unique symbols to operations
+(and potentially relations) associated with different components (e.g., $a_X$, $b_X$, $\text{``vis''}_X$ for
+System X; $a_Y$, $b_Y$, $\text{``vis''}_Y$ for System Y), we maintain the necessary
+logical isolation. This ensures that the axioms and constraints of a specific
+consistency model only apply to the operations within that specific system's
+scope. This symbolic separation is fundamental for enabling the analysis of
+\textit{cross-system} interactions, where specific ``glue'' constraints can then be added
+explicitly to relate operations across these distinct symbolic domains, as
+demonstrated in our cross-causal consistency modeling.
+
+% FIXME: from readme
+%
+% these are more relevant to composition, add them here won't make much sense?
+%
+% Operation: an operation is defined as a tuple of (from non-transactional survey):
+% proc: the process that issued the operation (used for session identification, e.g. same session constraint).
+% type: the type of the operation (e.g. read, write. or custom).
+% obj: the object the operation is performed on (e.g. a key in a key-value store).
+% ival: operation input value (e.g. the value to be written, not used anywhere yet).
+% oval: operation output value (e.g. the value read, not used anywhere yet).
+% stime: invocation time of the operation (i.e. the time the operation was issued).
+% rtime: response time of the operation (i.e. the time the operation was completed).
+% Think of an operation as a request-response pair, where the request is the operation itself and the response is the operation itself with the response time set (assuming the delays between the request and the response are equal for all operations, the request takes (rtime - stime)/2 time to be sent to the handling node and to be processed, vice versa for the response).
+%
+% (Our own interpretation)
+% Operation does not contain the node that issued the operation, nor the node that handled the operation. It's defined as a generic entity that can be issued by any node and handled by any node. To add constraints on the nodes that can issue or handle an operation, the framework user must define nodes and edges.
+
+\subsection{Axiom}
+
+%
+% Relation predicates:
+% A set of predicates that define the relations between operations in a history (also includes those in AE).
+% The predicates are used as base/premise for consistency models (implementations in relation.py, history.py, abstract_execution.py). In the implementation, the predicates are singletons and will be added ad-hoc if any clause refers to them.
+%
+Similar to how Lamport et al.~\cite{lamport1977proving} defines axioms, they are
+operational invariants defined over operations. In our implementation, these
+axioms/invariants/relations are declared as uninterpreted functions, where the
+SMT solvers are free to interpret them so long as they satisfy the imposed
+constraints.
+
+\subsubsection{History}
+
+%
+% History (in the actual writing, layout the actual Z3 clauses used to encode the relational constraints): a set of operations.
+% Add relations between operations within history (returns before, same session, session order).
+%
+
+A history is a set of operations that have been executed in the system the tool
+is modeling~\cite{viotti2016consistency}. Although it is not specifically defined as
+such in our framework, relations are quantified over operations to capture the
+\textit{deterministic} orderings of themselves and other operations in the history. The
+operations being quantified over, forms the history of, which is conceptually
+identical to the set of operations that have been executed in the system.
+
+Axioms defined for operations within a history:
+
+\begin{itemize}
+\item returns-before: $\text{``rb''} \triangleq \{(a, b) : a, b \in H \text{ and } a.\text{``rtime''} < b.\text{``stime''}\}$
+
+\item same-session: $\text{``ss''} \triangleq \{(a, b) : a, b \in H \text{ and } a.\text{``proc''} = b.\text{``proc''}\}$
+
+\item session-order: $\text{``so''} \triangleq \text{``rb''} \cap \text{``ss''}$
+
+\item same-object: $\text{``ob''} \triangleq \{(a, b) : a, b \in H \text{ and } a.\text{``obj''} = b.\text{``obj''}\}$
+\end{itemize}
+
+In our implementation, each history relation function (e.g., \texttt{History.Relation.returns\_before})
+accepts an optional \texttt{symbols} argument. This parameter allows framework users to
+explicitly specify the symbolic operations (e.g., \texttt{["a\_X", "b\_X"]}) over which
+the relation's constraints should be quantified for that specific instance. This
+mechanism enables the application of history-based constraints distinctly to
+operations belonging to different modeled systems or components, contributing to
+the logical isolation necessary for cross-system analysis. If the \texttt{symbols} argument
+is omitted, the functions default to a standard set of symbols (like \texttt{["a", "b"]}),
+applying the constraints to a general set of operations suitable for
+single-system analysis.
+
+\subsubsection{Abstract Execution}
+
+%
+% Abstract execution (in the actual writing, layout the actual Z3 clauses used to
+% encode the relational constraints): one or more "instantiation" of history. An
+% abstract execution is a set of operations (i.e. history) that are further
+% constrained by the nondeterminism of the asynchronous environment (e.g., message
+% delivery order), and implementation-specific constraints (e.g., conflict
+% resolution policies) (from non-transactional survey).
+%
+
+Abstract executions are instantiated from a given history by specifying which
+operations are visible to each other and how they are ordered. Multiple multiple
+abstract executions are possible for a single history as observed event oderings
+can differ between nodes. AE encode the \textit{non-deterministic} effects of
+asynchronous execution environments and implementation-specific constraints
+\cite{burckhardt2014principles} \cite{viotti2016consistency}.
+
+Similar to History relations, the Abstract Execution relation functions in our
+implementation (e.g., \texttt{AbstractExecution.Relation.visibility}) also accept an
+optional \texttt{symbols} argument. This allows framework users to instantiate AE
+relations with constraints quantified over specific symbolic operations relevant
+to a particular system or component being modeled. Omitting the argument applies
+the relation to the default set of symbols.
+
+Axioms defined for operations within abstract executions:
+
+\begin{itemize}
+\item visibility (vis): visibility definition used in all literatures we've reviewed
+  are ambiguous in the sense that they don't specify the exact behavior under
+  concurrent settings \cite{viotti2016consistency} \cite{viotti2016towards} \cite{zhang2018building}
+  \cite{ferreira2023antipode}. In our implementation, we restructured visibility as a
+  binary relation and performed explicit case analysis on all possible
+  combinations of read and write operations that can be "visible" to each other.
+  To achieve visibility, two operations must first fall in one of the categories
+  in "can-view":
+\end{itemize}
+
+% FIXME: way too ugly
+can-view (cv): $\text{``cv''} \triangleq \{(a, b) : a \in H_\text{``rd''}, b \in H_\text{``wr''} \text{ and } a.\text{``obj''} = b.\text{``obj''} \text{ and } ($
+$a.\text{``stime''} > b.\text{``rtime''} \text{ // non-concurrent}$
+$\text{or}$
+$(a.\text{``stime''} \leq b.\text{``stime''} \text{ and } a.\text{``stime''} \leq b.\text{``rtime''} \text{ and } a.\text{``rtime''} \geq b.\text{``stime''} \text{ and } a.\text{``rtime''} \geq b.\text{``rtime''})$
+$\text{or}$
+$(a.\text{``stime''} \geq b.\text{``stime''} \text{ and } a.\text{``stime''} \leq b.\text{``rtime''} \text{ and } a.\text{``rtime''} \geq b.\text{``stime''} \text{ and } a.\text{``rtime''} \geq b.\text{``rtime''})$
+$\text{or}$
+$(a.\text{``stime''} \leq b.\text{``stime''} \text{ and } a.\text{``stime''} \leq b.\text{``rtime''} \text{ and } a.\text{``rtime''} \geq b.\text{``stime''} \text{ and } a.\text{``rtime''} \leq b.\text{``rtime''})$
+$\text{or}$
+$(a.\text{``stime''} \geq b.\text{``stime''} \text{ and } a.\text{``stime''} \leq b.\text{``rtime''} \text{ and } a.\text{``rtime''} \geq b.\text{``stime''} \text{ and } a.\text{``rtime''} \leq b.\text{``rtime''})$
+$)\}$
+
+In the above encoding, "can-view" is defined as a non-deterministic pairwise
+partial ordering that solely depends on time stamps (conceptually, it captures
+all cases where reads happened before or after or during writes). And is a set
+of operations where, the first element of the tuple is a read and the second
+element is a write. The read \textit{can view} (nondeterminism included) the write if:
+
+\begin{itemize}
+\item (a1) The read-write pair contains non-concurrent operations.
+
+\item (a2) The read started before the write starts and ended after the write ends.
+
+\item (a3) The read started after the write starts and ended after the write ends.
+
+\item (a4) The read started before the write starts and ended before the write ends.
+
+\item (a5) The read started after the write starts and ended before the write ends.
+\end{itemize}
+
+\begin{center}
+\begin{verbatim}
+    a1         a2
+  |---|      |---|
+
+             b (rd)
+         |------------|
+
+       a3              a4
+  |---------|     |----------|
+
+              a5
+   |----------------------|
+\end{verbatim}
+\end{center}
+
+While "can-view" captures the possible visibility between read and write, the
+result dependency between them is captured by the "viewed" relation:
+
+$\text{``viewed''} \triangleq \{(a, b) : a \in H_\text{``rd''}, b \in H_\text{``wr''} \text{ and } ($
+$a.\text{``oval''} = b.\text{``ival''}$
+$\text{or}$
+$(\exists x \in H_\text{``wr''} \text{ and } (x, b) \in \text{``cv''} \text{ and } a.\text{``oval''} = x.\text{``ival''})$
+$)\}$
+
+In the encoding above, "viewed" is a non-deterministic pairwise partial ordering
+between a write and a read that build atop "can-view". Aside from the timestamps
+fall into one of the "can-view" cases, we assigned additional value related
+constraints to operations: either the input of the write must match the output
+of the read, or, in case of a write happened after or concurrent to the
+aforementioned write, viewed relation enforces the output of the read to be
+either of writes (but only one can be chosen). In visibility definition, the
+transitivity of viewed relation is implicitly enforced.
+
+% actual vis
+In our visible/visibility definition, it is defined as a \textit{deterministic} binary
+relationship between any two operations in the history. It also enforces the
+transitivity (propagation) and acyclicity (cannot go back in time) of the viewed
+relation. We do not enforce transitivity and acyclicity in the viewed relation
+as the orderings of concurrent operations are non-deterministic, and viewed
+should include all pairs of operations that can be viewed by each other only
+from logical time and value equality perspective. The following cases are
+considered:
+
+% simplest form: can-view -> viewed -> vis + ar
+\begin{itemize}
+\item write-read: $\text{``viewed''} \cap \text{``ar''}$, simply viewed (value equivalence) +
+  arbitration (preserve the previously viewed ordering as if it's a linearized
+  ordering in the first place)
+
+\item write-write: no constraints
+\end{itemize}
+
+% later read tracks earlier read's closest visible write
+% FIXME: probably wrong
+\begin{itemize}
+\item read-read: $\{(a, b) : a, b \in H_\text{``rd''} \text{ and } (\exists x \in H_\text{``wr''} \text{ and } (x, a) \in \text{``vis''}) \rightarrow (x, b)\}$,
+  previous read needs to track it's closest visible write, then propagate the
+  closest visible write to the latest read
+
+\item read-write: no constraints
+\end{itemize}
+
+% FIXME: rework needed
+Note that the read-read case is recursively defined, where $a$ and $b$ are in $\text{``vis''}_\text{``read-read''}$ iff.
+there's a write $x$ that is visible to $a$ and $x$ is in $\text{``vis''}_\text{``read-read''}$ with $b$.
+
+\begin{itemize}
+\item arbitration (ar): an application specific, transitive and acyclic relation that
+  provides a total order on conflicting operations, ensuring that observed
+  executions follow a single coherent timeline.
+\end{itemize}
+
+\subsection{Session Guarantees}
+
+In the implementation, the models follow the exact axiomatic definition provide
+in Terry et al.~\cite{terry1994session} and Viotti et al.~\cite{viotti2016consistency}.
+Below definitions are copied from the paper.
+
+\subsubsection{Monotonic Reads}
+
+Monotonic reads states that successive reads must reflect a non-decreasing set
+of writes. Namely, if a process has read a certain value v from an object, any
+successive read operation will not return any value written before v.
+Intuitively, a read operation can be served only by those replicas that have
+executed all write operations whose effects have already been observed by the
+requesting process. In effect, we can represent this by saying that, given three
+operations $a, b, c \in H$, if $a \xrightarrow{\text{vis}} b$ and
+$b \xrightarrow{\text{so}} c$, where $b$ and $c$ are read operations, then
+$a \xrightarrow{\text{vis}} c$, i.e., the transitive closure of vis and so is included
+in vis.
+
+$$
+  \text{MonotonicReads} \triangleq \forall a \in H, \forall b, c \in H_\text{rd}: a \xrightarrow{\text{vis}} b \text{ and } b \xrightarrow{\text{so}} c \Rightarrow a \xrightarrow{\text{vis}} c
+$$
+
+\subsubsection{Monotonic Writes}
+
+In a system that ensures monotonic writes a write is only performed on a replica
+if the replica has already performed all previous writes of the same session. In
+other words, replicas shall apply all writes belonging to the same session
+according to the order in which they were issued.
+
+$$
+  \text{MonotonicWrites} \triangleq \forall a, b \in H_\text{wr}: a \xrightarrow{\text{so}} b \Rightarrow a \xrightarrow{\text{ar}} b
+$$
+
+\subsubsection{Read Your Writes}
+
+Read-your-writes guarantee (also called read-my-writes) requires that a read
+operation invoked by a process can only be carried out by replicas that have
+already applied all writes previously invoked by the same process.
+
+$$
+  \text{ReadYourWrites} \triangleq \forall a \in H_\text{wr}, \forall b \in H_\text{rd}: a \xrightarrow{\text{so}} b \Rightarrow a \xrightarrow{\text{vis}} b
+$$
+
+\subsubsection{Write Follows Read}
+
+Writes-follow-reads, sometimes called session causality, is somewhat the
+converse concept of read-your-write guarantee as it ensures that writes made
+during the session are ordered after any writes made by any process on any
+object whose effects were seen by previous reads in the same session.
+
+$$
+  \text{WriteFollowsRead} \triangleq \forall a, c \in H_\text{wr}, \forall b \in H_\text{rd}: a \xrightarrow{\text{vis}} b \text{ and } b \xrightarrow{\text{so}} c \Rightarrow a \xrightarrow{\text{ar}} c
+$$
+
+\subsection{PRAM Consistency}
+
+Pipeline RAM (PRAM or FIFO) consistency prescribes that all processes see write
+operations issued by a given process in the same order as they were invoked by
+that process. On the other hand, processes may observe writes issued by
+different processes in different orders. Thus, no global total ordering is
+required. However, the writes from any given process (session) must be
+serialized in order, as if they were in a pipeline - hence the name.
+
+$$
+  \text{PRAM} \triangleq \forall a, b \in H: a \xrightarrow{\text{so}} b \Rightarrow a \xrightarrow{\text{vis}} b
+$$
+
+\subsection{Causal Consistency}
+
+Our causal consistency is a combinition of Voitti et al.~\cite{viotti2016consistency}
+and causal memory~\cite{baldoni2002an} extends beyond PRAM and session guarantees. The
+\textit{writes-into} relation~\cite{baldoni2002an} links write operations directly to the
+reads that return their values (at the same memory region). This ensures that if
+a read observes a particular write, all subsequent writes in the same session
+respect that causal ordering. Formally, it aligns session order (\texttt{so}),
+arbitration (\texttt{ar}), visibility (\texttt{vis}), and writes-into (\texttt{wi}) to maintain
+coherent causal histories.
+
+To for operations to be in the \texttt{wi} set: a write \texttt{a} writes into a read \texttt{b} iff \texttt{b} returns
+the value originally written by \texttt{a}, and \texttt{a}/\texttt{b} to reference the same object
+(same memory region). There must be at most one \texttt{a} for each \texttt{b}, and \texttt{wi} is
+acyclic.
+
+If one operation follows another in session order, their relationship in the
+abstract execution is further constrained. Specifically, if $(a, b) \in \text{so}$,
+then \texttt{a} must write-into \texttt{b} if \texttt{b} is a read, and \texttt{a} must be visible and
+arbitrated before \texttt{b}. Thus, session order induces a causal ordering that is
+reflected in the relations \texttt{wi}, \texttt{vis}, and \texttt{ar}.
+
+% TODO: vis(a, b) -> (a, b) in "vis"
+To incorporate session causility, we conjunct write-follow-reads with
+writes-into set: if a read \texttt{b} observes a write \texttt{a} (i.e. \texttt{vis(a, b)}) and \texttt{b} is
+followed by a write \texttt{c} in the same session (\texttt{so(b, c)}), then \texttt{ar(a, c)} ensures
+that the causal dependency introduced by reading \texttt{a}'s value is respected by the
+subsequent write \texttt{c}.
+
+% TODO: need double check
+$$
+  \text{Causal} \triangleq (\forall a, b \in H: (a, b) \in \text{so} \Leftrightarrow (a, b) \in \text{wi} \cap \text{vis} \cap \text{ar}) \text{ and } \text{WriteFollowsRead}
+$$
+
+These conditions together ensure a causal memory model where session order,
+observed values, and write sequences are all aligned, causally dependent writes
+appear in the correct order from any observer's perspective.
+
+\subsection{Liniearizability}
+
+Although linearizability is widely considered the gold standard for strong
+consistency, our initial attempts resulted in a incomplete model. In our draft
+encoding, we introduced a single global order to unify visibility and
+arbitration for all write operations, and tried to enforce real-time ordering to
+ensure that the observed histories comply with returns-before relations
+(linearization as operations comes in instead of lazily ordering events when
+reads occur~\cite{zhang2018building}). However, the resulting formulas were too
+restrictive and did not yield a complete model, as linearizability mandates a
+very strong global ordering property that is non-trivial to capture in our
+current axiomatic formulation.

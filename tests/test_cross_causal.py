@@ -10,7 +10,6 @@ from consistency.common import (
     cleanup,
     composable,
     compose,
-    extract,
     graph,
 )
 from consistency.model.monotonic_reads import MonotonicReads
@@ -69,7 +68,122 @@ def test_cross_causal() -> None:
         assertion_func, symbol_gen = semantics[name]
         return assertion_func(symbol_gen(sys))
 
+    svc1 = Node(
+        name="SVC1",
+        needs=None,
+        provs=[(Cons("MR", assertion_for("mr", str(counter["mr"]))),)],
+    )
+    counter["mr"] += 1
 
+    # SVC1 -> SVC2
+    edge1_constraints = [
+        assertion_for("mr", str(counter["mr"])),
+        assertion_for("ryw", str(counter["ryw"])),
+        assertion_for("wfr", str(counter["wfr"])),
+    ]
+    counter["mr"] += 1
+    counter["ryw"] += 1
+    counter["wfr"] += 1
+
+    svc2 = Node(
+        name="SVC2",
+        needs=None,
+        provs=[(Cons("MW", assertion_for("mw", str(counter["mw"]))),)],
+    )
+    counter["mw"] += 1
+
+    edge1 = Edge(
+        src=svc1,
+        dst=svc2,
+        cons=[(Cons("EC1", compose(*edge1_constraints)),)],
+    )
+
+    # SVC2 -> SVC3
+    edge2_constraints = [
+        assertion_for("mr", str(counter["mr"])),
+        assertion_for("mw", str(counter["mw"])),
+        assertion_for("wfr", str(counter["wfr"])),
+    ]
+    counter["mr"] += 1
+    counter["mw"] += 1
+    counter["wfr"] += 1
+
+    svc3 = Node(
+        name="SVC3",
+        needs=None,
+        provs=[(Cons("RYW", assertion_for("ryw", str(counter["ryw"]))),)],
+    )
+    counter["ryw"] += 1
+
+    edge2 = Edge(
+        src=svc2,
+        dst=svc3,
+        cons=[(Cons("EC2", compose(*edge2_constraints)),)],
+    )
+
+    # SVC3 -> SVC4
+    edge3_constraints = [
+        assertion_for("mr", str(counter["mr"])),
+        assertion_for("mw", str(counter["mw"])),
+        assertion_for("ryw", str(counter["ryw"])),
+    ]
+    counter["mr"] += 1
+    counter["mw"] += 1
+    counter["ryw"] += 1
+
+    svc4 = Node(
+        name="SVC4",
+        needs=None,
+        provs=[(Cons("WFR", assertion_for("wfr", str(counter["wfr"]))),)],
+    )
+    counter["wfr"] += 1
+
+    edge3 = Edge(
+        src=svc3,
+        dst=svc4,
+        cons=[(Cons("EC3", compose(*edge3_constraints)),)],
+    )
+
+    # SVC4 -> XC
+    edge4_constraints = [
+        assertion_for("mr", str(counter["mr"])),
+        assertion_for("mw", str(counter["mw"])),
+        assertion_for("ryw", str(counter["ryw"])),
+    ]
+    counter["mr"] += 1
+    counter["mw"] += 1
+    counter["ryw"] += 1
+
+    xc = Node(
+        name="XC",
+        needs=None,
+        provs=None,
+    )
+
+    edge4 = Edge(
+        src=svc4,
+        dst=xc,
+        cons=[(Cons("EC4", compose(*edge4_constraints)),)],
+    )
+
+    # full graph
+    nodes = [svc1, svc2, svc3, svc4, xc]
+    edges = [edge1, edge2, edge3, edge4]
+
+    g = graph(nodes, edges)
+    ok, res = composable(g, svc1)
+    # assert ok
+
+    # sample extraction for further use
+    # aggcons = extract(svc1, svc1, (ok, res))
+    # Node(
+    #     name="XC",
+    #     needs=None,
+    #     provs=[(Cons("XC", aggcons),)],
+    # )
+
+    """
+    # loop based:
     # composition tree
     # [(name, prov, [to be added on edge])]
     ct = [
@@ -135,3 +249,4 @@ def test_cross_causal() -> None:
         needs=None,
         provs=[(Cons("XC", aggcons),)],
     )
+    """

@@ -453,14 +453,24 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-05-12
+
+- a list of relevant papers
+- failure/counter examples
+
 ### 2025-05-07
 
-- making the application examples (shopping, movie, xc) to be more concrete, as in:
+- making the application examples (shopping, movie, xc) to be more concrete, as
+  in:
   - each node/edge, what needs/provs mean (in table, see the whiteboard)
-  - explain the differences between using different set of symbols vs. using different instantiation of operations
-    - movie example - divide by operations (different instantiation), similar to XCY
-    - XC example - divide by symbols (as in each symbol is different objects in storage system)
-- come up with a "principle" of how to model applications (when and why using symbol, differnet symbol, vs diferent instantiation of operations)
+  - explain the differences between using different set of symbols vs. using
+    different instantiation of operations
+    - movie example - divide by operations (different instantiation), similar to
+      XCY
+    - XC example - divide by symbols (as in each symbol is different objects in
+      storage system)
+- come up with a "principle" of how to model applications (when and why using
+  symbol, differnet symbol, vs diferent instantiation of operations)
 
 ### 2025-04-18
 

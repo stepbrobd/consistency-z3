@@ -457,6 +457,8 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 - a list of relevant papers
 - failure/counter examples
+- pull standalone lit review as related work (docs/proses/2025-01-06)
+- change can-view to graph
 
 ### 2025-05-07
 

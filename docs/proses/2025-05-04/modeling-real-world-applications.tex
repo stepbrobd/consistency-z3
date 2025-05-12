@@ -1,0 +1,239 @@
+\section{Modeling Real-World Applications}
+
+Beyond theoretical explorations, our framework also supports practical modeling
+distributed applications that may rely on complex combinations of semantics.
+Instead of checking at source code level tracing possible code paths like Noctua
+\cite{ma2024noctua} with SMT solvers, our approach operates at
+axiomatic logic and
+optionally application level, allowing researchers and system designers to
+encode nodes (representing intermediate API endpoints or storage systems
+providing consistency semantics) and edges (representing interactions or data
+flows) within their systems. Each node may require or provide specific
+consistency guarantees, while edges capture the ordering/visibility constraints
+and optional application specific logics between events across services.
+
+The \texttt{composable} function operates over a directed multigraph
+whose nodes and
+edges represent services (nodes) and interactions (edges) in a distributed
+system. Each node and edge can specify which consistency guarantees it needs or
+provides in the form of constraints (e.g., monotonic reads, read-your-writes).
+
+\begin{itemize}
+  \item \textit{Nodes:} each node represents a logical component like
+    services or storage
+    systems, each node can:
+    \begin{itemize}
+      \item Issue operations (e.g., read or write to shared state)
+      \item Require certain consistency properties (e.g., monotonic
+        reads) for these
+        operations
+      \item Provide certain consistency guarantees to downstream consumers
+    \end{itemize}
+    In the current implementation, each node stores:
+    \begin{itemize}
+      \item \texttt{name}: a unique identifier
+      \item \texttt{needs}: a set of constraints that must be
+        satisfied to uphold the node's
+        required semantics
+      \item \texttt{provs}: a set of constraints that characterize
+        what the node provides to other
+        nodes
+    \end{itemize}
+
+  \item \textit{Edges:} edges represent interactions or data flows
+    between nodes, capturing:
+    \begin{itemize}
+      \item Precedence constraints (e.g., write `a` must return
+        before read `b` starts) % Note: Consider \texttt{} for a and
+        % b if they represent variables/values
+      \item Required or optional additional constraints representing
+        custom operations or
+        relations that must hold between the source and destination nodes
+    \end{itemize}
+\end{itemize}
+
+The \texttt{composable} function attempts to find an assignment of
+constraints that
+makes the entire graph "composable". In other words, it seeks a model in which
+all nodes' \texttt{needs} can be matched with some nodes'
+\texttt{provs}, and all edges'
+constraints are satisfied simultaneously. This corresponds to verifying if there
+is a coherent assignment of semantics across the system's interactions. Users
+may provide zero or more semantics to \texttt{needs} and
+\texttt{provs} for each node, and
+similarly, zero or more constraints for each edge. During the check at each
+level of the graph traversal, a \textit{pairwise} check between
+source node \texttt{needs} in
+conjunction of edge constraints against destination node
+\texttt{provs} is performed.
+If the pairwise check is successful, all previous assignments are recorded and
+used as context for further checks. In case of pairwise check failure
+(contradiction), the function backtracks and selects other possible assignments
+if there are more than one provide in each of the source
+\texttt{needs}, edge constraints, and destination \texttt{provs}.
+
+% TODO: do we need pseudocode here?
+
+\textit{Implementation:} given a starting node (conceptually, usually
+a client) and a
+set of premise constraints, the function begins a DFS through the graph. At each
+node:
+\begin{itemize}
+  \item The function examines outgoing edges and their associated constraints.
+  \item Each edge can impose conditions on the relationship between
+    the source node's
+    requirements (\texttt{needs}), the destination node's provided
+    guarantees (\texttt{provs}),
+    and any additional edge-specific constraints.
+  \item The solver checks whether combining these constraints with
+    the accumulated
+    premise remains satisfiable.
+\end{itemize}
+If no consistent assignment is found for outgoing edges, the function
+backtracks, exploring alternative paths or constraint combinations. During
+traversal, the function uses the \texttt{compatible} checks behind
+the scenes. For each
+candidate combination of node-level and edge-level constraints, it
+calls \texttt{compatible} to
+ensure that no contradictions arise. If the DFS manages to visit all edges and
+find consistent assignments for all node needs and provided constraints, the
+function returns a \texttt{True} value along with a subgraph
+(\texttt{result}) that records a
+satisfying assignment. The returned subgraph shows which edges and nodes were
+selected and how their constraints were matched. If no satisfying assignment is
+found, the function returns \texttt{False}, and \texttt{None} for the graph.
+
+\subsection{Example: Online Shopping}
+
+Consider an online shop scenario where multiple services and components interact
+to process customer interactions and purchases. The shop maintains an inventory
+of products, and a shopping cart service, a transaction log to record purchases,
+and the the client itself. Additionally, an arbitrator node to coordinate
+interactions between the interactions between clients and the entire service
+stack.
+
+A customer uses a shopping cart service to preserve the state of the items they
+intend to buy. The customer can read or write the cart's contents, adjusting
+their intended purchases as they browse products. Let's say in this example,
+clients do not care to see their latest update to the cart being propagated to
+other devices immediately, but the states will eventually converge.
+
+The shop holds the canonical inventory state. Before finalizing a purchase, the
+customer's requested items must be checked against the shop's current inventory.
+If items are available, the transaction can proceed, if not, the request fails
+due to insufficient stock.
+
+Once the shop confirms inventory, it records the customer's purchase in the
+transaction log, and replicated across multiple nodes for fault tolerance.
+
+An arbitrator acts as a gatekeeper that serializes requests and interacts with
+both the shop (update inventory) and the transaction log (bookkeeping). When the
+customer decides to make a purchase, the arbitrator:
+\begin{itemize}
+  \item Receives requests from client and write to a intermediate
+    location (capturing
+    the customer's intent)
+  \item Reads from the shop's inventory to verify item availability
+  \item If available, writes back to the shop to decrement the
+    inventory and write and
+    replicate the transaction to the log
+  \item If not available, reply back to the client with an error
+\end{itemize}
+
+The arbitrator or serialization point pattern is commonly used in other system
+implementations like Paxos \cite{lamport2001paxos} to maintain a
+consistent order of
+events at critial locations, ensuring that purchase requests are applied to the
+shop and recorded in the transaction log in a well-defined sequence.
+
+\textit{Nodes:}
+\begin{itemize}
+  \item \textit{Arbitrator:} Provides linearizability
+  \item \textit{Tx:} Provides linearizability
+  \item \textit{Shop:} Provides RYW + MR, ensuring that once
+    arbitrator updates inventory, all
+    subsequent reads observe the writes
+  \item \textit{Client and Cart:} Represent endpoints that do not
+    enforce any semantic by
+    themselves but rely on the guarantees of the nodes they interact with
+\end{itemize}
+
+\textit{Edges:}
+\begin{itemize}
+  \item \texttt{Client} to \texttt{Cart} edge represent the customer
+    adding items to their cart
+  \item \texttt{Client} to \texttt{Shop} edge represent price checks
+    or Browse inventory
+  \item \texttt{Client} to \texttt{Arbitrator} edge represents a
+    purchase request
+  \item \texttt{Arbitrator} to \texttt{Shop} and \texttt{Arbitrator}
+    to \texttt{Tx} edges represent the arbitrator's
+    mediation: writing to the transaction log, reading and updating the shop's
+    inventory state in sequential order
+\end{itemize}
+
+In this example, the \texttt{composable} function succeeds with a
+graph containing one
+of the possible satisfiable constraint assignments.
+
+\subsection{Example: Streaming Service}
+
+Another example (simplified from DeathStarBench Media Service \cite{gan2019an}):
+consider a streaming service with multiple components handling user
+authentication, content delivery, and user interactions. The system comprises:
+
+\begin{itemize}
+  \item Admin: admin interface for content and user management operations
+  \item Client: end-user interface for accessing streaming content and features
+  \item Login: authentication service that acts like a user session manager
+  \item User DB: user credential storage
+  \item Metadata DB: content metadata storage
+  \item Rent: rental transaction service
+  \item Rent DB: transaction record storage
+  \item Review: user review service
+  \item Review DB: review storage
+  \item Video: video streaming service for content delivery
+  \item Video DB: video content storage providing
+\end{itemize}
+
+A user must first register and login through the authentication service before
+accessing any content. The login service verifies credentials against the User
+DB, which maintains consistent user states through Monotonic Writes and Writes
+Follow Reads guarantees as updates performed by users needs to be reflected to
+themselves right after.
+
+When Browse content, the client interacts with the metadata services. Before
+serving any content, users must first be authenticated through the login
+service, then clients can issue read to metadata database to retrieve titles.
+After selecting a media, clients can issue write to the Rent service to rent the
+media for viewing. The Rent service must ensure that the title is available
+through read to the metadata database. The Metadata DB provides Monotonic Reads
+and Read Your Writes guarantees, allowing admin updates to be reflected visible
+while tolerating some staleness for user reads.
+
+Users can also write reviews for content they've watched. The review service
+verifies content existence in Metadata DB. Writes the review to Review DB with
+Read-Your-Writes ensuring users see their own reviews immediately while other
+users may see slightly stale data.
+
+Administrators use a separate interface to manage content and user access. When
+uploading new content, the admin service updates metadata in Metadata DB,
+uploads video content to Video DB. Both operations require prior admin
+authentication (assuming admin users are pre-granted access). Video DB's Writes
+Follow Reads guarantee ensures content version consistency.
+
+As this example demonstrates, it's more complex than the online shopping mall
+example. Listing of nodes and edges is not exhaustive, please see the actual
+implementation for more details. The overall operational constraints are
+captured through custom operation types with quantified constraints optionally
+enforced at each node level.
+
+% TODO: rewrite needed in the actual paper
+
+\subsection{Example: Antipode \cite{ferreira2023antipode}}
+
+% TODO: rewrite after wrapping up
+Basic encodings of lineage and cross-service causal consistency (XCY) are
+finished but full implementation is still in progress. See
+\texttt{tests/test\_antipode.py} for
+details.

@@ -1,0 +1,62 @@
+\section{Semantic Comparison and Composition}
+
+A core contribution of our framework is the ability to reason not only about
+individual consistency semantics in isolation but also about their pairwise
+compatibility and compositional properties. This enables exploration of how
+different models relate to each other and whether they can be combined to
+produce stronger or more application-specific consistency guarantees.
+
+We define compatibility between two consistency semantics $M_1$ and $M_2$ using
+an implication-based criterion. $M_1$ is considered compatible with
+$M_2$ if the formula $M_1 \Rightarrow M_2$ is valid, i.e., there is no
+execution that satisfies all constraints of $M_1$ without also satisfying $M_2$.
+We implement this by asserting the negation $\neg (M_1 \Rightarrow M_2)$ and
+checking if it is unsatisfiable using our SMT-based approach. If no
+counterexample can be found, it implies that $M_1$
+refines/subsumes $M_2$. This compatibility check is not symmetric:
+$M_1 \Rightarrow M_2$
+holding does not necessarily mean that $M_2 \Rightarrow M_1$ also holds.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Pairwise Compatibility Check ($LHS \Rightarrow RHS$)}
+  \label{tab:compatibility}
+  \begin{tabular}{|l|c|c|c|c|c|c|}
+    \hline
+    \diagbox[width=3.0cm]{\textit{LHS}}{\textit{RHS}} &
+    \rotatedHeader{PRAM} &
+    \rotatedHeader{Monotonic Reads} &
+    \rotatedHeader{Monotonic Writes} &
+    \rotatedHeader{Read Your Writes} &
+    \rotatedHeader{Writes Follow Reads} &
+    \rotatedHeader{Linearizability} \\
+    \hline
+    \textit{PRAM}                & \tableNA   & \tableT    & \tableT
+    & \tableT    & \tableF    & \tableF \\
+    \textit{Monotonic Reads}     & \tableF    & \tableNA   & \tableF
+    & \tableF    & \tableF    & \tableF \\
+    \textit{Monotonic Writes}    & \tableF    & \tableF    & \tableNA
+    & \tableF    & \tableF    & \tableF \\
+    \textit{Read Your Writes}    & \tableF    & \tableF    & \tableF
+    & \tableNA   & \tableF    & \tableF \\
+    \textit{Writes Follow Reads} & \tableF    & \tableF    & \tableF
+    & \tableF    & \tableNA   & \tableF \\
+    \textit{Linearizability}     & \tableT    & \tableT    & \tableT
+    & \tableT    & \tableT    & \tableNA \\
+    \hline
+  \end{tabular}
+\end{table}
+
+To combine multiple consistency models into a single stronger model, we used
+logical conjunctions on each model's constraints. By taking the constraints
+representing each model's semantics and forming their conjunction, we derive a
+composed model that enforces all included constraints simultaneously. Unlike
+compatibility checks, where direction and implication matter, composition is
+commutative—adding more models simply layers their constraints on top of one
+another. This approach allows incremental composition, users can start from a
+base model and iteratively strengthen it by adding new sets of constraints
+(either from our implemented models or user-defined constraints) representing
+additional consistency guarantees. For example, the conjunction of monotonic
+reads, monotonic writes, and read-your-writes can yield PRAM consistency
+\cite{brzezinski2004session}. Similarly, layering these and writes-follow-reads
+recovers a form of causal consistency \cite{perrin2016causal}.

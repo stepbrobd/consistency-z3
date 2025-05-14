@@ -3,155 +3,153 @@
 % when writing the actual paper, explanations below should be moved
 % to pseudocode
 
+Operations: Modeled as an extensible tuples (proc, type, obj,
+  ival, oval, stime,
+rtime)~\cite{viotti2016consistency} representing atomic actions
+in the system.
+Additional fields can be added by invoking the sort constructor
+with additional
+fields.
+
+Axioms/Relations: Predicate logic constraints defined over operations.
 \begin{itemize}
-  \item Operations: Modeled as an extensible tuples (proc, type, obj,
-      ival, oval, stime,
-    rtime)~\cite{viotti2016consistency} representing atomic actions
-    in the system.
-    Additional fields can be added by invoking the sort constructor
-    with additional
-    fields.
+  \item History Relations: Deterministic orderings based on time and session
+    (returns-before, same-session, session-order, etc.).
+  \item Abstract Execution Relations: Non-deterministic orderings
+    capturing more complex
+    temporal constraints and conflict resolution (visibility, arbitration,
+    happens-before, etc.).
+\end{itemize}
 
-  \item Axioms/Relations: Predicate logic constraints defined over operations.
-    \begin{itemize}
-      \item History Relations: Deterministic orderings based on time and session
-        (returns-before, same-session, session-order, etc.).
-      \item Abstract Execution Relations: Non-deterministic orderings
-        capturing more complex
-        temporal constraints and conflict resolution (visibility, arbitration,
-        happens-before, etc.).
-    \end{itemize}
+Consistency Semantics/Models: Specific consistency guarantees
+defined as logical
+formulas over axioms/relations (e.g., Monotonic Reads, PRAM,
+  Causal Consistency,
+etc.). Each model enforces safety properties i.e. specific ordering and
+visibility constraints on operations within history and abstract executions.
 
-  \item Consistency Semantics/Models: Specific consistency guarantees
-    defined as logical
-    formulas over axioms/relations (e.g., Monotonic Reads, PRAM,
-      Causal Consistency,
-    etc.). Each model enforces safety properties i.e. specific ordering and
-    visibility constraints on operations within history and abstract executions.
+Functions on Models:
+\begin{itemize}
+  \item Compatibility Check (\texttt{compatible(lhs, rhs)}):
+    Determines if one set of
+    constraints (lhs) implies another set of constraints (rhs) under a given
+    background context (others and global
+    Relation.Constraints()). This function
+    uses the construct helper function to create a Z3 solver
+    instance. construct
+    asserts the negation of the implication: Not(Implies(lhs, rhs)). This is
+    logically equivalent to lhs And Not(rhs). It also adds the background
+    constraints (others and Relation.Constraints()). The
+    compatible function then
+    calls s.check() on this solver. If s.check() returns z3.unsat
+    (unsatisfiable),
+    it means there is no model (no counterexample) where lhs is
+    true and rhs is
+    false. Therefore, whenever lhs holds, rhs must also hold. The
+    function returns
+    True (compatible). If s.check() returns z3.sat (satisfiable), it means a
+    counterexample exists, the implication does not hold
+    universally, and the
+    function returns False (not compatible).
 
-  \item Functions on Models:
-    \begin{itemize}
-      \item Compatibility Check (\texttt{compatible(lhs, rhs)}):
-        Determines if one set of
-        constraints (lhs) implies another set of constraints (rhs) under a given
-        background context (others and global
-        Relation.Constraints()). This function
-        uses the construct helper function to create a Z3 solver
-        instance. construct
-        asserts the negation of the implication: Not(Implies(lhs, rhs)). This is
-        logically equivalent to lhs And Not(rhs). It also adds the background
-        constraints (others and Relation.Constraints()). The
-        compatible function then
-        calls s.check() on this solver. If s.check() returns z3.unsat
-        (unsatisfiable),
-        it means there is no model (no counterexample) where lhs is
-        true and rhs is
-        false. Therefore, whenever lhs holds, rhs must also hold. The
-        function returns
-        True (compatible). If s.check() returns z3.sat (satisfiable), it means a
-        counterexample exists, the implication does not hold
-        universally, and the
-        function returns False (not compatible).
+  \item Composability Check (\texttt{composable(graph, src,
+    ...)}): Verifies if a distributed
+    system, modeled as a graph (\texttt{graph: nx.MultiDiGraph}),
+    can have its components
+    interact in a way that respects their individual consistency
+    requirements and
+    guarantees. The function checks if there exists at least one
+    valid way to assign
+    specific semantics (from the choices provided in
+    needs/provs/cons) such that all
+    interactions are consistent. The graph in the function
+    parameter composed by
+    Nodes (\texttt{Node}) with needs (list of required semantic
+    tuples) and provs (list of
+    provided semantic tuples). Edges (\texttt{Edge}) connect
+    nodes and can have cons (list
+    of semantic tuples constraining the interaction). Lists
+    represent alternative
+    choices (logical or), while tuples within the list represent
+    constraints that
+    must hold together (logical and). In the implementation, we perform a
+    Depth-First Search (DFS) starting from a given source node,
+    keeping track of
+    visited edges and the accumulated constraints
+    (\texttt{path\_premise}) along the current
+    path. For each unvisited edge (u,v) from the current node u:
+    It iterates through
+    all combinations (product) of possible needs from u, provs
+    from v, and cons from
+    the edge (u, v). For each combination, it performs a
+    compatible check: \texttt{compatible(check\_provs,
+    compose(check\_needs, check\_ec), path\_premise)}.
+    This checks if the chosen provides guarantee of the
+    destination (check\_provs) is
+    implied by the conjunction (compose) of the chosen needs of the source
+    (check\_needs) and the chosen edge constraints (check\_ec),
+    considering the
+    constraints already accumulated (path\_premise). If a
+    compatible combination is
+    found that satisfies all unvisited edges between u and v at
+    the current step,
+    it: Adds the chosen constraints (needs, provs, cons) to the
+    result graph.
+    Updates the path\_premise by composing the newly satisfied
+    constraints. Marks the
+    edges as visited. Continues the DFS from the destination node
+    v. If the DFS
+    eventually visits all edges in the graph, the function
+    returns True and the
+    result graph showing one valid assignment. If a dead end is
+    reached or no
+    compatible combination works for an edge, it backtracks,
+    removing the choices
+    made at that step and trying other combinations. If the DFS
+    completes without
+    visiting all edges (meaning no fully consistent assignment
+    was found), it
+    returns False.
 
-      \item Composability Check (\texttt{composable(graph, src,
-        ...)}): Verifies if a distributed
-        system, modeled as a graph (\texttt{graph: nx.MultiDiGraph}),
-        can have its components
-        interact in a way that respects their individual consistency
-        requirements and
-        guarantees. The function checks if there exists at least one
-        valid way to assign
-        specific semantics (from the choices provided in
-        needs/provs/cons) such that all
-        interactions are consistent. The graph in the function
-        parameter composed by
-        Nodes (\texttt{Node}) with needs (list of required semantic
-        tuples) and provs (list of
-        provided semantic tuples). Edges (\texttt{Edge}) connect
-        nodes and can have cons (list
-        of semantic tuples constraining the interaction). Lists
-        represent alternative
-        choices (logical or), while tuples within the list represent
-        constraints that
-        must hold together (logical and). In the implementation, we perform a
-        Depth-First Search (DFS) starting from a given source node,
-        keeping track of
-        visited edges and the accumulated constraints
-        (\texttt{path\_premise}) along the current
-        path. For each unvisited edge (u,v) from the current node u:
-        It iterates through
-        all combinations (product) of possible needs from u, provs
-        from v, and cons from
-        the edge (u, v). For each combination, it performs a
-        compatible check: \texttt{compatible(check\_provs,
-        compose(check\_needs, check\_ec), path\_premise)}.
-        This checks if the chosen provides guarantee of the
-        destination (check\_provs) is
-        implied by the conjunction (compose) of the chosen needs of the source
-        (check\_needs) and the chosen edge constraints (check\_ec),
-        considering the
-        constraints already accumulated (path\_premise). If a
-        compatible combination is
-        found that satisfies all unvisited edges between u and v at
-        the current step,
-        it: Adds the chosen constraints (needs, provs, cons) to the
-        result graph.
-        Updates the path\_premise by composing the newly satisfied
-        constraints. Marks the
-        edges as visited. Continues the DFS from the destination node
-        v. If the DFS
-        eventually visits all edges in the graph, the function
-        returns True and the
-        result graph showing one valid assignment. If a dead end is
-        reached or no
-        compatible combination works for an edge, it backtracks,
-        removing the choices
-        made at that step and trying other combinations. If the DFS
-        completes without
-        visiting all edges (meaning no fully consistent assignment
-        was found), it
-        returns False.
-
-      \item Extraction (\texttt{extract(inode, onode, result)}):
-        After a successful composable
-        check, this function takes the resulting graph from
-        composability check (which
-        represents ONE valid assignment of constraints) and aggregate
-        a single Z3
-        constraint (z3.AstRef) that represents the net or equivalent
-        semantic guarantee
-        of the subgraph reachable from a specific node (inode),
-        assuming inode and onode
-        are the same. The function performs a DFS (dfs helper) starting from the
-        specified inode on this result graph. For each edge (src,
-        dst) traversed in the
-        DFS, extraction function uses the specific provs constraint
-        assigned to src in
-        the result graph, uses the specific needs constraint assigned
-        to dst in the
-        result graph, and retrieves the specific cons constraint
-        assigned to the edge
-        (src, dst, k) in the result graph. The extract function will
-        create a composite
-        constraint for this single edge interaction:
-        compose(src\_provs, edge\_cons,
-        dst\_needs). This represents the conjunction of constraints
-        relevant to this
-        specific step in the flow. It collects these composite
-        constraints from all
-        edges reachable from inode in the DFS. Finally, it returns
-        the logical and
-        (compose) of all collected composite constraints. Simply put,
-        axioms/relations
-        define constraints on Operations, similarly, extract defines a summary
-        constraint on a successfully composed subgraph. If the
-        composable check found a
-        valid way for components A, B, and C to interact starting
-        from A, extract(A, A,
-        result) generates a single formula representing the overall
-        guarantee provided
-        by the A->B->C... chain, as seen from A's perspective, based
-        on the specific
-        choices made during the composability check.
-    \end{itemize}
+  \item Extraction (\texttt{extract(inode, onode, result)}):
+    After a successful composable
+    check, this function takes the resulting graph from
+    composability check (which
+    represents ONE valid assignment of constraints) and aggregate
+    a single Z3
+    constraint (z3.AstRef) that represents the net or equivalent
+    semantic guarantee
+    of the subgraph reachable from a specific node (inode),
+    assuming inode and onode
+    are the same. The function performs a DFS (dfs helper) starting from the
+    specified inode on this result graph. For each edge (src,
+    dst) traversed in the
+    DFS, extraction function uses the specific provs constraint
+    assigned to src in
+    the result graph, uses the specific needs constraint assigned
+    to dst in the
+    result graph, and retrieves the specific cons constraint
+    assigned to the edge
+    (src, dst, k) in the result graph. The extract function will
+    create a composite
+    constraint for this single edge interaction:
+    compose(src\_provs, edge\_cons,
+    dst\_needs). This represents the conjunction of constraints
+    relevant to this
+    specific step in the flow. It collects these composite
+    constraints from all
+    edges reachable from inode in the DFS. Finally, it returns
+    the logical and
+    (compose) of all collected composite constraints. Simply put,
+    axioms/relations
+    define constraints on Operations, similarly, extract defines a summary
+    constraint on a successfully composed subgraph. If the
+    composable check found a
+    valid way for components A, B, and C to interact starting
+    from A, extract(A, A,
+    result) generates a single formula representing the overall
+    guarantee provided
+    by the A->B->C... chain, as seen from A's perspective, based
+    on the specific
+    choices made during the composability check.
 \end{itemize}

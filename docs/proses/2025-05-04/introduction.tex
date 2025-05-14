@@ -1,26 +1,34 @@
 \section{Introduction}
 
-Modern distributed systems often relax strict consistency guarantees to achieve
-scalability, fault tolerance, and low latency operations. Understanding and
-comparing different forms of relaxed consistency semantics is crucial for both
-system designers and researchers. Yet, systematically modeling and reasoning
-about these semantics, as well as their compositional properties, remained a
-understudied area.
+% FIXME: full rewrite
+{\color{red}
 
-Our framework aims to bridge this gap by providing a SMT-based approach to
-encode and analyze the safety properties of weaker consistency models (comparing
-with linearizability~\cite{herlihy1990linearizability}), and their
-compositions under
-the assumption of livenss properties are always satisfied, i.e. eventual
-consistency~\cite{petersen1997flexible} is guaranteed (replicas
-eventually converge),
-and we are layering everything on top of it. By offering a per-system
-(differentiated by symbols), logical representation of operations, our system
-can differentiates operations belonging to distinct systems and/or components
-through the use of unique symbols (see tests/test\_cross\_causal.py), enabling
-analysis of cross-system interactions. Additionally, solver backends can
-discharge proof witnesses on the satisfiability of specific consistency
-properties, or the compatibility and composability between multiple models.
-These approaches enable fast exploration and iteration of alternative system
-designs, guiding the development adhere to intended consistency guarantees from
-the very beginning.
+  Modern distributed systems often relax strict consistency
+  guarantees to achieve
+  scalability, fault tolerance, and low latency operations. Understanding and
+  comparing different forms of relaxed consistency semantics is crucial for both
+  system designers and researchers. Yet, systematically modeling and reasoning
+  about these semantics, as well as their compositional properties, remained a
+  understudied area.
+
+  Our framework aims to bridge this gap by providing a SMT-based approach to
+  encode and analyze the safety properties of weaker consistency
+  models (comparing
+  with linearizability~\cite{herlihy1990linearizability}), and their
+  compositions under
+  the assumption of livenss properties are always satisfied, i.e. eventual
+  consistency~\cite{petersen1997flexible} is guaranteed (replicas
+  eventually converge),
+  and we are layering everything on top of it. By offering a per-system
+  (differentiated by symbols), logical representation of operations, our system
+  can differentiates operations belonging to distinct systems and/or components
+  through the use of unique symbols (see tests/test\_cross\_causal.py), enabling
+  analysis of cross-system interactions. Additionally, solver backends can
+  discharge proof witnesses on the satisfiability of specific consistency
+  properties, or the compatibility and composability between multiple models.
+  These approaches enable fast exploration and iteration of alternative system
+  designs, guiding the development adhere to intended consistency
+  guarantees from
+  the very beginning.
+
+}

@@ -235,3 +235,142 @@ enforced at each node level.
 % finished but full implementation is still in progress. See
 % \texttt{tests/test\_antipode.py} for
 % details.
+
+\subsection{Example: Cross Service Causal}
+
+When reading the graph, think of it as a reversed tree (rooted from svc1) with
+one branch growing from root to leaf (xc). The leaf node's (xc) prov/need field
+in the implementation is set to \texttt{None} to indicate that it
+does not provide any
+guarantees, and will only be used for extraction (see descriptions below).
+Implementation of \texttt{tests/test\_cross\_causal.py}:
+
+\begin{verbatim}
+            xc
+           / <- mr + mw + ryw
+        svc4 - wfr
+       / <- mr + mw + wfr
+     svc3 - ryw
+    / <- mr + ryw + wfr
+  svc2 - mw
+ / <- mw + ryw + wfr
+svc1 - mr
+\end{verbatim}
+
+This example demonstrates modeling a system where multiple services, each
+offering only a basic consistency guarantee, are chained together. The goal is
+to verify if their composition, mediated by specific inter-service constraints,
+symbolic isolation, and the role of explicit ``glue'' constraints.
+
+\textit{Setup}\footnote{I decided not to use the ``pseudo node'' in
+the write up, it makes the explanation unnecessarily complex.}: We
+model a linear chain of services: $\text{SVC1} \rightarrow
+\text{SVC2} \rightarrow \text{SVC3} \rightarrow \text{SVC4}
+\rightarrow \text{XC}$.
+Each service $\text{SVC}n$ (for $n=1..4$) is designed to provide only
+\textit{one} of the
+four session guarantees via its \texttt{provs} attribute:
+$\text{SVC}1$ provides MR, $\text{SVC}2$ provides
+MW, $\text{SVC}3$ provides RYW, and $\text{SVC}4$ provides WFR.
+
+\textit{Symbolic Isolation:} To prevent logical interference, the
+guarantee provided by
+each service (e.g., \texttt{MonotonicReads.assertions}) and the
+constraints added on
+the edges are instantiated using unique symbols specific to that service or edge
+(e.g., using helpers like \texttt{gensym} and \texttt{assertion\_for}
+from \texttt{tests/test\_cross\_causal.py}).
+This ensures, for example, that the Monotonic Reads constraints of
+$\text{SVC}1$ only
+apply to operations symbolically designated as belonging to $\text{SVC}1$.
+
+\textit{Composition via Edge Constraints:} The composition logic
+resides in the ``glue''
+constraints defined on the \texttt{cons} attribute of the edges connecting the
+services. Since each service node only provides one session
+guarantee, the edge $\text{SVC}n \rightarrow \text{SVC}(n+1)$ must
+provide constraints representing the other three session guarantees needed to
+potentially satisfy Causal Consistency up to that point.
+
+The core idea of this example is to build a stronger guarantee by composing
+weaker guarantees provided by individual services ($\text{SVC}1
+\ldots 4$), using the
+edges to supply the missing pieces. Verbatim:
+
+\begin{itemize}
+  \item $\text{SVC}1$ starts by providing only MR (via its
+    \texttt{provs}, using symbols like $a_1, b_1, \ldots$).
+    Its own \texttt{needs} are \texttt{None}.
+  \item To potentially achieve Causal Consistency for operations
+    passing from $\text{SVC}1$ to $\text{SVC}2$,
+    the edge $\text{Edge}(\text{SVC1} \rightarrow \text{SVC2})$ must
+    provide the other three required
+    session guarantees: MW, RYW, and WFR (via its \texttt{cons},
+    using unique symbols like $a_{12}, b_{12}, \ldots$).
+    However, in real world implementations, edge constraints usually requires
+    additional application specific logic to be satisfiable. In other word, edge
+    constraints used in abstract representation implies the existence
+    of application
+    level protocols that enforces convergence of data either through
+    consensus (like
+    Raft \cite{diego2014raft} or Paxos \cite{lamport1998paxos}) or other means.
+  \item When \texttt{composable} evaluates this step, it checks if
+    the interaction is locally
+    consistent based on the nodes' defined
+    \texttt{provs}/\texttt{needs} and the edge's \texttt{cons}. If
+    this local check passes (meaning $\text{SVC}2$'s required guarantee, Causal
+      Consistency, is satisfied through what the edge + $\text{SVC}1$'s
+    provs provide), we
+    \textit{interpret} this (based on our setup) as achieving Causal
+    Consistency for the
+    combined path ($\text{SVC}1 + \text{Edge}(\text{SVC1} \rightarrow
+    \text{SVC2})$) leading \textit{up to} $\text{SVC}2$.
+  \item Now, although the path leading to $\text{SVC}2$ is causally
+    consistent, $\text{SVC}2$ itself,
+    according to its definition in this example, only
+    \textit{provides} MW to the outside
+    world (via its \texttt{provs}, using symbols $a_2, b_2, \ldots$).
+  \item Therefore, for the \textit{next} service, $\text{SVC}3$, to
+    maintain Causal Consistency
+    relative to the operations flowing through the
+    ($\text{SVC}1\rightarrow\text{SVC}2$) mesh, the edge
+    $\text{Edge}(\text{SVC2} \rightarrow \text{SVC3})$ must
+    supply the guarantees missing relative to $\text{SVC}2$'s
+    provided MW. This means $\text{Edge}(\text{SVC2} \rightarrow
+    \text{SVC3})$ must
+    provide MR, RYW, and WFR (again, with unique symbols).
+  \item This pattern repeats: each service node $\text{SVC}n$
+    provides one specific
+    guarantee, and the edge $\text{Edge}(n \rightarrow n+1)$ provides
+    the complementary guarantees
+    needed to ensure the cumulative path maintains the target property.
+\end{itemize}
+
+\textit{Symbol Equivalence:} For this composition to be meaningful, we must
+conceptually link operations across services that refer to the same logical
+action or data. For instance, if write $a_1$ in $\text{SVC}1$ and
+write $a_2$ in $\text{SVC}2$ both
+represent updates to the same user profile, ``glue'' constraints
+equating relevant
+aspects (like $a_1.\text{obj} = a_2.\text{obj}$ or $a_1.\text{ival} =
+  a_2.\text{ival}$ despite their
+different symbolic names) might be necessary. While the current test
+code (\texttt{tests/test\_cross\_causal.py})
+simplifies this by focusing on composing the consistency axioms, a more rigorous
+model would include these explicit symbol equivalence constraints on the edges
+(we are directly asserting symbols of $a_1$ are identical of those of $a_2$ for
+simplicity).
+
+\textit{Aggregation:} The \texttt{composable(g, svc1)} call attempts
+to find a satisfying
+assignment for the entire chain, respecting the \texttt{provs} of
+each node and the \texttt{cons} of
+each edge. If it returns \texttt{True}, it confirms that the
+individual guarantees can
+be composed under the specified edge constraints. Subsequently,
+\texttt{extract(svc1, svc1, (ok, res))} can
+synthesize a single logical formula representing the net end-to-end guarantee
+achieved by the chain, starting from $\text{SVC}1$. This aggregated
+constraint (\texttt{aggcons} in
+the test code) could then be compared against a formal definition of Causal
+Consistency.

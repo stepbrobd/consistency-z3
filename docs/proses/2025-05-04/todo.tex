@@ -1,5 +1,63 @@
 \section{Todo}
 
+% failure/counter example
+% 3 failure test cases in composition
+% 21 failure test cases pairwise
+% add back fafilure senario in XC
+
+% principal of how to model apps (when to use symbol, when to use instantiation)
+When modeling systems for consistency analysis, choosing the right
+approach to abstract away underlying system behavior is crucial.
+We propose the following principles to guide the modeling process:
+
+% using default symbols
+\textbf{Default symbols} are appropriate when system has straightforward
+composition patterns with minimal cross-service dependencies.
+Services should have well-defined consistency guarantees that don't
+require fine-grained differentiation.
+The primary concern is with verifying that the overall system
+composition satisfies basic consistency requirements.
+
+As shown in the online shopping mall example, default symbols work well when
+modeling a system where each component (shop, transaction log,
+arbitrator) has clear, isolated responsibilities. The focus is on
+ensuring that the composition of these components maintains the
+desired consistency guarantees without needing to track specific data
+objects or operation instances.
+
+% operation instantiation
+\textbf{Operation instantiations} should be used
+when the system's consistency depends on the ordering of specific API
+calls or RPC functions.
+This is most useful when there are ordering constraints on API/RPC
+calls or dependencies between actions (as in flow of data) across services
+The focus is on the behavior of the system rather than the underlying
+data storage.
+
+The media example illustrates this approach by modeling each API
+action as a distinct operation instance. This allows specification of
+ordering constraints between operations,
+such as requiring login before accessing content or checking metadata
+before serving videos.
+
+% custom symbols
+\textbf{Custom symbols} become necessary when different storage
+systems maintain separate state spaces that need to
+be distinguished between each other, such as cross service ordering
+constraints exist between specific data objects.
+Or we need to track how consistency properties apply to particular data
+elements across system boundaries. This means that each consistency model
+object instantiation will be different even though the same model is used.
+This is required as the system's internal behavior are captured using one set
+of symbolic representations, while the external behavior is captured using
+another. When interactions are required between internal and external, a shim
+layer is needed to translate between the two representations (i.e.
+symbolic equivalence in cross-causal).
+
+The cross-causal (XC) example demonstrates this approach, where each
+storage system has its own state and the consistency semantics must
+be explicitly differentiated using custom symbols.
+
 \section{Related Work}
 
 % FIXME: rework

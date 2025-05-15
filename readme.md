@@ -453,6 +453,31 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-05-15
+
+- [hi prio] dump movie/shopping with graphs in text (in
+  modeling-real-world-applications.tex)
+- add causal to table
+- use a running example for design principal
+- prose for failure senario
+- [low prio] add eventual consistency that does not have any constrtaits
+  - add failure example against
+  - replace storage semantics
+  - replace edge constraints
+- [low prio] add MixT to related work
+
+```
+- intro
+- background and motivation (consistency semantics, how ppl design micro svcs, potential bugs)
+- overview (less technical high level overview <components, what it does, how the operation is serialized, binary relation, ...)
+- design (short version of consistency semantics section, with individual semantic modeling with pairwise checks)
+- composition (use very simple examples <like dependent ops, how to use nodes/edges>, nodes/edges, provs/needs)
+- case study (shop <simple>, movie <simple>, xc <in details>)
+- eval (timing, difficulty of modeling, failure cases, ...)
+- related work
+- conclusion
+```
+
 ### 2025-05-12
 
 - a list of relevant papers

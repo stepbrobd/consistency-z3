@@ -103,78 +103,252 @@ satisfying assignment. The returned subgraph shows which edges and nodes were
 selected and how their constraints were matched. If no satisfying assignment is
 found, the function returns \texttt{False}, and \texttt{None} for the graph.
 
-\subsection{Example: Online Shopping}
+% \subsection{Example: Online Shopping}
+%
+% Consider an online shop scenario where multiple services and
+% components interact
+% to process customer interactions and purchases. The shop maintains
+% an inventory
+% of products, and a shopping cart service, a transaction log to
+% record purchases,
+% and the the client itself. Additionally, an arbitrator node to coordinate
+% interactions between the interactions between clients and the entire service
+% stack.
+%
+% A customer uses a shopping cart service to preserve the state of
+% the items they
+% intend to buy. The customer can read or write the cart's contents, adjusting
+% their intended purchases as they browse products. Let's say in this example,
+% clients do not care to see their latest update to the cart being propagated to
+% other devices immediately, but the states will eventually converge.
+%
+% The shop holds the canonical inventory state. Before finalizing a
+% purchase, the
+% customer's requested items must be checked against the shop's
+% current inventory.
+% If items are available, the transaction can proceed, if not, the request fails
+% due to insufficient stock.
+%
+% Once the shop confirms inventory, it records the customer's purchase in the
+% transaction log, and replicated across multiple nodes for fault tolerance.
+%
+% An arbitrator acts as a gatekeeper that serializes requests and interacts with
+% both the shop (update inventory) and the transaction log
+% (bookkeeping). When the
+% customer decides to make a purchase, the arbitrator:
+% \begin{itemize}
+%   \item Receives requests from client and write to a intermediate
+%     location (capturing
+%     the customer's intent)
+%   \item Reads from the shop's inventory to verify item availability
+%   \item If available, writes back to the shop to decrement the
+%     inventory and write and
+%     replicate the transaction to the log
+%   \item If not available, reply back to the client with an error
+% \end{itemize}
+%
+% The arbitrator or serialization point pattern is commonly used in other system
+% implementations like Paxos \cite{lamport2001paxos} to maintain a
+% consistent order of
+% events at critial locations, ensuring that purchase requests are
+% applied to the
+% shop and recorded in the transaction log in a well-defined sequence.
+%
+% \textit{Nodes:}
+% \begin{itemize}
+%   \item \textit{Arbitrator:} Provides linearizability
+%   \item \textit{Tx:} Provides linearizability
+%   \item \textit{Shop:} Provides RYW + MR, ensuring that once
+%     arbitrator updates inventory, all
+%     subsequent reads observe the writes
+%   \item \textit{Client and Cart:} Represent endpoints that do not
+%     enforce any semantic by
+%     themselves but rely on the guarantees of the nodes they interact with
+% \end{itemize}
+%
+% \textit{Edges:}
+% \begin{itemize}
+%   \item \texttt{Client} to \texttt{Cart} edge represent the customer
+%     adding items to their cart
+%   \item \texttt{Client} to \texttt{Shop} edge represent price checks
+%     or Browse inventory
+%   \item \texttt{Client} to \texttt{Arbitrator} edge represents a
+%     purchase request
+%   \item \texttt{Arbitrator} to \texttt{Shop} and \texttt{Arbitrator}
+%     to \texttt{Tx} edges represent the arbitrator's
+%     mediation: writing to the transaction log, reading and updating the shop's
+%     inventory state in sequential order
+% \end{itemize}
+%
+% In this example, the \texttt{composable} function succeeds with a
+% graph containing one
+% of the possible satisfiable constraint assignments.
 
-Consider an online shop scenario where multiple services and components interact
-to process customer interactions and purchases. The shop maintains an inventory
-of products, and a shopping cart service, a transaction log to record purchases,
-and the the client itself. Additionally, an arbitrator node to coordinate
-interactions between the interactions between clients and the entire service
-stack.
+{\color{purple}
+  \subsection{Online Shopping System}
 
-A customer uses a shopping cart service to preserve the state of the items they
-intend to buy. The customer can read or write the cart's contents, adjusting
-their intended purchases as they browse products. Let's say in this example,
-clients do not care to see their latest update to the cart being propagated to
-other devices immediately, but the states will eventually converge.
+  We present a case study of an e-commerce application that
+  demonstrates how our framework can model and verify consistency
+  guarantees across multiple interacting services. This example
+  illustrates a common pattern in distributed systems where different
+  components require different consistency levels based on their
+  functional requirements.
 
-The shop holds the canonical inventory state. Before finalizing a purchase, the
-customer's requested items must be checked against the shop's current inventory.
-If items are available, the transaction can proceed, if not, the request fails
-due to insufficient stock.
+  \subsubsection{Architecture}
 
-Once the shop confirms inventory, it records the customer's purchase in the
-transaction log, and replicated across multiple nodes for fault tolerance.
+  The online shopping system consists of five key components that
+  interact to provide a complete shopping experience:
 
-An arbitrator acts as a gatekeeper that serializes requests and interacts with
-both the shop (update inventory) and the transaction log (bookkeeping). When the
-customer decides to make a purchase, the arbitrator:
-\begin{itemize}
-  \item Receives requests from client and write to a intermediate
-    location (capturing
-    the customer's intent)
-  \item Reads from the shop's inventory to verify item availability
-  \item If available, writes back to the shop to decrement the
-    inventory and write and
-    replicate the transaction to the log
-  \item If not available, reply back to the client with an error
-\end{itemize}
+  \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        node distance=2cm,
+        service/.style={draw, rounded corners, fill=blue!10, minimum
+        width=2cm, minimum height=1cm},
+        arrow/.style={->, >=stealth, thick},
+        label/.style={font=\small\itshape}
+      ]
 
-The arbitrator or serialization point pattern is commonly used in other system
-implementations like Paxos \cite{lamport2001paxos} to maintain a
-consistent order of
-events at critial locations, ensuring that purchase requests are applied to the
-shop and recorded in the transaction log in a well-defined sequence.
+      % nodes
+      \node[service] (client) {Client};
+      \node[service] (cart) at ([shift={(225:2.5cm)}]client) {Cart};
+      \node[service] (shop) at ([shift={(315:2.5cm)}]client) {Shop};
+      \node[service] (arbitrator) at ([shift={(0:3cm)}]client) {Arbitrator};
+      \node[service] (tx) at ([shift={(0:3cm)}]arbitrator) {Tx Log};
 
-\textit{Nodes:}
-\begin{itemize}
-  \item \textit{Arbitrator:} Provides linearizability
-  \item \textit{Tx:} Provides linearizability
-  \item \textit{Shop:} Provides RYW + MR, ensuring that once
-    arbitrator updates inventory, all
-    subsequent reads observe the writes
-  \item \textit{Client and Cart:} Represent endpoints that do not
-    enforce any semantic by
-    themselves but rely on the guarantees of the nodes they interact with
-\end{itemize}
+      % edges
+      \draw[arrow] (client) -- (cart) node[midway, above, label] {read/write};
+      \draw[arrow] (client) -- (shop) node[midway, above, label] {browse};
+      \draw[arrow] (client) -- (arbitrator) node[midway, above,
+      label] {purchase};
+      \draw[arrow] (arbitrator) -- (shop) node[midway, above, label]
+      {check/update};
+      \draw[arrow] (arbitrator) -- (tx) node[midway, above, label] {record};
 
-\textit{Edges:}
-\begin{itemize}
-  \item \texttt{Client} to \texttt{Cart} edge represent the customer
-    adding items to their cart
-  \item \texttt{Client} to \texttt{Shop} edge represent price checks
-    or Browse inventory
-  \item \texttt{Client} to \texttt{Arbitrator} edge represents a
-    purchase request
-  \item \texttt{Arbitrator} to \texttt{Shop} and \texttt{Arbitrator}
-    to \texttt{Tx} edges represent the arbitrator's
-    mediation: writing to the transaction log, reading and updating the shop's
-    inventory state in sequential order
-\end{itemize}
+      % semantics
+      \node[below=0.2cm, align=center, font=\small] at (shop)
+      {Provides: RYW + MR};
+      \node[below=0.2cm, align=center, font=\small] at (arbitrator)
+      {Provides: Linearizability};
+      \node[below=0.2cm, align=center, font=\small] at (tx) {Provides:
+      Linearizability};
+    \end{tikzpicture}
+    \caption{Architecture of the online shopping system with
+    consistency guarantees}
+    \label{fig:case-study-shop}
+  \end{figure}
 
-In this example, the \texttt{composable} function succeeds with a
-graph containing one
-of the possible satisfiable constraint assignments.
+  \begin{enumerate}
+    \item \textbf{Client}: The end-user interface through which
+      customers browse products, manage their shopping cart, and
+      initiate purchases. The client itself doesn't enforce specific
+      consistency guarantees but relies on the guarantees provided by
+      the services it interacts with.
+
+    \item \textbf{Cart}: The shopping cart service maintains customers''
+      shopping cart state. It stores items that customers intend to
+      purchase and supports read and write operations. The cart service
+      allows eventual convergence of state across multiple devices,
+      meaning that immediate propagation of updates is not required.
+
+    \item \textbf{Shop}: Maintains the authoritative inventory state
+      for all products. The shop provides Read-Your-Writes (RYW) and
+      Monotonic Reads (MR) guarantees, ensuring that once inventory is
+      updated, all subsequent reads will observe these updates in a
+      consistent manner. This combination allows for a balance between
+      consistency and performance.
+
+    \item \textbf{Arbitrator}: Acts as a serialization point for
+      purchase transactions, providing linearizability guarantees. This
+      critical component ensures that concurrent purchase requests are
+      processed in a well-defined sequence, preventing race conditions
+      that could lead to inventory inconsistencies or duplicate transactions.
+
+    \item \textbf{Tx Log}: Records all completed purchases
+      with linearizability guarantees, ensuring that transaction
+      records are stored in a strictly consistent manner for auditing
+      and financial reconciliation purposes.
+  \end{enumerate}
+
+  \subsubsection{Interaction Flow}
+
+  The typical interaction flow in this system follows several patterns:
+
+  \textbf{Browsing and Cart Management:} Customers interact directly
+  with the shop service to browse available products. When they find
+  items of interest, they can add these items to their cart through the
+  cart service. These operations don't require strong consistency
+  guarantees as they don't modify the authoritative inventory state.
+
+  \textbf{Purchase Process:} When a customer decides to complete their
+  purchase, a more complex interaction begins:
+
+  \begin{enumerate}
+    \item The client sends a purchase request to the arbitrator,
+      including the contents of the customer's cart.
+
+    \item The arbitrator, acting as a serialization point, first reads
+      from the shop's inventory to verify that all requested items are
+      available in sufficient quantities.
+
+    \item If the inventory check succeeds, the arbitrator performs two
+      operations in sequence:
+      \begin{itemize}
+        \item It writes to the shop service to decrement the inventory
+          counts for the purchased items.
+        \item It writes to the transaction log to record the successful
+          purchase, capturing details such as items purchased,
+          quantities, prices, and customer information.
+      \end{itemize}
+
+    \item If the inventory check fails (e.g., an item is out of stock),
+      the arbitrator responds to the client with an error message, and
+      no changes are made to either the inventory or transaction log.
+  \end{enumerate}
+
+  This interaction pattern ensures that inventory updates and
+  transaction records are kept in sync, preventing scenarios where
+  inventory is decremented without a corresponding transaction record
+  or vice versa.
+
+  \subsubsection{Requirements and Verification}
+
+  The consistency requirements of this system vary by component:
+
+  \begin{itemize}
+    \item The shop service provides Read-Your-Writes and Monotonic
+      Reads guarantees, which are sufficient for inventory management.
+      RYW ensures that once the arbitrator updates inventory levels,
+      any subsequent reads will observe these updates. MR ensures that
+      if a client observes a certain inventory state, all subsequent
+      reads will observe either that same state or a more recent one,
+      preventing anomalies where inventory appears to increase without
+      corresponding returns or restocking operations.
+
+    \item The arbitrator and transaction log both provide
+      linearizability, the strongest consistency model, ensuring that
+      all operations appear to execute atomically in a sequential order
+      that is consistent with the real-time ordering of those
+      operations. This is critical for the financial aspects of the system.
+
+    \item The cart service has more relaxed consistency requirements,
+      as temporary inconsistencies in cart state don't impact the
+      integrity of the inventory or financial records.
+  \end{itemize}
+
+  When we apply our \texttt{composable} function to this system,
+  starting from the client node, it successfully verifies that the
+  composition of these services with their respective consistency
+  guarantees satisfies the overall system requirements. The function
+  traverses the graph, checking at each step whether the constraints
+  imposed by each node and edge are mutually satisfiable.
+
+  The verification confirms that the arbitrator's linearizability
+  guarantee is sufficient to coordinate between the shop's RYW+MR
+  guarantees and the transaction log's linearizability, ensuring that
+  inventory updates and transaction records remain consistent even
+  under concurrent operations.
+}
 
 % TODO: rewrite with more detail like cross causal
 \subsection{Example: Streaming Service}

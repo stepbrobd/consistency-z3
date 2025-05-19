@@ -351,57 +351,349 @@ found, the function returns \texttt{False}, and \texttt{None} for the graph.
 }
 
 % TODO: rewrite with more detail like cross causal
-\subsection{Example: Streaming Service}
+% \subsection{Example: Streaming Service}
+%
+% Another example (simplified from DeathStarBench Media Service
+% \cite{gan2019an}):
+% consider a streaming service with multiple components handling user
+% authentication, content delivery, and user interactions. The system comprises:
+%
+% \begin{itemize}
+%   \item Admin: admin interface for content and user management operations
+%   \item Client: end-user interface for accessing streaming content
+% and features
+%   \item Login: authentication service that acts like a user session manager
+%   \item User DB: user credential storage
+%   \item Metadata DB: content metadata storage
+%   \item Rent: rental transaction service
+%   \item Rent DB: transaction record storage
+%   \item Review: user review service
+%   \item Review DB: review storage
+%   \item Video: video streaming service for content delivery
+%   \item Video DB: video content storage providing
+% \end{itemize}
+%
+% A user must first register and login through the authentication service before
+% accessing any content. The login service verifies credentials against the User
+% DB, which maintains consistent user states through Monotonic Writes and Writes
+% Follow Reads guarantees as updates performed by users needs to be reflected to
+% themselves right after.
+%
+% When Browse content, the client interacts with the metadata services. Before
+% serving any content, users must first be authenticated through the login
+% service, then clients can issue read to metadata database to retrieve titles.
+% After selecting a media, clients can issue write to the Rent
+% service to rent the
+% media for viewing. The Rent service must ensure that the title is available
+% through read to the metadata database. The Metadata DB provides
+% Monotonic Reads
+% and Read Your Writes guarantees, allowing admin updates to be
+% reflected visible
+% while tolerating some staleness for user reads.
+%
+% Users can also write reviews for content they've watched. The review service
+% verifies content existence in Metadata DB. Writes the review to Review DB with
+% Read-Your-Writes ensuring users see their own reviews immediately while other
+% users may see slightly stale data.
+%
+% Administrators use a separate interface to manage content and user
+% access. When
+% uploading new content, the admin service updates metadata in Metadata DB,
+% uploads video content to Video DB. Both operations require prior admin
+% authentication (assuming admin users are pre-granted access). Video
+% DB's Writes
+% Follow Reads guarantee ensures content version consistency.
+%
+% As this example demonstrates, it's more complex than the online shopping mall
+% example. Listing of nodes and edges is not exhaustive, please see the actual
+% implementation for more details. The overall operational constraints are
+% captured through custom operation types with quantified constraints optionally
+% enforced at each node level.
 
-Another example (simplified from DeathStarBench Media Service \cite{gan2019an}):
-consider a streaming service with multiple components handling user
-authentication, content delivery, and user interactions. The system comprises:
+\subsection{Media Streaming Service}
+
+To demonstrate our framework's ability to model complex distributed
+systems with diverse consistency requirements, we present a case
+study of a media streaming service inspired by the DeathStarBench
+Media Service benchmark. This example illustrates how our approach
+\cite{gan2019an}
+can verify the composition of multiple services with heterogeneous
+consistency guarantees.
+
+\subsubsection{System Architecture}
+
+The media streaming service consists of eleven interconnected
+components, each with specific consistency requirements based on
+their functional roles:
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[
+      node distance=2.5cm,
+      service/.style={draw, rounded corners, fill=blue!10, minimum
+      width=2cm, minimum height=1cm},
+      storage/.style={draw, rounded corners, fill=green!10, minimum
+      width=2cm, minimum height=1cm},
+      arrow/.style={->, >=stealth, thick},
+      label/.style={font=\small\itshape}
+    ]
+    % client and admin
+    \node[service] (client) at (0,0) {Client};
+    \node[service] (admin) at (0,3) {Admin};
+
+    % services
+    \node[service] (login) at (3,1.5) {Login};
+    \node[service] (review) at (3,-1) {Review};
+    \node[service] (rent) at (3,0) {Rent};
+    \node[service] (video) at (3,3) {Video};
+
+    % db nodes
+    \node[storage] (user_db) at (6,1.5) {User DB};
+    \node[storage] (metadata_db) at (6,3) {Metadata DB};
+    \node[storage] (review_db) at (6,-1) {Review DB};
+    \node[storage] (rent_db) at (6,0) {Rent DB};
+    \node[storage] (video_db) at (6,4.5) {Video DB};
+
+    % edges from client
+    \draw[arrow] (client) -- (login) node[midway, above, sloped,
+    label] {register/login};
+    \draw[arrow] (client) -- (review) node[midway, above, sloped,
+    label] {read/write reviews};
+    \draw[arrow] (client) -- (rent) node[midway, above, sloped,
+    label] {rent media};
+    \draw[arrow] (client) -- (video) node[midway, above, sloped,
+    label] {watch video};
+
+    % edges from admin
+    \draw[arrow] (admin) -- (login) node[midway, above, sloped,
+    label] {login/modify};
+    \draw[arrow] (admin) -- (metadata_db) node[midway, above, sloped,
+    label] {update metadata};
+    \draw[arrow] (admin) -- (video) node[midway, above, sloped,
+    label] {upload video};
+
+    % edges from services to db
+    \draw[arrow] (login) -- (user_db) node[midway, above, label] {read/write};
+    \draw[arrow] (review) -- (review_db) node[midway, above, label]
+    {read/write};
+    \draw[arrow] (review) -- (metadata_db) node[midway, above,
+    sloped, label] {verify title};
+    \draw[arrow] (rent) -- (rent_db) node[midway, above, label] {record rental};
+    \draw[arrow] (rent) -- (metadata_db) node[midway, above, sloped,
+    label] {check availability};
+    \draw[arrow] (video) -- (video_db) node[midway, above, label] {read/write};
+    \draw[arrow] (video) -- (metadata_db) node[midway, above, label]
+    {verify title};
+
+    % semantics
+    \node[below=0.2cm, align=center, font=\small] at (user_db) {MW + WFR};
+    \node[below=0.2cm, align=center, font=\small] at (metadata_db) {MR + RYW};
+    \node[below=0.2cm, align=center, font=\small] at (review_db) {RYW};
+    \node[below=0.2cm, align=center, font=\small] at (rent_db) {MR + RYW};
+    \node[below=0.2cm, align=center, font=\small] at (video_db) {WFR};
+
+    \node[below=0.2cm, align=center, font=\small] at (login) {needs: MW + WFR};
+    \node[below=0.2cm, align=center, font=\small] at (review) {needs: RYW};
+    \node[below=0.2cm, align=center, font=\small] at (rent) {needs: MR};
+    \node[below=0.2cm, align=center, font=\small] at (video) {needs: MR};
+  \end{tikzpicture}
+  \caption{Architecture of the media streaming service with
+  consistency guarantees}
+  \label{fig:case-study-media}
+\end{figure}
+
+\begin{enumerate}
+  \item \textbf{Client and Admin}: These components represent the
+    entry points for regular users and administrative personnel,
+    respectively. They don't enforce specific consistency guarantees
+    themselves but rely on the guarantees provided by the services
+    they interact with.
+
+  \item \textbf{Authentication}:
+    \begin{itemize}
+      \item \textbf{Login Service}: Manages user authentication and
+        session handling. It requires Monotonic Writes (MW) and
+        Writes Follow Reads (WFR) guarantees to ensure that user
+        credential updates are properly sequenced and visible.
+      \item \textbf{User Database}: Stores user credentials and
+        profile information with MW and WFR guarantees. This ensures
+        that when users update their profiles or credentials, these
+        changes are consistently visible to subsequent operations.
+    \end{itemize}
+
+  \item \textbf{Content Management}:
+    \begin{itemize}
+      \item \textbf{Metadata Database}: Stores information about
+        available media content (titles, descriptions, genres, etc.)
+        with Monotonic Reads (MR) and Read Your Writes (RYW)
+        guarantees. This allows administrative updates to be
+        immediately visible while tolerating some staleness for user reads.
+      \item \textbf{Video Service}: Handles video streaming requests
+        and requires MR guarantees to ensure consistent content delivery.
+      \item \textbf{Video Database}: Stores the actual video content
+        with WFR guarantees to maintain version consistency.
+    \end{itemize}
+
+  \item \textbf{API}:
+    \begin{itemize}
+      \item \textbf{Review Service}: Manages user reviews and
+        requires RYW guarantees to ensure users can immediately see
+        their own reviews.
+      \item \textbf{Review Database}: Stores user reviews with RYW
+        guarantees, allowing users to see their own reviews
+        immediately while other users might see slightly stale data.
+      \item \textbf{Rent Service}: Handles media rental transactions
+        and requires MR guarantees to ensure consistent inventory checks.
+      \item \textbf{Rent Database}: Records rental transactions with
+        MR and RYW guarantees to maintain consistent transaction history.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Interaction Flows}
+
+The media streaming service supports several interaction patterns,
+each with specific consistency requirements:
+
+\textbf{User Registration and Authentication}: Before accessing any
+content, users must register and authenticate through the login
+service. This process involves:
+
+\begin{enumerate}
+  \item The client sends a registration request (abstracted as a
+    write operation) to the login service.
+  \item The login service writes the new user credentials to the User Database.
+  \item For subsequent logins, the client sends a login request
+    (abstracted as a read operation) to the login service.
+  \item The login service reads from the User Database to verify credentials.
+\end{enumerate}
+
+The MW and WFR guarantees of the User Database ensure that once user
+credentials are updated, all subsequent authentication attempts will
+see the updated information, preventing authentication anomalies
+where users might be unable to log in with newly created or changed credentials.
+
+\textbf{Browsing and Playback}: Once authenticated, users can browse
+and watch available content:
+
+\begin{enumerate}
+  \item The client sends a request to browse content, which queries
+    the Metadata Database.
+  \item When a user selects content to watch, the client sends a
+    request to the Video Service.
+  \item The Video Service verifies the content's existence and
+    availability by reading from the Metadata Database.
+  \item If the content is available, the Video Service streams the
+    content from the Video Database to the client.
+\end{enumerate}
+
+The MR guarantee of the Video Service ensures that once a piece of
+content is determined to be available, subsequent read operations
+will maintain this view, preventing inconsistencies during playback.
+The WFR guarantee of the Video Database ensures that if the service
+reads a specific version of content, subsequent writes will not
+revert to an earlier version.
+
+\textbf{Rentals}: For premium content, users must first rent the content:
+
+\begin{enumerate}
+  \item The client sends a rental request to the Rent Service.
+  \item The Rent Service checks content availability by reading from
+    the Metadata Database.
+  \item If available, the Rent Service records the transaction in the
+    Rent Database.
+  \item The client can then access the rented content through the Video Service.
+\end{enumerate}
+
+The MR guarantee of the Rent Service ensures consistent inventory
+checks, preventing scenarios where content appears to be available
+and then becomes unavailable during the rental process.
+
+\textbf{Reviews}: Users can read and write reviews for content they've watched:
+
+\begin{enumerate}
+  \item To read reviews, the client sends a request to the Review
+    Service, which retrieves reviews from the Review Database.
+  \item To write a review, the client sends the review content to the
+    Review Service.
+  \item The Review Service verifies that the content exists by
+    reading from the Metadata Database.
+  \item If verified, the Review Service writes the review to the
+    Review Database.
+\end{enumerate}
+
+The RYW guarantee of both the Review Service and Review Database
+ensures that users immediately see their own reviews after
+submission, providing a responsive user experience while allowing for
+eventual consistency for other users' views.
+
+\textbf{Admin Operations}: Administrators manage content through
+separate workflows:
+
+\begin{enumerate}
+  \item Administrators authenticate through the Login Service (with
+    pre-granted access).
+  \item To add new content, administrators:
+    \begin{itemize}
+      \item Upload video content to the Video Database through the
+        Video Service.
+      \item Add corresponding metadata to the Metadata Database.
+    \end{itemize}
+  \item To modify user accounts, administrators interact with the
+    Login Service, which updates the User Database.
+\end{enumerate}
+
+The combination of RYW and MR guarantees in the Metadata Database
+ensures that administrative updates are immediately visible to the
+administrators themselves while allowing for controlled propagation
+to user-facing services.
+
+\subsubsection{Requirements and Verification}
+
+Each component in the system has specific consistency requirements
+based on its functional role:
 
 \begin{itemize}
-  \item Admin: admin interface for content and user management operations
-  \item Client: end-user interface for accessing streaming content and features
-  \item Login: authentication service that acts like a user session manager
-  \item User DB: user credential storage
-  \item Metadata DB: content metadata storage
-  \item Rent: rental transaction service
-  \item Rent DB: transaction record storage
-  \item Review: user review service
-  \item Review DB: review storage
-  \item Video: video streaming service for content delivery
-  \item Video DB: video content storage providing
+  \item The User Database provides MW and WFR guarantees, ensuring
+    that credential updates are properly sequenced and visible, which
+    is critical for authentication security.
+
+  \item The Metadata Database provides MR and RYW guarantees,
+    balancing immediate visibility of administrative updates with
+    tolerance for some staleness in user reads.
+
+  \item The Review Database provides RYW guarantees, prioritizing the
+    user experience of seeing one's own reviews immediately while
+    accepting eventual consistency for other users' views.
+
+  \item The Rent Database provides MR and RYW guarantees, ensuring
+    consistent transaction records for both administrative and user views.
+
+  \item The Video Database provides WFR guarantees, maintaining
+    version consistency for content delivery.
 \end{itemize}
 
-A user must first register and login through the authentication service before
-accessing any content. The login service verifies credentials against the User
-DB, which maintains consistent user states through Monotonic Writes and Writes
-Follow Reads guarantees as updates performed by users needs to be reflected to
-themselves right after.
+The edges in our model represent not just data flow but also critical
+operational constraints. For example, the edge from the Client to the
+Login Service carries the constraint that "User must register before
+login," enforced through a visibility relationship between
+registration and login operations. Similarly, the edge from the
+Review Service to the Metadata Database enforces the constraint that
+"Check metadata before read review," ensuring that reviews are only
+accessible for valid content.
 
-When Browse content, the client interacts with the metadata services. Before
-serving any content, users must first be authenticated through the login
-service, then clients can issue read to metadata database to retrieve titles.
-After selecting a media, clients can issue write to the Rent service to rent the
-media for viewing. The Rent service must ensure that the title is available
-through read to the metadata database. The Metadata DB provides Monotonic Reads
-and Read Your Writes guarantees, allowing admin updates to be reflected visible
-while tolerating some staleness for user reads.
+When we apply \texttt{composable} function to this system,
+starting from the client node, it successfully verifies that the
+composition of these services with their respective consistency
+guarantees satisfies the overall system requirements. The function
+traverses the graph, checking at each step whether the constraints
+imposed by each node and edge are mutually satisfiable.
 
-Users can also write reviews for content they've watched. The review service
-verifies content existence in Metadata DB. Writes the review to Review DB with
-Read-Your-Writes ensuring users see their own reviews immediately while other
-users may see slightly stale data.
-
-Administrators use a separate interface to manage content and user access. When
-uploading new content, the admin service updates metadata in Metadata DB,
-uploads video content to Video DB. Both operations require prior admin
-authentication (assuming admin users are pre-granted access). Video DB's Writes
-Follow Reads guarantee ensures content version consistency.
-
-As this example demonstrates, it's more complex than the online shopping mall
-example. Listing of nodes and edges is not exhaustive, please see the actual
-implementation for more details. The overall operational constraints are
-captured through custom operation types with quantified constraints optionally
-enforced at each node level.
+This verification confirms that despite the heterogeneous consistency
+guarantees across different components, the system as a whole
+maintains its required properties. For instance, the login flow
+correctly enforces that registration must precede login, and the
+review system correctly ensures that users can immediately see their
+own reviews while maintaining content validity checks.
 
 % \subsection{Example: Antipode \cite{ferreira2023antipode}}
 % TODO: rewrite after wrapping up

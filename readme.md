@@ -453,6 +453,19 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-05-19
+
+- fix linearizablity using single order definition on nontransactional pp.8
+  principal of eventual consistency pp.59
+- failure examples
+  - simple app constraint, dont satisfy at first level
+  - failure at second level (e.g. in media, client to API layer can succeed but
+    API to db level fails)
+- motivating examples/cases add to background and motivations
+- use a running example for design principal (maybe arbitrator?)
+- better figures
+- add MixT and Noctoa to related work
+
 ### 2025-05-15
 
 - [hi prio] dump movie/shopping with graphs in text (in
@@ -463,7 +476,7 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 - [low prio] add eventual consistency that does not have any constrtaits
   - add failure example against
   - replace storage semantics
-  - replace edge constraints
+  - replace edge constraints (for failure simulation)
 - [low prio] add MixT to related work
 
 ```

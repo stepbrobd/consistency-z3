@@ -23,20 +23,17 @@ class Linearizability(Model):
         a, b, *_ = Op.Consts(decl)
 
         rb = H.Relation.returns_before(symbols)
-        so = H.Relation.session_order(symbols)
         vis = AE.Relation.visibility(symbols)
         ar = AE.Relation.arbitration(symbols)
 
-        # single order imposes a single global order that defines both visibility and arbitration (very strong, probably can't be modeled)
+        # single order imposes a single global order that defines both visibility and arbitration
+        # non-transactional pp.8
+        # principles of eventual consistency pp.59
         single_order = z3.ForAll(
             [a, b],
-            z3.If(
-                z3.And(op.type(a) == wr, op.type(b) == wr),  # type: ignore
-                z3.Or(
-                    z3.And(so(a, b), ar(a, b), vis(a, b)),
-                    z3.And(so(b, a), ar(b, a), vis(b, a)),
-                ),
-                z3.BoolVal(True),
+            z3.And(
+                z3.Implies(vis(a, b), ar(a, b)),
+                z3.Implies(z3.And(ar(a, b), op.returned(a) == z3.Bool(True)), vis(a, b)),  # type: ignore
             ),
         )
 

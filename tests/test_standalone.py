@@ -2,6 +2,7 @@ import z3
 
 from consistency.common import check, cleanup
 from consistency.model.causal_consistency import CausalConsistency
+from consistency.model.linearizability import Linearizability
 from consistency.model.model import Model
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
@@ -17,7 +18,7 @@ from consistency.relation import Relation
 def test_standalone() -> None:
     models: list[type[Model]] = [
         CausalConsistency,
-        # Linearizability, # incomplete, too strong
+        Linearizability,
         MonotonicReads,
         MonotonicWrites,
         PRAMConsistency,

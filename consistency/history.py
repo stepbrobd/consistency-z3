@@ -17,7 +17,7 @@ class History:
 
             a, b, *_ = Op.Consts(decl)
             History.Relation.AddConstraint("rb",
-                z3.Implies(rb(a, b), op.rtime(a) < op.stime(b)) # type: ignore
+                z3.Implies(rb(a, b), z3.And(op.returned == z3.Bool(True), op.rtime(a) < op.stime(b))) # type: ignore
             )
 
             return rb

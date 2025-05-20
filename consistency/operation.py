@@ -28,6 +28,7 @@ class Operation:
             ("oval", z3.StringSort()),  # output value
             ("stime", z3.IntSort()),  # start time
             ("rtime", z3.IntSort()),  # return time
+            ("returned", z3.BoolSort()),  # returned or not
         ]
 
         if extensions is not None:

@@ -11,8 +11,6 @@ from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.relation import Relation
 
-# from consistency.model.linearizability import Linearizability
-
 
 @cleanup
 def test_standalone() -> None:

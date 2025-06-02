@@ -1,17 +1,19 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
+from consistency.common import compose
 from consistency.history import History as H
 from consistency.model.model import Model
+from consistency.model.monotonic_reads import MonotonicReads
+from consistency.model.monotonic_writes import MonotonicWrites
+from consistency.model.pram_consistency import PRAMConsistency
+from consistency.model.read_your_writes import ReadYourWrites
+from consistency.model.rval import RVal
+from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.operation import Operation as Op
 
 
 class Linearizability(Model):
-    """
-    Incomplete
-    Too strong, standalone check will fail but the compatibility will pass as expected
-    """
-
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         if symbols is None:
@@ -45,11 +47,17 @@ class Linearizability(Model):
         real_time = z3.If(
             z3.And(ar(a, b), op.type(a) == wr, op.type(b) == wr),  # type: ignore
             rb(a, b),
-            z3.BoolVal(False),
+            z3.BoolVal(True),
         )
 
         # return value consistency specifies the return value consistency of a replicated data type
-        # rval is context dependent, skipped for now (see pp. 5)
-        rval = z3.BoolVal(True)
+        rval = RVal.assertions(symbols, AE.Relation.can_view(symbols))
 
-        return z3.And(single_order, real_time, rval)  # type: ignore
+        return compose(
+            z3.And(single_order, real_time, rval),  # type: ignore
+            MonotonicReads.assertions(),
+            MonotonicWrites.assertions(),
+            WritesFollowReads.assertions(),
+            ReadYourWrites.assertions(),
+            PRAMConsistency.assertions(),
+       )

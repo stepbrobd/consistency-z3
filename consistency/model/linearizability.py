@@ -13,9 +13,12 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.operation import Operation as Op
 
 
-class Linearizability(Model):
+class LinearizabilityWith(Model):
     @staticmethod
-    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None, ctx: z3.FuncDeclRef | None = None) -> z3.BoolRef:
+        if ctx is None:
+            raise ValueError("Linearizability guiding ctx must be provided")
+
         if symbols is None:
             symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
@@ -51,7 +54,7 @@ class Linearizability(Model):
         )
 
         # return value consistency specifies the return value consistency of a replicated data type
-        rval = RVal.assertions(symbols, AE.Relation.can_view(symbols))
+        rval = RVal.assertions(symbols, ctx)
 
         return compose(
             z3.And(single_order, real_time, rval),  # type: ignore
@@ -61,3 +64,9 @@ class Linearizability(Model):
             ReadYourWrites.assertions(),
             PRAMConsistency.assertions(),
        )
+
+
+class Linearizability(Model):
+    @staticmethod
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+        return LinearizabilityWith.assertions(symbols, AE.Relation.can_view(symbols)) # must be can_view

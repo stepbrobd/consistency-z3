@@ -24,7 +24,7 @@ class RVal(Model):
 
         _, (rd, wr) = Op.Sort()
         Op.Create()
-        a, b, _, x, *_ = Op.Consts(decl)
+        a, b, c, x, *_ = Op.Consts(decl)
 
         ar = AE.Relation.arbitration(symbols)
         vis = AE.Relation.visibility(symbols)
@@ -34,6 +34,12 @@ class RVal(Model):
             return vis(arg2, arg1)  # vis^-1 # type: ignore
 
         return z3.And(
+            # F_reg non-transactional pp.6
+            # distributed registers (last write wins)
+            # z3.Exists(
+            #     [c],
+            #     z3.And(ar(c, x), op.type(c) == wr, op.type(x) == rd ,op.ival(c) == op.oval(x)) # type: ignore
+            # ),
             f(x, a),
             visi(x, a),
             vis(a, b),

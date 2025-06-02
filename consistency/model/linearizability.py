@@ -4,12 +4,8 @@ from consistency.abstract_execution import AbstractExecution as AE
 from consistency.common import compose
 from consistency.history import History as H
 from consistency.model.model import Model
-from consistency.model.monotonic_reads import MonotonicReads
-from consistency.model.monotonic_writes import MonotonicWrites
 from consistency.model.pram_consistency import PRAMConsistency
-from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.rval import RVal
-from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.operation import Operation as Op
 
 
@@ -47,22 +43,14 @@ class LinearizabilityWith(Model):
         # the non-transaction paper made a mistake at pp.8 formula 9 (swapped rb and ar)
         # however, due to arbitration is defined too relaxed in our code, swapping rb(a, b) with ar(a, b) will still satisfy the constraint
         # only arbitrate ar, must add this condition or z3 will hang
-        real_time = z3.If(
-            z3.And(ar(a, b), op.type(a) == wr, op.type(b) == wr),  # type: ignore
-            rb(a, b),
-            z3.BoolVal(True),
-        )
+        real_time = z3.Implies(rb(a, b), ar(a, b))
 
         # return value consistency specifies the return value consistency of a replicated data type
         rval = RVal.assertions(symbols, ctx)
 
         return compose(
             z3.And(single_order, real_time, rval),  # type: ignore
-            MonotonicReads.assertions(),
-            MonotonicWrites.assertions(),
-            WritesFollowReads.assertions(),
-            ReadYourWrites.assertions(),
-            PRAMConsistency.assertions(),
+            # PRAMConsistency.assertions(), # temporary fix, check what cause the incompatibility with session semantics
        )
 
 

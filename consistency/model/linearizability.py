@@ -1,17 +1,17 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
-from consistency.common import compose
 from consistency.history import History as H
 from consistency.model.model import Model
-from consistency.model.pram_consistency import PRAMConsistency
 from consistency.model.rval import RVal
 from consistency.operation import Operation as Op
 
 
 class LinearizabilityWith(Model):
     @staticmethod
-    def assertions(symbols: list[str] | None = None, ctx: z3.FuncDeclRef | None = None) -> z3.BoolRef:
+    def assertions(
+        symbols: list[str] | None = None, ctx: z3.FuncDeclRef | None = None
+    ) -> z3.BoolRef:
         if ctx is None:
             raise ValueError("Linearizability guiding ctx must be provided")
 
@@ -24,6 +24,7 @@ class LinearizabilityWith(Model):
         a, b, *_ = Op.Consts(decl)
 
         rb = H.Relation.returns_before(symbols)
+        so = H.Relation.session_order(symbols)
         vis = AE.Relation.visibility(symbols)
         ar = AE.Relation.arbitration(symbols)
 
@@ -33,8 +34,16 @@ class LinearizabilityWith(Model):
         single_order = z3.ForAll(
             [a, b],
             z3.And(
+                # global event ordering
                 z3.Implies(vis(a, b), ar(a, b)),
-                z3.Implies(z3.And(ar(a, b), op.returned(a) == z3.Bool(True)), vis(a, b)),  # type: ignore
+                z3.Implies(
+                    z3.And(ar(a, b), op.returned(a) == z3.Bool(True)),
+                    vis(a, b),  # type: ignore
+                ),
+                # added to ensure compatibility with session semantics
+                # the single order defined above enforces GLOBAL serializationi of events
+                # ordering of session events are not EXPLICITLY defined
+                z3.Implies(so(a, b), vis(a, b)),
             ),
         )
 
@@ -48,13 +57,12 @@ class LinearizabilityWith(Model):
         # return value consistency specifies the return value consistency of a replicated data type
         rval = RVal.assertions(symbols, ctx)
 
-        return compose(
-            z3.And(single_order, real_time, rval),  # type: ignore
-            # PRAMConsistency.assertions(), # temporary fix, check what cause the incompatibility with session semantics
-       )
+        return z3.And(single_order, real_time, rval)  # type: ignore
 
 
 class Linearizability(Model):
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
-        return LinearizabilityWith.assertions(symbols, AE.Relation.can_view(symbols)) # must be can_view
+        return LinearizabilityWith.assertions(
+            symbols, AE.Relation.can_view(symbols)
+        )  # must be can_view

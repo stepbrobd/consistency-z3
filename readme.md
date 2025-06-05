@@ -453,6 +453,20 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-06-05
+
+- how to present the problem?
+  - translated to smt clauses? the challenges arent enough, thus focus more on
+    the theory side
+  - can focus more on the theoretical side, i.e. how to model the consistency
+    models, and how to compose them
+- fix: PRAM uses a rougue arbitration (maybe trying finding the paper with
+  arbitration in PRAM)
+  - for vis define read-write pair and write-write pair (propagation of writes
+    across processes)
+  - come up with example and plot
+- timing diagram for visibility
+
 ### 2025-05-19
 
 - fix linearizablity using single order definition on nontransactional pp.8

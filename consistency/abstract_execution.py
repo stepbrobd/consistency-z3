@@ -161,7 +161,7 @@ class AbstractExecution:
                             z3.BoolVal(True),
                         ),
                         # case 2: read-write pair
-                        # undefined
+                        # FIXME: undefined
                         z3.If( # type: ignore
                             z3.And(op.type(a) == rd, op.type(b) == wr), # type: ignore
                             z3.BoolVal(True),
@@ -176,7 +176,7 @@ class AbstractExecution:
                             z3.BoolVal(True),
                         ),
                         # case 4: write-write pair
-                        # undefined
+                        # FIXME: undefined
                         z3.If( # type: ignore
                             z3.And(op.type(a) == wr, op.type(b) == wr), # type: ignore
                             z3.BoolVal(True),

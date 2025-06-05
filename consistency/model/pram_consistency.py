@@ -31,6 +31,6 @@ class PRAMConsistency(Model):
         return z3.ForAll([a, b],
             z3.Implies(
                 so(a, b),
-                z3.And(vis(a, b), ar(a, b))
+                vis(a, b),
             )
         )

@@ -31,7 +31,9 @@ def test_known_compatible() -> None:
     assert compatible(Linearizability.assertions(), WritesFollowReads.assertions())
 
     assert compatible(PRAMConsistency.assertions(), MonotonicReads.assertions())
+    # FIXME: check properties of PRAM and MW and use only the correct one
     assert compatible(PRAMConsistency.assertions(), MonotonicWrites.assertions())
+    assert compatible(MonotonicWrites.assertions(), PRAMConsistency.assertions())
     assert compatible(PRAMConsistency.assertions(), ReadYourWrites.assertions())
 
 

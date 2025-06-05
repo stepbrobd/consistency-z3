@@ -1,19 +1,20 @@
 import z3
 
 from consistency.abstract_execution import AbstractExecution as AE
+from consistency.common import compose
 from consistency.history import History as H
 from consistency.model.model import Model
+from consistency.model.pram_consistency import PRAMConsistency
+from consistency.model.rval import RVal
 from consistency.operation import Operation as Op
 
 
-class Linearizability(Model):
-    """
-    Incomplete
-    Too strong, standalone check will fail but the compatibility will pass as expected
-    """
-
+class LinearizabilityWith(Model):
     @staticmethod
-    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None, ctx: z3.FuncDeclRef | None = None) -> z3.BoolRef:
+        if ctx is None:
+            raise ValueError("Linearizability guiding ctx must be provided")
+
         if symbols is None:
             symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
@@ -42,14 +43,18 @@ class Linearizability(Model):
         # the non-transaction paper made a mistake at pp.8 formula 9 (swapped rb and ar)
         # however, due to arbitration is defined too relaxed in our code, swapping rb(a, b) with ar(a, b) will still satisfy the constraint
         # only arbitrate ar, must add this condition or z3 will hang
-        real_time = z3.If(
-            z3.And(ar(a, b), op.type(a) == wr, op.type(b) == wr),  # type: ignore
-            rb(a, b),
-            z3.BoolVal(False),
-        )
+        real_time = z3.Implies(rb(a, b), ar(a, b))
 
         # return value consistency specifies the return value consistency of a replicated data type
-        # rval is context dependent, skipped for now (see pp. 5)
-        rval = z3.BoolVal(True)
+        rval = RVal.assertions(symbols, ctx)
 
-        return z3.And(single_order, real_time, rval)  # type: ignore
+        return compose(
+            z3.And(single_order, real_time, rval),  # type: ignore
+            # PRAMConsistency.assertions(), # temporary fix, check what cause the incompatibility with session semantics
+       )
+
+
+class Linearizability(Model):
+    @staticmethod
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+        return LinearizabilityWith.assertions(symbols, AE.Relation.can_view(symbols)) # must be can_view

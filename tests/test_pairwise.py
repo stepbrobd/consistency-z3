@@ -22,7 +22,6 @@ def test_known_compatible() -> None:
     assert compatible(CausalConsistency.assertions(), MonotonicWrites.assertions())
     assert compatible(CausalConsistency.assertions(), PRAMConsistency.assertions())
     assert compatible(CausalConsistency.assertions(), ReadYourWrites.assertions())
-    # FIXME: failing causal <- wfr
     assert compatible(CausalConsistency.assertions(), WritesFollowReads.assertions())
 
     assert compatible(Linearizability.assertions(), MonotonicReads.assertions())

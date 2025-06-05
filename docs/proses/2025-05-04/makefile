@@ -4,7 +4,7 @@ LATEX = pdflatex
 
 all: $(MAIN).pdf
 
-$(MAIN).pdf: $(MAIN).tex references.bib
+$(MAIN).pdf: $(MAIN).tex *.tex references.bib
 	$(LATEX) $(MAIN)
 	$(BIBTEX) $(MAIN)
 	$(LATEX) $(MAIN)

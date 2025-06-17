@@ -39,8 +39,8 @@ class AbstractExecution:
                             op.rtime(a) >= op.stime(a),  # type: ignore
                             op.rtime(b) >= op.stime(b),  # type: ignore
                             # timing constraints
-                            op.returned(a) == z3.Bool(True), # type: ignore
-                            op.returned(b) == z3.Bool(True), # type: ignore
+                            op.returned(a) == z3.BoolVal(True), # type: ignore
+                            op.returned(b) == z3.BoolVal(True), # type: ignore
                             z3.Or(
                                 # non-concurrent
                                 op.stime(a) > op.rtime(b),  # type: ignore
@@ -99,9 +99,9 @@ class AbstractExecution:
                                     op.rtime(x) >= op.stime(x),  # type: ignore
                                     op.rtime(b) >= op.stime(b),  # type: ignore
                                     # timing constraints
-                                    op.returned(a) == z3.Bool(True), # type: ignore
-                                    op.returned(b) == z3.Bool(True), # type: ignore
-                                    op.returned(x) == z3.Bool(True), # type: ignore
+                                    op.returned(a) == z3.BoolVal(True), # type: ignore
+                                    op.returned(b) == z3.BoolVal(True), # type: ignore
+                                    op.returned(x) == z3.BoolVal(True), # type: ignore
                                     z3.Or(
                                         # non-concurrent
                                         op.stime(x) > op.rtime(b),  # type: ignore
@@ -209,9 +209,9 @@ class AbstractExecution:
                 "ar",
                 z3.And(  # type: ignore
                     # must return
-                    op.returned(a) == z3.Bool(True), # type: ignore
-                    op.returned(b) == z3.Bool(True), # type: ignore
-                    op.returned(c) == z3.Bool(True), # type: ignore
+                    op.returned(a) == z3.BoolVal(True), # type: ignore
+                    op.returned(b) == z3.BoolVal(True), # type: ignore
+                    op.returned(c) == z3.BoolVal(True), # type: ignore
                     # ordering
                     z3.Implies(ar(a, b), op.rtime(a) < op.stime(b)),  # type: ignore
                     # acyclicity

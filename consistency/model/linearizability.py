@@ -37,7 +37,7 @@ class LinearizabilityWith(Model):
                 # global event ordering
                 z3.Implies(vis(a, b), ar(a, b)),
                 z3.Implies(
-                    z3.And(ar(a, b), op.returned(a) == z3.Bool(True)),
+                    z3.And(ar(a, b), op.returned(a) == z3.BoolVal(True)), # type: ignore
                     vis(a, b),  # type: ignore
                 ),
                 # added to ensure compatibility with session semantics

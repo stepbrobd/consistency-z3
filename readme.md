@@ -453,6 +453,22 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-06-17
+
+- lift PRAM write-write arbitration to visibility
+- add safety prperties of eventual (non-transactional pp. 10, no circular +
+  rval)
+- add failure (counter) example to motivation section (use as problem statement)
+  - give simple example of practical app
+  - plugin one semantic and it passes the check
+  - switch to a failing semantic
+- go through introduction
+- new table for each case study on semantics:
+  ```
+  | node name | needs | provs | edge constraints | edge destination |
+  ```
+- graphs for visibility
+
 ### 2025-06-05
 
 - how to present the problem?

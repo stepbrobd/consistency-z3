@@ -13,14 +13,15 @@ class PRAMConsistency(Model):
     if operation $a$ returns before $b$ starts, and $a,b$ are in the same session,
     then operation $a$ is visible to operation $b$.
     """
+
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         if symbols is None:
             symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)
 
-        # _, (rd, wr) = Op.Sort()
-        # op = Op.Create()
+        _, (rd, wr) = Op.Sort()
+        op = Op.Create()
         a, b, *_ = Op.Consts(decl)
 
         so = H.Relation.session_order(symbols)
@@ -28,9 +29,17 @@ class PRAMConsistency(Model):
         vis = AE.Relation.visibility(symbols)
 
         # PRAM consistency
-        return z3.ForAll([a, b],
+        return z3.ForAll(
+            [a, b],
             z3.Implies(
                 so(a, b),
-                vis(a, b),
-            )
+                z3.And(
+                    vis(a, b),
+                    z3.If(
+                        z3.And(op.type(a) == wr, op.type(b) == wr),  # type: ignore
+                        ar(a, b),
+                        z3.BoolVal(True),
+                    ),
+                ),
+            ),
         )

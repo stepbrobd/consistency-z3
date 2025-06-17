@@ -135,6 +135,9 @@ class AbstractExecution:
 
             _, (rd, wr) = Op.Sort()
             a, b, c, x, *_ = Op.Consts(decl)
+            # case 1 and 2: rule of write propagation
+            # case 3: definitive visibility
+            # case 4: write arbitration
             AbstractExecution.Relation.AddConstraint(
                 "vis",
                 z3.And( # type: ignore
@@ -160,11 +163,21 @@ class AbstractExecution:
                             ),
                             z3.BoolVal(True),
                         ),
-                        # case 2: read-write pair
-                        # FIXME: undefined
-                        z3.If( # type: ignore
+                        # case 2: read-write pair (was undefined)
+                        # similar to read-read pair
+                        # propagate writes visible to current read op to next write op
+                        # for arbitration
+                        z3.If(
                             z3.And(op.type(a) == rd, op.type(b) == wr), # type: ignore
-                            z3.BoolVal(True),
+                            z3.Implies(
+                                z3.Exists(
+                                    x,
+                                    z3.And(
+                                        op.type(x) == wr, # type: ignore
+                                        vis(x, a)),
+                                ),
+                                vis(x, b)
+                            ),
                             z3.BoolVal(True),
                         ),
                         # case 3: write-read pair
@@ -172,14 +185,62 @@ class AbstractExecution:
                         # i.e. make sure the write and read have a linearization point
                         z3.If( # type: ignore
                             z3.And(op.type(a) == wr, op.type(b) == rd), # type: ignore
-                            z3.Implies(viewed(b, a), ar(b, a)),
+                            z3.If(
+                                # guard
+                                op.returned(a) == z3.BoolVal(True), # type: ignore
+                                # if write a is a returning operation
+                                z3.Implies(viewed(b, a), ar(a, b)),
+                                # if write a is not returning
+                                z3.And(z3.BoolVal(False)),
+                            ),
                             z3.BoolVal(True),
                         ),
                         # case 4: write-write pair
-                        # FIXME: undefined
-                        z3.If( # type: ignore
+                        z3.If(
                             z3.And(op.type(a) == wr, op.type(b) == wr), # type: ignore
-                            z3.BoolVal(True),
+                            # """
+                            # z3.And(
+                            #     # case 4.a and 4.b
+                            #     # if writes are returning
+                            #     # and in any of the cases of same object or same session or not
+                            #     # link visibility to global arbitration order for writes
+                            #     # i.e. if write a occurs before write b (even in different sessions)
+                            #     # then any observer (read or write) that sees b will also see a before it
+                            #     z3.If(
+                            #         z3.And(
+                            #             z3.Or(
+                            #                 op.obj(a) == op.obj(b), # type: ignore
+                            #                 op.obj(a) != op.obj(b), # type: ignore
+                            #                 op.proc(a) == op.proc(b), # type: ignore
+                            #                 op.proc(a) != op.proc(b), # type: ignore
+                            #             ),
+                            #             op.returned(a) == z3.BoolVal(True), # type: ignore
+                            #             op.returned(b) == z3.BoolVal(True), # type: ignore
+                            #         ),
+                            #         z3.And(ar(a, b), z3.Implies(ar(a, b), vis(a, b))), # ar <=> vis
+                            #         z3.BoolVal(True),
+                            #     ),
+                            #     # case 4.c: if first write is non returning
+                            #     z3.If(
+                            #         z3.And(op.returned(a) == z3.BoolVal(False), op.returned(b) == z3.BoolVal(True)), # type: ignore
+                            #         z3.BoolVal(False), # dont allow non returning writes to be visible
+                            #         z3.BoolVal(True),
+                            #     ),
+                            #     # case 4.d: if the second write is non returning
+                            #     z3.If(
+                            #         z3.And(op.returned(a) == z3.BoolVal(True), op.returned(b) == z3.BoolVal(False)), # type: ignore
+                            #         z3.BoolVal(False), # dont allow non returning writes to be visible
+                            #         z3.BoolVal(True)
+                            #     ),
+                            #     # case 4.d: both writes are non returning
+                            #     z3.If(
+                            #         z3.And(op.returned(a) == z3.BoolVal(False), op.returned(b) == z3.BoolVal(False)), # type: ignore
+                            #         z3.BoolVal(False), # dont allow non returning writes to be visible
+                            #         z3.BoolVal(True)
+                            #     ),
+                            # ),
+                            # """
+                            ar(a, b),
                             z3.BoolVal(True),
                         ),
                     ),

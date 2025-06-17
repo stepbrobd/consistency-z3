@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import tempfile
 
+import pytest
 import z3
 
 from consistency.common import check, cleanup
@@ -17,6 +18,7 @@ from consistency.relation import Relation
 
 
 @cleanup
+@pytest.mark.skip(reason="some z3 functions used are not available in cvc5")
 def test_witness() -> None:
     models: list[type[Model]] = [
         CausalConsistency,

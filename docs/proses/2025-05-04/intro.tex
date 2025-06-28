@@ -2,8 +2,8 @@
 
 Modern cloud environments provide hundreds of distributed systems and
 services that are readily available for developers to build a
-large-scale application. Developers---for example, following the
-microservice or service-oriented architecture designs---can freely
+large-scale application. System architects and developers following the
+microservice or service-oriented designs can freely
 choose and compose the building blocks in a modular fashion plugging
 in the chosen components to the application code.
 
@@ -28,6 +28,33 @@ reasons. Then, the sophisticated compatibility check needs to be done again.
 % When you have fixed application logic, you may choose two
 % compatible systems. Two systems may collectively satisfy the
 % application requirement, and changing one may invalidate both.
+% NOTE: addressed
+
+{
+  \color{red}
+  Consider a Not So Simple Storage Service (NS4) that advertises
+  itself to provide
+  linearizability guarantee to users. NS4's architecture is based on
+  an API layer that provides arbitration between users and the
+  underlying monolithic storage system
+  with read-your-writes guarantee. In this case, \sysname{} can be used to
+  model the abstract semantical properties of NS4, and check whether the
+  modeled NS4 have advertised user-facing linearizable guarantee.
+  Three nodes (client, API, and storage) and two edges (client to
+  API, API to storage) are
+  added to the DAG, where the client node requires linearizability
+  from the API node,
+  API node exports linearizability to the client, and API node
+  requires read-your-writes from the storage node.
+  The storage node exports read-your-writes to the API node. With
+  this modeling, \sysname{}
+  will be able to find a satisfying assignment for the DAG where
+  user-facing guarantee is linearizability.
+  However, if we swap the API layer requirement from the storage
+  layer from read-your-writes to
+  to PRAM consistency, \sysname{} will be able to find that the leaf
+  level semantical requirement can no longer be satisfied.
+}
 
 Formal verification can be another way to address such challenges,
 where the correctness of the code can mathematically guarantee the
@@ -50,7 +77,8 @@ analyze the safety properties of different consistency semantics and
 their compositions.
 
 \sysname{} includes axiomatic models of distributed consistency
-semantics, including linearizability~\needcite{}, four session
+semantics, including eventual consistency,
+linearizability~\needcite{}, four session
 guarantees~\needcite{}, pipeline RAM (PRAM) consistency~\needcite{},
 and causal consistency~\needcite{}, which are commonly used in both
 industry and academia~\needcite{}. Users can use the models as

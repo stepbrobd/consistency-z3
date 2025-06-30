@@ -61,7 +61,8 @@ applications. Users can add additional models and test the
 correctness and compatibility with existing models as well.
 
 Application logic can be encoded in a directed acyclic graph (DAG)
-format\todo{Give a name to this dag} in a systematic way. Each node
+format\todo{Give a name to this dag Yifei: the graph can be cyclic,
+and its a multi graph} in a systematic way. Each node
 in the DAG represents key functionality in the application which
 requires certain properties from lower-level nodes it depends on and
 provides certain properties to the upper-level nodes. The edges are

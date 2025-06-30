@@ -7,7 +7,7 @@ microservice or service-oriented designs can freely
 choose and compose the building blocks in a modular fashion plugging
 in the chosen components to the application code.
 
-However, different distributed systems provide different semantics
+However, different distributed systems provide different consistency semantics
 and the mismatch of the chosen system's semantics and the
 application's expected semantics could introduce subtle silent
 semantic bugs. For example, a user may connect a key-value store
@@ -28,33 +28,7 @@ reasons. Then, the sophisticated compatibility check needs to be done again.
 % When you have fixed application logic, you may choose two
 % compatible systems. Two systems may collectively satisfy the
 % application requirement, and changing one may invalidate both.
-% NOTE: addressed
-
-{
-  \color{red}
-  Consider a Not So Simple Storage Service (NS4) that advertises
-  itself to provide
-  linearizability guarantee to users. NS4's architecture is based on
-  an API layer that provides arbitration between users and the
-  underlying monolithic storage system
-  with read-your-writes guarantee. In this case, \sysname{} can be used to
-  model the abstract semantical properties of NS4, and check whether the
-  modeled NS4 have advertised user-facing linearizable guarantee.
-  Three nodes (client, API, and storage) and two edges (client to
-  API, API to storage) are
-  added to the DAG, where the client node requires linearizability
-  from the API node,
-  API node exports linearizability to the client, and API node
-  requires read-your-writes from the storage node.
-  The storage node exports read-your-writes to the API node. With
-  this modeling, \sysname{}
-  will be able to find a satisfying assignment for the DAG where
-  user-facing guarantee is linearizability.
-  However, if we swap the API layer requirement from the storage
-  layer from read-your-writes to
-  to PRAM consistency, \sysname{} will be able to find that the leaf
-  level semantical requirement can no longer be satisfied.
-}
+% NOTE: addressed below
 
 Formal verification can be another way to address such challenges,
 where the correctness of the code can mathematically guarantee the
@@ -114,7 +88,37 @@ approaches enable fast exploration and iteration of alternative
 system designs, guiding the development to adhere to intended
 consistency guarantees from the very beginning.
 
+% NOTE: addressed here
+{
+  \color{red}
+  Consider a Not So Simple Storage Service (NS4) that advertises
+  itself to provide linearizability guarantee to users' read/write to objects.
+  NS4's architecture is based on an API layer that provides
+  arbitration between users and the
+  underlying monolithic storage layer
+  with read-your-writes guarantee. In this case, \sysname{} can be used to
+  model the abstract semantical properties of NS4, and check whether the
+  modeled NS4 have advertised user-facing linearizable guarantee.
+  Three nodes (client, API, and storage) and two edges (client to
+  API, API to storage) are
+  added to the DAG, where the client node requires linearizability
+  from the API node,
+  API node exports linearizability to the client, and API node
+  requires read-your-writes from the storage node.
+  The storage node exports read-your-writes to the API node. With
+  this modeling, \sysname{}
+  will be able to find a satisfying assignment for the DAG where
+  user-facing guarantee is linearizability.
+  However, if we swap the API layer requirement from the storage
+  layer from read-your-writes to
+  to PRAM consistency, \sysname{} will be able to find that the leaf
+  level semantical requirement can no longer be satisfied.
+}
+
 \jiyong{Some challenges in doing this?}
+\yifei{What aspect should we talk about? Preliminary encoding on
+  semantics? Debugging? Unresolved encoding on models with "eventual"
+visibility (see eventual source code)?}
 
 As case studies we use \sysname{} to model two microservice
 applications~\needcite{}, e-commerce service and movie streaming
@@ -126,6 +130,15 @@ checking the compatibility under XXX seconds and explore other
 compatible systems in XXX seconds.
 
 \jiyong{Some insights we gained?}
+\yifei{
+  This is a project with a lot of moving parts, modeling a system,
+  like in real life, have multiple ways to achieve the same goal.
+  The level of abstraction we've chosen made it not too hard to check
+  real system's behavior but that part is not implemented.
+  Personally I feel like some part of the project would be better
+  written in a proper theorem prover (representation of ops, binary
+  relations), and discharge part of semantic constraints to SMT solvers.
+}
 
 This paper makes the following contributions:
 \itemparen{

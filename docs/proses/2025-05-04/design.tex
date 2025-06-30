@@ -1,57 +1,6 @@
 \section{Design}
 
-\section{Consistency Semantics}
-
-In Viotti et al.~\cite{viotti2016consistency}, authors provided a
-structured overview
-of different consistency semantics appeared in distributed systems. Building
-upon it's semantic definitions, we propose to use predicate logic derived from
-those definitions to model consistency semantics, and reason about the
-compositional properties of these semantics with SMT solvers (while Z3
-  \cite{demoura2008z3} is used in our implementation, it's easily
-  extensible with other
-solver backends like CVC5 \cite{barbosa2022cvc5}).
-
-% TODO: summarize operations, axioms, and models
-
-However, our current framework abstracts system-wide behavior from a single
-node's perspective, applying constraints to operations primarily within the
-scope of a single history and its corresponding abstract executions. While this
-focuses the analysis and simplifies reasoning on local consistency properties
-from the observing node's perspective, it also means that global behaviors
-across multiple nodes need to be modeled separately on different set of symbols
-to avoid conflicts in quantified variables. Further, to reason about cross
-system behaviors, ``glue'' constraints need to be added to represent data flow
-between different systems.
-
 \subsection{Operations}
-
-To capture behaviors in distributed system executions, we model state
-transitions on individual nodes using the notion of
-\textit{operations}. Similar to
-Viotti et al.~\cite{viotti2016consistency}, we define an operation as a tuple
-containing: \texttt{proc} (process or node), \texttt{type} (read or
-write), \texttt{obj} (the object
-being acted upon), \texttt{ival} (input value), \texttt{oval} (output
-value), \texttt{stime}
-(start time), and \texttt{rtime} (return time). In our SMT encoding,
-this tuple is
-modeled as a sort, serving as the atomic building block for capturing system
-behaviors and state transition constraints.
-
-Partial and total orderings of operations are assigned through relation
-functions defined in history and abstract
-execution~\cite{burckhardt2014principles}
-\cite{viotti2016consistency}. In the implementation, they are defined
-as uninterpreted
-functions with constraints~\cite{bryant2002modeling}. History
-represent the set of all
-operations executed in the system, while abstract execution instantiates/refines
-the history by specifying which operations are visible to, or are arbitrated
-over each other. By embedding these relations in first order logic, we can
-leverage SMT solvers to check the satisfiability of a given configuration,
-thereby determining whether a particular consistency model holds or if certain
-axioms of that model are violated.
 
 When modeling multiple interacting systems or components within a single
 analysis context, using distinct symbols for the operations belonging to each
@@ -252,6 +201,16 @@ can-view (cv): $\text{``cv''} \triangleq \{(a, b) : a \in
       a.\text{``rtime''} \geq b.\text{``stime''} \text{ and }
     a.\text{``rtime''} \leq b.\text{``rtime''})$
 $)\}$
+
+% TODO: proof read
+The can-view non-deterministic relation is defined over the pair-wise
+start or return time between
+specified read and write operations. When two operations $a$ and $b$
+are defined to be in can-view relation ($a \xrightarrow{\text{can-view}} b$),
+
+either $a$ returned before $b$, such that $b$'s write effect can be
+visible to $a$, or $a$ and $b$ happened concurrently such that
+$b$'s write effect might be visible to $a$.
 
 In the above encoding, "can-view" is defined as a non-deterministic pairwise
 partial ordering that solely depends on time stamps (conceptually, it captures

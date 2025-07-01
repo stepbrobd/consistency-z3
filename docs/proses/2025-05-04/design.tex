@@ -71,7 +71,7 @@ demonstrated in our cross-causal consistency modeling.
 % abstract_execution.py). In the implementation, the predicates are
 % singletons and will be added ad-hoc if any clause refers to them.
 %
-Similar to how Lamport et al.~\cite{lamport1977proving} defines axioms, they are
+Similar to how Lamport et al. \cite{lamport1977proving} defines axioms, they are
 operational invariants defined over operations. In our implementation, these
 axioms/invariants/relations are declared as uninterpreted functions, where the
 SMT solvers are free to interpret them so long as they satisfy the imposed
@@ -87,7 +87,7 @@ constraints.
 %
 
 A history is a set of operations that have been executed in the system the tool
-is modeling~\cite{viotti2016consistency}. Although it is not
+is modeling \cite{viotti2016consistency}. Although it is not
 specifically defined as
 such in our framework, relations are quantified over operations to capture the
 \textit{deterministic} orderings of themselves and other operations
@@ -320,8 +320,8 @@ $\text{``vis''}_\text{``read-read''}$ with $b$.
 \subsection{Session Guarantees}
 
 In the implementation, the models follow the exact axiomatic definition provide
-in Terry et al.~\cite{terry1994session} and Viotti et
-al.~\cite{viotti2016consistency}.
+in Terry et al. \cite{terry1994session} and Viotti et
+al. \cite{viotti2016consistency}.
 Below definitions are copied from the paper.
 
 \subsubsection{Monotonic Reads}
@@ -398,10 +398,10 @@ $$
 \subsection{Causal Consistency}
 
 Our causal consistency is a combinition of Voitti et
-al.~\cite{viotti2016consistency}
-and causal memory~\cite{baldoni2002an} extends beyond PRAM and
+al. \cite{viotti2016consistency}
+and causal memory \cite{baldoni2002an} extends beyond PRAM and
 session guarantees. The
-\textit{writes-into} relation~\cite{baldoni2002an} links write
+\textit{writes-into} relation \cite{baldoni2002an} links write
 operations directly to the
 reads that return their values (at the same memory region). This ensures that if
 a read observes a particular write, all subsequent writes in the same session
@@ -456,7 +456,7 @@ encoding, we introduced a single global order to unify visibility and
 arbitration for all write operations, and tried to enforce real-time ordering to
 ensure that the observed histories comply with returns-before relations
 (linearization as operations comes in instead of lazily ordering events when
-reads occur~\cite{zhang2018building}). However, the resulting formulas were too
+reads occur \cite{zhang2018building}). However, the resulting formulas were too
 restrictive and did not yield a complete model, as linearizability mandates a
 very strong global ordering property that is non-trivial to capture in our
 current axiomatic formulation.

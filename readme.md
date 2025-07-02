@@ -453,16 +453,37 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-07-02
+
+- [high prio] lift PRAM write-write arbitration to visibility - skipped
+- find out who starred my repo and add that SAT solver work to related work (follow up on slack)
+- eval: when timing the checks, save timing info per combination and num of checks
+- continue writing and graphs
+- [offloaded] rewrite intro and mentions of DAG
+- [offloaded] request to proofread and modify background and motivation section
+
+```
+- intro
+- background and motivation (consistency semantics, how ppl design micro svcs, potential bugs)
+- overview (less technical high level overview <components, what it does, how the operation is serialized, binary relation, ...)
+- design (defs of visibility + short version of consistency semantics section, with individual semantic modeling with pairwise checks)
+- composition (use one simplified movie example, use app design to explane <like conditional update, dependent ops, how to use nodes/edges>, nodes/edges, provs/needs)
+- case study (shop <simple>, movie <simple>, xc <in details>)
+- eval (timing (see above), num of compatible assignments for some example)
+- related work (domain specific solver, memory model, starred repo (see above), add more)
+- conclusion
+```
+
 ### 2025-06-17
 
-- lift PRAM write-write arbitration to visibility
+- lift PRAM write-write arbitration to visibility - skipped
 - add safety prperties of eventual (non-transactional pp. 10, no circular +
-  rval)
-- add failure (counter) example to motivation section (use as problem statement)
+  rval) - done
+- add failure (counter) example to motivation section (use as problem statement) - done
   - give simple example of practical app
   - plugin one semantic and it passes the check
   - switch to a failing semantic
-- go through introduction
+- go through introduction - done
 - new table for each case study on semantics:
   ```
   | node name | needs | provs | edge constraints | edge destination |

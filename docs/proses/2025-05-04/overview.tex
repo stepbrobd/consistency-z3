@@ -1,1 +1,38 @@
 \section{Overview}
+
+In Viotti et al. \cite{viotti2016consistency}, authors provided a
+structured overview
+of different consistency semantics appeared in distributed systems. Building
+upon it's semantic definitions, we propose to use predicate logic derived from
+those definitions to model consistency semantics, and reason about the
+compositional properties of these semantics with SMT solvers (while Z3
+  \cite{demoura2008z3} is used in our implementation, it's easily
+  extensible with other
+solver backends like CVC5 \cite{barbosa2022cvc5}).
+
+To capture behaviors in distributed system executions, we model state
+transitions on individual nodes using the notion of
+operations. Similar to
+Viotti et al. \cite{viotti2016consistency}, we define an operation as a tuple
+containing: \texttt{proc} (process or node), \texttt{type} (read or
+write), \texttt{obj} (the object
+being acted upon), \texttt{ival} (input value), \texttt{oval} (output
+value), \texttt{stime}
+(start time), and \texttt{rtime} (return time). In our SMT encoding,
+this tuple is
+modeled as a sort, serving as the atomic building block for capturing system
+behaviors and state transition constraints.
+
+Partial and total orderings of operations are assigned through relation
+functions defined in history and abstract
+execution \cite{burckhardt2014principles}
+\cite{viotti2016consistency}. In the implementation, they are defined
+as uninterpreted
+functions with constraints \cite{bryant2002modeling}. History
+represent the set of all
+operations executed in the system, while abstract execution instantiates/refines
+the history by specifying which operations are visible to, or are arbitrated
+over each other. By embedding these relations in first order logic, we can
+leverage SMT solvers to check the satisfiability of a given configuration,
+thereby determining whether a particular consistency model holds or if certain
+axioms of that model are violated.

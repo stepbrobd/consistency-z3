@@ -202,6 +202,19 @@ Functions on Models:
   before serving videos.
 
   % custom symbols
+
+  Our current framework abstracts system-wide behavior from a single
+  node's perspective, applying constraints to operations primarily within the
+  scope of a single history and its corresponding abstract
+  executions. While this
+  focuses the analysis and simplifies reasoning on local consistency properties
+  from the observing node's perspective, it also means that global behaviors
+  across multiple nodes need to be modeled separately on different
+  set of symbols
+  to avoid conflicts in quantified variables. Further, to reason about cross
+  system behaviors, ``glue'' constraints need to be added to represent data flow
+  between different systems.
+
   \textbf{Custom symbols} become necessary when different storage
   systems maintain separate state spaces that need to
   be distinguished between each other, such as cross service ordering

@@ -265,10 +265,27 @@ class AbstractExecution:
             op = Op.Create()
             ar = AbstractExecution.Relation.Declare("ar", op, op, z3.BoolSort())
 
+            # used for below tests
+            # vis = AbstractExecution.Relation.visibility()
+            # so = History.Relation.session_order()
+
             a, b, c, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "ar",
                 z3.And(  # type: ignore
+                    # FIXME: this is the root cause of PRAM v.s. MW failing
+                    # MW enforces per session strict ordering for w-w pairs
+                    # where as in PRAM w-w dependencies are not session specific
+                    # the use of vis in PRAM made the implication transitive, but the
+                    # "bridge" to connect the transitivity is missing
+                    # the correct fix is to add the vis guard in arbitration def
+                    # bridging session ordering and global arbitration
+                    # BUT this wont work because with this, vis and ar are mutually recursive...
+                    # z3.If(vis(a, b), z3.ForAll([a, b], z3.Implies(so(a, b), ar(a, b)))), # type: ignore
+                    # tested with below version without vis guard, and PRAM MW check passes
+                    # but other pairwise check on semantic on write ordering or so will start failing
+                    # MR, WFR, RYW (and the failure actually makes sense)
+                    # z3.ForAll([a, b], z3.Implies(so(a, b), ar(a, b))), # type: ignore
                     # must return
                     op.returned(a) == z3.BoolVal(True), # type: ignore
                     op.returned(b) == z3.BoolVal(True), # type: ignore

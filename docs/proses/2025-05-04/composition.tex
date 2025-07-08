@@ -2,65 +2,6 @@
 
 Functions on Models:
 \begin{itemize}
-  \item Composability Check (\texttt{composable(graph, src,
-    ...)}): Verifies if a distributed
-    system, modeled as a graph (\texttt{graph: nx.MultiDiGraph}),
-    can have its components
-    interact in a way that respects their individual consistency
-    requirements and
-    guarantees. The function checks if there exists at least one
-    valid way to assign
-    specific semantics (from the choices provided in
-    needs/provs/cons) such that all
-    interactions are consistent. The graph in the function
-    parameter composed by
-    Nodes (\texttt{Node}) with needs (list of required semantic
-    tuples) and provs (list of
-    provided semantic tuples). Edges (\texttt{Edge}) connect
-    nodes and can have cons (list
-    of semantic tuples constraining the interaction). Lists
-    represent alternative
-    choices (logical or), while tuples within the list represent
-    constraints that
-    must hold together (logical and). In the implementation, we perform a
-    Depth-First Search (DFS) starting from a given source node,
-    keeping track of
-    visited edges and the accumulated constraints
-    (\texttt{path\_premise}) along the current
-    path. For each unvisited edge (u,v) from the current node u:
-    It iterates through
-    all combinations (product) of possible needs from u, provs
-    from v, and cons from
-    the edge (u, v). For each combination, it performs a
-    compatible check: \texttt{compatible(check\_provs,
-    compose(check\_needs, check\_ec), path\_premise)}.
-    This checks if the chosen provides guarantee of the
-    destination (check\_provs) is
-    implied by the conjunction (compose) of the chosen needs of the source
-    (check\_needs) and the chosen edge constraints (check\_ec),
-    considering the
-    constraints already accumulated (path\_premise). If a
-    compatible combination is
-    found that satisfies all unvisited edges between u and v at
-    the current step,
-    it: Adds the chosen constraints (needs, provs, cons) to the
-    result graph.
-    Updates the path\_premise by composing the newly satisfied
-    constraints. Marks the
-    edges as visited. Continues the DFS from the destination node
-    v. If the DFS
-    eventually visits all edges in the graph, the function
-    returns True and the
-    result graph showing one valid assignment. If a dead end is
-    reached or no
-    compatible combination works for an edge, it backtracks,
-    removing the choices
-    made at that step and trying other combinations. If the DFS
-    completes without
-    visiting all edges (meaning no fully consistent assignment
-    was found), it
-    returns False.
-
   \item Extraction (\texttt{extract(inode, onode, result)}):
     After a successful composable
     check, this function takes the resulting graph from

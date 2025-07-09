@@ -19,6 +19,7 @@ dependencies = [
     "mypy",
     "networkx",
     "pytest",
+    "pytest-cov",
     "rich",
     "z3-solver",
 ]

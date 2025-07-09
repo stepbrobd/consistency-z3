@@ -25,4 +25,4 @@ jobs:
           uv sync
       - name: Test
         run: |
-          uv run pytest
+          uv run pytest --cov=consistency tests

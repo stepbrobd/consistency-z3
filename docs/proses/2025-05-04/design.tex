@@ -1,34 +1,49 @@
 \section{Design}
 
-\subsection{Operations}
+% Operations
+\yifei{feels a bit redundant as we just defined this in the previous
+section but we need something to introduce when to use different symbols}
 
-When modeling multiple interacting systems or components within a single
-analysis context, using distinct symbols for the operations belonging to each
-system is crucial. Consistency semantics are typically defined using universally
-quantified formulas (e.g., $\forall a, b: \dots$) applied to
-relations treated as
-uninterpreted functions by the SMT solver (e.g., $\text{``vis''}(a,
-b)$, $\text{``so''}(a, b)$).
-If the same symbolic operations (like $a, b$) and relation functions
-(like $\text{``vis''}$)
-were reused across the models of different systems within the same solver query,
-the solver would treat them as the \textit{same} entities. This could lead to
-unintended interactions and logical conflicts: constraints from one system's
-model might implicitly and incorrectly restrict the behavior of operations
-logically belonging to another system. By assigning unique symbols to operations
-(and potentially relations) associated with different components
-(e.g., $a_X$, $b_X$, $\text{``vis''}_X$ for
-System X; $a_Y$, $b_Y$, $\text{``vis''}_Y$ for System Y), we maintain
-the necessary
-logical isolation. This ensures that the axioms and constraints of a specific
-consistency model only apply to the operations within that specific system's
-scope. This symbolic separation is fundamental for enabling the analysis of
-\textit{cross-system} interactions, where specific ``glue''
-constraints can then be added
-explicitly to relate operations across these distinct symbolic domains, as
-demonstrated in our cross-causal consistency modeling.
+{\color{red}An operation is defined as a tuple containing proc (the
+  process that issued the operation, used for session identification),
+  type (the type of the operation such as read, write, or custom), obj
+  (the object the operation is performed on), ival (operation input
+  value), oval (operation output value), stime (invocation time of the
+  operation), and rtime (response time of the operation). An operation
+  can be conceptualized as a request-response pair, where the request
+  is the operation itself and the response is the operation with the
+  response time set. Operations do not contain the node that issued or
+  handled the operation; they are defined as generic entities that can
+  be issued by any node and handled by any node. To add constraints on
+  the nodes that can issue or handle an operation, the framework user
+must define nodes and edges.}
 
-% FIXME: from readme
+When modeling multiple interacting systems or components within a
+single analysis context, using distinct symbols for the operations
+belonging to each system is crucial. Consistency semantics are
+typically defined using universally quantified formulas (e.g.,
+$\forall a, b: \dots$) applied to relations treated as uninterpreted
+functions by the SMT solver (e.g., $\text{vis}(a, b)$,
+$\text{so}(a, b)$). If the same symbolic operations (like $a, b$)
+and relation functions (like $\text{vis}$) were reused across the
+models of different systems within the same solver query, the solver
+would treat them as the same entities. This could lead to
+unintended interactions and logical conflicts: constraints from one
+system's model might implicitly and incorrectly restrict the behavior
+of operations logically belonging to another system. By assigning
+unique symbols to operations (and potentially relations) associated
+with different components (e.g., $a_X$, $b_X$, $\text{vis}_X$ for
+System X; $a_Y$, $b_Y$, $\text{vis}_Y$ for System Y), we maintain
+the necessary logical isolation. This ensures that the axioms and
+constraints of a specific consistency model only apply to the
+operations within that specific system's scope. This symbolic
+separation is fundamental for enabling the analysis of
+cross-system interactions, where specific ``glue''
+constraints can then be added explicitly to relate operations across
+these distinct symbolic domains, as demonstrated in our cross-causal
+consistency modeling.
+
+% NOTE: from readme
 %
 % these are more relevant to composition, add them here won't make much sense?
 %
@@ -60,8 +75,6 @@ demonstrated in our cross-causal consistency modeling.
 % add constraints on the nodes that can issue or handle an operation,
 % the framework user must define nodes and edges.
 
-\subsection{Axiom}
-
 %
 % Relation predicates:
 % A set of predicates that define the relations between operations in
@@ -71,13 +84,16 @@ demonstrated in our cross-causal consistency modeling.
 % abstract_execution.py). In the implementation, the predicates are
 % singletons and will be added ad-hoc if any clause refers to them.
 %
-Similar to how Lamport et al. \cite{lamport1977proving} defines axioms, they are
-operational invariants defined over operations. In our implementation, these
-axioms/invariants/relations are declared as uninterpreted functions, where the
-SMT solvers are free to interpret them so long as they satisfy the imposed
-constraints.
 
-\subsubsection{History}
+Similar to how Lamport et al. \cite{lamport1977proving} defines
+axioms, they are operational invariants defined over operations. In
+our implementation, these axioms, invariants, and relations are
+declared as uninterpreted functions, where the SMT solvers are free
+to interpret them so long as they satisfy the imposed constraints.
+{\color{red}Relation predicates define the relations between
+  operations in a history and are used as base premises for consistency
+  models. In the implementation, the predicates are singletons and will
+be added ad-hoc if any clause refers to them.}
 
 %
 % History (in the actual writing, layout the actual Z3 clauses used
@@ -86,46 +102,36 @@ constraints.
 % same session, session order).
 %
 
-A history is a set of operations that have been executed in the system the tool
-is modeling \cite{viotti2016consistency}. Although it is not
-specifically defined as
-such in our framework, relations are quantified over operations to capture the
-\textit{deterministic} orderings of themselves and other operations
-in the history. The
-operations being quantified over, forms the history of, which is conceptually
-identical to the set of operations that have been executed in the system.
+A history is a set of operations that have been executed in the
+system the tool is modeling \cite{viotti2016consistency}. Although it
+is not specifically defined as such in our framework, relations are
+quantified over operations to capture the deterministic
+orderings of themselves and other operations in the history. The
+operations being quantified over forms the history, which is
+conceptually identical to the set of operations that have been
+executed in the system.
 
-Axioms defined for operations within a history:
-
-\begin{itemize}
-  \item returns-before: $\text{``rb''} \triangleq \{(a, b) : a, b \in
-    H \text{ and } a.\text{``rtime''} < b.\text{``stime''}\}$
-
-  \item same-session: $\text{``ss''} \triangleq \{(a, b) : a, b \in H
-    \text{ and } a.\text{``proc''} = b.\text{``proc''}\}$
-
-  \item session-order: $\text{``so''} \triangleq \text{``rb''} \cap
-    \text{``ss''}$
-
-  \item same-object: $\text{``ob''} \triangleq \{(a, b) : a, b \in H
-    \text{ and } a.\text{``obj''} = b.\text{``obj''}\}$
-\end{itemize}
+Axioms defined for operations within a history include
+returns-before: $\text{rb} \triangleq \{(a, b) : a, b \in H
+\wedge a.\text{rtime} < b.\text{stime}\}$,
+same-session: $\text{ss} \triangleq \{(a, b) : a, b \in H \wedge
+a.\text{proc} = b.\text{proc}\}$, session-order:
+$\text{so} \triangleq \text{rb} \cap \text{ss}$, and
+same-object: $\text{ob} \triangleq \{(a, b) : a, b \in H \wedge
+a.\text{obj} = b.\text{obj}\}$.
 
 In our implementation, each history relation function (e.g.,
-\texttt{History.Relation.returns\_before})
-accepts an optional \texttt{symbols} argument. This parameter allows
-framework users to
+\texttt{History.Relation.returns\_before}) accepts an optional
+\texttt{symbols} argument. This parameter allows framework users to
 explicitly specify the symbolic operations (e.g., \texttt{["a\_X",
-"b\_X"]}) over which
-the relation's constraints should be quantified for that specific instance. This
-mechanism enables the application of history-based constraints distinctly to
-operations belonging to different modeled systems or components, contributing to
-the logical isolation necessary for cross-system analysis. If the
-\texttt{symbols} argument
-is omitted, the functions default to a standard set of symbols (like
-\texttt{["a", "b"]}),
-applying the constraints to a general set of operations suitable for
-single-system analysis.
+"b\_X"]}) over which the relation's constraints should be quantified
+for that specific instance. This mechanism enables the application of
+history-based constraints distinctly to operations belonging to
+different modeled systems or components, contributing to the logical
+isolation necessary for cross-system analysis. If the
+\texttt{symbols} argument is omitted, the functions default to a
+standard set of symbols (like \texttt{["a", "b"]}), applying the
+constraints to a general set of operations suitable for single-system analysis.
 
 \subsubsection{Abstract Execution}
 

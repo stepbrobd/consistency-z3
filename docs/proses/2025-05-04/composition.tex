@@ -1,50 +1,5 @@
 \section{Composition}
 
-Functions on Models:
-\begin{itemize}
-  \item Extraction (\texttt{extract(inode, onode, result)}):
-    After a successful composable
-    check, this function takes the resulting graph from
-    composability check (which
-    represents ONE valid assignment of constraints) and aggregate
-    a single Z3
-    constraint (z3.AstRef) that represents the net or equivalent
-    semantic guarantee
-    of the subgraph reachable from a specific node (inode),
-    assuming inode and onode
-    are the same. The function performs a DFS (dfs helper) starting from the
-    specified inode on this result graph. For each edge (src,
-    dst) traversed in the
-    DFS, extraction function uses the specific provs constraint
-    assigned to src in
-    the result graph, uses the specific needs constraint assigned
-    to dst in the
-    result graph, and retrieves the specific cons constraint
-    assigned to the edge
-    (src, dst, k) in the result graph. The extract function will
-    create a composite
-    constraint for this single edge interaction:
-    compose(src\_provs, edge\_cons,
-    dst\_needs). This represents the conjunction of constraints
-    relevant to this
-    specific step in the flow. It collects these composite
-    constraints from all
-    edges reachable from inode in the DFS. Finally, it returns
-    the logical and
-    (compose) of all collected composite constraints. Simply put,
-    axioms/relations
-    define constraints on Operations, similarly, extract defines a summary
-    constraint on a successfully composed subgraph. If the
-    composable check found a
-    valid way for components A, B, and C to interact starting
-    from A, extract(A, A,
-    result) generates a single formula representing the overall
-    guarantee provided
-    by the A->B->C... chain, as seen from A's perspective, based
-    on the specific
-    choices made during the composability check.
-\end{itemize}
-
 {
   \color{blue}
   \section{Todo}

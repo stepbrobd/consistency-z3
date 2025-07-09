@@ -2,96 +2,92 @@
 
 In Viotti et al. \cite{viotti2016consistency}, authors provided a
 structured overview of different consistency semantics appeared in
-distributed systems. Building upon it's semantic definitions, we
+distributed systems. Building upon its semantic definitions, we
 propose to use predicate logic derived from those definitions to
 model consistency semantics, and reason about the compositional
-properties of these semantics with SMT solvers (while Z3
-  \cite{demoura2008z3} is used in our implementation, it's easily
-extensible with other solver backends like CVC5 \cite{barbosa2022cvc5}).
+properties of these semantics with SMT solvers. While
+Z3 \cite{demoura2008z3} is used in our implementation, it is easily
+extensible with other solver backends like CVC5 \cite{barbosa2022cvc5}.
 
 To capture behaviors in distributed system executions, we model state
-transitions on individual nodes using the notion of
-operations. Similar to
-Viotti et al. \cite{viotti2016consistency}, we define an operation as a tuple
-containing: \texttt{proc} (process or node), \texttt{type} (read or
-write), \texttt{obj} (the object
-being acted upon), \texttt{ival} (input value), \texttt{oval} (output
-value), \texttt{stime}
-(start time), and \texttt{rtime} (return time). In our SMT encoding,
-this tuple is
-modeled as a sort, serving as the atomic building block for capturing system
-behaviors and state transition constraints.  Additional fields can be added
-to this sort by invoking the sort constructor
-with extra parameters, adding the capability to model more complex
-operations if needed.
-The instantiations of operation tuple represents atomic actions
-in the system.
+transitions on individual nodes using the notion of operations.
+Similar to Viotti et al. \cite{viotti2016consistency}, we define an
+operation as a tuple containing \texttt{proc} (process or node),
+\texttt{type} (read or write), \texttt{obj} (the object being acted
+upon), \texttt{ival} (input value), \texttt{oval} (output value),
+\texttt{stime} (start time), and \texttt{rtime} (return time). In our
+SMT encoding, this tuple is modeled as a sort, serving as the atomic
+building block for capturing system behaviors and state transition
+constraints. Additional fields can be added to this sort by invoking
+the sort constructor with extra parameters, adding the capability to
+model more complex operations if needed. The instantiations of
+operation tuple represents atomic actions in the system.
 
-Axioms and relations are predicate logic constraints defined over operations.
-Partial and total orderings of operations are assigned through relation
-functions defined in history and abstract
-execution \cite{burckhardt2014principles}
-\cite{viotti2016consistency}. In the implementation, they are defined
-as uninterpreted functions with constraints \cite{bryant2002modeling}.
-History represent the set of all operations executed in the system,
-while abstract execution instantiates/refines
-the history by specifying which operations are visible to, or are arbitrated
-over each other. By embedding these relations in first order logic, we can
-leverage SMT solvers to check the satisfiability of a given configuration,
-thereby determining whether a particular consistency model holds or if certain
-axioms of that model are violated. Axioms defined in history are
-deterministic orderings based on time and session
-(returns-before, same-session, session-order, etc.) \needcite{}. Whereas
-abstract execution relations are non-deterministic orderings
-used to capture more complex temporal constraints and conflict
-resolution (visibility, arbitration, happens-before, etc.) \needcite{}.
+Axioms and relations are predicate logic constraints defined over
+operations. Partial and total orderings of operations are assigned
+through relation functions defined in history and abstract
+execution \cite{burckhardt2014principles,viotti2016consistency}. In
+the implementation, they are defined as uninterpreted functions with
+constraints \cite{bryant2002modeling}. History represents the set of
+all operations executed in the system, while abstract execution
+instantiates and refines the history by specifying which operations
+are visible to, or are arbitrated over each other. By embedding these
+relations in first order logic, we can leverage SMT solvers to check
+the satisfiability of a given configuration, thereby determining
+whether a particular consistency model holds or if certain axioms of
+that model are violated. Axioms defined in history are deterministic
+orderings based on time and session (returns-before, same-session,
+session-order, etc.) \needcite{}, whereas abstract execution
+relations are non-deterministic orderings used to capture more
+complex temporal constraints and conflict resolution (visibility,
+arbitration, happens-before, etc.) \needcite{}.
 
+% overviews for functions on consistency models
 Consistency semantics or models are properties of a system or
-composition of systems
-defined as logical formulas over axioms/relations (e.g., Monotonic Reads, PRAM,
-Causal Consistency, etc.). Each model enforces safety properties i.e.
-specific ordering
-and visibility constraints on operations within history and abstract
-executions. % TODO: add more
-
-On top of our defined consistency models, we can perform individual
-consistency semantic specification and verification, as well as
-pairwise checks between two models to determine if one model's
-execution trace is statisfiable under another model's constraints.
-Though this is described as a pairwise check, each model can be the
-combination of multiple consistency models. This allows us to reason
-about the interaction between different consistency models, and
-whether a safety property of one model can be used to satisfy or
+composition of systems defined as logical formulas over axioms and
+relations (e.g., Monotonic Reads, PRAM, Causal Consistency, etc.).
+Each model enforces safety properties, specifically ordering and
+visibility constraints on operations within history and abstract
+executions. On top of our defined consistency models, we can perform
+individual consistency semantic specification and verification, as
+well as pairwise checks between two models to determine if one
+model's execution trace is satisfiable under another model's
+constraints. Though this is described as a pairwise check, each model
+can be the combination of multiple consistency models. This allows us
+to reason about the interaction between different consistency models,
+and whether a safety property of one model can be used to satisfy or
 violate the safety property of another model. Compositional checks
-can be performed by construction a multigraph of systems (nodes)
+can be performed by constructing a multigraph of systems (nodes)
 connected by edges (data flow and constraints between systems) and
-our tool can output result of all satisfiable assignments for each
+our tool can output results of all satisfiable assignments for each
 system in the graph.
 
-Compatibility (pairwise) check (\texttt{compatible(lhs, rhs)})
-determines if one set of constraints (lhs) implies another set of
-constraints (rhs) under a given background context (others and global
+% TODO: can be better
+Our compatibility check (\texttt{compatible(lhs, rhs)}) determines if
+one set of constraints (lhs) implies another set of constraints (rhs)
+under a given background context (others and global
 Relation.Constraints()). This function uses the construct helper
-function to create a Z3 solver instance. construct asserts the
-negation of the implication: Not(Implies(lhs, rhs)). This is
-logically equivalent to lhs And Not(rhs). It also adds the background
-constraints (others and Relation.Constraints()). The compatible
-function then calls s.check() on this solver. If s.check() returns
-z3.unsat (unsatisfiable), it means there is no model (no
+function to create a Z3 solver instance. The construct function
+asserts the negation of the implication: Not(Implies(lhs, rhs)),
+which is logically equivalent to lhs And Not(rhs). It also adds the
+background constraints (others and Relation.Constraints()). The
+compatible function then calls s.check() on this solver. If s.check()
+returns z3.unsat (unsatisfiable), it means there is no model (no
 counterexample) where lhs is true and rhs is false. Therefore,
-whenever lhs holds, rhs must also hold. The function returns True
+whenever lhs holds, rhs must also hold, and the function returns True
 (compatible). If s.check() returns z3.sat (satisfiable), it means a
 counterexample exists, the implication does not hold universally, and
 the function returns False (not compatible).
 
-Composability check (\texttt{composable(graph, src, ...)}) verifies
-if a distributed system, modeled as a graph (\texttt{graph:
+% TODO: can be better
+Our composability check (\texttt{composable(graph, src, ...)})
+verifies if a distributed system, modeled as a graph (\texttt{graph:
 nx.MultiDiGraph}), can have its components interact in a way that
 respects their individual consistency requirements and guarantees.
 The function checks if there exists at least one valid way to assign
 specific semantics (from the choices provided in needs/provs/cons)
 such that all interactions are consistent. The graph in the function
-parameter composed by Nodes (\texttt{Node}) with needs (list of
+parameter is composed by Nodes (\texttt{Node}) with needs (list of
 required semantic tuples) and provs (list of provided semantic
 tuples). Edges (\texttt{Edge}) connect nodes and can have cons (list
 of semantic tuples constraining the interaction). Lists represent
@@ -100,7 +96,7 @@ represent constraints that must hold together (logical and). In the
 implementation, we perform a Depth-First Search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated
 constraints (\texttt{path\_premise}) along the current path. For each
-unvisited edge (u,v) from the current node u: It iterates through all
+unvisited edge (u,v) from the current node u, it iterates through all
 combinations (product) of possible needs from u, provs from v, and
 cons from the edge (u, v). For each combination, it performs a
 compatible check: \texttt{compatible(check\_provs,
@@ -110,13 +106,193 @@ implied by the conjunction (compose) of the chosen needs of the
 source (check\_needs) and the chosen edge constraints (check\_ec),
 considering the constraints already accumulated (path\_premise). If a
 compatible combination is found that satisfies all unvisited edges
-between u and v at the current step, it: Adds the chosen constraints
-(needs, provs, cons) to the result graph. Updates the path\_premise
-by composing the newly satisfied constraints. Marks the edges as
-visited. Continues the DFS from the destination node v. If the DFS
-eventually visits all edges in the graph, the function returns True
-and the result graph showing one valid assignment. If a dead end is
-reached or no compatible combination works for an edge, it
+between u and v at the current step, it adds the chosen constraints
+(needs, provs, cons) to the result graph, updates the path\_premise
+by composing the newly satisfied constraints, marks the edges as
+visited, and continues the DFS from the destination node v. If the
+DFS eventually visits all edges in the graph, the function returns
+True and the result graph showing one valid assignment. If a dead end
+is reached or no compatible combination works for an edge, it
 backtracks, removing the choices made at that step and trying other
 combinations. If the DFS completes without visiting all edges
 (meaning no fully consistent assignment was found), it returns False.
+
+% TODO: can be better
+After a successful composable check, our extraction function
+(\texttt{extract(inode, onode, result)}) takes the resulting graph
+from composability check (which represents one valid assignment of
+constraints) and aggregates a single Z3 constraint (z3.AstRef) that
+represents the net or equivalent semantic guarantee of the subgraph
+reachable from a specific node (inode), assuming inode and onode are
+the same. The function performs a DFS (dfs helper) starting from the
+specified inode on this result graph. For each edge (src, dst)
+traversed in the DFS, the extraction function uses the specific provs
+constraint assigned to src in the result graph, uses the specific
+needs constraint assigned to dst in the result graph, and retrieves
+the specific cons constraint assigned to the edge (src, dst, k) in
+the result graph. The extract function creates a composite constraint
+for this single edge interaction: compose(src\_provs, edge\_cons,
+dst\_needs). This represents the conjunction of constraints relevant
+to this specific step in the flow. It collects these composite
+constraints from all edges reachable from inode in the DFS. Finally,
+it returns the logical and (compose) of all collected composite
+constraints. Simply put, axioms and relations define constraints on
+Operations; similarly, extract defines a summary constraint on a
+successfully composed subgraph. If the composable check found a valid
+way for components A, B, and C to interact starting from A,
+extract(A, A, result) generates a single formula representing the
+overall guarantee provided by the A→B→C... chain, as seen from A's
+perspective, based on the specific choices made during the composability check.
+
+% NOTE: for below except for the first paragraph, all other paragraphs
+% are moved directly from the composition chapter (also in my project report)
+% above is rewrite
+
+% In Viotti et al. \cite{viotti2016consistency}, authors provided a
+% structured overview of different consistency semantics appeared in
+% distributed systems. Building upon it's semantic definitions, we
+% propose to use predicate logic derived from those definitions to
+% model consistency semantics, and reason about the compositional
+% properties of these semantics with SMT solvers (while Z3
+%   \cite{demoura2008z3} is used in our implementation, it's easily
+% extensible with other solver backends like CVC5 \cite{barbosa2022cvc5}).
+%
+% To capture behaviors in distributed system executions, we model state
+% transitions on individual nodes using the notion of
+% operations. Similar to
+% Viotti et al. \cite{viotti2016consistency}, we define an operation as a tuple
+% containing: \texttt{proc} (process or node), \texttt{type} (read or
+% write), \texttt{obj} (the object
+% being acted upon), \texttt{ival} (input value), \texttt{oval} (output
+% value), \texttt{stime}
+% (start time), and \texttt{rtime} (return time). In our SMT encoding,
+% this tuple is
+% modeled as a sort, serving as the atomic building block for capturing system
+% behaviors and state transition constraints.  Additional fields can be added
+% to this sort by invoking the sort constructor
+% with extra parameters, adding the capability to model more complex
+% operations if needed.
+% The instantiations of operation tuple represents atomic actions
+% in the system.
+%
+% Axioms and relations are predicate logic constraints defined over operations.
+% Partial and total orderings of operations are assigned through relation
+% functions defined in history and abstract
+% execution \cite{burckhardt2014principles}
+% \cite{viotti2016consistency}. In the implementation, they are defined
+% as uninterpreted functions with constraints \cite{bryant2002modeling}.
+% History represent the set of all operations executed in the system,
+% while abstract execution instantiates/refines
+% the history by specifying which operations are visible to, or are arbitrated
+% over each other. By embedding these relations in first order logic, we can
+% leverage SMT solvers to check the satisfiability of a given configuration,
+% thereby determining whether a particular consistency model holds or if certain
+% axioms of that model are violated. Axioms defined in history are
+% deterministic orderings based on time and session
+% (returns-before, same-session, session-order, etc.) \needcite{}. Whereas
+% abstract execution relations are non-deterministic orderings
+% used to capture more complex temporal constraints and conflict
+% resolution (visibility, arbitration, happens-before, etc.) \needcite{}.
+%
+% Consistency semantics or models are properties of a system or
+% composition of systems
+% defined as logical formulas over axioms/relations (e.g., Monotonic
+% Reads, PRAM,
+% Causal Consistency, etc.). Each model enforces safety properties i.e.
+% specific ordering
+% and visibility constraints on operations within history and abstract
+% executions. % TODO: add more
+%
+% On top of our defined consistency models, we can perform individual
+% consistency semantic specification and verification, as well as
+% pairwise checks between two models to determine if one model's
+% execution trace is statisfiable under another model's constraints.
+% Though this is described as a pairwise check, each model can be the
+% combination of multiple consistency models. This allows us to reason
+% about the interaction between different consistency models, and
+% whether a safety property of one model can be used to satisfy or
+% violate the safety property of another model. Compositional checks
+% can be performed by construction a multigraph of systems (nodes)
+% connected by edges (data flow and constraints between systems) and
+% our tool can output result of all satisfiable assignments for each
+% system in the graph.
+%
+% Compatibility (pairwise) check (\texttt{compatible(lhs, rhs)})
+% determines if one set of constraints (lhs) implies another set of
+% constraints (rhs) under a given background context (others and global
+% Relation.Constraints()). This function uses the construct helper
+% function to create a Z3 solver instance. construct asserts the
+% negation of the implication: Not(Implies(lhs, rhs)). This is
+% logically equivalent to lhs And Not(rhs). It also adds the background
+% constraints (others and Relation.Constraints()). The compatible
+% function then calls s.check() on this solver. If s.check() returns
+% z3.unsat (unsatisfiable), it means there is no model (no
+% counterexample) where lhs is true and rhs is false. Therefore,
+% whenever lhs holds, rhs must also hold. The function returns True
+% (compatible). If s.check() returns z3.sat (satisfiable), it means a
+% counterexample exists, the implication does not hold universally, and
+% the function returns False (not compatible).
+%
+% Composability check (\texttt{composable(graph, src, ...)}) verifies
+% if a distributed system, modeled as a graph (\texttt{graph:
+% nx.MultiDiGraph}), can have its components interact in a way that
+% respects their individual consistency requirements and guarantees.
+% The function checks if there exists at least one valid way to assign
+% specific semantics (from the choices provided in needs/provs/cons)
+% such that all interactions are consistent. The graph in the function
+% parameter composed by Nodes (\texttt{Node}) with needs (list of
+% required semantic tuples) and provs (list of provided semantic
+% tuples). Edges (\texttt{Edge}) connect nodes and can have cons (list
+% of semantic tuples constraining the interaction). Lists represent
+% alternative choices (logical or), while tuples within the list
+% represent constraints that must hold together (logical and). In the
+% implementation, we perform a Depth-First Search (DFS) starting from a
+% given source node, keeping track of visited edges and the accumulated
+% constraints (\texttt{path\_premise}) along the current path. For each
+% unvisited edge (u,v) from the current node u: It iterates through all
+% combinations (product) of possible needs from u, provs from v, and
+% cons from the edge (u, v). For each combination, it performs a
+% compatible check: \texttt{compatible(check\_provs,
+% compose(check\_needs, check\_ec), path\_premise)}. This checks if the
+% chosen provides guarantee of the destination (check\_provs) is
+% implied by the conjunction (compose) of the chosen needs of the
+% source (check\_needs) and the chosen edge constraints (check\_ec),
+% considering the constraints already accumulated (path\_premise). If a
+% compatible combination is found that satisfies all unvisited edges
+% between u and v at the current step, it: Adds the chosen constraints
+% (needs, provs, cons) to the result graph. Updates the path\_premise
+% by composing the newly satisfied constraints. Marks the edges as
+% visited. Continues the DFS from the destination node v. If the DFS
+% eventually visits all edges in the graph, the function returns True
+% and the result graph showing one valid assignment. If a dead end is
+% reached or no compatible combination works for an edge, it
+% backtracks, removing the choices made at that step and trying other
+% combinations. If the DFS completes without visiting all edges
+% (meaning no fully consistent assignment was found), it returns False.
+%
+% Extraction (\texttt{extract(inode, onode, result)}): after a
+% successful composable check, this function takes the resulting graph
+% from composability check (which represents ONE valid assignment of
+% constraints) and aggregate a single Z3 constraint (z3.AstRef) that
+% represents the net or equivalent semantic guarantee of the subgraph
+% reachable from a specific node (inode), assuming inode and onode are
+% the same. The function performs a DFS (dfs helper) starting from the
+% specified inode on this result graph. For each edge (src, dst)
+% traversed in the DFS, extraction function uses the specific provs
+% constraint assigned to src in the result graph, uses the specific
+% needs constraint assigned to dst in the result graph, and retrieves
+% the specific cons constraint assigned to the edge (src, dst, k) in
+% the result graph. The extract function will create a composite
+% constraint for this single edge interaction: compose(src\_provs,
+% edge\_cons, dst\_needs). This represents the conjunction of
+% constraints relevant to this specific step in the flow. It collects
+% these composite constraints from all edges reachable from inode in
+% the DFS. Finally, it returns the logical and (compose) of all
+% collected composite constraints. Simply put, axioms/relations define
+% constraints on Operations, similarly, extract defines a summary
+% constraint on a successfully composed subgraph. If the composable
+% check found a valid way for components A, B, and C to interact
+% starting from A, extract(A, A, result) generates a single formula
+% representing the overall guarantee provided by the A->B->C... chain,
+% as seen from A's perspective, based on the specific choices made
+% during the composability check.

@@ -183,24 +183,31 @@ deterministic and non-deterministic behavior of operations,
 and what it means for one operation to be able to "observe"
 the effects of another operation.
 
-\begin{itemize}
-  \item visibility (vis): visibility definition used in all
-    literatures we've reviewed
-    are ambiguous in the sense that they don't specify the exact behavior under
-    concurrent settings \cite{viotti2016consistency}
-    \cite{viotti2016towards} \cite{zhang2018building}
-    \cite{ferreira2023antipode}. In our implementation, we
-    restructured visibility as a
-    binary relation and performed explicit case analysis on all possible
-    combinations of read and write operations that can be "visible"
-    to each other.
-    To achieve visibility, two operations must first fall in one of
-    the categories
-    in "can-view":
-\end{itemize}
+Visibility definition used in all
+literatures we have reviewed
+are ambiguous in the sense that they don't specify the exact behavior under
+concurrent settings \cite{viotti2016consistency}
+\cite{viotti2016towards} \cite{zhang2018building}
+\cite{ferreira2023antipode}. In our implementation, we
+restructured visibility as a
+binary relation and performed explicit case analysis on all possible
+combinations of read and write operations that can be "visible"
+to each other.
+To achieve visibility, two operations must first fall in one of
+the categories in "can-view": either the write happened before the read
+in absolute time (note that whether the read/write happened on the
+  same process or not does not matter, synchronization
+is not required to establish probable effect causality)
+or the read and write happened concurrently such that the read might
+see the write's effect.
 
-% FIXME: way too ugly
-% change this into a graph
+The can-view non-deterministic relation is defined over the pair-wise
+start or return time between
+specified read and write operations. When two operations $a$ and $b$
+are defined to be in can-view relation ($a \xrightarrow{\text{can-view}} b$),
+either $a$ returned before $b$, such that $b$'s write effect can be
+visible to $a$, or $a$ and $b$ happened concurrently such that
+$b$'s write effect might be visible to $a$. Formally:
 
 \begin{align*}
   \text{can-view} &\triangleq \{(a, b) : a \in H_\text{rd}, b \in
@@ -231,22 +238,12 @@ the effects of another operation.
   )\}
 \end{align*}
 
-% TODO: proof read
-The can-view non-deterministic relation is defined over the pair-wise
-start or return time between
-specified read and write operations. When two operations $a$ and $b$
-are defined to be in can-view relation ($a \xrightarrow{\text{can-view}} b$),
-
-either $a$ returned before $b$, such that $b$'s write effect can be
-visible to $a$, or $a$ and $b$ happened concurrently such that
-$b$'s write effect might be visible to $a$.
-
-In the above encoding, "can-view" is defined as a non-deterministic pairwise
-partial ordering that solely depends on time stamps (conceptually, it captures
-all cases where reads happened before or after or during writes). And is a set
+In the above encoding, can-view is a non-deterministic pairwise
+partial ordering that solely depends on time stamps. Conceptually, it captures
+all cases where reads happened before or after or during writes. And is a set
 of operations where, the first element of the tuple is a read and the second
 element is a write. The read \textit{can view} (nondeterminism
-included) the write if:
+included) the write if (see Figure \ref{fig:can-view}):
 
 \begin{itemize}
   \item ($a \xrightarrow{\text{can-view}} b_1$) The read-write pair
@@ -315,16 +312,21 @@ included) the write if:
   into one of the cases defined in the can-view relation.}
   \label{fig:can-view}
 \end{figure}
-While "can-view" captures the possible visibility between read and write, the
-result dependency between them is captured by the "viewed" relation:
 
-$\text{``viewed''} \triangleq \{(a, b) : a \in H_\text{``rd''}, b \in
-  H_\text{``wr''} \text{ and } ($
-    $a.\text{``oval''} = b.\text{``ival''}$
-    $\text{or}$
-    $(\exists x \in H_\text{``wr''} \text{ and } (x, b) \in
-    \text{``cv''} \text{ and } a.\text{``oval''} = x.\text{``ival''})$
-$)\}$
+While can-view captures the possible visibility between read and write, the
+result dependency between them is captured by the viewed relation:
+
+\begin{align*}
+  \text{viewed} &\triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \\
+    &\land (a, b) \in \text{can-view} \\
+    &\land (
+      (a.\text{oval} = b.\text{ival}) \\
+      &\lor
+      (\exists x \in H_\text{wr} : (x, b) \in
+      \text{can-view} \land a.\text{oval} = x.\text{ival})
+    )
+  \}
+\end{align*}
 
 In the encoding above, "viewed" is a non-deterministic pairwise partial ordering
 between a write and a read that build atop "can-view". Aside from the timestamps

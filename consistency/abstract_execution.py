@@ -102,15 +102,8 @@ class AbstractExecution:
                                     op.returned(a) == z3.BoolVal(True), # type: ignore
                                     op.returned(b) == z3.BoolVal(True), # type: ignore
                                     op.returned(x) == z3.BoolVal(True), # type: ignore
-                                    z3.Or(
-                                        # non-concurrent
-                                        op.stime(x) > op.rtime(b),  # type: ignore
-                                        # concurrent
-                                        z3.And(op.stime(x) <= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) >= op.rtime(b)), # type: ignore
-                                        z3.And(op.stime(x) >= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) >= op.rtime(b)), # type: ignore
-                                        z3.And(op.stime(x) <= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) <= op.rtime(b)), # type: ignore
-                                        z3.And(op.stime(x) >= op.stime(b), op.stime(x) <= op.rtime(b), op.rtime(x) >= op.stime(b), op.rtime(x) <= op.rtime(b)), # type: ignore
-                                    ),
+                                    # can-view + value equivalence
+                                    can_view(x, b),
                                     op.oval(a) == op.ival(x), # type: ignore
                                 ),
                             ),

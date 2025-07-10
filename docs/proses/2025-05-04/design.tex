@@ -86,7 +86,7 @@ consistency modeling.
 %
 
 Similar to how Lamport et al. \cite{lamport1977proving} defines
-axioms, they are operational invariants defined over operations. In
+axioms, they are pairwise constraints defined over operations. In
 our implementation, these axioms, invariants, and relations are
 declared as uninterpreted functions, where the SMT solvers are free
 to interpret them so long as they satisfy the imposed constraints.
@@ -107,7 +107,7 @@ system the tool is modeling \cite{viotti2016consistency}. Although it
 is not specifically defined as such in our framework, relations are
 quantified over operations to capture the deterministic
 orderings of themselves and other operations in the history. The
-operations being quantified over forms the history, which is
+operations being quantified over form the history, which is
 conceptually identical to the set of operations that have been
 executed in the system.
 
@@ -146,23 +146,42 @@ constraints to a general set of operations suitable for single-system analysis.
 % resolution policies) (from non-transactional survey).
 %
 
-Abstract executions are instantiated from a given history by specifying which
-operations are visible to each other and how they are ordered. Multiple multiple
-abstract executions are possible for a single history as observed event oderings
-can differ between nodes. AE encode the \textit{non-deterministic} effects of
-asynchronous execution environments and implementation-specific constraints
+An abstract execution instantiates and refines the history by
+specifying which operations are visible to, or are arbitrated over
+each other. Abstract execution relations are non-deterministic
+orderings used to capture more complex temporal constraints and
+conflict resolution such as visibility, arbitration, and
+happens-before relationships. These relations provide the foundation
+for modeling sophisticated consistency guarantees that go beyond
+simple temporal ordering, enabling the specification of complex
+distributed system behaviors where operations may be reordered,
+delayed, or selectively visible across different system components.
+In other words, multiple abstract executions are possible for a
+single history as observed event orderings can differ between nodes.
+AE encode the non-deterministic effects of asynchronous execution
+environments and implementation-specific constraints
 \cite{burckhardt2014principles} \cite{viotti2016consistency}.
 
-Similar to History relations, the Abstract Execution relation functions in our
-implementation (e.g., \texttt{AbstractExecution.Relation.visibility})
-also accept an
+Similar to History relations, the Abstract Execution relation
+functions in our implementation (e.g.,
+\texttt{AbstractExecution.Relation.visibility}) also accept an
 optional \texttt{symbols} argument. This allows framework users to
-instantiate AE
-relations with constraints quantified over specific symbolic operations relevant
-to a particular system or component being modeled. Omitting the argument applies
-the relation to the default set of symbols.
+instantiate AE relations with constraints quantified over specific
+symbolic operations relevant to a particular system or component
+being modeled. Omitting the argument applies the relation to the
+default set of symbols.
 
 Axioms defined for operations within abstract executions:
+
+We have went through multiple definitions of visibility but
+it is clear that almost all of them are ambiguous as in they
+do not specify the exact behavior under concurrent settings.
+One of our main contributions is to clearly define visibility.
+
+We've added the notion of can-view and viewed to capture the
+deterministic and non-deterministic behavior of operations,
+and what it means for one operation to be able to "observe"
+the effects of another operation.
 
 \begin{itemize}
   \item visibility (vis): visibility definition used in all
@@ -226,37 +245,67 @@ element is a write. The read \textit{can view} (nondeterminism
 included) the write if:
 
 \begin{itemize}
-  \item (a1) The read-write pair contains non-concurrent operations.
+  \item ($a_1$) The read-write pair contains non-concurrent operations.
 
-  \item (a2) The read started before the write starts and ended after
+  \item ($a_2$) The read started before the write starts and ended after
     the write ends.
 
-  \item (a3) The read started after the write starts and ended after
+  \item ($a_3$) The read started after the write starts and ended after
     the write ends.
 
-  \item (a4) The read started before the write starts and ended
+  \item ($a_4$) The read started before the write starts and ended
     before the write ends.
 
-  \item (a5) The read started after the write starts and ended before
+  \item ($a_5$) The read started after the write starts and ended before
     the write ends.
 \end{itemize}
 
-\begin{center}
-\begin{verbatim}
-    a1         a2
-  |---|      |---|
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[scale=0.64]
+    % time
+    \draw[->] (0,1) -- (12,1);
+    \node[below] at (11.5,1) {Time};
 
-             b (rd)
-         |------------|
+    \draw[thick] (1,5) -- (3,5);
+    \draw[thick] (1,4.8) -- (1,5.2); % left terminating bar
+    \draw[thick] (3,4.8) -- (3,5.2); % right terminating bar
+    \node[left] at (0.9,5) {$a_1$};
 
-       a3              a4
-  |---------|     |----------|
+    \draw[thick] (5,5) -- (7,5);
+    \draw[thick] (5,4.8) -- (5,5.2); % left terminating bar
+    \draw[thick] (7,4.8) -- (7,5.2); % right terminating bar
+    \node[left] at (4.9,5) {$a_2$};
 
-              a5
-   |----------------------|
-\end{verbatim}
-\end{center}
+    % middle
+    \draw[thick] (4,4) -- (8,4);
+    \draw[thick] (4,3.8) -- (4,4.2);  % left terminating bar
+    \draw[thick] (8,3.8) -- (8,4.2);  % right terminating bar
+    \node[left] at (3.9,4) {$b$};
 
+    \draw[thick] (2,3) -- (5.5,3);
+    \draw[thick] (2,2.8) -- (2,3.2);   % left terminating bar
+    \draw[thick] (5.5,2.8) -- (5.5,3.2); % right terminating bar
+    \node[left] at (1.9,3) {$a_3$};
+
+    \draw[thick] (6.5,3) -- (10,3);
+    \draw[thick] (6.5,2.8) -- (6.5,3.2); % left terminating bar
+    \draw[thick] (10,2.8) -- (10,3.2);   % right terminating bar
+    \node[left] at (6.4,3) {$a_4$};
+
+    \draw[thick] (2,2) -- (10,2);
+    \draw[thick] (2,1.8) -- (2,2.2);   % left terminating bar
+    \draw[thick] (10,1.8) -- (10,2.2); % right terminating bar
+    \node[left] at (1.9,2) {$a_5$};
+  \end{tikzpicture}
+  \caption{The can-view relation captures the
+    possible visibility between read and write operations. The
+    read-write pairs $a_1$, $a_2$, $a_3$, $a_4$, $a_5$ and $b$ are
+    defined based on their start and return times, where the read
+    operation $b$ can view the effect of the write operation if they fall
+    into one of the cases defined in the can-view relation.}
+  \label{fig:can-view}
+\end{figure}
 While "can-view" captures the possible visibility between read and write, the
 result dependency between them is captured by the "viewed" relation:
 

@@ -201,31 +201,35 @@ the effects of another operation.
 
 % FIXME: way too ugly
 % change this into a graph
-can-view (cv): $\text{``cv''} \triangleq \{(a, b) : a \in
-  H_\text{``rd''}, b \in H_\text{``wr''} \text{ and }
-  a.\text{``obj''} = b.\text{``obj''} \text{ and } ($
-    $a.\text{``stime''} > b.\text{``rtime''} \text{ // non-concurrent}$
-    $\text{or}$
-    $(a.\text{``stime''} \leq b.\text{``stime''} \text{ and }
-      a.\text{``stime''} \leq b.\text{``rtime''} \text{ and }
-      a.\text{``rtime''} \geq b.\text{``stime''} \text{ and }
-    a.\text{``rtime''} \geq b.\text{``rtime''})$
-    $\text{or}$
-    $(a.\text{``stime''} \geq b.\text{``stime''} \text{ and }
-      a.\text{``stime''} \leq b.\text{``rtime''} \text{ and }
-      a.\text{``rtime''} \geq b.\text{``stime''} \text{ and }
-    a.\text{``rtime''} \geq b.\text{``rtime''})$
-    $\text{or}$
-    $(a.\text{``stime''} \leq b.\text{``stime''} \text{ and }
-      a.\text{``stime''} \leq b.\text{``rtime''} \text{ and }
-      a.\text{``rtime''} \geq b.\text{``stime''} \text{ and }
-    a.\text{``rtime''} \leq b.\text{``rtime''})$
-    $\text{or}$
-    $(a.\text{``stime''} \geq b.\text{``stime''} \text{ and }
-      a.\text{``stime''} \leq b.\text{``rtime''} \text{ and }
-      a.\text{``rtime''} \geq b.\text{``stime''} \text{ and }
-    a.\text{``rtime''} \leq b.\text{``rtime''})$
-$)\}$
+
+\begin{align*}
+  \text{can-view} &\triangleq \{(a, b) : a \in H_\text{rd}, b \in
+    H_\text{wr} \land a.\text{obj} = b.\text{obj} \\
+    &\land ((
+      a.\text{stime} > b.\text{rtime}) \\
+      &\lor
+      (a.\text{stime} \leq b.\text{stime} \land
+        a.\text{stime} \leq b.\text{rtime} \land \\
+        &\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+      a.\text{rtime} \geq b.\text{rtime}) \\
+      &\lor
+      (a.\text{stime} \geq b.\text{stime} \land
+        a.\text{stime} \leq b.\text{rtime} \land \\
+        &\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+      a.\text{rtime} \geq b.\text{rtime}) \\
+      &\lor
+      (a.\text{stime} \leq b.\text{stime} \land
+        a.\text{stime} \leq b.\text{rtime} \land \\
+        &\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+      a.\text{rtime} \leq b.\text{rtime}) \\
+      &\lor
+      (a.\text{stime} \geq b.\text{stime} \land
+        a.\text{stime} \leq b.\text{rtime} \land \\
+        &\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+        a.\text{rtime} \leq b.\text{rtime}
+      )
+  )\}
+\end{align*}
 
 % TODO: proof read
 The can-view non-deterministic relation is defined over the pair-wise

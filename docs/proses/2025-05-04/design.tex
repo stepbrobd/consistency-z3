@@ -245,19 +245,24 @@ element is a write. The read \textit{can view} (nondeterminism
 included) the write if:
 
 \begin{itemize}
-  \item ($a_1$) The read-write pair contains non-concurrent operations.
+  \item ($a \xrightarrow{\text{can-view}} b_1$) The read-write pair
+    does not overlap, thus non-concurrent.
 
-  \item ($a_2$) The read started before the write starts and ended after
-    the write ends.
+  \item ($a \xrightarrow{\text{can-view}} b_2$) The read started
+    before the write starts and ended after the write ends, i.e. the
+    write is fully contained within the read.
 
-  \item ($a_3$) The read started after the write starts and ended after
-    the write ends.
+  \item ($a \xrightarrow{\text{can-view}} b_3$) The read started
+    after the write starts and ended after the write ends, i.e. read
+    during the write.
 
-  \item ($a_4$) The read started before the write starts and ended
-    before the write ends.
+  \item ($a \xrightarrow{\text{can-view}} b_4$) The read started
+    before the write starts and ended before the write ends, i.e.
+    write during the read.
 
-  \item ($a_5$) The read started after the write starts and ended before
-    the write ends.
+  \item ($a \xrightarrow{\text{can-view}} b_5$) The read started
+    after the write starts and ended before the write ends, i.e. the
+    read is fully contained within the write.
 \end{itemize}
 
 \begin{figure}[h]
@@ -270,40 +275,40 @@ included) the write if:
     \draw[thick] (1,5) -- (3,5);
     \draw[thick] (1,4.8) -- (1,5.2); % left terminating bar
     \draw[thick] (3,4.8) -- (3,5.2); % right terminating bar
-    \node[left] at (0.9,5) {$a_1$};
+    \node[left] at (0.9,5) {$b_1$};
 
     \draw[thick] (5,5) -- (7,5);
     \draw[thick] (5,4.8) -- (5,5.2); % left terminating bar
     \draw[thick] (7,4.8) -- (7,5.2); % right terminating bar
-    \node[left] at (4.9,5) {$a_2$};
+    \node[left] at (4.9,5) {$b_2$};
 
     % middle
     \draw[thick] (4,4) -- (8,4);
     \draw[thick] (4,3.8) -- (4,4.2);  % left terminating bar
     \draw[thick] (8,3.8) -- (8,4.2);  % right terminating bar
-    \node[left] at (3.9,4) {$b$};
+    \node[left] at (3.9,4) {$a$};
 
-    \draw[thick] (2,3) -- (5.5,3);
-    \draw[thick] (2,2.8) -- (2,3.2);   % left terminating bar
-    \draw[thick] (5.5,2.8) -- (5.5,3.2); % right terminating bar
-    \node[left] at (1.9,3) {$a_3$};
+    \draw[thick] (3,3) -- (4.5,3);
+    \draw[thick] (3,2.8) -- (3,3.2);   % left terminating bar
+    \draw[thick] (4.5,2.8) -- (4.5,3.2); % right terminating bar
+    \node[left] at (2.9,3) {$b_3$};
 
-    \draw[thick] (6.5,3) -- (10,3);
-    \draw[thick] (6.5,2.8) -- (6.5,3.2); % left terminating bar
-    \draw[thick] (10,2.8) -- (10,3.2);   % right terminating bar
-    \node[left] at (6.4,3) {$a_4$};
+    \draw[thick] (7.5,3) -- (9,3);
+    \draw[thick] (7.5,2.8) -- (7.5,3.2); % left terminating bar
+    \draw[thick] (9,2.8) -- (9,3.2);   % right terminating bar
+    \node[left] at (7.4,3) {$b_4$};
 
     \draw[thick] (2,2) -- (10,2);
     \draw[thick] (2,1.8) -- (2,2.2);   % left terminating bar
     \draw[thick] (10,1.8) -- (10,2.2); % right terminating bar
-    \node[left] at (1.9,2) {$a_5$};
+    \node[left] at (1.9,2) {$b_5$};
   \end{tikzpicture}
   \caption{The can-view relation captures the
     possible visibility between read and write operations. The
     read-write pairs $a_1$, $a_2$, $a_3$, $a_4$, $a_5$ and $b$ are
     defined based on their start and return times, where the read
     operation $b$ can view the effect of the write operation if they fall
-    into one of the cases defined in the can-view relation.}
+  into one of the cases defined in the can-view relation.}
   \label{fig:can-view}
 \end{figure}
 While "can-view" captures the possible visibility between read and write, the

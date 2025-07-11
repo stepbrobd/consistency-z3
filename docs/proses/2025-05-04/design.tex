@@ -328,60 +328,95 @@ result dependency between them is captured by the viewed relation:
   \}
 \end{align*}
 
-In the encoding above, "viewed" is a non-deterministic pairwise partial ordering
-between a write and a read that build atop "can-view". Aside from the timestamps
-fall into one of the "can-view" cases, we assigned additional value related
-constraints to operations: either the input of the write must match the output
-of the read, or, in case of a write happened after or concurrent to the
+In the encoding above, viewed is defined as a non-deterministic
+pairwise partial ordering
+between a write and a read that build atop can-view. Aside from the timestamps
+fall into one of the can-view cases, we assigned additional value related
+constraints to operations: either value written by the write
+operation must match the output
+of the read, or, in case of another write operation happened after or
+concurrent to the
 aforementioned write, viewed relation enforces the output of the read to be
 either of writes (but only one can be chosen). In visibility definition, the
 transitivity of viewed relation is implicitly enforced.
 
+Using Figure \ref{fig:can-view}'s operation $a$ and $b_1$ as an example,
+since $a$ and $b_1$ are in can-view relation, if $b_1$'s value written
+is that of $a$'s output, then $a$ is in viewed relation with $b_1$. Consider
+another operation $b_5$ in the same figure that happened concurrent to $b_1$.
+If $b_5$'s value written is different
+from $b_1$, but $a$ and $b_5$ are in can-view relation and $a$ v.s.
+$b_5$ have value
+equivalence, then $a$ and $b_1$ are still in viewed relation (write
+$b_1$ still affects $a$).
+However, in this scenario, the constraint in effect for viewed
+relation is the existence of $b_5$ and
+the value equivalence of $a$ and $b_5$.
+
 % actual vis
-In our visible/visibility definition, it is defined as a
-\textit{deterministic} binary
-relationship between any two operations in the history. It also enforces the
-transitivity (propagation) and acyclicity (cannot go back in time) of the viewed
+The visible or visibility definition, it is a deterministic pairwise
+relationship between any two operations in the history instead of
+limiting to read-write pairs.
+It also enforces the transitivity (propagation) and acyclicity
+(cannot go back in time) of the viewed
 relation. We do not enforce transitivity and acyclicity in the viewed relation
 as the orderings of concurrent operations are non-deterministic, and viewed
 should include all pairs of operations that can be viewed by each other only
-from logical time and value equality perspective. The following cases are
-considered:
+from logical time and value equality perspective.
+
+If if constraint $a \xrightarrow{\text{vis}} b$ is assigned to a pair
+of operations,
+the following cases are considered:
 
 % simplest form: can-view -> viewed -> vis + ar
-\begin{itemize}
-  \item write-read: $\text{``viewed''} \cap \text{``ar''}$, simply
-    viewed (value equivalence) +
-    arbitration (preserve the previously viewed ordering as if it's a linearized
-    ordering in the first place)
+\begin{align*}
+  \text{vis} &\triangleq \{(a, b) : \\
+    &(a \in H_\text{rd}, b \in H_\text{rd} : \exists x \in
+    H_\text{wr}: (x, a) \in \text{vis} \implies (x, b) \in \text{vis}) \\
+    &\lor \\
+    &(a \in H_\text{rd}, b \in H_\text{wr} : \exists x \in
+    H_\text{wr}: (x, a) \in \text{vis} \implies (x, b) \in \text{vis}) \\
+    &\lor \\
+    &(a \in H_\text{wr}, b \in H_\text{rd} : \text{viewed} \subseteq
+    \text{ar}) \\
+    &\lor \\
+  &(a \in H_\text{wr}, b \in H_\text{wr} : (a, b) \in \text{ar})\}
+\end{align*}
 
-  \item write-write: no constraints
-\end{itemize}
+Note that the read-read and read-write cases are recursively
+defined, where $a$ and $b$ are in $\text{vis}_\text{rd-rd}$ or
+$\text{vis}_\text{rd-wr}$, if and only if there's a write $x$ that is
+visible to $a$, and $x$ is in $\text{vis}_\text{wr-rd}$ or
+$\text{vis}_\text{wr-wr}$ with $b$. We call this the rule
+of write propagation. Conceptually, this means that if a read $a$
+and another operation (either read or write) $b$ are in the visibility relation,
+the closest write operation $x$ that is visible to the read $a$ must
+be propagated
+to $b$. Whether this visibility relation can be satisfied, solely
+depend on the existence of the read $a$'s previous- and immediate-
+adjacent write operation $x$, and whether
+that $x$ can satisfy the write-read or write-write pairwise
+constraints of visibility,
+of which will be discussed in the following paragraphs.
 
-% later read tracks earlier read's closest visible write
-% FIXME: probably wrong
-\begin{itemize}
-  \item read-read: $\{(a, b) : a, b \in H_\text{``rd''} \text{ and }
-      (\exists x \in H_\text{``wr''} \text{ and } (x, a) \in
-    \text{``vis''}) \rightarrow (x, b)\}$,
-    previous read needs to track it's closest visible write, then propagate the
-    closest visible write to the latest read
+In the write-read case, we named this rule definitive visibility. Definitive
+visibility is defined as if a write $a$ is visible to a read $b$, then $b$
+must have viewed $a$ and an arbitration relation must exist between $a$ and $b$
+to ensure the non-deterministic viewed relation have a linearization point,
+i.e. cut off one of the possible paths in the viewed relation.
 
-  \item read-write: no constraints
-\end{itemize}
+The last case is the write-write visibility (write arbitration).
+Whether two writes are visible to each other depends on the existence of an
+arbitration relation between them. In Voitti et al.
+\cite{viotti2016consistency},
+authors clearly stated two writes are invisible to each other if not
+ordered by vis,
+and arbitration imposes a total order to resolve conflicts between concurrent
+and invisible operations.
 
-% FIXME: rework needed
-Note that the read-read case is recursively defined, where $a$ and
-$b$ are in $\text{``vis''}_\text{``read-read''}$ iff.
-there's a write $x$ that is visible to $a$ and $x$ is in
-$\text{``vis''}_\text{``read-read''}$ with $b$.
-
-\begin{itemize}
-  \item arbitration (ar): an application specific, transitive and
-    acyclic relation that
-    provides a total order on conflicting operations, ensuring that observed
-    executions follow a single coherent timeline.
-\end{itemize}
+Arbitration is an application specific, transitive and acyclic
+relation that provides a total order on conflicting operations,
+ensuring that observed executions follow a single coherent timeline.
 
 \subsection{Session Guarantees}
 

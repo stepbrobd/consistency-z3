@@ -1,0 +1,31 @@
+\section{Background}
+\label{sec:background}
+
+Distributed consistency semantics define in which order updates are applied and made visible in replica nodes of a distributed system. When an update request is submitted to the distributed system, a subset (typically one) of nodes receives it and the update is propagated across distributed nodes. Due to the asynchronous nature of the network and nodes, replica nodes receive the update with different delays and users accessing distinct nodes could observe different data states. Distributed consistency semantics introduce ordering constraints on top of such non-determinism so that applications can predictably work with the system. 
+
+There are many distributed consistency semantics and they can be partially ordered by their strength~\needcite{}. Among them \sysname{} models a few widely used semantics, including eventual consistency, session guarantees, causal consistency, and linearizability. 
+
+While eventual consistency (EC) is considered as a liveness property, it defines a minimum safety property that visible data reflects valid updates in history. Informally,
+\itemparen{
+\item \textbf{Eventual consistency (EC):} users may read any versions of data but with no incoming updates the most up-to-date version will become visible to all reads. 
+}
+
+Session guarantees, like its name, defines semantics based on per-user-session bases:
+\itemparen{
+\item \textbf{Monotonic reads (MR):} a user sees the same or later version of data than what was last seen by the same user.  
+\item \textbf{Read-your-writes (RYW):} a users sees the same or later version of data than what was last written by the same user.
+\item \textbf{Monotonic writes (MW):} writes by a user applies in the order that this user wrote. 
+\item \textbf{Write-follows-reads (WFR):} writes by a user applies after writes corresponding to what this user read apply. 
+}
+The four session guarantees can combine to form 16 ($=2^4$) different semantics. For example, pipeline RAM (PRAM) consistency is a combination of MR, RYW, and MW, and causal consistency (CC) is a combination of all four, MR, RYW, MW, and WFR, even though PRAM and CC have their own definitions. 
+\itemparen{
+\item \textbf{PRAM consistency (PRAM):} read and write operations by a user happens in first in first out order from the user point of view, but there is no global ordering guarantees.
+\item \textbf{Causal consistency (CC):} read and write operations are applied in the happens-before causal ordering.
+}
+Finally, linearizability hides all distributed and concurrent natures of distributed systems.
+\itemparen{
+\item \textbf{Linearizability (LIN):} all read and write operations are applied as if they are executed atomically by a single non-concurrent user.
+}
+
+In terms of strength EC < MR, RYW, MW, WFR < PRAM (= MR + RYW + MW) < CC (= MR + RYW + MW + WFR) < LIN
+

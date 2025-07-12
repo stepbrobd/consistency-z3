@@ -453,14 +453,31 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-07-12
+
+for timing
+
+- time each pairwise check (not the app level graph checking table 1)
+- for graph check, 1. give correct combination 2. let the checker pick
+- for media example, leave data dependency as is and just generate slots for the
+  semantics
+- write a generation function that checks all semantics and all combinitions of
+  the semantics
+- assign score to each of the semantic, and generate permutation for all
+  semantics, sort by sum from low to high and plug in one by one
+- eventual -> 0, session -> 1, PRAM -> 3, causal -> 4, linearizablity -> 5
+- selling point: checker can find the weakest combinition
+
 ### 2025-07-02
 
 - [high prio] lift PRAM write-write arbitration to visibility
-- find out who starred my repo and add that SAT solver work to related work (follow up on slack)
+- find out who starred my repo and add that SAT solver work to related work
+  (follow up on slack)
   - https://hengxin.github.io
   - https://github.com/hengxin/smt-transactional-consistency-artifact
   - write a summary and add to related work
-- eval: when timing the checks, save timing info per combination and num of checks
+- eval: when timing the checks, save timing info per combination and num of
+  checks
 - continue writing and graphs
 - [offloaded] rewrite intro and mentions of DAG
 - [offloaded] request to proofread and modify background and motivation section
@@ -482,7 +499,8 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 - lift PRAM write-write arbitration to visibility - skipped
 - add safety prperties of eventual (non-transactional pp. 10, no circular +
   rval) - done
-- add failure (counter) example to motivation section (use as problem statement) - done
+- add failure (counter) example to motivation section (use as problem
+  statement) - done
   - give simple example of practical app
   - plugin one semantic and it passes the check
   - switch to a failing semantic

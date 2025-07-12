@@ -171,37 +171,28 @@ symbolic operations relevant to a particular system or component
 being modeled. Omitting the argument applies the relation to the
 default set of symbols.
 
-Axioms defined for operations within abstract executions:
+One of our main contributions is clearly defining
+visibility, as existing definitions in the literature are ambiguous
+regarding exact behavior under concurrent
+settings
+\cite{viotti2016consistency,viotti2016towards,zhang2018building,ferreira2023antipode}.
+In our implementation, we restructure visibility as a binary relation
+and perform explicit case analysis on all possible combinations of
+read and write operations that can be "visible" to each other.
 
-We have went through multiple definitions of visibility but
-it is clear that almost all of them are ambiguous as in they
-do not specify the exact behavior under concurrent settings.
-One of our main contributions is to clearly define visibility.
-
-We've added the notion of can-view and viewed to capture the
+We introduce the notion of can-view and viewed to capture the
 deterministic and non-deterministic behavior of operations,
 and what it means for one operation to be able to "observe"
-the effects of another operation.
-
-Visibility definition used in all
-literatures we have reviewed
-are ambiguous in the sense that they don't specify the exact behavior under
-concurrent settings \cite{viotti2016consistency}
-\cite{viotti2016towards} \cite{zhang2018building}
-\cite{ferreira2023antipode}. In our implementation, we
-restructured visibility as a
-binary relation and performed explicit case analysis on all possible
-combinations of read and write operations that can be "visible"
-to each other.
-To achieve visibility, two operations must first fall in one of
+the effects of another operation. To achieve visibility, two
+operations must first fall in one of
 the categories in "can-view": either the write happened before the read
 in absolute time (note that whether the read/write happened on the
-  same process or not does not matter, synchronization
+  same process does not matter, as synchronization
 is not required to establish probable effect causality)
 or the read and write happened concurrently such that the read might
-see the write's effect.
+observe the write's effect.
 
-The can-view non-deterministic relation is defined over the pair-wise
+The can-view non-deterministic relation is defined over the pairwise
 start or return time between
 specified read and write operations. When two operations $a$ and $b$
 are defined to be in can-view relation ($a \xrightarrow{\text{can-view}} b$),
@@ -238,12 +229,13 @@ $b$'s write effect might be visible to $a$. Formally:
   )\}
 \end{align*}
 
-In the above encoding, can-view is a non-deterministic pairwise
-partial ordering that solely depends on time stamps. Conceptually, it captures
-all cases where reads happened before or after or during writes. And is a set
-of operations where, the first element of the tuple is a read and the second
-element is a write. The read \textit{can view} (nondeterminism
-included) the write if (see Figure \ref{fig:can-view}):
+The can-view relation is a non-deterministic pairwise
+partial ordering that depends solely on timestamps. Conceptually, it captures
+all cases where reads happened before, after, or during writes.
+It is a set
+of operation pairs where the first element is a read and the second
+element is a write. The read \textit{can view} the write if (see
+Figure \ref{fig:can-view}):
 
 \begin{itemize}
   \item ($a \xrightarrow{\text{can-view}} b_1$) The read-write pair
@@ -328,43 +320,54 @@ result dependency between them is captured by the viewed relation:
   \}
 \end{align*}
 
-In the encoding above, viewed is defined as a non-deterministic
+The viewed relation is defined as a non-deterministic
 pairwise partial ordering
-between a write and a read that build atop can-view. Aside from the timestamps
-fall into one of the can-view cases, we assigned additional value related
-constraints to operations: either value written by the write
+between a read and a write that builds upon can-view. Aside from timestamps
+falling into one of the can-view cases, we
+assign additional value-related
+constraints to operations: either the value written by the write
 operation must match the output
-of the read, or, in case of another write operation happened after or
+of the read, or, in case of another write operation
+that happened after or
 concurrent to the
-aforementioned write, viewed relation enforces the output of the read to be
-either of writes (but only one can be chosen). In visibility definition, the
-transitivity of viewed relation is implicitly enforced.
+aforementioned write, the viewed relation enforces the
+output of the read to be
+from one of the writes (but only one can be chosen). In
+the visibility definition, the
+transitivity of the viewed relation is implicitly enforced.
 
-Using Figure \ref{fig:can-view}'s operation $a$ and $b_1$ as an example,
-since $a$ and $b_1$ are in can-view relation, if $b_1$'s value written
-is that of $a$'s output, then $a$ is in viewed relation with $b_1$. Consider
-another operation $b_5$ in the same figure that happened concurrent to $b_1$.
-If $b_5$'s value written is different
-from $b_1$, but $a$ and $b_5$ are in can-view relation and $a$ v.s.
+Using Figure \ref{fig:can-view}'s operations $a$ and $b_1$ as an example,
+since $a$ and $b_1$ are in the can-view relation, if
+$b_1$'s written
+value matches $a$'s output, then $a$ is in
+the viewed relation with $b_1$. Consider
+another operation $b_5$ in the same figure that happened
+concurrently with $b_1$.
+If $b_5$'s written value differs
+from $b_1$, but $a$ and $b_5$ are in the can-view
+relation and $a$ and
 $b_5$ have value
-equivalence, then $a$ and $b_1$ are still in viewed relation (write
+equivalence, then $a$ and $b_1$ are still in the viewed
+relation (write
 $b_1$ still affects $a$).
-However, in this scenario, the constraint in effect for viewed
+However, in this scenario, the constraint in effect for the viewed
 relation is the existence of $b_5$ and
 the value equivalence of $a$ and $b_5$.
 
 % actual vis
-The visible or visibility definition, it is a deterministic pairwise
-relationship between any two operations in the history instead of
-limiting to read-write pairs.
+The visibility definition establishes a deterministic pairwise
+relationship between any two operations in the history
+rather than being
+limited to read-write pairs.
 It also enforces the transitivity (propagation) and acyclicity
 (cannot go back in time) of the viewed
 relation. We do not enforce transitivity and acyclicity in the viewed relation
 as the orderings of concurrent operations are non-deterministic, and viewed
-should include all pairs of operations that can be viewed by each other only
-from logical time and value equality perspective.
+should include all pairs of operations that can be viewed by each
+other based only on logical time and value equality considerations.
 
-If if constraint $a \xrightarrow{\text{vis}} b$ is assigned to a pair
+When constraint $a \xrightarrow{\text{vis}} b$ is
+assigned to a pair
 of operations,
 the following cases are considered:
 
@@ -385,38 +388,55 @@ the following cases are considered:
 
 Note that the read-read and read-write cases are recursively
 defined, where $a$ and $b$ are in $\text{vis}_\text{rd-rd}$ or
-$\text{vis}_\text{rd-wr}$, if and only if there's a write $x$ that is
+$\text{vis}_\text{rd-wr}$, if and only if there exists a
+write $x$ that is
 visible to $a$, and $x$ is in $\text{vis}_\text{wr-rd}$ or
-$\text{vis}_\text{wr-wr}$ with $b$. We call this the rule
-of write propagation. Conceptually, this means that if a read $a$
+$\text{vis}_\text{wr-wr}$ with $b$. We call this the
+write propagation rule. Conceptually, this means that if a read $a$
 and another operation (either read or write) $b$ are in the visibility relation,
-the closest write operation $x$ that is visible to the read $a$ must
+the closest write operation $x$ that is visible to read $a$ must
 be propagated
-to $b$. Whether this visibility relation can be satisfied, solely
-depend on the existence of the read $a$'s previous- and immediate-
-adjacent write operation $x$, and whether
+to $b$. Whether this visibility relation can be satisfied
+depends solely on the existence of read $a$'s previous and
+immediately adjacent write operation $x$, and whether
 that $x$ can satisfy the write-read or write-write pairwise
-constraints of visibility,
-of which will be discussed in the following paragraphs.
+constraints of visibility which are
+discussed in the following paragraphs.
 
-In the write-read case, we named this rule definitive visibility. Definitive
-visibility is defined as if a write $a$ is visible to a read $b$, then $b$
+In the write-read case, we term this rule definitive
+visibility. Definitive
+visibility is defined as follows: if a write $a$ is
+visible to a read $b$, then $b$
 must have viewed $a$ and an arbitration relation must exist between $a$ and $b$
-to ensure the non-deterministic viewed relation have a linearization point,
-i.e. cut off one of the possible paths in the viewed relation.
+to ensure the non-deterministic viewed relation has a
+linearization point,
+i.e., to cut off one of the possible paths in the viewed relation.
 
-The last case is the write-write visibility (write arbitration).
+The last case is write-write visibility (write arbitration).
 Whether two writes are visible to each other depends on the existence of an
-arbitration relation between them. In Voitti et al.
-\cite{viotti2016consistency},
-authors clearly stated two writes are invisible to each other if not
+arbitration relation between them. In Viotti et al.
+\cite{viotti2016consistency}, the authors clearly stated that two writes
+are invisible to each other if not
 ordered by vis,
 and arbitration imposes a total order to resolve conflicts between concurrent
 and invisible operations.
 
+Other relations under Abstract Execution includes arbitration, and
+happens-before.
 Arbitration is an application specific, transitive and acyclic
 relation that provides a total order on conflicting operations,
-ensuring that observed executions follow a single coherent timeline.
+ensuring that observed executions follow a single coherent timeline. In
+our implementation, arbitration is assigned strong timestamp total ordering.
+Realistically, arbitration can be achieved with monolithic
+sequencers, deterministic
+conflict resolution rules, distributed timestamping \cite{lamport1978time},
+or consensus protocols
+\cite{birman1991lightweight,hadzilacos1994modular,lamport2001paxos}.
+Happens-before is used to capture probable causality,
+and is previously defined in the literature as the transitive union
+of session order and visibility:
+$hb \triangleq (\text{so} \cup {\text{vis}})^{+}$
+\cite{burckhardt2014principles,viotti2016consistency}.
 
 \subsection{Session Guarantees}
 

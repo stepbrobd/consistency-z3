@@ -42,7 +42,7 @@ written could be several times compare to the lines of code and small
 change could easily break the entire proof~\needcite{}. Thus, formal verification
 leads to a similar problem to testing where the compatibility check
 cannot agilely keep up with the changes in underlying systems and 
-applications.
+applications. \todo{Lindsey's work on trace based analysis??}
 
 In this paper, we propose \sysname{}, a light-weight \sysnamelong{}. \sysname{}
 helps developers to quickly encode their application logic and
@@ -83,7 +83,7 @@ The leaf nodes are typically the external distributed service that
 follows one of the pre-built distributed consistency semantic models
 in \sysname{}.
 
-The multi-graph model is expressive enough to model an application logic 
+The \sysgraph{} model is expressive enough to model an application logic 
 from a high-level and trace complex dependencies that cross multiple
 application logics and distributed systems that the application
 replies on. \sysname{} can trivially check simple application that

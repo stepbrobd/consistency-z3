@@ -1,5 +1,4 @@
 import time
-from itertools import combinations
 
 from consistency.common import (
     Cons,
@@ -19,26 +18,53 @@ from consistency.model.pram_consistency import PRAMConsistency
 from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
 
-ranked: list[tuple[int, tuple[type, ...]]] = [
+# NOTE: the best way is to go with the following but add a filter
+# to remove combinititions that conceptually do not make sense
+# ranked: list[tuple[int, tuple[type, ...]]] = [
+#     (0, (EventualConsistency,)),
+#     (1, (MonotonicReads,)),
+#     (1, (MonotonicWrites,)),
+#     (1, (ReadYourWrites,)),
+#     (1, (WritesFollowReads,)),
+#     (3, (PRAMConsistency,)),
+#     (4, (CausalConsistency,)),
+#     (5, (Linearizability,)),
+# ]
+# result = []
+# for r in range(1, len(ranked) + 1):
+#     for combo in combinations(ranked, r):
+#         total = sum(item[0] for item in combo)
+#         models = tuple(model for item in combo for model in item[1])
+#         result.append((total, models))
+# result.sort(key=lambda x: x[0])
+# now we'll just hardcode the result
+result: list[tuple[int, tuple[type, ...]]] = [
+    # score 0: EC
     (0, (EventualConsistency,)),
+    # score 1: individual session guarantees
     (1, (MonotonicReads,)),
-    (1, (MonotonicWrites,)),
     (1, (ReadYourWrites,)),
+    (1, (MonotonicWrites,)),
     (1, (WritesFollowReads,)),
+    # score 2: pairwise combinations
+    (2, (MonotonicReads, ReadYourWrites)),
+    (2, (MonotonicReads, MonotonicWrites)),
+    (2, (MonotonicReads, WritesFollowReads)),
+    (2, (ReadYourWrites, MonotonicWrites)),
+    (2, (ReadYourWrites, WritesFollowReads)),
+    (2, (MonotonicWrites, WritesFollowReads)),
+    # score 3: 3-way combinations
+    # (3, (MonotonicReads, ReadYourWrites, MonotonicWrites)), # PRAM
     (3, (PRAMConsistency,)),
+    (3, (MonotonicReads, ReadYourWrites, WritesFollowReads)),
+    (3, (MonotonicReads, MonotonicWrites, WritesFollowReads)),
+    (3, (ReadYourWrites, MonotonicWrites, WritesFollowReads)),
+    # score 4: all 4 session guarantees (causal)
+    # (4, (MonotonicReads, ReadYourWrites, MonotonicWrites, WritesFollowReads)),
     (4, (CausalConsistency,)),
+    # score 5: linearizability
     (5, (Linearizability,)),
 ]
-
-result = []
-for r in range(1, len(ranked) + 1):
-    for combo in combinations(ranked, r):
-        total = sum(item[0] for item in combo)
-        models = tuple(model for item in combo for model in item[1])
-        result.append((total, models))
-
-result.sort(key=lambda x: x[0])
-
 
 @cleanup
 def test_entry() -> None:

@@ -3,29 +3,33 @@
 
 Distributed consistency semantics define in which order updates are applied and made visible in replica nodes of a distributed system. When an update request is submitted to the distributed system, a subset (typically one) of nodes receives it and the update is propagated across distributed nodes. Due to the asynchronous nature of the network and nodes, replica nodes receive the update with different delays and users accessing distinct nodes could observe different data states. Distributed consistency semantics introduce ordering constraints on top of such non-determinism so that applications can predictably work with the system. 
 
-There are many distributed consistency semantics and they can be partially ordered by their strength~\needcite{}. Among them \sysname{} models a few widely used semantics, including eventual consistency, session guarantees, causal consistency, and linearizability. 
-
+There are many distributed consistency semantics and among them \sysname{} models a few widely used semantics in both industry and academia~\needcite{}, including eventual consistency~\cite{burckhardt2014principles}, session guarantees~\cite{terry1994session}, causal consistency~\needcite{}, and linearizability~\cite{herlihy1990linearizability}.
+ 
 While eventual consistency (EC) is considered as a liveness property, it defines a minimum safety property that visible data reflects valid updates in history. Informally,
 \itemparen{
 \item \textbf{Eventual consistency (EC):} users may read any versions of data but with no incoming updates the most up-to-date version will become visible to all reads. 
 }
 
-Session guarantees, like its name, defines semantics based on per-user-session bases:
+Session guarantees (SGs), like its name, defines semantics from the viewpoint of a user session:
 \itemparen{
 \item \textbf{Monotonic reads (MR):} a user sees the same or later version of data than what was last seen by the same user.  
 \item \textbf{Read-your-writes (RYW):} a users sees the same or later version of data than what was last written by the same user.
 \item \textbf{Monotonic writes (MW):} writes by a user applies in the order that this user wrote. 
 \item \textbf{Write-follows-reads (WFR):} writes by a user applies after writes corresponding to what this user read apply. 
 }
-The four session guarantees can combine to form 16 ($=2^4$) different semantics. For example, pipeline RAM (PRAM) consistency is a combination of MR, RYW, and MW, and causal consistency (CC) is a combination of all four, MR, RYW, MW, and WFR, even though PRAM and CC have their own definitions. 
+By choosing whether to enforce each of four session guarantees, a total of 16 ($=2^4$) different semantics can be derived. While most of them do not have specific names (e.g., MR + RYW), there are a few well-known named semantics. For example, EC is not enforcing none of SGs, pipeline RAM consistency (PRAM) is a combination of MR, RYW, and MW~\cite{brzezinski2004session}, and causal consistency (CC) is a combination of all four SGs, MR, RYW, MW, and WFR~\needcite{}. Still, PRAM and CC have their own definitions. 
 \itemparen{
-\item \textbf{PRAM consistency (PRAM):} read and write operations by a user happens in first in first out order from the user point of view, but there is no global ordering guarantees.
-\item \textbf{Causal consistency (CC):} read and write operations are applied in the happens-before causal ordering.
+\item \textbf{PRAM consistency (PRAM):} read and write operations by a user happens in first in first out order from this user's point of view, but there is no global ordering guarantees.
+\item \textbf{Causal consistency (CC):} read and write operations follow the causal (or happens-before~\cite{lamport1978time}) ordering.
 }
 Finally, linearizability hides all distributed and concurrent natures of distributed systems.
 \itemparen{
 \item \textbf{Linearizability (LIN):} all read and write operations are applied as if they are executed atomically by a single non-concurrent user.
 }
+\begin{figure}
+	\includegraphics{figs/semantics-tree}
+	\caption{Partially ordered semantics. Stronger one subsumes the weaker one.\label{fig:semantics-tree}}
+\end{figure}
+The semantics can be partially ordered by their strength~\cite{viotti2016consistency} where strictly stronger semantics subsumes the weaker ones (\cref{fig:semantics-tree}). Thus, when an application requires a certain semantics then a strictly stronger one can be safely used as a replacement.
 
-In terms of strength EC < MR, RYW, MW, WFR < PRAM (= MR + RYW + MW) < CC (= MR + RYW + MW + WFR) < LIN
 

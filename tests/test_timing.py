@@ -100,7 +100,19 @@ def test_timing_shop() -> None:
     print(f"saving results to: {csv_file}")
     with open(csv_file, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["composable", "duration", "score", "arbitrator_score", "arbitrator_name", "tx_score", "tx_name", "shop_score", "shop_name"])
+        writer.writerow(
+            [
+                "composable",
+                "duration",
+                "score",
+                "arbitrator_score",
+                "arbitrator_name",
+                "tx_score",
+                "tx_name",
+                "shop_score",
+                "shop_name",
+            ]
+        )
 
     results = []
 
@@ -152,12 +164,19 @@ def test_timing_shop() -> None:
 
         with open(csv_file, "a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([
-                ok, duration, score,
-                arb_score, get_name(arb_choice),
-                tx_score, get_name(tx_choice),
-                shop_score, get_name(shop_choice)
-            ])
+            writer.writerow(
+                [
+                    ok,
+                    duration,
+                    score,
+                    arb_score,
+                    get_name(arb_choice),
+                    tx_score,
+                    get_name(tx_choice),
+                    shop_score,
+                    get_name(shop_choice),
+                ]
+            )
 
         result = {
             "composable": ok,
@@ -175,9 +194,274 @@ def test_timing_shop() -> None:
     # print(results)
 
 
-def test_timing_media() -> None:
-    ...
+@cleanup
+def test_timing_xc() -> None:
+    temp_dir = Path(tempfile.mkdtemp())
+    csv_file = temp_dir / "xc_timing_results.csv"
+    print(f"saving results to: {csv_file}")
+    with open(csv_file, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "composable",
+                "duration",
+                "score",
+                "svc1_score",
+                "svc1_name",
+                "svc2_score",
+                "svc2_name",
+                "svc3_score",
+                "svc3_name",
+                "svc4_score",
+                "svc4_name",
+            ]
+        )
+
+    def gensym(name: str) -> Callable[[str, list[str]], list[str]]:
+        return lambda s, symbols: [f"{name}_{s}_{symbol}" for symbol in symbols]
+
+    semantics = {
+        "mr": (
+            MonotonicReads.assertions,
+            lambda s: gensym("mr")(s, ["a", "b", "c", "x"]),
+        ),
+        "mw": (MonotonicWrites.assertions, lambda s: gensym("mw")(s, ["a", "b", "c"])),
+        "ryw": (
+            ReadYourWrites.assertions,
+            lambda s: gensym("ryw")(s, ["a", "b", "c", "x"]),
+        ),
+        "wfr": (
+            WritesFollowReads.assertions,
+            lambda s: gensym("wfr")(s, ["a", "b", "c", "x"]),
+        ),
+    }
+
+    def assertion_for(name: str, sys: str) -> z3.BoolRef:
+        assertion_func, symbol_gen = semantics[name]
+        return assertion_func(symbol_gen(sys))
+
+    svc_choices = [
+        (0, "EventualConsistency"),
+        (1, "MonotonicReads"),
+        (1, "ReadYourWrites"),
+        (1, "MonotonicWrites"),
+        (1, "WritesFollowReads"),
+        (2, "MonotonicReads + ReadYourWrites"),
+        (2, "MonotonicReads + MonotonicWrites"),
+        (2, "MonotonicReads + WritesFollowReads"),
+        (2, "ReadYourWrites + MonotonicWrites"),
+        (2, "ReadYourWrites + WritesFollowReads"),
+        (2, "MonotonicWrites + WritesFollowReads"),
+        (3, "PRAMConsistency"),
+        (3, "MonotonicReads + ReadYourWrites + WritesFollowReads"),
+        (3, "MonotonicReads + MonotonicWrites + WritesFollowReads"),
+        (3, "ReadYourWrites + MonotonicWrites + WritesFollowReads"),
+        (4, "CausalConsistency"),
+        (5, "Linearizability"),
+    ]
+
+    def get_svc_assertions(choice_name: str, counter_val: int) -> z3.BoolRef:
+        if choice_name == "EventualConsistency":
+            return EventualConsistency.assertions()
+        elif choice_name == "MonotonicReads":
+            return assertion_for("mr", str(counter_val))
+        elif choice_name == "ReadYourWrites":
+            return assertion_for("ryw", str(counter_val))
+        elif choice_name == "MonotonicWrites":
+            return assertion_for("mw", str(counter_val))
+        elif choice_name == "WritesFollowReads":
+            return assertion_for("wfr", str(counter_val))
+        elif choice_name == "PRAMConsistency":
+            return compose(
+                assertion_for("mr", str(counter_val)),
+                assertion_for("ryw", str(counter_val)),
+                assertion_for("mw", str(counter_val)),
+            )
+        elif choice_name == "CausalConsistency":
+            return compose(
+                assertion_for("mr", str(counter_val)),
+                assertion_for("ryw", str(counter_val)),
+                assertion_for("mw", str(counter_val)),
+                assertion_for("wfr", str(counter_val)),
+            )
+        elif choice_name == "Linearizability":
+            return Linearizability.assertions()
+        else:
+            parts = choice_name.split(" + ")
+            assertions = []
+            for part in parts:
+                if part == "MonotonicReads":
+                    assertions.append(assertion_for("mr", str(counter_val)))
+                elif part == "ReadYourWrites":
+                    assertions.append(assertion_for("ryw", str(counter_val)))
+                elif part == "MonotonicWrites":
+                    assertions.append(assertion_for("mw", str(counter_val)))
+                elif part == "WritesFollowReads":
+                    assertions.append(assertion_for("wfr", str(counter_val)))
+            return compose(*assertions)
+
+    results = []
+
+    for svc1_choice, svc2_choice, svc3_choice, svc4_choice in product(
+        svc_choices, repeat=4
+    ):
+        Relation.Reset()
+        z3.reset_params()
+        start_time = time.perf_counter()
+
+        svc1_score, svc1_name = svc1_choice
+        svc2_score, svc2_name = svc2_choice
+        svc3_score, svc3_name = svc3_choice
+        svc4_score, svc4_name = svc4_choice
+
+        counter = Counter(semantics.keys())
+
+        svc1 = Node(
+            name="SVC1",
+            needs=None,
+            provs=[(Cons("SVC1", get_svc_assertions(svc1_name, counter["mr"])),)],
+        )
+        counter["mr"] += 1
+
+        # SVC1 -> SVC2
+        edge1_constraints = [
+            assertion_for("mr", str(counter["mr"])),
+            assertion_for("ryw", str(counter["ryw"])),
+            assertion_for("wfr", str(counter["wfr"])),
+        ]
+        counter["mr"] += 1
+        counter["ryw"] += 1
+        counter["wfr"] += 1
+
+        svc2 = Node(
+            name="SVC2",
+            needs=None,
+            provs=[(Cons("SVC2", get_svc_assertions(svc2_name, counter["mw"])),)],
+        )
+        counter["mw"] += 1
+
+        edge1 = Edge(
+            src=svc1,
+            dst=svc2,
+            cons=[(Cons("EC1", compose(*edge1_constraints)),)],
+        )
+
+        # SVC2 -> SVC3
+        edge2_constraints = [
+            assertion_for("mr", str(counter["mr"])),
+            assertion_for("mw", str(counter["mw"])),
+            assertion_for("wfr", str(counter["wfr"])),
+        ]
+        counter["mr"] += 1
+        counter["mw"] += 1
+        counter["wfr"] += 1
+
+        svc3 = Node(
+            name="SVC3",
+            needs=None,
+            provs=[(Cons("SVC3", get_svc_assertions(svc3_name, counter["ryw"])),)],
+        )
+        counter["ryw"] += 1
+
+        edge2 = Edge(
+            src=svc2,
+            dst=svc3,
+            cons=[(Cons("EC2", compose(*edge2_constraints)),)],
+        )
+
+        # SVC3 -> SVC4
+        edge3_constraints = [
+            assertion_for("mr", str(counter["mr"])),
+            assertion_for("mw", str(counter["mw"])),
+            assertion_for("ryw", str(counter["ryw"])),
+        ]
+        counter["mr"] += 1
+        counter["mw"] += 1
+        counter["ryw"] += 1
+
+        svc4 = Node(
+            name="SVC4",
+            needs=None,
+            provs=[(Cons("SVC4", get_svc_assertions(svc4_name, counter["wfr"])),)],
+        )
+        counter["wfr"] += 1
+
+        edge3 = Edge(
+            src=svc3,
+            dst=svc4,
+            cons=[(Cons("EC3", compose(*edge3_constraints)),)],
+        )
+
+        # SVC4 -> XC
+        edge4_constraints = [
+            assertion_for("mr", str(counter["mr"])),
+            assertion_for("mw", str(counter["mw"])),
+            assertion_for("ryw", str(counter["ryw"])),
+        ]
+        counter["mr"] += 1
+        counter["mw"] += 1
+        counter["ryw"] += 1
+
+        xc = Node(
+            name="XC",
+            needs=None,
+            provs=None,
+        )
+
+        edge4 = Edge(
+            src=svc4,
+            dst=xc,
+            cons=[(Cons("EC4", compose(*edge4_constraints)),)],
+        )
+
+        # full graph
+        nodes = [svc1, svc2, svc3, svc4, xc]
+        edges = [edge1, edge2, edge3, edge4]
+
+        g = graph(nodes, edges)
+        ok, res = composable(g, svc1)
+
+        end_time = time.perf_counter()
+        Relation.Reset()
+        z3.reset_params()
+        duration = end_time - start_time
+
+        score = svc1_score + svc2_score + svc3_score + svc4_score
+
+        with open(csv_file, "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(
+                [
+                    ok,
+                    duration,
+                    score,
+                    svc1_score,
+                    svc1_name,
+                    svc2_score,
+                    svc2_name,
+                    svc3_score,
+                    svc3_name,
+                    svc4_score,
+                    svc4_name,
+                ]
+            )
+
+        result = {
+            "composable": ok,
+            "duration": duration,
+            "score": score,
+            "svc1": (svc1_score, svc1_name),
+            "svc2": (svc2_score, svc2_name),
+            "svc3": (svc3_score, svc3_name),
+            "svc4": (svc4_score, svc4_name),
+        }
+        print(result)
+        results.append(result)
+
+    # results.sort(key=lambda x: (x["score"], x["duration"]))
+    # print(len(results))
+    # print(results)
 
 
-def test_timing_xcom() -> None:
-    ...
+@cleanup
+def test_timing_media() -> None: ...

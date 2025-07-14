@@ -453,6 +453,15 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-07-14
+
+- timing (limit each check to 10sec and terminate use a special marker)
+- sort the `product()` call and start from the combo with the smallest score
+- output should be a table
+- time of min time to find the combination with the smallest score
+- when user plug in the correct combo, the time to check the correctness
+- leave timing media example as future work (17^9)
+
 ### 2025-07-12
 
 for timing

@@ -1,5 +1,10 @@
+import csv
+import tempfile
 import time
+from collections import Counter
+from collections.abc import Callable
 from itertools import product
+from pathlib import Path
 
 import z3
 
@@ -20,6 +25,7 @@ from consistency.model.monotonic_writes import MonotonicWrites
 from consistency.model.pram_consistency import PRAMConsistency
 from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
+from consistency.relation import Relation
 
 # NOTE: the best way is to go with the following but add a filter
 # to remove combinititions that conceptually do not make sense
@@ -77,14 +83,32 @@ def get_assertions(models: tuple[type, ...]) -> list[z3.AstRef]:
     result = models[0].assertions()
     for model in models[1:]:
         result = compose(result, model.assertions())
-    return result # type: ignore[return-value]
+    return result  # type: ignore[return-value]
+
+
+def get_name(choice: tuple[int, tuple[type, ...]]) -> str:
+    _, models = choice
+    if len(models) == 1:
+        return models[0].__name__
+    return " + ".join(model.__name__ for model in models)
 
 
 @cleanup
 def test_timing_shop() -> None:
+    temp_dir = Path(tempfile.mkdtemp())
+    csv_file = temp_dir / "shop_timing_results.csv"
+    print(f"saving results to: {csv_file}")
+    with open(csv_file, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["composable", "duration", "score", "arbitrator_score", "arbitrator_name", "tx_score", "tx_name", "shop_score", "shop_name"])
+
     results = []
 
     for arb_choice, tx_choice, shop_choice in product(choices, repeat=3):
+        Relation.Reset()
+        z3.reset_params()
+        start_time = time.perf_counter()
+
         arb_score, arb_models = arb_choice
         tx_score, tx_models = tx_choice
         shop_score, shop_models = shop_choice
@@ -94,17 +118,17 @@ def test_timing_shop() -> None:
         arbitrator = Node(
             name="Arbitrator",
             needs=None,
-            provs=[(Cons("ARB", get_assertions(arb_models)),)], # type: ignore[call-arg]
+            provs=[(Cons("ARB", get_assertions(arb_models)),)],  # type: ignore[call-arg]
         )
         tx = Node(
             name="Tx",
             needs=None,
-            provs=[(Cons("TX", get_assertions(tx_models)),)] # type: ignore[call-arg]
+            provs=[(Cons("TX", get_assertions(tx_models)),)],  # type: ignore[call-arg]
         )
         shop = Node(
             name="Shop",
             needs=None,
-            provs=[(Cons("SHOP", get_assertions(shop_models)),)], # type: ignore[call-arg]
+            provs=[(Cons("SHOP", get_assertions(shop_models)),)],  # type: ignore[call-arg]
         )
 
         nodes = [arbitrator, tx, shop, client, cart]
@@ -117,35 +141,38 @@ def test_timing_shop() -> None:
         ]
 
         g = graph(nodes, edges)
-
-        start_time = time.perf_counter()
         ok, res = composable(g, client)
-        end_time = time.perf_counter()
 
+        end_time = time.perf_counter()
+        Relation.Reset()
+        z3.reset_params()
         duration = end_time - start_time
-        total_score = arb_score + tx_score + shop_score
+
+        score = arb_score + tx_score + shop_score
+
+        with open(csv_file, "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                ok, duration, score,
+                arb_score, get_name(arb_choice),
+                tx_score, get_name(tx_choice),
+                shop_score, get_name(shop_choice)
+            ])
 
         result = {
-            'composable': ok,
-            'duration': duration,
-            'total_score': total_score,
-            'arbitrator': (arb_score, arb_models),
-            'tx': (tx_score, tx_models),
-            'shop': (shop_score, shop_models),
+            "composable": ok,
+            "duration": duration,
+            "score": score,
+            "arbitrator": (arb_score, get_name(arb_choice)),
+            "tx": (tx_score, get_name(tx_choice)),
+            "shop": (shop_score, get_name(shop_choice)),
         }
         print(result)
         results.append(result)
 
-    results.sort(key=lambda x: (x['total_score'], x['duration']))
-
-    print(f"Total combinations: {len(results)}")
-    for result in results:
-        print(f"Score: {result['total_score']}, "
-              f"Composable: {result['composable']}, "
-              f"Duration: {result['duration']:.6f}s, "
-              f"Config: ARB={result['arbitrator'][1]}, "
-              f"TX={result['tx'][1]}, "
-              f"SHOP={result['shop'][1]}")
+    # results.sort(key=lambda x: (x["score"], x["duration"]))
+    # print(len(results))
+    # print(results)
 
 
 def test_timing_media() -> None:

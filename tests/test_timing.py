@@ -1,4 +1,7 @@
 import time
+from itertools import product
+
+import z3
 
 from consistency.common import (
     Cons,
@@ -30,15 +33,15 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 #     (4, (CausalConsistency,)),
 #     (5, (Linearizability,)),
 # ]
-# result = []
+# choices = []
 # for r in range(1, len(ranked) + 1):
 #     for combo in combinations(ranked, r):
 #         total = sum(item[0] for item in combo)
 #         models = tuple(model for item in combo for model in item[1])
-#         result.append((total, models))
-# result.sort(key=lambda x: x[0])
-# now we'll just hardcode the result
-result: list[tuple[int, tuple[type, ...]]] = [
+#         choices.append((total, models))
+# choices.sort(key=lambda x: x[0])
+# now we'll just hardcode the choices
+choices: list[tuple[int, tuple[type, ...]]] = [
     # score 0: EC
     (0, (EventualConsistency,)),
     # score 1: individual session guarantees
@@ -66,54 +69,88 @@ result: list[tuple[int, tuple[type, ...]]] = [
     (5, (Linearizability,)),
 ]
 
-@cleanup
-def test_entry() -> None:
-    print(result)
+
+def get_assertions(models: tuple[type, ...]) -> list[z3.AstRef]:
+    if len(models) == 1:
+        return models[0].assertions()
+
+    result = models[0].assertions()
+    for model in models[1:]:
+        result = compose(result, model.assertions())
+    return result # type: ignore[return-value]
 
 
 @cleanup
-def test_timing_simple() -> None:
-    arbitrator = Node(
-        name="Arbitrator",
-        needs=None,
-        provs=[(Cons("LZ", Linearizability.assertions()),)],
-    )
-    tx = Node(
-        name="Tx", needs=None, provs=[(Cons("LZ", Linearizability.assertions()),)]
-    )
-    shop = Node(
-        name="Shop",
-        needs=None,
-        provs=[
-            (
-                Cons(
-                    "RMW+MR",
-                    compose(ReadYourWrites.assertions(), MonotonicReads.assertions()),
-                ),
-            )
-        ],
-    )
+def test_timing_shop() -> None:
+    results = []
 
-    nodes = [arbitrator, tx, shop]
-    edges = [
-        Edge(src=arbitrator, dst=shop, cons=None),
-        Edge(src=arbitrator, dst=tx, cons=None),
-    ]
+    for arb_choice, tx_choice, shop_choice in product(choices, repeat=3):
+        arb_score, arb_models = arb_choice
+        tx_score, tx_models = tx_choice
+        shop_score, shop_models = shop_choice
 
-    client = Node(name="Client", needs=None, provs=None)
-    cart = Node(name="Cart", needs=None, provs=None)
+        client = Node(name="Client", needs=None, provs=None)
+        cart = Node(name="Cart", needs=None, provs=None)
+        arbitrator = Node(
+            name="Arbitrator",
+            needs=None,
+            provs=[(Cons("ARB", get_assertions(arb_models)),)], # type: ignore[call-arg]
+        )
+        tx = Node(
+            name="Tx",
+            needs=None,
+            provs=[(Cons("TX", get_assertions(tx_models)),)] # type: ignore[call-arg]
+        )
+        shop = Node(
+            name="Shop",
+            needs=None,
+            provs=[(Cons("SHOP", get_assertions(shop_models)),)], # type: ignore[call-arg]
+        )
 
-    nodes.extend([client, cart])
-    edges.extend(
-        [
+        nodes = [arbitrator, tx, shop, client, cart]
+        edges = [
+            Edge(src=arbitrator, dst=shop, cons=None),
+            Edge(src=arbitrator, dst=tx, cons=None),
             Edge(src=client, dst=cart, cons=None),
             Edge(src=client, dst=shop, cons=None),
             Edge(src=client, dst=arbitrator, cons=None),
         ]
-    )
 
-    g = graph(nodes, edges)
-    time.perf_counter()
-    ok, res = composable(g, client)
-    time.perf_counter()
-    assert ok
+        g = graph(nodes, edges)
+
+        start_time = time.perf_counter()
+        ok, res = composable(g, client)
+        end_time = time.perf_counter()
+
+        duration = end_time - start_time
+        total_score = arb_score + tx_score + shop_score
+
+        result = {
+            'composable': ok,
+            'duration': duration,
+            'total_score': total_score,
+            'arbitrator': (arb_score, arb_models),
+            'tx': (tx_score, tx_models),
+            'shop': (shop_score, shop_models),
+        }
+        print(result)
+        results.append(result)
+
+    results.sort(key=lambda x: (x['total_score'], x['duration']))
+
+    print(f"Total combinations: {len(results)}")
+    for result in results:
+        print(f"Score: {result['total_score']}, "
+              f"Composable: {result['composable']}, "
+              f"Duration: {result['duration']:.6f}s, "
+              f"Config: ARB={result['arbitrator'][1]}, "
+              f"TX={result['tx'][1]}, "
+              f"SHOP={result['shop'][1]}")
+
+
+def test_timing_media() -> None:
+    ...
+
+
+def test_timing_xcom() -> None:
+    ...

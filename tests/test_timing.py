@@ -28,75 +28,73 @@ from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
 from consistency.relation import Relation
 
-# NOTE: the best way is to go with the following but add a filter
-# to remove combinititions that conceptually do not make sense
-# ranked: list[tuple[int, tuple[type, ...]]] = [
-#     (0, (EventualConsistency,)),
-#     (1, (MonotonicReads,)),
-#     (1, (MonotonicWrites,)),
-#     (1, (ReadYourWrites,)),
-#     (1, (WritesFollowReads,)),
-#     (3, (PRAMConsistency,)),
-#     (4, (CausalConsistency,)),
-#     (5, (Linearizability,)),
-# ]
-# choices = []
-# for r in range(1, len(ranked) + 1):
-#     for combo in combinations(ranked, r):
-#         total = sum(item[0] for item in combo)
-#         models = tuple(model for item in combo for model in item[1])
-#         choices.append((total, models))
-# choices.sort(key=lambda x: x[0])
-# now we'll just hardcode the choices
-choices: list[tuple[int, tuple[type, ...]]] = [
-    # score 0: EC
-    (0, (EventualConsistency,)),
-    # score 1: individual session guarantees
-    (1, (MonotonicReads,)),
-    (1, (ReadYourWrites,)),
-    (1, (MonotonicWrites,)),
-    (1, (WritesFollowReads,)),
-    # score 2: pairwise combinations
-    (2, (MonotonicReads, ReadYourWrites)),
-    (2, (MonotonicReads, MonotonicWrites)),
-    (2, (MonotonicReads, WritesFollowReads)),
-    (2, (ReadYourWrites, MonotonicWrites)),
-    (2, (ReadYourWrites, WritesFollowReads)),
-    (2, (MonotonicWrites, WritesFollowReads)),
-    # score 3: 3-way combinations
-    # (3, (MonotonicReads, ReadYourWrites, MonotonicWrites)), # PRAM
-    (3, (PRAMConsistency,)),
-    (3, (MonotonicReads, ReadYourWrites, WritesFollowReads)),
-    (3, (MonotonicReads, MonotonicWrites, WritesFollowReads)),
-    (3, (ReadYourWrites, MonotonicWrites, WritesFollowReads)),
-    # score 4: all 4 session guarantees (causal)
-    # (4, (MonotonicReads, ReadYourWrites, MonotonicWrites, WritesFollowReads)),
-    (4, (CausalConsistency,)),
-    # score 5: linearizability
-    (5, (Linearizability,)),
-]
-
-
-def get_assertions(models: tuple[type, ...]) -> list[z3.AstRef]:
-    if len(models) == 1:
-        return models[0].assertions()
-
-    result = models[0].assertions()
-    for model in models[1:]:
-        result = compose(result, model.assertions())
-    return result  # type: ignore[return-value]
-
-
-def get_name(choice: tuple[int, tuple[type, ...]]) -> str:
-    _, models = choice
-    if len(models) == 1:
-        return models[0].__name__
-    return " + ".join(model.__name__ for model in models)
-
 
 # @pytest.mark.slow
 @cleanup
 def test_timing_shop() -> None:
+    # NOTE: the best way is to go with the following but add a filter
+    # to remove combinititions that conceptually do not make sense
+    # ranked: list[tuple[int, tuple[type, ...]]] = [
+    #     (0, (EventualConsistency,)),
+    #     (1, (MonotonicReads,)),
+    #     (1, (MonotonicWrites,)),
+    #     (1, (ReadYourWrites,)),
+    #     (1, (WritesFollowReads,)),
+    #     (3, (PRAMConsistency,)),
+    #     (4, (CausalConsistency,)),
+    #     (5, (Linearizability,)),
+    # ]
+    # choices = []
+    # for r in range(1, len(ranked) + 1):
+    #     for combo in combinations(ranked, r):
+    #         total = sum(item[0] for item in combo)
+    #         models = tuple(model for item in combo for model in item[1])
+    #         choices.append((total, models))
+    # choices.sort(key=lambda x: x[0])
+    # now we'll just hardcode the choices
+    choices: list[tuple[int, tuple[type, ...]]] = [
+        # score 0: EC
+        (0, (EventualConsistency,)),
+        # score 1: individual session guarantees
+        (1, (MonotonicReads,)),
+        (1, (ReadYourWrites,)),
+        (1, (MonotonicWrites,)),
+        (1, (WritesFollowReads,)),
+        # score 2: pairwise combinations
+        (2, (MonotonicReads, ReadYourWrites)),
+        (2, (MonotonicReads, MonotonicWrites)),
+        (2, (MonotonicReads, WritesFollowReads)),
+        (2, (ReadYourWrites, MonotonicWrites)),
+        (2, (ReadYourWrites, WritesFollowReads)),
+        (2, (MonotonicWrites, WritesFollowReads)),
+        # score 3: 3-way combinations
+        # (3, (MonotonicReads, ReadYourWrites, MonotonicWrites)), # PRAM
+        (3, (PRAMConsistency,)),
+        (3, (MonotonicReads, ReadYourWrites, WritesFollowReads)),
+        (3, (MonotonicReads, MonotonicWrites, WritesFollowReads)),
+        (3, (ReadYourWrites, MonotonicWrites, WritesFollowReads)),
+        # score 4: all 4 session guarantees (causal)
+        # (4, (MonotonicReads, ReadYourWrites, MonotonicWrites, WritesFollowReads)),
+        (4, (CausalConsistency,)),
+        # score 5: linearizability
+        (5, (Linearizability,)),
+    ]
+
+    def get_assertions(models: tuple[type, ...]) -> list[z3.AstRef]:
+        if len(models) == 1:
+            return models[0].assertions()
+
+        result = models[0].assertions()
+        for model in models[1:]:
+            result = compose(result, model.assertions())
+        return result  # type: ignore[return-value]
+
+    def get_name(choice: tuple[int, tuple[type, ...]]) -> str:
+        _, models = choice
+        if len(models) == 1:
+            return models[0].__name__
+        return " + ".join(model.__name__ for model in models)
+
     temp_dir = Path(tempfile.mkdtemp())
     csv_file = temp_dir / "shop_timing_results.csv"
     print(f"saving results to: {csv_file}")

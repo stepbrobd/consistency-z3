@@ -1,10 +1,12 @@
 import csv
+import signal
 import tempfile
 import time
 from collections import Counter
 from collections.abc import Callable
 from itertools import product
 from pathlib import Path
+from types import FrameType
 
 import pytest
 import z3
@@ -202,6 +204,12 @@ def test_timing_shop() -> None:
 @pytest.mark.slow
 @cleanup
 def test_timing_xc() -> None:
+    class Timeout(Exception):
+        pass
+
+    def handler(signal: int, frame: FrameType | None) -> None:
+        raise Timeout("z3 timed out")
+
     temp_dir = Path(tempfile.mkdtemp())
     csv_file = temp_dir / "xc_timing_results.csv"
     print(f"saving results to: {csv_file}")
@@ -316,6 +324,10 @@ def test_timing_xc() -> None:
     ):
         Relation.Reset()
         z3.reset_params()
+
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(10)
+
         start_time = time.perf_counter()
 
         svc1_score, svc1_name = svc1_choice
@@ -323,117 +335,122 @@ def test_timing_xc() -> None:
         svc3_score, svc3_name = svc3_choice
         svc4_score, svc4_name = svc4_choice
 
-        counter = Counter(semantics.keys())
+        try:
+            counter = Counter(semantics.keys())
 
-        svc1 = Node(
-            name="SVC1",
-            needs=None,
-            provs=[(Cons("SVC1", get_svc_assertions(svc1_name, counter["mr"])),)],
-        )
-        counter["mr"] += 1
+            svc1 = Node(
+                name="SVC1",
+                needs=None,
+                provs=[(Cons("SVC1", get_svc_assertions(svc1_name, counter["mr"])),)],
+            )
+            counter["mr"] += 1
 
-        # SVC1 -> SVC2
-        edge1_constraints = [
-            assertion_for("mr", str(counter["mr"])),
-            assertion_for("ryw", str(counter["ryw"])),
-            assertion_for("wfr", str(counter["wfr"])),
-        ]
-        counter["mr"] += 1
-        counter["ryw"] += 1
-        counter["wfr"] += 1
+            # SVC1 -> SVC2
+            edge1_constraints = [
+                assertion_for("mr", str(counter["mr"])),
+                assertion_for("ryw", str(counter["ryw"])),
+                assertion_for("wfr", str(counter["wfr"])),
+            ]
+            counter["mr"] += 1
+            counter["ryw"] += 1
+            counter["wfr"] += 1
 
-        svc2 = Node(
-            name="SVC2",
-            needs=None,
-            provs=[(Cons("SVC2", get_svc_assertions(svc2_name, counter["mw"])),)],
-        )
-        counter["mw"] += 1
+            svc2 = Node(
+                name="SVC2",
+                needs=None,
+                provs=[(Cons("SVC2", get_svc_assertions(svc2_name, counter["mw"])),)],
+            )
+            counter["mw"] += 1
 
-        edge1 = Edge(
-            src=svc1,
-            dst=svc2,
-            cons=[(Cons("EC1", compose(*edge1_constraints)),)],
-        )
+            edge1 = Edge(
+                src=svc1,
+                dst=svc2,
+                cons=[(Cons("EC1", compose(*edge1_constraints)),)],
+            )
 
-        # SVC2 -> SVC3
-        edge2_constraints = [
-            assertion_for("mr", str(counter["mr"])),
-            assertion_for("mw", str(counter["mw"])),
-            assertion_for("wfr", str(counter["wfr"])),
-        ]
-        counter["mr"] += 1
-        counter["mw"] += 1
-        counter["wfr"] += 1
+            # SVC2 -> SVC3
+            edge2_constraints = [
+                assertion_for("mr", str(counter["mr"])),
+                assertion_for("mw", str(counter["mw"])),
+                assertion_for("wfr", str(counter["wfr"])),
+            ]
+            counter["mr"] += 1
+            counter["mw"] += 1
+            counter["wfr"] += 1
 
-        svc3 = Node(
-            name="SVC3",
-            needs=None,
-            provs=[(Cons("SVC3", get_svc_assertions(svc3_name, counter["ryw"])),)],
-        )
-        counter["ryw"] += 1
+            svc3 = Node(
+                name="SVC3",
+                needs=None,
+                provs=[(Cons("SVC3", get_svc_assertions(svc3_name, counter["ryw"])),)],
+            )
+            counter["ryw"] += 1
 
-        edge2 = Edge(
-            src=svc2,
-            dst=svc3,
-            cons=[(Cons("EC2", compose(*edge2_constraints)),)],
-        )
+            edge2 = Edge(
+                src=svc2,
+                dst=svc3,
+                cons=[(Cons("EC2", compose(*edge2_constraints)),)],
+            )
 
-        # SVC3 -> SVC4
-        edge3_constraints = [
-            assertion_for("mr", str(counter["mr"])),
-            assertion_for("mw", str(counter["mw"])),
-            assertion_for("ryw", str(counter["ryw"])),
-        ]
-        counter["mr"] += 1
-        counter["mw"] += 1
-        counter["ryw"] += 1
+            # SVC3 -> SVC4
+            edge3_constraints = [
+                assertion_for("mr", str(counter["mr"])),
+                assertion_for("mw", str(counter["mw"])),
+                assertion_for("ryw", str(counter["ryw"])),
+            ]
+            counter["mr"] += 1
+            counter["mw"] += 1
+            counter["ryw"] += 1
 
-        svc4 = Node(
-            name="SVC4",
-            needs=None,
-            provs=[(Cons("SVC4", get_svc_assertions(svc4_name, counter["wfr"])),)],
-        )
-        counter["wfr"] += 1
+            svc4 = Node(
+                name="SVC4",
+                needs=None,
+                provs=[(Cons("SVC4", get_svc_assertions(svc4_name, counter["wfr"])),)],
+            )
+            counter["wfr"] += 1
 
-        edge3 = Edge(
-            src=svc3,
-            dst=svc4,
-            cons=[(Cons("EC3", compose(*edge3_constraints)),)],
-        )
+            edge3 = Edge(
+                src=svc3,
+                dst=svc4,
+                cons=[(Cons("EC3", compose(*edge3_constraints)),)],
+            )
 
-        # SVC4 -> XC
-        edge4_constraints = [
-            assertion_for("mr", str(counter["mr"])),
-            assertion_for("mw", str(counter["mw"])),
-            assertion_for("ryw", str(counter["ryw"])),
-        ]
-        counter["mr"] += 1
-        counter["mw"] += 1
-        counter["ryw"] += 1
+            # SVC4 -> XC
+            edge4_constraints = [
+                assertion_for("mr", str(counter["mr"])),
+                assertion_for("mw", str(counter["mw"])),
+                assertion_for("ryw", str(counter["ryw"])),
+            ]
+            counter["mr"] += 1
+            counter["mw"] += 1
+            counter["ryw"] += 1
 
-        xc = Node(
-            name="XC",
-            needs=None,
-            provs=None,
-        )
+            xc = Node(
+                name="XC",
+                needs=None,
+                provs=None,
+            )
 
-        edge4 = Edge(
-            src=svc4,
-            dst=xc,
-            cons=[(Cons("EC4", compose(*edge4_constraints)),)],
-        )
+            edge4 = Edge(
+                src=svc4,
+                dst=xc,
+                cons=[(Cons("EC4", compose(*edge4_constraints)),)],
+            )
 
-        # full graph
-        nodes = [svc1, svc2, svc3, svc4, xc]
-        edges = [edge1, edge2, edge3, edge4]
+            # full graph
+            nodes = [svc1, svc2, svc3, svc4, xc]
+            edges = [edge1, edge2, edge3, edge4]
 
-        g = graph(nodes, edges)
-        ok, res = composable(g, svc1)
+            g = graph(nodes, edges)
+            ok, _ = composable(g, svc1)
 
-        end_time = time.perf_counter()
-        Relation.Reset()
-        z3.reset_params()
-        duration = end_time - start_time
+            end_time = time.perf_counter()
+            duration = end_time - start_time
+        except Timeout:
+            ok, duration = False, 10.0
+        finally:
+            signal.alarm(0)
+            Relation.Reset()
+            z3.reset_params()
 
         score = svc1_score + svc2_score + svc3_score + svc4_score
 

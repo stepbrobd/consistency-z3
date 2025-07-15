@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Nix
+        uses: cachix/install-nix-action@v31
       - name: Setup
         uses: astral-sh/setup-uv@v6
         with:
@@ -23,6 +25,7 @@ jobs:
       - name: Install
         run: |
           uv sync
+          nix shell nixpkgs#cvc5
       - name: Test
         run: |
           uv run pytest --cov=consistency tests -sm 'not slow'

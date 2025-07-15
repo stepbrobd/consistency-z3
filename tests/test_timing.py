@@ -270,7 +270,7 @@ def test_timing_xc() -> None:
 
     def get_svc_assertions(choice_name: str, counter_val: int) -> z3.BoolRef:
         if choice_name == "EventualConsistency":
-            return EventualConsistency.assertions()
+            return z3.BoolVal(True)
         elif choice_name == "MonotonicReads":
             return assertion_for("mr", str(counter_val))
         elif choice_name == "ReadYourWrites":

@@ -11,6 +11,11 @@ Hydra Evaluation and Binary Cache:
 - Cache: <https://cache.ysun.co/public>
 - Key: `public:Y9EARSt+KLUY1JrY4X8XWmzs6uD+Zh2hRqN9eCUg55U=`
 
+Garnix:
+
+- Cache: <https://cache.garnix.io>
+- Key: `cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=`
+
 ## Specifications
 
 Framework user: a framework user is someone who provides node and edge

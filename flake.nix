@@ -59,6 +59,9 @@
               z3
             ];
 
+            # only affects linux, darwin behavior is untouched
+            LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs; [ stdenv.cc.cc z3 ]);
+
             UV_PYTHON_DOWNLOADS = "never";
             UV_PYTHON = python.interpreter;
 

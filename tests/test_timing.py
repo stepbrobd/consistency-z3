@@ -6,6 +6,7 @@ from collections.abc import Callable
 from itertools import product
 from pathlib import Path
 
+import pytest
 import z3
 
 from consistency.common import (
@@ -93,6 +94,7 @@ def get_name(choice: tuple[int, tuple[type, ...]]) -> str:
     return " + ".join(model.__name__ for model in models)
 
 
+# @pytest.mark.slow
 @cleanup
 def test_timing_shop() -> None:
     temp_dir = Path(tempfile.mkdtemp())
@@ -116,7 +118,12 @@ def test_timing_shop() -> None:
 
     results = []
 
-    for arb_choice, tx_choice, shop_choice in product(choices, repeat=3):
+    for arb_choice, tx_choice, shop_choice in list(
+        sorted(
+            product(choices, repeat=3),
+            key=lambda x: (x[0][0] + x[1][0] + x[2][0]),
+        )
+    ):
         Relation.Reset()
         z3.reset_params()
         start_time = time.perf_counter()
@@ -194,6 +201,7 @@ def test_timing_shop() -> None:
     # print(results)
 
 
+@pytest.mark.slow
 @cleanup
 def test_timing_xc() -> None:
     temp_dir = Path(tempfile.mkdtemp())
@@ -302,8 +310,11 @@ def test_timing_xc() -> None:
 
     results = []
 
-    for svc1_choice, svc2_choice, svc3_choice, svc4_choice in product(
-        svc_choices, repeat=4
+    for svc1_choice, svc2_choice, svc3_choice, svc4_choice in list(
+        sorted(
+            product(svc_choices, repeat=4),
+            key=lambda x: (x[0][0] + x[1][0] + x[2][0] + x[3][0]),
+        )
     ):
         Relation.Reset()
         z3.reset_params()
@@ -463,5 +474,11 @@ def test_timing_xc() -> None:
     # print(results)
 
 
+# NOTE: for this timing test, we decided to move it to future
+# work as the number of combinations is too large
+# excluding client and admin nodes, there are 9 possible slots
+# to plug in the models (17^9 ~ 120 billion)
+# even if we only use combinitions with total score of 2
+# there will still be 6^9 ~ 10 million combinations
 @cleanup
 def test_timing_media() -> None: ...

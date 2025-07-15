@@ -25,4 +25,4 @@ jobs:
           uv sync
       - name: Test
         run: |
-          uv run pytest --cov=consistency tests -m 'not slow'
+          uv run pytest --cov=consistency tests -sm 'not slow'

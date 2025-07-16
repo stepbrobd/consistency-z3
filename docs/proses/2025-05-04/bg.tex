@@ -3,7 +3,7 @@
 
 Distributed consistency semantics define in which order updates are applied and made visible in replica nodes of a distributed system. When an update request is submitted to the distributed system, a subset (typically one) of nodes receives it and the update is propagated across distributed nodes. Due to the asynchronous nature of the network and nodes, replica nodes receive the update with different delays and users accessing distinct nodes could observe different data states. Distributed consistency semantics introduce ordering constraints on top of such non-determinism so that applications can predictably work with the system. 
 
-There are many distributed consistency semantics and among them \sysname{} models a few widely used semantics in both industry and academia~\needcite{}, including eventual consistency~\cite{burckhardt2014principles}, session guarantees~\cite{terry1994session}, causal consistency~\needcite{}, and linearizability~\cite{herlihy1990linearizability}.
+There are many distributed consistency semantics and among them \sysname{} models a few widely used semantics in systems from both industry and academia~\cite{pileus, cosmosdb, anna, bayou, yogurt, pnuts, cloudflare-session, causalmemory, cops}, including eventual consistency~\cite{burckhardt2014principles}, session guarantees~\cite{terry1994session}, causal consistency~\cite{causaldef}, and linearizability~\cite{herlihy1990linearizability}.
  
 While eventual consistency (EC) is considered as a liveness property, it defines a minimum safety property that visible data reflects valid updates in history. Informally,
 \itemparen{
@@ -17,7 +17,7 @@ Session guarantees (SGs), like its name, defines semantics from the viewpoint of
 \item \textbf{Monotonic writes (MW):} writes by a user applies in the order that this user wrote. 
 \item \textbf{Write-follows-reads (WFR):} writes by a user applies after writes corresponding to what this user read apply. 
 }
-By choosing whether to enforce each of four session guarantees, a total of 16 ($=2^4$) different semantics can be derived. While most of them do not have specific names (e.g., MR + RYW), there are a few well-known named semantics. For example, EC is not enforcing none of SGs, pipeline RAM consistency (PRAM) is a combination of MR, RYW, and MW~\cite{brzezinski2004session}, and causal consistency (CC) is a combination of all four SGs, MR, RYW, MW, and WFR~\needcite{}. Still, PRAM and CC have their own definitions. 
+By choosing whether to enforce each of four session guarantees, a total of 16 ($=2^4$) different semantics can be derived. While most of them do not have specific names (e.g., MR + RYW), there are a few well-known named semantics. For example, EC is not enforcing none of SGs, pipeline RAM consistency (PRAM) is a combination of MR, RYW, and MW~\cite{brzezinski2004session}, and causal consistency (CC) is a combination of all four SGs, MR, RYW, MW, and WFR~\cite{sessiontocausal}. Still, PRAM~\cite{pram} and CC~\cite{causaldef} have their own definitions. 
 \itemparen{
 \item \textbf{PRAM consistency (PRAM):} read and write operations by a user happens in first in first out order from this user's point of view, but there is no global ordering guarantees.
 \item \textbf{Causal consistency (CC):} read and write operations follow the causal (or happens-before~\cite{lamport1978time}) ordering.

@@ -10,7 +10,7 @@ into the application to use.
 However, different distributed systems provide different consistency semantics
 and the mismatch of the chosen system's semantics and the
 application's expected semantics could introduce subtle silent
-semantic bugs~\needcite{}. For example, a user may connect a key-value store
+semantic bugs~\cite{silentbugs}. For example, a user may connect a key-value store
 observing eventual consistency to an application that expects a
 linearizable storage service. In this case, the application could
 read a non-up-to-date copy of the data and application could produce
@@ -32,14 +32,16 @@ reasons. Then, the sophisticated compatibility check needs to be done again.
 
 Formal verification can be another way to address such challenges,
 where the correctness of the code can mathematically guarantee the
-compatibility between the code and the system~\needcite{}. 
+compatibility between the code and the system~\cite{lampson2021hints}. 
 However, depending on
 the complexity of the code, which could include non-essential parts
 for reasoning about compatibility, the formal verification process
-can take extensive time and effort~\needcite{}. Furthermore, depending on the
+can take extensive time and effort~\cite{certikos-osdi16, klein2009sel4, wormspace}. 
+Furthermore, depending on the
 formal verification techniques, the amount of proofs that needs to be
 written could be several times compare to the lines of code and small
-change could easily break the entire proof~\needcite{}. Thus, formal verification
+change could easily break the entire proof~\cite{klein2009sel4}. 
+Thus, formal verification
 leads to a similar problem to testing where the compatibility check
 cannot agilely keep up with the changes in underlying systems and 
 applications. \todo{Lindsey's work on trace based analysis??}
@@ -54,9 +56,9 @@ systems using an SMT-based approach.
 
 \sysname{} includes axiomatic models of distributed consistency
 semantics, including eventual consistency,
-linearizability~\needcite{}, four session
-guarantees~\needcite{}, pipeline RAM (PRAM) consistency~\needcite{},
-and causal consistency~\needcite{}, which are commonly used in both
+linearizability~\cite{viotti2016consistency}, four session
+guarantees~\cite{terry1994session}, pipeline RAM (PRAM) consistency~\cite{pram},
+and causal consistency~\cite{causaldef}, which are commonly used in both
 industry and academia~\needcite{}. Users can use the models as
 building blocks to test the compatibility of these models with their
 applications. Users can add additional models and test the
@@ -135,9 +137,9 @@ consistency guarantees from the very beginning.
 
 
 As case studies we use \sysname{} to model two microservice
-applications~\needcite{}, e-commerce service and movie streaming
+applications~\cite{deathstar}, e-commerce service and movie streaming
 service, and a causally consistent storage service built on top of
-multiple weakly consistent distributed storage systems~\needcite{} to
+multiple weakly consistent distributed storage systems~\cite{boltoncc} to
 check the compatibility with underlying distributed systems and
 explore other compatible semantics. Our framework is capable of
 checking the compatibility under XXX seconds and explore other

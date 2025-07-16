@@ -133,7 +133,7 @@ isolation necessary for cross-system analysis. If the
 standard set of symbols (like \texttt{["a", "b"]}), applying the
 constraints to a general set of operations suitable for single-system analysis.
 
-\subsubsection{Abstract Execution}
+\subsection{Abstract Execution}
 
 %
 % Abstract execution (in the actual writing, layout the actual Z3
@@ -502,7 +502,7 @@ $$
 b \xrightarrow{\text{so}} c \Rightarrow a \xrightarrow{\text{ar}} c
 $$
 
-\subsection{PRAM Consistency}
+\subsubsection{PRAM Consistency}
 
 Pipeline RAM (PRAM or FIFO) consistency prescribes that all processes see write
 operations issued by a given process in the same order as they were invoked by
@@ -516,7 +516,7 @@ $$
 b \Rightarrow a \xrightarrow{\text{vis}} b
 $$
 
-\subsection{Causal Consistency}
+\subsubsection{Causal Consistency}
 
 Our causal consistency is a combinition of Voitti et
 al. \cite{viotti2016consistency}
@@ -569,7 +569,7 @@ These conditions together ensure a causal memory model where session order,
 observed values, and write sequences are all aligned, causally dependent writes
 appear in the correct order from any observer's perspective.
 
-\subsection{Liniearizability}
+\subsubsection{Liniearizability}
 
 Although linearizability is widely considered the gold standard for strong
 consistency, our initial attempts resulted in a incomplete model. In our draft

@@ -438,106 +438,86 @@ of session order and visibility:
 $hb \triangleq (\text{so} \cup {\text{vis}})^{+}$
 \cite{burckhardt2014principles,viotti2016consistency}.
 
-\subsection{Session Guarantees}
-
-In the implementation, the models follow the exact axiomatic definition provide
-in Terry et al. \cite{terry1994session} and Viotti et
-al. \cite{viotti2016consistency}.
-Below definitions are copied from the paper.
-
-\subsubsection{Monotonic Reads}
-
-Monotonic reads states that successive reads must reflect a non-decreasing set
-of writes. Namely, if a process has read a certain value v from an object, any
-successive read operation will not return any value written before v.
-Intuitively, a read operation can be served only by those replicas that have
-executed all write operations whose effects have already been observed by the
-requesting process. In effect, we can represent this by saying that, given three
-operations $a, b, c \in H$, if $a \xrightarrow{\text{vis}} b$ and
-$b \xrightarrow{\text{so}} c$, where $b$ and $c$ are read operations, then
-$a \xrightarrow{\text{vis}} c$, i.e., the transitive closure of vis
-and so is included
-in vis.
+\subsubsection{Monotonic Reads} guarantees that consecutive read operations
+observe a monotonically increasing set
+of write effects. When a process observes a particular value $v$ from an object,
+subsequent read operations cannot return values from writes that preceded $v$.
+This property ensures that read operations can only be satisfied by
+replicas that have
+applied all write operations previously observed by the
+requesting process.
 
 $$
-\text{MonotonicReads} \triangleq \forall a \in H, \forall b, c \in
-H_\text{rd}: a \xrightarrow{\text{vis}} b \text{ and } b
-\xrightarrow{\text{so}} c \Rightarrow a \xrightarrow{\text{vis}} c
+\text{MR} \triangleq \forall a \in H, \forall b, c \in H_\text{rd}: a
+\xrightarrow{\text{vis}} b \land b \xrightarrow{\text{so}} c \implies
+a \xrightarrow{\text{vis}} c
 $$
 
-\subsubsection{Monotonic Writes}
-
-In a system that ensures monotonic writes a write is only performed on a replica
-if the replica has already performed all previous writes of the same session. In
-other words, replicas shall apply all writes belonging to the same session
-according to the order in which they were issued.
-
-$$
-\text{MonotonicWrites} \triangleq \forall a, b \in H_\text{wr}: a
-\xrightarrow{\text{so}} b \Rightarrow a \xrightarrow{\text{ar}} b
-$$
-
-\subsubsection{Read Your Writes}
-
-Read-your-writes guarantee (also called read-my-writes) requires that a read
-operation invoked by a process can only be carried out by replicas that have
-already applied all writes previously invoked by the same process.
+\subsubsection{Monotonic Writes} guarantees that write operations are
+applied to a replica
+only after the replica has executed all preceding writes from the same session.
+This constraint requires that replicas process all writes within a session
+in the exact sequence they were originally issued.
 
 $$
-\text{ReadYourWrites} \triangleq \forall a \in H_\text{wr}, \forall b
-\in H_\text{rd}: a \xrightarrow{\text{so}} b \Rightarrow a
-\xrightarrow{\text{vis}} b
+\text{MW} \triangleq \forall a, b \in H_\text{wr}: a
+\xrightarrow{\text{so}} b \implies a \xrightarrow{\text{ar}} b
 $$
 
-\subsubsection{Write Follows Read}
-
-Writes-follow-reads, sometimes called session causality, is somewhat the
-converse concept of read-your-write guarantee as it ensures that writes made
-during the session are ordered after any writes made by any process on any
-object whose effects were seen by previous reads in the same session.
+\subsubsection{Read Your Writes} (also read my writes)
+mandates that read
+operations issued by a process can only be executed by replicas that have
+previously applied all writes issued by that same process.
 
 $$
-\text{WriteFollowsRead} \triangleq \forall a, c \in H_\text{wr},
-\forall b \in H_\text{rd}: a \xrightarrow{\text{vis}} b \text{ and }
-b \xrightarrow{\text{so}} c \Rightarrow a \xrightarrow{\text{ar}} c
+\text{RYW} \triangleq \forall a \in H_\text{wr}, \forall b \in
+H_\text{rd}: a \xrightarrow{\text{so}} b \implies a \xrightarrow{\text{vis}} b
 $$
 
-\subsubsection{PRAM Consistency}
+\subsubsection{Write Follows Read} or session causality, represents the
+inverse principle of the read-your-write guarantee by requiring that
+writes performed
+within a session are sequenced after any writes from any process on any
+object whose effects were observed by preceding reads in the same session.
 
-Pipeline RAM (PRAM or FIFO) consistency prescribes that all processes see write
-operations issued by a given process in the same order as they were invoked by
-that process. On the other hand, processes may observe writes issued by
-different processes in different orders. Thus, no global total ordering is
-required. However, the writes from any given process (session) must be
-serialized in order, as if they were in a pipeline - hence the name.
+$$
+\text{WFR} \triangleq \forall a, c \in H_\text{wr}, \forall b \in
+H_\text{rd}: a \xrightarrow{\text{vis}} b \land b
+\xrightarrow{\text{so}} c \implies a \xrightarrow{\text{ar}} c
+$$
+
+\subsubsection{Pipeline RAM Consistency} (also PRAM or FIFO
+consistency) requires
+that all processes observe write
+operations from any given process in the identical order as they were
+originally issued by
+that process. Conversely, processes may witness writes from
+distinct processes in varying orders. Therefore, no universal total ordering is
+necessary. Nevertheless, writes originating from any single process
+(session) must be
+ordered sequentially, resembling a pipeline structure.
 
 $$
 \text{PRAM} \triangleq \forall a, b \in H: a \xrightarrow{\text{so}}
-b \Rightarrow a \xrightarrow{\text{vis}} b
+b \implies a \xrightarrow{\text{vis}} b
 $$
 
-\subsubsection{Causal Consistency}
-
-Our causal consistency is a combinition of Voitti et
+\subsubsection{Causal Consistency} extends beyond PRAM and
+session guarantees. Our causal consistency is a combination of Voitti et
 al. \cite{viotti2016consistency}
-and causal memory \cite{baldoni2002an} extends beyond PRAM and
-session guarantees. The
+and causal memory \cite{baldoni2002an}. The
 \textit{writes-into} relation \cite{baldoni2002an} links write
-operations directly to the
-reads that return their values (at the same memory region). This ensures that if
+operations directly to the reads that return their values. This ensures that if
 a read observes a particular write, all subsequent writes in the same session
 respect that causal ordering. Formally, it aligns session order (\texttt{so}),
-arbitration (\texttt{ar}), visibility (\texttt{vis}), and writes-into
-(\texttt{wi}) to maintain
-coherent causal histories.
+arbitration, visibility, and writes-into to maintain coherent causal histories.
 
-To for operations to be in the \texttt{wi} set: a write \texttt{a}
-writes into a read \texttt{b} iff \texttt{b} returns
-the value originally written by \texttt{a}, and \texttt{a}/\texttt{b}
-to reference the same object
-(same memory region). There must be at most one \texttt{a} for each
-\texttt{b}, and \texttt{wi} is
-acyclic.
+To for operations to be in the \texttt{wi} set: a write $a$
+writes into a read $b$ if and only if $b$ returns
+the value originally written by $a$, and $a$/$b$
+to reference the same object (same memory region). There must be at
+most one $a$ for each
+$b$, plus the acyclicity.
 
 If one operation follows another in session order, their relationship in the
 abstract execution is further constrained. Specifically, if $(a, b)
@@ -560,7 +540,7 @@ subsequent write \texttt{c}.
 
 % TODO: need double check
 $$
-\text{Causal} \triangleq (\forall a, b \in H: (a, b) \in \text{so}
+\text{CC} \triangleq (\forall a, b \in H: (a, b) \in \text{so}
 \Leftrightarrow (a, b) \in \text{wi} \cap \text{vis} \cap \text{ar})
 \text{ and } \text{WriteFollowsRead}
 $$

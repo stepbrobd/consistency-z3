@@ -1,5 +1,6 @@
 from consistency.common import cleanup, compatible
 from consistency.model.causal_consistency import CausalConsistency
+from consistency.model.eventual_consistency import EventualConsistency
 from consistency.model.linearizability import Linearizability
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
@@ -18,18 +19,21 @@ from consistency.model.writes_follow_reads import WritesFollowReads
 
 @cleanup
 def test_known_compatible() -> None:
+    assert compatible(CausalConsistency.assertions(), EventualConsistency.assertions())
     assert compatible(CausalConsistency.assertions(), MonotonicReads.assertions())
     assert compatible(CausalConsistency.assertions(), MonotonicWrites.assertions())
     assert compatible(CausalConsistency.assertions(), PRAMConsistency.assertions())
     assert compatible(CausalConsistency.assertions(), ReadYourWrites.assertions())
     assert compatible(CausalConsistency.assertions(), WritesFollowReads.assertions())
 
+    assert compatible(Linearizability.assertions(), EventualConsistency.assertions())
     assert compatible(Linearizability.assertions(), MonotonicReads.assertions())
     assert compatible(Linearizability.assertions(), MonotonicWrites.assertions())
     assert compatible(Linearizability.assertions(), PRAMConsistency.assertions())
     assert compatible(Linearizability.assertions(), ReadYourWrites.assertions())
     assert compatible(Linearizability.assertions(), WritesFollowReads.assertions())
 
+    assert compatible(PRAMConsistency.assertions(), EventualConsistency.assertions())
     assert compatible(PRAMConsistency.assertions(), MonotonicReads.assertions())
     assert compatible(PRAMConsistency.assertions(), MonotonicWrites.assertions())
     assert compatible(PRAMConsistency.assertions(), ReadYourWrites.assertions())

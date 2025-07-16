@@ -11,6 +11,7 @@ from types import FrameType
 import pytest
 import z3
 
+from consistency.abstract_execution import AbstractExecution as AE
 from consistency.common import (
     Cons,
     Edge,
@@ -20,6 +21,7 @@ from consistency.common import (
     compose,
     graph,
 )
+from consistency.history import History as H
 from consistency.model.causal_consistency import CausalConsistency
 from consistency.model.eventual_consistency import EventualConsistency
 from consistency.model.linearizability import Linearizability
@@ -28,6 +30,7 @@ from consistency.model.monotonic_writes import MonotonicWrites
 from consistency.model.pram_consistency import PRAMConsistency
 from consistency.model.read_your_writes import ReadYourWrites
 from consistency.model.writes_follow_reads import WritesFollowReads
+from consistency.operation import Operation as Op
 from consistency.relation import Relation
 
 
@@ -489,11 +492,474 @@ def test_timing_xc() -> None:
     # print(results)
 
 
-# NOTE: for this timing test, we decided to move it to future
-# work as the number of combinations is too large
-# excluding client and admin nodes, there are 9 possible slots
-# to plug in the models (17^9 ~ 120 billion)
-# even if we only use combinitions with total score of 2
-# there will still be 6^9 ~ 10 million combinations
+@pytest.mark.slow
 @cleanup
-def test_timing_media() -> None: ...
+def test_timing_media() -> None:
+    class Timeout(Exception):
+        pass
+
+    def handler(signal: int, frame: FrameType | None) -> None:
+        raise Timeout("z3 timed out")
+
+    temp_dir = Path(tempfile.mkdtemp())
+    csv_file = temp_dir / "media_timing_results.csv"
+    print(f"saving results to: {csv_file}")
+    with open(csv_file, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "composable",
+                "duration",
+                "score",
+                "user_db_score",
+                "user_db_name",
+                "metadata_db_score",
+                "metadata_db_name",
+                "rent_db_score",
+                "rent_db_name",
+                "review_db_score",
+                "review_db_name",
+                "video_db_score",
+                "video_db_name",
+            ]
+        )
+
+    db_choices = [
+        (0, "EventualConsistency"),
+        (1, "MonotonicReads"),
+        (1, "ReadYourWrites"),
+        (1, "MonotonicWrites"),
+        (1, "WritesFollowReads"),
+        (2, "MonotonicReads + ReadYourWrites"),
+        (2, "MonotonicReads + MonotonicWrites"),
+        (2, "MonotonicReads + WritesFollowReads"),
+        (2, "ReadYourWrites + MonotonicWrites"),
+        (2, "ReadYourWrites + WritesFollowReads"),
+        (2, "MonotonicWrites + WritesFollowReads"),
+        (3, "PRAMConsistency"),
+        (3, "MonotonicReads + ReadYourWrites + WritesFollowReads"),
+        (3, "MonotonicReads + MonotonicWrites + WritesFollowReads"),
+        (3, "ReadYourWrites + MonotonicWrites + WritesFollowReads"),
+        (4, "CausalConsistency"),
+        (5, "Linearizability"),
+    ]
+
+    def get_db_assertions(choice_name: str) -> z3.BoolRef:
+        assertions = []
+        if choice_name == "EventualConsistency":
+            assertions.append(EventualConsistency.assertions())
+        elif choice_name == "MonotonicReads":
+            assertions.append(MonotonicReads.assertions())
+        elif choice_name == "ReadYourWrites":
+            assertions.append(ReadYourWrites.assertions())
+        elif choice_name == "MonotonicWrites":
+            assertions.append(MonotonicWrites.assertions())
+        elif choice_name == "WritesFollowReads":
+            assertions.append(WritesFollowReads.assertions())
+        elif choice_name == "PRAMConsistency":
+            assertions.append(
+                compose(
+                    MonotonicReads.assertions(),
+                    ReadYourWrites.assertions(),
+                    MonotonicWrites.assertions(),
+                )
+            )
+        elif choice_name == "CausalConsistency":
+            assertions.append(
+                compose(
+                    MonotonicReads.assertions(),
+                    ReadYourWrites.assertions(),
+                    MonotonicWrites.assertions(),
+                    WritesFollowReads.assertions(),
+                )
+            )
+        elif choice_name == "Linearizability":
+            assertions.append(Linearizability.assertions())
+        else:
+            parts = choice_name.split(" + ")
+            for part in parts:
+                if part == "MonotonicReads":
+                    assertions.append(MonotonicReads.assertions())
+                elif part == "ReadYourWrites":
+                    assertions.append(ReadYourWrites.assertions())
+                elif part == "MonotonicWrites":
+                    assertions.append(MonotonicWrites.assertions())
+                elif part == "WritesFollowReads":
+                    assertions.append(WritesFollowReads.assertions())
+        return compose(*assertions)
+
+    for (
+        user_db_choice,
+        metadata_db_choice,
+        rent_db_choice,
+        review_db_choice,
+        video_db_choice,
+    ) in list(
+        sorted(
+            product(db_choices, repeat=5),
+            key=lambda x: (x[0][0] + x[1][0] + x[2][0] + x[3][0] + x[4][0]),
+        )
+    ):
+        Relation.Reset()
+        z3.reset_params()
+
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(10)
+
+        start_time = time.perf_counter()
+
+        user_db_score, user_db_name = user_db_choice
+        metadata_db_score, metadata_db_name = metadata_db_choice
+        rent_db_score, rent_db_name = rent_db_choice
+        review_db_score, review_db_name = review_db_choice
+        video_db_score, video_db_name = video_db_choice
+
+        try:
+            # predicates
+            _, (rd, wr) = Op.Sort()
+            op = Op.Create()
+            ob = H.Relation.same_object()
+            rb = H.Relation.returns_before()
+            vis = AE.Relation.visibility()
+
+            # nodes
+            admin = Node(name="Admin", needs=None, provs=None)
+            client = Node(name="Client", needs=None, provs=None)
+            login = Node(
+                name="Login",
+                needs=[
+                    (
+                        Cons(
+                            "MW + WFR",
+                            compose(
+                                MonotonicWrites.assertions(),
+                                WritesFollowReads.assertions(),
+                            ),
+                        ),
+                    )
+                ],
+                provs=None,
+            )
+            rent = Node(
+                name="Rent",
+                needs=[(Cons("MR", MonotonicReads.assertions()),)],
+                provs=None,
+            )
+            review = Node(
+                name="Review",
+                needs=[(Cons("RYW", ReadYourWrites.assertions()),)],
+                provs=None,
+            )
+            review = Node(
+                name="Review",
+                needs=[(Cons("RYW", ReadYourWrites.assertions()),)],
+                provs=None,
+            )  # match whatever review db provides
+            video = Node(
+                name="Video",
+                needs=[(Cons("MR", MonotonicReads.assertions()),)],
+                provs=None,
+            )  # video node's action depends on the read output of the metadata db
+            user_db = Node(
+                name="User DB",
+                needs=None,
+                provs=[(Cons("USER_DB", get_db_assertions(user_db_name)),)],
+            )
+            metadata_db = Node(
+                name="Metadata DB",
+                needs=None,
+                provs=[(Cons("METADATA_DB", get_db_assertions(metadata_db_name)),)],
+            )
+            rent_db = Node(
+                name="Rent DB",
+                needs=None,
+                provs=[(Cons("RENT_DB", get_db_assertions(rent_db_name)),)],
+            )
+
+            review_db = Node(
+                name="Review DB",
+                needs=None,
+                provs=[(Cons("REVIEW_DB", get_db_assertions(review_db_name)),)],
+            )
+
+            video_db = Node(
+                name="Video DB",
+                needs=None,
+                provs=[(Cons("VIDEO_DB", get_db_assertions(video_db_name)),)],
+            )
+
+            # operations
+            op_client_register = Op.Const("Op Client Register")
+            op_client_login = Op.Const("Op Client Login")
+            op_admin_login = Op.Const("Op Admin Login")
+            op_admin_modify = Op.Const("Op Admin Modify")
+            op_user_db_rd = Op.Const("Op User DB Read")
+            op_user_db_wr = Op.Const("Op User DB Write")
+            op_client_rent_video = Op.Const("Op Client Rent Video")
+            op_rent_check_metadata = Op.Const("Op Rent Check Metadata")
+            op_client_watch_video = Op.Const("Op Client Watch Video")
+            op_video_check_metadata = Op.Const("Op Video Check Metadata")
+            op_review_check_metadata = Op.Const("Op Review Check Metadata")
+            op_client_read_review = Op.Const("Op Client Read Review")
+            op_client_write_review = Op.Const("Op Client Write Review")
+            op_admin_write_metadata = Op.Const("Op Admin Write Metadata")
+            op_admin_write_video = Op.Const("Op Admin Write Video")
+
+            # premise
+            cons_op_types = z3.And(
+                op.type(op_client_register) == wr,  # type: ignore
+                op.type(op_client_login) == rd,  # type: ignore
+                op.type(op_admin_login) == rd,  # type: ignore
+                op.type(op_admin_modify) == wr,  # type: ignore
+                op.type(op_user_db_rd) == rd,  # type: ignore
+                op.type(op_user_db_wr) == wr,  # type: ignore
+                op.type(op_client_rent_video) == wr,  # type: ignore
+                op.type(op_video_check_metadata) == rd,  # type: ignore
+                op.type(op_rent_check_metadata) == rd,  # type: ignore
+                op.type(op_review_check_metadata) == rd,  # type: ignore
+                op.type(op_client_read_review) == rd,  # type: ignore
+                op.type(op_client_write_review) == wr,  # type: ignore
+                op.type(op_client_watch_video) == rd,  # type: ignore
+                op.type(op_admin_write_metadata) == wr,  # type: ignore
+                op.type(op_admin_write_video) == wr,  # type: ignore
+            )
+
+            # edge constraints
+            ec_common_login = z3.And(
+                rb(op_client_login, op_client_read_review),
+                rb(op_client_login, op_client_rent_video),
+                rb(op_client_login, op_client_write_review),
+                rb(op_client_login, op_client_watch_video),
+            )
+            ec_common_admin = z3.And(
+                rb(op_admin_login, op_admin_modify),
+                rb(op_admin_login, op_admin_write_metadata),
+                rb(op_admin_login, op_admin_write_video),
+            )
+
+            ec_client_wr_login = None  # no constraints for registration
+            ec_client_rd_login = [
+                (
+                    Cons(
+                        "User must register before login",
+                        z3.And(  # type: ignore
+                            ec_common_login,
+                            z3.Exists(
+                                [op_client_login, op_client_register],
+                                z3.And(
+                                    ob(op_client_login, op_client_register),
+                                    vis(op_client_register, op_client_login),
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+            ]
+            ec_admin_rd_login = (
+                None  # admins are pre-registered, no need to assign constraints here
+            )
+            # admin writes require a previous admin login
+            ec_admin_wr_login = [
+                (Cons("Admin writes requires login", ec_common_admin),)  # type: ignore
+            ]
+            # user db reads require a previous write, admin writes must reflect on user reads
+            ec_login_rd_user_db = [
+                (
+                    Cons(
+                        "Combined constraints from users and admins",
+                        z3.And(  # type: ignore
+                            z3.Exists(
+                                [op_user_db_rd, op_user_db_wr],
+                                z3.And(
+                                    ob(op_user_db_rd, op_user_db_wr),
+                                    vis(op_user_db_wr, op_user_db_rd),
+                                ),
+                            ),
+                            z3.Exists(
+                                [op_user_db_rd, op_admin_modify],
+                                z3.And(
+                                    ob(op_admin_modify, op_user_db_rd),
+                                    vis(op_admin_modify, op_user_db_rd),
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+            ]
+            ec_login_wr_user_db = None  # assume all user db writes are valid
+
+            ec_client_wr_rent = [
+                (Cons("Client login before rent movie", ec_common_login),)  # type: ignore
+            ]
+            ec_rent_rd_metadata_db = [
+                (
+                    Cons(
+                        "Client login before rent movie",
+                        z3.Exists(
+                            [op_client_rent_video, op_rent_check_metadata],
+                            z3.And(
+                                ob(op_client_rent_video, op_rent_check_metadata),
+                                rb(op_rent_check_metadata, op_client_rent_video),
+                            ),
+                        ),
+                    ),
+                )
+            ]  # Q: replace rb with so? A: rb only. return after the rent service reads the metadata
+            ec_rent_wr_rent_db = None  # assume all rent db writes are valid
+
+            ec_client_rd_review = [
+                (Cons("Require login before read review", ec_common_login),)  # type: ignore
+            ]
+            ec_client_wr_review = [
+                (Cons("Require login before write review", ec_common_login),)  # type: ignore
+            ]
+            ec_review_rd_metadata_db = [
+                (
+                    Cons(
+                        "Check metadata before read review",
+                        z3.Exists(
+                            [op_client_read_review, op_review_check_metadata],
+                            z3.And(
+                                ob(op_client_read_review, op_review_check_metadata),
+                                rb(op_review_check_metadata, op_client_read_review),
+                            ),
+                        ),
+                    ),
+                )
+            ]  # see above about rb/so return after the review service reads the metadata
+            ec_review_rd_review_db = [
+                (
+                    Cons(
+                        "Match review read metadata constraints",
+                        ec_review_rd_metadata_db[0][0].cons,
+                    ),
+                )
+            ]
+            ec_review_wr_review_db = None  # assume all review db writes are valid
+
+            ec_client_rd_video = [(Cons("Client watch video", ec_common_login),)]  # type: ignore
+            ec_video_rd_metadata_db = [
+                (
+                    Cons(
+                        "Check metadata before watch video",
+                        z3.Exists(
+                            [op_client_watch_video, op_video_check_metadata],
+                            z3.And(
+                                ob(op_client_watch_video, op_video_check_metadata),
+                                rb(op_video_check_metadata, op_client_watch_video),
+                            ),
+                        ),
+                    ),
+                )
+            ]  # see above for rb so. return after the video service reads the metadata
+            ec_video_rd_video_db = [
+                (
+                    Cons(
+                        "Match video read metadata constraints",
+                        ec_video_rd_metadata_db[0][0].cons,
+                    ),
+                )
+            ]
+
+            ec_admin_wr_metadata_db = [
+                (Cons("Admin login before write metadata", z3.And(ec_common_admin)),)  # type: ignore
+            ]
+            ec_admin_wr_video = [
+                (Cons("Admin login before update video", z3.And(ec_common_admin)),)  # type: ignore
+            ]
+            ec_video_wr_video_db = None  # assume all video db writes are valid
+
+            nodes = [
+                admin,
+                client,
+                login,
+                user_db,
+                metadata_db,
+                rent,
+                rent_db,
+                review,
+                review_db,
+                video,
+                video_db,
+            ]
+
+            edges = [
+                Edge(client, login, ec_client_wr_login),  # client register
+                Edge(client, login, ec_client_rd_login),  # client login
+                Edge(admin, login, ec_admin_rd_login),  # admin login
+                Edge(admin, login, ec_admin_wr_login),  # admin modify
+                Edge(login, user_db, ec_login_rd_user_db),  # user db read
+                Edge(login, user_db, ec_login_wr_user_db),  # user db write
+                Edge(client, rent, ec_client_wr_rent),  # client rent
+                Edge(rent, metadata_db, ec_rent_rd_metadata_db),  # rent read metadata
+                Edge(rent, rent_db, ec_rent_wr_rent_db),  # rent db read
+                Edge(client, review, ec_client_rd_review),  # client read review
+                Edge(client, review, ec_client_wr_review),  # client write review
+                Edge(
+                    review, metadata_db, ec_review_rd_metadata_db
+                ),  # review reads from metadata (check if title exist before rd/wr to review db)
+                Edge(review, review_db, ec_review_rd_review_db),  # review db read
+                Edge(review, review_db, ec_review_wr_review_db),  # review db write
+                Edge(client, video, ec_client_rd_video),  # client watch video
+                Edge(
+                    video, metadata_db, ec_video_rd_metadata_db
+                ),  # checked if a title is valid
+                Edge(video, video_db, ec_video_rd_video_db),  # video db read
+                Edge(
+                    admin, metadata_db, ec_admin_wr_metadata_db
+                ),  # admin write metadata
+                Edge(admin, video, ec_admin_wr_video),  # admin write video
+                Edge(video, video_db, ec_video_wr_video_db),  # video db write
+            ]
+
+            g = graph(nodes, edges)
+            ok, _res = composable(g, client, cons_op_types)  # type: ignore[arg-type]
+
+            end_time = time.perf_counter()
+            duration = end_time - start_time
+        except Timeout:
+            ok, duration = False, 10.0
+        finally:
+            signal.alarm(0)
+            Relation.Reset()
+            z3.reset_params()
+
+        score = (
+            user_db_score
+            + metadata_db_score
+            + rent_db_score
+            + review_db_score
+            + video_db_score
+        )
+
+        with open(csv_file, "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(
+                [
+                    ok,
+                    duration,
+                    score,
+                    user_db_score,
+                    user_db_name,
+                    metadata_db_score,
+                    metadata_db_name,
+                    rent_db_score,
+                    rent_db_name,
+                    review_db_score,
+                    review_db_name,
+                    video_db_score,
+                    video_db_name,
+                ]
+            )
+
+        result = {
+            "composable": ok,
+            "duration": duration,
+            "score": score,
+            "user_db": (user_db_score, user_db_name),
+            "metadata_db": (metadata_db_score, metadata_db_name),
+            "rent_db": (rent_db_score, rent_db_name),
+            "review_db": (review_db_score, review_db_name),
+            "video_db": (video_db_score, video_db_name),
+        }
+        print(result)

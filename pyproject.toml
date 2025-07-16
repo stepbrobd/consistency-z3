@@ -18,6 +18,7 @@ dependencies = [
     "matplotlib",
     "mypy",
     "networkx",
+    "psutil",
     "pytest",
     "pytest-cov",
     "rich",

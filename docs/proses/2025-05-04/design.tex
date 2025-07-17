@@ -440,7 +440,31 @@ $hb \triangleq (\text{so} \cup {\text{vis}})^{+}$
 
 \subsection{Consistency Semantics}
 
-\subsubsection{Eventual Consistency}...
+\subsubsection{Eventual Consistency} ensures that replicas will achieve
+identical states when no additional updates occur. Specifically, when
+no new write operations are issued, all read operations will
+ultimately return the same
+value \cite{terry1994session, eventual, viotti2016consistency}. Given
+that the liveness
+aspects of eventual consistency are characterized through eventual
+visibility \cite{viotti2016consistency},
+our framework excludes liveness properties and concentrates on safety
+properties:
+non-circular causality (acyclic projection of the happens-before
+relation defined previously) and
+contextual return value consistency (a predicate on abstract
+  executions ensuring that the return value of any operation within
+that execution belongs to the set of its valid return values)
+guided under the can-view relation.
+
+\begin{align*}
+  &\text{EC}(\mathcal{F}) \triangleq \text{acyclic}(hb) \land \forall
+  op \in H: op.oval \in \mathcal{F}(op, ctx(A, op)) \\
+  &\text{where} \\
+  % for all read op, the ival of operations thats in can-view relation with op
+  &\mathcal{F}_{\text{can-view}}(op, ctx(A, op)) = \{x.ival \in
+  H_\text{wr} : (op, x) \in \text{can-view}\}
+\end{align*}
 
 \subsubsection{Monotonic Reads} guarantees that consecutive read operations
 observe a monotonically increasing set
@@ -506,52 +530,45 @@ $$
 b \implies a \xrightarrow{\text{vis}} b
 $$
 
-\subsubsection{Causal Consistency} extends beyond PRAM and
-session guarantees. Our causal consistency is a combination of Voitti et
-al. \cite{viotti2016consistency}
-and causal memory \cite{baldoni2002an}. The
-\textit{writes-into} relation \cite{baldoni2002an} links write
-operations directly to the reads that return their values. This ensures that if
-a read observes a particular write, all subsequent writes in the same session
-respect that causal ordering. Formally, it aligns session order (\texttt{so}),
-arbitration, visibility, and writes-into to maintain coherent causal histories.
+\subsubsection{Causal Consistency} surpasses PRAM and
+session guarantees in scope. Our causal consistency formulation
+combines concepts from Viotti et
+al.~\cite{viotti2016consistency}
+and causal memory~\cite{baldoni2002an}. The
+\textit{writes-into} relation~\cite{baldoni2002an} connects write
+operations directly with the reads that retrieve their values. This
+guarantees that when
+a read operation observes a specific write, all following writes
+within the same session
+honor that causal sequence. The formalization coordinates session order,
+arbitration, visibility, and writes-into to preserve consistent
+causal histories.
 
-To for operations to be in the \texttt{wi} set: a write $a$
-writes into a read $b$ if and only if $b$ returns
-the value originally written by $a$, and $a$/$b$
-to reference the same object (same memory region). There must be at
-most one $a$ for each
-$b$, plus the acyclicity.
-
-If one operation follows another in session order, their relationship in the
-abstract execution is further constrained. Specifically, if $(a, b)
+Operations belong to the \texttt{wi} set when: a write $a$
+writes into a read $b$ if and only if $b$ retrieves
+the value initially written by $a$, and $a$ and $b$
+access the same object (identical memory region). Each $b$ can have at
+most one corresponding $a$, maintaining acyclicity.
+When one operation succeeds another in session order, their
+relationship within the
+abstract execution faces additional constraints. Particularly, if $(a, b)
 \in \text{so}$,
-then \texttt{a} must write-into \texttt{b} if \texttt{b} is a read,
-and \texttt{a} must be visible and
-arbitrated before \texttt{b}. Thus, session order induces a causal
-ordering that is
-reflected in the relations \texttt{wi}, \texttt{vis}, and \texttt{ar}.
+then $a$ must write-into $b$ when $b$ represents a read operation,
+and $a$ must be visible and
+arbitrated prior to $b$. Consequently, session order establishes a causal
+sequence that manifests
+in the relations wi, vis, and ar.
 
-% TODO: vis(a, b) -> (a, b) in "vis"
-To incorporate session causility, we conjunct write-follow-reads with
-writes-into set: if a read \texttt{b} observes a write \texttt{a}
-(i.e. \texttt{vis(a, b)}) and \texttt{b} is
-followed by a write \texttt{c} in the same session (\texttt{so(b,
-c)}), then \texttt{ar(a, c)} ensures
-that the causal dependency introduced by reading \texttt{a}'s value
-is respected by the
-subsequent write \texttt{c}.
-
-% TODO: need double check
 $$
-\text{CC} \triangleq (\forall a, b \in H: (a, b) \in \text{so}
-\Leftrightarrow (a, b) \in \text{wi} \cap \text{vis} \cap \text{ar})
-\text{ and } \text{WriteFollowsRead}
+\text{CC} \triangleq \text{WFR} \land \forall a, b \in H: (a, b) \in
+\text{so} \implies (a, b) \in \text{wi} \cap \text{vis} \cap \text{ar}
 $$
 
-These conditions together ensure a causal memory model where session order,
-observed values, and write sequences are all aligned, causally dependent writes
-appear in the correct order from any observer's perspective.
+These constraints collectively establish a causal memory model where
+session order,
+observed values, and write sequences maintain alignment, ensuring
+causally dependent writes
+manifest in proper order from any observer's viewpoint.
 
 \subsubsection{Liniearizability}
 

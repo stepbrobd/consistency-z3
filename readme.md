@@ -458,6 +458,15 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-07-16
+
+- implement timing for media example (with sorted ordering), only need to plugin to slots where `provs` is not None
+- timing info for pairwise checks (same table 1 but instead of T/F put the timing numbers in there)
+- for xc timing, claim that the weakest cases can already be found, and we have these cases of failures/timeouts, we could've stopped the check (and things like this)
+- write about machine specs for benchmark
+- make a dedicated evaluation section add numbers and specs
+- [off loaded] in case study writing, hide details (like a quiz to reviewers)
+
 ### 2025-07-14
 
 - timing (limit each check to 10sec and terminate use a special marker)

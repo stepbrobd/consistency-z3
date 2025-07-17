@@ -550,6 +550,48 @@ their functional roles:
     \end{itemize}
 \end{enumerate}
 
+{\color{red}
+  In this example, we've specified that all users must register for
+  an account before they can log in, this would result in a request from
+  client, to login service, then to user database.
+  If users are to post a review, they must
+  be logged in, and the review service must verify that the title exists
+  in the metadata database before allowing the review to be written. This would
+  incur the review service to validate user authentication status, then
+  the existence of the title in the metadata database before writing
+  to the review database. This is one of the clear dependency chains
+  in the media service example.
+  This dependency chain creates a cascading effect throughout the system
+  where each operation builds upon the successful completion of its
+  prerequisites.
+  The registration-before-login dependency establishes user identity,
+  the login-before-content-access dependency establishes authorization,
+  and the content-validation-before-review dependency establishes
+  referential integrity.
+
+  Semantically, 6 nodes are interacting with each other (client,
+    login service, user database, review service, metadata database,
+  and review database).
+  The edges between these nodes represent the flow of data and we
+  encode the prerequisites
+  of each operation as constraints on the edges. Implementation-wise,
+  all constraints on edges can be
+  directly encoded on the nodes themselves along with the
+  aforementioned semantics. However, when modeling
+  services with complex interactions with cross storage system
+  dependencies, edge constraints can clearly
+  separate the providing/requiring semantic constraints and
+  downstream implementation specific
+  service logic. Formally, we can represent client's login operation as follow:
+
+  % TODO: missing second level constraints and review related stuff
+  \begin{align*}
+    EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
+    op_{reg} \in H_{wr} :\\
+  &ob(op_{login}, op_{reg}) \land vis(op_{reg}, op_{login}))
+\end{align*}
+}
+
 \subsubsection{Interaction Flows}
 
 The media streaming service supports several interaction patterns,
@@ -560,12 +602,12 @@ content, users must register and authenticate through the login
 service. This process involves:
 
 \begin{enumerate}
-  \item The client sends a registration request (abstracted as a
-    write operation) to the login service.
-  \item The login service writes the new user credentials to the User Database.
-  \item For subsequent logins, the client sends a login request
-    (abstracted as a read operation) to the login service.
-  \item The login service reads from the User Database to verify credentials.
+\item The client sends a registration request (abstracted as a
+  write operation) to the login service.
+\item The login service writes the new user credentials to the User Database.
+\item For subsequent logins, the client sends a login request
+  (abstracted as a read operation) to the login service.
+\item The login service reads from the User Database to verify credentials.
 \end{enumerate}
 
 The MW and WFR guarantees of the User Database ensure that once user
@@ -577,14 +619,14 @@ where users might be unable to log in with newly created or changed credentials.
 and watch available content:
 
 \begin{enumerate}
-  \item The client sends a request to browse content, which queries
-    the Metadata Database.
-  \item When a user selects content to watch, the client sends a
-    request to the Video Service.
-  \item The Video Service verifies the content's existence and
-    availability by reading from the Metadata Database.
-  \item If the content is available, the Video Service streams the
-    content from the Video Database to the client.
+\item The client sends a request to browse content, which queries
+  the Metadata Database.
+\item When a user selects content to watch, the client sends a
+  request to the Video Service.
+\item The Video Service verifies the content's existence and
+  availability by reading from the Metadata Database.
+\item If the content is available, the Video Service streams the
+  content from the Video Database to the client.
 \end{enumerate}
 
 The MR guarantee of the Video Service ensures that once a piece of
@@ -597,12 +639,12 @@ revert to an earlier version.
 \textbf{Rentals}: For premium content, users must first rent the content:
 
 \begin{enumerate}
-  \item The client sends a rental request to the Rent Service.
-  \item The Rent Service checks content availability by reading from
-    the Metadata Database.
-  \item If available, the Rent Service records the transaction in the
-    Rent Database.
-  \item The client can then access the rented content through the Video Service.
+\item The client sends a rental request to the Rent Service.
+\item The Rent Service checks content availability by reading from
+  the Metadata Database.
+\item If available, the Rent Service records the transaction in the
+  Rent Database.
+\item The client can then access the rented content through the Video Service.
 \end{enumerate}
 
 The MR guarantee of the Rent Service ensures consistent inventory
@@ -612,14 +654,14 @@ and then becomes unavailable during the rental process.
 \textbf{Reviews}: Users can read and write reviews for content they've watched:
 
 \begin{enumerate}
-  \item To read reviews, the client sends a request to the Review
-    Service, which retrieves reviews from the Review Database.
-  \item To write a review, the client sends the review content to the
-    Review Service.
-  \item The Review Service verifies that the content exists by
-    reading from the Metadata Database.
-  \item If verified, the Review Service writes the review to the
-    Review Database.
+\item To read reviews, the client sends a request to the Review
+  Service, which retrieves reviews from the Review Database.
+\item To write a review, the client sends the review content to the
+  Review Service.
+\item The Review Service verifies that the content exists by
+  reading from the Metadata Database.
+\item If verified, the Review Service writes the review to the
+  Review Database.
 \end{enumerate}
 
 The RYW guarantee of both the Review Service and Review Database
@@ -631,16 +673,16 @@ eventual consistency for other users' views.
 separate workflows:
 
 \begin{enumerate}
-  \item Administrators authenticate through the Login Service (with
-    pre-granted access).
-  \item To add new content, administrators:
-    \begin{itemize}
-      \item Upload video content to the Video Database through the
-        Video Service.
-      \item Add corresponding metadata to the Metadata Database.
-    \end{itemize}
-  \item To modify user accounts, administrators interact with the
-    Login Service, which updates the User Database.
+\item Administrators authenticate through the Login Service (with
+  pre-granted access).
+\item To add new content, administrators:
+  \begin{itemize}
+    \item Upload video content to the Video Database through the
+      Video Service.
+    \item Add corresponding metadata to the Metadata Database.
+  \end{itemize}
+\item To modify user accounts, administrators interact with the
+  Login Service, which updates the User Database.
 \end{enumerate}
 
 The combination of RYW and MR guarantees in the Metadata Database
@@ -654,23 +696,23 @@ Each component in the system has specific consistency requirements
 based on its functional role:
 
 \begin{itemize}
-  \item The User Database provides MW and WFR guarantees, ensuring
-    that credential updates are properly sequenced and visible, which
-    is critical for authentication security.
+\item The User Database provides MW and WFR guarantees, ensuring
+  that credential updates are properly sequenced and visible, which
+  is critical for authentication security.
 
-  \item The Metadata Database provides MR and RYW guarantees,
-    balancing immediate visibility of administrative updates with
-    tolerance for some staleness in user reads.
+\item The Metadata Database provides MR and RYW guarantees,
+  balancing immediate visibility of administrative updates with
+  tolerance for some staleness in user reads.
 
-  \item The Review Database provides RYW guarantees, prioritizing the
-    user experience of seeing one's own reviews immediately while
-    accepting eventual consistency for other users' views.
+\item The Review Database provides RYW guarantees, prioritizing the
+  user experience of seeing one's own reviews immediately while
+  accepting eventual consistency for other users' views.
 
-  \item The Rent Database provides MR and RYW guarantees, ensuring
-    consistent transaction records for both administrative and user views.
+\item The Rent Database provides MR and RYW guarantees, ensuring
+  consistent transaction records for both administrative and user views.
 
-  \item The Video Database provides WFR guarantees, maintaining
-    version consistency for content delivery.
+\item The Video Database provides WFR guarantees, maintaining
+  version consistency for content delivery.
 \end{itemize}
 
 The edges in our model represent not just data flow but also critical
@@ -765,52 +807,52 @@ weaker guarantees provided by individual services ($\text{SVC}1
 edges to supply the missing pieces. Verbatim:
 
 \begin{itemize}
-  \item $\text{SVC}1$ starts by providing only MR (via its
-    \texttt{provs}, using symbols like $a_1, b_1, \ldots$).
-    Its own \texttt{needs} are \texttt{None}.
-  \item To potentially achieve Causal Consistency for operations
-    passing from $\text{SVC}1$ to $\text{SVC}2$,
-    the edge $\text{Edge}(\text{SVC1} \rightarrow \text{SVC2})$ must
-    provide the other three required
-    session guarantees: MW, RYW, and WFR (via its \texttt{cons},
-    using unique symbols like $a_{12}, b_{12}, \ldots$).
-    However, in real world implementations, edge constraints usually requires
-    additional application specific logic to be satisfiable. In other word, edge
-    constraints used in abstract representation implies the existence
-    of application
-    level protocols that enforces convergence of data either through
-    consensus (like
-    Raft \cite{diego2014raft} or Paxos \cite{lamport1998paxos}) or other means.
-  \item When \texttt{composable} evaluates this step, it checks if
-    the interaction is locally
-    consistent based on the nodes' defined
-    \texttt{provs}/\texttt{needs} and the edge's \texttt{cons}. If
-    this local check passes (meaning $\text{SVC}2$'s required guarantee, Causal
-      Consistency, is satisfied through what the edge + $\text{SVC}1$'s
-    provs provide), we
-    \textit{interpret} this (based on our setup) as achieving Causal
-    Consistency for the
-    combined path ($\text{SVC}1 + \text{Edge}(\text{SVC1} \rightarrow
-    \text{SVC2})$) leading \textit{up to} $\text{SVC}2$.
-  \item Now, although the path leading to $\text{SVC}2$ is causally
-    consistent, $\text{SVC}2$ itself,
-    according to its definition in this example, only
-    \textit{provides} MW to the outside
-    world (via its \texttt{provs}, using symbols $a_2, b_2, \ldots$).
-  \item Therefore, for the \textit{next} service, $\text{SVC}3$, to
-    maintain Causal Consistency
-    relative to the operations flowing through the
-    ($\text{SVC}1\rightarrow\text{SVC}2$) mesh, the edge
-    $\text{Edge}(\text{SVC2} \rightarrow \text{SVC3})$ must
-    supply the guarantees missing relative to $\text{SVC}2$'s
-    provided MW. This means $\text{Edge}(\text{SVC2} \rightarrow
-    \text{SVC3})$ must
-    provide MR, RYW, and WFR (again, with unique symbols).
-  \item This pattern repeats: each service node $\text{SVC}n$
-    provides one specific
-    guarantee, and the edge $\text{Edge}(n \rightarrow n+1)$ provides
-    the complementary guarantees
-    needed to ensure the cumulative path maintains the target property.
+\item $\text{SVC}1$ starts by providing only MR (via its
+  \texttt{provs}, using symbols like $a_1, b_1, \ldots$).
+  Its own \texttt{needs} are \texttt{None}.
+\item To potentially achieve Causal Consistency for operations
+  passing from $\text{SVC}1$ to $\text{SVC}2$,
+  the edge $\text{Edge}(\text{SVC1} \rightarrow \text{SVC2})$ must
+  provide the other three required
+  session guarantees: MW, RYW, and WFR (via its \texttt{cons},
+  using unique symbols like $a_{12}, b_{12}, \ldots$).
+  However, in real world implementations, edge constraints usually requires
+  additional application specific logic to be satisfiable. In other word, edge
+  constraints used in abstract representation implies the existence
+  of application
+  level protocols that enforces convergence of data either through
+  consensus (like
+  Raft \cite{diego2014raft} or Paxos \cite{lamport1998paxos}) or other means.
+\item When \texttt{composable} evaluates this step, it checks if
+  the interaction is locally
+  consistent based on the nodes' defined
+  \texttt{provs}/\texttt{needs} and the edge's \texttt{cons}. If
+  this local check passes (meaning $\text{SVC}2$'s required guarantee, Causal
+    Consistency, is satisfied through what the edge + $\text{SVC}1$'s
+  provs provide), we
+  \textit{interpret} this (based on our setup) as achieving Causal
+  Consistency for the
+  combined path ($\text{SVC}1 + \text{Edge}(\text{SVC1} \rightarrow
+  \text{SVC2})$) leading \textit{up to} $\text{SVC}2$.
+\item Now, although the path leading to $\text{SVC}2$ is causally
+  consistent, $\text{SVC}2$ itself,
+  according to its definition in this example, only
+  \textit{provides} MW to the outside
+  world (via its \texttt{provs}, using symbols $a_2, b_2, \ldots$).
+\item Therefore, for the \textit{next} service, $\text{SVC}3$, to
+  maintain Causal Consistency
+  relative to the operations flowing through the
+  ($\text{SVC}1\rightarrow\text{SVC}2$) mesh, the edge
+  $\text{Edge}(\text{SVC2} \rightarrow \text{SVC3})$ must
+  supply the guarantees missing relative to $\text{SVC}2$'s
+  provided MW. This means $\text{Edge}(\text{SVC2} \rightarrow
+  \text{SVC3})$ must
+  provide MR, RYW, and WFR (again, with unique symbols).
+\item This pattern repeats: each service node $\text{SVC}n$
+  provides one specific
+  guarantee, and the edge $\text{Edge}(n \rightarrow n+1)$ provides
+  the complementary guarantees
+  needed to ensure the cumulative path maintains the target property.
 \end{itemize}
 
 \textit{Symbol Equivalence:} For this composition to be meaningful, we must
@@ -820,7 +862,7 @@ write $a_2$ in $\text{SVC}2$ both
 represent updates to the same user profile, ``glue'' constraints
 equating relevant
 aspects (like $a_1.\text{obj} = a_2.\text{obj}$ or $a_1.\text{ival} =
-  a_2.\text{ival}$ despite their
+a_2.\text{ival}$ despite their
 different symbolic names) might be necessary. While the current test
 code (\texttt{tests/test\_cross\_causal.py})
 simplifies this by focusing on composing the consistency axioms, a more rigorous

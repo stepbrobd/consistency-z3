@@ -458,11 +458,26 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-07-17
+
+- in case study media example
+  - formalize in writing chain of dependencies:
+    - user must register before login
+    - user must must be logged in to write reviews
+    - to write reviews, review api must check movie metadata exist
+  - strip out portion of figure 4 to show dependent ops and ec
+- in shopping mall example, make graph shorter
+- redraw figure 4 and xc graph (make it look like a binary tree)
+
 ### 2025-07-16
 
-- implement timing for media example (with sorted ordering), only need to plugin to slots where `provs` is not None
-- timing info for pairwise checks (same table 1 but instead of T/F put the timing numbers in there)
-- for xc timing, claim that the weakest cases can already be found, and we have these cases of failures/timeouts, we could've stopped the check (and things like this)
+- implement timing for media example (with sorted ordering), only need to plugin
+  to slots where `provs` is not None
+- timing info for pairwise checks (same table 1 but instead of T/F put the
+  timing numbers in there)
+- for xc timing, claim that the weakest cases can already be found, and we have
+  these cases of failures/timeouts, we could've stopped the check (and things
+  like this)
 - write about machine specs for benchmark
 - make a dedicated evaluation section add numbers and specs
 - [off loaded] in case study writing, hide details (like a quiz to reviewers)

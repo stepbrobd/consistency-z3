@@ -1,1 +1,22 @@
 \section{Evaluation}
+
+We evaluated \sysname{} using three representative case studies to
+demonstrate its effectiveness in checking compatibility between
+applications and compositions of distributed systems.
+Our evaluation focuses on two key metrics: the framework's ability to
+find valid compositions with minimal semantic score and its
+performance characteristics under different system complexities.
+
+All experiments were conducted on an Intel i7-1360P processor with
+64GB RAM running NixOS 25.11 (Linux 6.12.30).
+We used Z3 version 4.15.1 as our SMT solver backend with a 10 seconds
+timeout limit, following the philosophy established in recent
+verification work Verus that "it's better to improve solver
+performance than rely on a slow proof" \cite{verus}.
+% https://github.com/verus-lang/verus/blob/0b6f3cbb8fceff6681b4988c3cac37a8b801f8e6/source/docs/guide/src/smt_failures.md
+
+During our evaluation, we discovered a termination bug in Z3 4.15.1
+where the solver would continue running beyond the specified timeout parameter.
+To address this, we implemented a watchdog program that monitors
+stdout and write system calls with strace, sending a SIGINT signal if
+the 10 seconds timeout is exceeded.

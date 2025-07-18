@@ -7,16 +7,51 @@ Our evaluation focuses on two key metrics: the framework's ability to
 find valid compositions with minimal semantic score and its
 performance characteristics under different system complexities.
 
+For each case study, we enumerated all possible combinations of
+consistency models for nodes with non-null provs fields, while
+keeping nodes with predefined needs fields unchanged. We assigned
+scores to individual consistency models and their combinations based
+on their strength as shown in Figure \ref{fig:semantics-tree}.
+
 All experiments were conducted on an Intel i7-1360P processor with
 64GB RAM running NixOS 25.11 (Linux 6.12.30).
 We used Z3 version 4.15.1 as our SMT solver backend with a 10 seconds
-timeout limit, following the philosophy established in recent
-verification work Verus that "it's better to improve solver
-performance than rely on a slow proof" \cite{verus}.
+timeout limit. However, during our evaluation, we discovered a
+termination bug in Z3 4.15.1
+where the solver would not respect timeout parameters, continuing to
+run well beyond the specified limit (e.g., still running after 2
+minutes despite a 10-second timeout). To address this, we implemented
+a watchdog mechanism using strace to monitors write systemcalls to
+stdout, sending SIGINT if the 10-second timeout is exceeded,
+following the philosophy established in recent
+verification work Verus that ``it's better to improve solver
+performance than rely on a slow proof'' \cite{verus}.
 % https://github.com/verus-lang/verus/blob/0b6f3cbb8fceff6681b4988c3cac37a8b801f8e6/source/docs/guide/src/smt_failures.md
 
-During our evaluation, we discovered a termination bug in Z3 4.15.1
-where the solver would continue running beyond the specified timeout parameter.
-To address this, we implemented a watchdog program that monitors
-stdout and write system calls with strace, sending a SIGINT signal if
-the 10 seconds timeout is exceeded.
+The shopping mall case study models an e-commerce platform with three
+configurable nodes: arbitrator, transaction processor, and shop
+service. We evaluated all
+$17^3$ possible combinations of consistency models across these
+nodes. The evaluation completed in 251.77 seconds with an average
+duration of 5.12 ms per combination and 0 timeouts.
+
+This case study models a complex media platform with five database
+nodes: user database, metadata database, rental database, review
+database, and video database.
+The full evaluation space contains
+$17^5$ combinations. At the time of writing, we have completed
+800,507 combinations (56.38\% of the total space) in 131,563.92
+seconds, with an average duration of 16.44 ms per combination and no timeouts.
+This case study represents the most complex scenario in our
+evaluation, testing the framework's scalability with realistic
+distributed system topologies.
+
+This case study represents a service chain with four services (SVC1
+-> SVC2 -> SVC3 -> SVC4) where causal consistency must be maintained
+across the entire chain. We evaluated all
+$17^4$ combinations, completing the analysis in 14,337.11 seconds
+with an average duration of 17.17 ms per combination.
+The timeout rate result arout 0.15\%, with non-timeout instances
+averaging 15.65 ms.
+
+% TODO: pairwise check?

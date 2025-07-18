@@ -458,12 +458,23 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ## Meeting notes
 
+### 2025-07-18
+
+- when the checker finds the first correct combination (excluding shopping mall)
+- fix shop:
+  - for the shopping mall example write it as if arbitrator requires RYW from
+    shop and client need MR
+  - rerun test and timing
+- add pairwise timing to table in eval section
+- figures (shop, media, xc)
+- remove needs from the media figure but leave provs on db nodes
+
 ### 2025-07-17
 
 - in case study media example
   - formalize in writing chain of dependencies:
     - user must register before login
-    - user must must be logged in to write reviews
+    - user must be logged in to write reviews
     - to write reviews, review api must check movie metadata exist
   - strip out portion of figure 4 to show dependent ops and ec
 - in shopping mall example, make graph shorter

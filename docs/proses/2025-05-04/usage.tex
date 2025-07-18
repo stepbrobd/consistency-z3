@@ -30,10 +30,11 @@ refines/subsumes $M_2$. This compatibility check is not symmetric:
 $M_1 \Rightarrow M_2$
 holding does not necessarily mean that $M_2 \Rightarrow M_1$ also holds.
 
-Figure \needref{} shows a result of pairwise compatibility checks for
+Table \ref{tab:pairwise-time} shows a result of pairwise
+compatibility checks for
 base semantics in \sysname{} which in-part shows that our consistency
 models compatibility faithfully matches with the theoretical results
-in \cref{fig:semantics-tree}.
+in \cref{fig:semantics-tree} and in previous literature \cite{terry1994session}.
 
 To combine multiple consistency models into a single stronger model, we used
 logical conjunctions on each \sysmod{}'s constraints. By taking the constraints
@@ -68,8 +69,10 @@ respects their individual consistency requirements and guarantees.
 The \sysgraph{} is composed of \textit{nodes} with two fields:
 (1) \textit{needs}, required constraint tuples from dependent components, and
 (2) \textit{provs}, constraint tuples it provides to other nodes.
-While user provided application logics can have both needs and provs, the
-built-in \sysmods{} only specify provs as their consistency semantics.
+\sysname{} users can freely specify application logics, and each \textit{node}
+have both needs and provs, with either our predefined built-in
+\sysmods{} or user-defined
+constraints that represent the semantics of the node with our interface.
 \textit{Edges} connect nodes and have the \textit{cons} field,
 specific constraint tuples for the node pair interaction.
 The tuples within the list represent constraints that must hold together
@@ -83,10 +86,11 @@ compose(check\_needs, check\_ec), path\_premise)}:
 for each edge (u,v) from the current node u, it checks if provs from v
 and cons from the edge (u, v) satisfy needs from u.
 This checks if the chosen path provides guarantee of the destination
-(check\_provs) is
+(\texttt{check\_provs}) is
 implied by the conjunction (compose) of the chosen needs of the
-source (check\_needs) and the chosen edge constraints (check\_ec),
-considering the constraints already accumulated (path\_premise).
+source (\texttt{check\_needs}) and the chosen edge constraints
+(\texttt{check\_ec}),
+considering the constraints already accumulated (\texttt{path\_premise}).
 
 If all check succeeds then the application is proven to be compatible
 with the plugged in \sysmods{} and the application logics are also
@@ -102,7 +106,7 @@ Considering that strictly weaker distributed semantics can be replaced
 with strictly stronger ones and the weaker semantics are typically
 more performant and cheaper to maintain, \sysname{} searches the space
 in an order that prioritize weaker semantics. Specifically, we give scores
-1 to 6 to semantics in the columns from left to right in
+0 to 5 to semantics in the columns from left to right in
 \cref{fig:semantics-tree}
 and test the combination that has lower sum of scores first during the search.
 If a compatible combinations are found, the search can stop early; replacing a

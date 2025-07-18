@@ -1,79 +1,11 @@
-\section{\sysname{} Design}
-\label{sec:design}
-
-We first present an example to motivate our work, explain how we model
-the distributed consistency semantics, and how applications can be
-encoded into our \sysname{} framework.
-
-\subsection{Motivating Example}
-\label{subsec:eg}
-Assume a movie streaming service built using a form of 
-microservice architecture where admins manage the serviced
-contents and clients rent movies and leave reviews~\cite{deathstar} (\needref{Fig}).
-There are quite a few functionalities and components to build the
-service, and it is nontrivial to meet all service requirements 
-and to guarantee that all requirements are fulfilled.
-
-For example, a movie metadata database (DB) stores list of
-available movies and each movie's information such as the 
-logline, director, and cast. This DB is accessed 1) when
-the service admin adds/modifies movie information and 
-2) when clients reads the DB before renting a movie
-or writing a review.
-
-The developer of the system can choose an ACID database or linearizable 
-key-value store for the metadata DB but this may not scale well. 
-For utmost scalability and performance eventually consistent 
-key-value store can be used but users may observe anomalies. 
-Thus, to find a proper storage module, key constraints to satisfy for each access 
-functionalities to minimize anomalous user experience needs to be defined: \eg 
-admins must always observe their own updates and clients must be able to see what 
-they have previously seen. The collection of constraints should be satisfied
-by the metadata DB of developer's choice, but if functionalities of the system 
-grow, the constraints can become more sophisticated and checking whether the 
-constrains are fully satisfied by a DB becomes more complicated.
-
-While the metadata DB example above is presented in isolation from 
-what a single DB service must satisfy, cross DB constraints can exacerbate
-the problem. For example, accessing the metadata DB would require 
-checking whether the user is an admin or a client with active movie subscription
-status which may be maintained in a separate storage system, so
-dependencies from the login service and the user DB must be fulfilled:
-the user must be able to observe the user's valid up-to-date status
-and then access the other services. Renting a movie or reading/writing a 
-review involves additional consistency constraints that cross storage services 
-for movies and reviews forming more complex dependencies that the system as a 
-whole must satisfy. 
-
-\sysname{} provides facilities to systematically encode the constraints
-and check whether the constraints are all satisfied.
-
-\subsection{Modeling Consistency Semantics}
-
-\sysname{} provides pre-built pluggable modules that represent distributed
-storage services which can be checked whether they are compatible with
-application constraints.  
-Each module models distributed consistency semantics introduced in
-\cref{sec:background} and \cref{fig:semantics-tree}. 
-In the movie streaming service example, given all the constraints for the 
-metadata DB and developer's choice for the metadata DB represented as the 
-pluggable module, \sysname{} can check if they are compatible. 
-Also, given the constraints, \sysname{} can search through existing modules 
-for compatible consistency semantics. 
-
-\sysname{} follows the definitions provided by 
-Viotti et al.~\cite{viotti2016consistency} and others~\needcite{} 
-and uses predicate logic derived from the definitions to
-model and reason about consistency semantics with SMT solvers. 
+\section*{Overview}
 
 
-% overviews for functions on consistency models
-Consistency semantics or models are properties of a system or
-composition of systems defined as logical formulas over axioms and
-relations (e.g., Monotonic Reads, PRAM, Causal Consistency, etc.).
-Each model enforces safety properties, specifically ordering and
-visibility constraints on operations within history and abstract
-executions. On top of our defined consistency models, we can perform
+----------------------
+
+----------------------
+
+On top of our defined consistency models, we can perform
 individual consistency semantic specification and verification, as
 well as pairwise checks between two models to determine if one
 model's execution trace is satisfiable under another model's

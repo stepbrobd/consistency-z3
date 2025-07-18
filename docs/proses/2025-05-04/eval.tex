@@ -64,42 +64,52 @@ appear in our test suite.
 Table \ref{tab:pairwise-time} shows the execution times for these
 pairwise compatibility checks.
 
-\newcommand{\tableT}{\textcolor{green}{T}}
+\newcommand{\tableT}{\textcolor{blue}{T}}
 \newcommand{\tableF}{\textcolor{red}{F}}
 \newcommand{\tableNA}{-}
-\newcommand{\rotatedHeader}[1]{\rotatebox{90}{\textit{#1}}}
 \begin{table}[htbp]
   \centering
-  \caption{Pairwise Check Performance (ms)}
+  \caption{Pairwise check performance (ms)}
   \label{tab:pairwise-time}
   \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
     \hline
-    \diagbox{\textit{LHS}}{\textit{RHS}} &
-    \rotatedHeader{EC} &
-    \rotatedHeader{MR} &
-    \rotatedHeader{MW} &
-    \rotatedHeader{RYW} &
-    \rotatedHeader{WFR} &
-    \rotatedHeader{PRAM} &
-    \rotatedHeader{CC} &
-    \rotatedHeader{LIN} \\
+    {L \textbackslash \ R} &
+    EC &
+    MR &
+    MW &
+    RYW &
+    WFR &
+    PRAM &
+    CC &
+    LIN \\
     \hline
-    \textit{EC}            & \tableNA   & 24.22      & 21.85
-    & 25.85      & 24.88      & 23.80      & 35.35      & 32.27 \\
-    \textit{MR}     & 22.77      & \tableNA   & 11.74
-    & 15.53      & 74.75      & 16.25      & 25.99      & 216.87 \\
-    \textit{MW}    & 26.75      & 15.91      & \tableNA
-    & 17.75      & 16.45      & 16.10      & 23.21      & 21.82 \\
-    \textit{RYW}    & 193.33     & 106.25     & 44.71
-    & \tableNA   & 58.73      & 19.72      & 29.42      & 25.82 \\
-    \textit{WFR} & 23.86      & 124.76     & 11.93
-    & 16.66      & \tableNA   & 18.20      & 43.53      & 53.52 \\
-    \textit{PRAM}                & 24.17      & 13.57      & 10.19
-    & 13.53      & 177.53     & \tableNA   & 26.79      & 28.07 \\
-    \textit{CC}              & 32.59      & 19.79      & 15.75
-    & 19.05      & 19.40      & 19.60      & \tableNA   & 281.90 \\
-    \textit{LIN}     & 26.06      & 20.99      & 16.61
-    & 21.57      & 22.14      & 21.69      & 44.14      & \tableNA \\
+    EC   & \tableNA & \textcolor{red}{24} & \textcolor{red}{22} &
+    \textcolor{red}{26} & \textcolor{red}{25} & \textcolor{red}{24} &
+    \textcolor{red}{35} & \textcolor{red}{32} \\
+    MR   & \textcolor{blue}{23} & \tableNA & \textcolor{red}{12} &
+    \textcolor{red}{16} & \textcolor{red}{75} & \textcolor{red}{16} &
+    \textcolor{red}{26} & \textcolor{red}{217} \\
+    MW   & \textcolor{blue}{27} & \textcolor{red}{16} & \tableNA &
+    \textcolor{red}{18} & \textcolor{red}{16} & \textcolor{red}{16} &
+    \textcolor{red}{23} & \textcolor{red}{22} \\
+    RYW  & \textcolor{blue}{193} & \textcolor{red}{106} &
+    \textcolor{red}{45} & \tableNA & \textcolor{red}{59} &
+    \textcolor{red}{20} & \textcolor{red}{29} & \textcolor{red}{26} \\
+    WFR  & \textcolor{blue}{24} & \textcolor{red}{125} &
+    \textcolor{red}{12} & \textcolor{red}{17} & \tableNA &
+    \textcolor{red}{18} & \textcolor{red}{44} & \textcolor{red}{54} \\
+    PRAM & \textcolor{blue}{24} & \textcolor{blue}{14} &
+    \textcolor{blue}{10} & \textcolor{blue}{14} &
+    \textcolor{red}{178} & \tableNA & \textcolor{red}{27} &
+    \textcolor{red}{28} \\
+    CC   & \textcolor{blue}{33} & \textcolor{blue}{20} &
+    \textcolor{blue}{16} & \textcolor{blue}{19} &
+    \textcolor{blue}{19} & \textcolor{blue}{20} & \tableNA &
+    \textcolor{red}{282} \\
+    LIN  & \textcolor{blue}{26} & \textcolor{blue}{21} &
+    \textcolor{blue}{17} & \textcolor{blue}{22} &
+    \textcolor{blue}{22} & \textcolor{blue}{22} &
+    \textcolor{blue}{44} & \tableNA \\
     \hline
   \end{tabular}
 \end{table}

@@ -582,14 +582,39 @@ their functional roles:
   dependencies, edge constraints can clearly
   separate the providing/requiring semantic constraints and
   downstream implementation specific
-  service logic. Formally, we can represent client's login operation as follow:
+  service logic. In the implementation, we defined multiple operations
+  with read or write type to represent interactions between nodes on the edge.
+  For the registration operation, we simply abstract it as a write,
+  and login operation as a read, and assign constraints to the operations.
+  Formally, we can represent client's login operation as follow:
 
-  % TODO: missing second level constraints and review related stuff
   \begin{align*}
     EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
     op_{reg} \in H_{wr} :\\
   &ob(op_{login}, op_{reg}) \land vis(op_{reg}, op_{login}))
 \end{align*}
+
+For services initiated from the client side, we modeled the behaviors
+as a set of constraints with the return-before binary relationship. Formally:
+
+\begin{align*}
+  EC_{auth} &\triangleq rb(op_{login}, op_{rdreview}) \land
+  rb(op_{login}, op_{wrreview}) \\
+  &\land rb(op_{login}, op_{rent}) \land rb(op_{login}, op_{watch})
+\end{align*}
+
+These constraints are then added to each edge that's relevant to the
+login service or refer to the login operation, ensuring the chain
+of dependencies is respected throughout the system. For posting reviews,
+the review service must first verify that the content exists in the
+metadata database before allowing the review to be written. Similar to
+the login operation, we can represent the review service's interaction
+as a set of constraints with existential quantification, object constraints,
+and return-before relationships, on top of consistency semantics
+ended at each nodes'
+provide and need fields.
+
+% TODO: add review service constraints
 }
 
 \subsubsection{Interaction Flows}

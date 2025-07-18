@@ -41,7 +41,10 @@ database, and video database.
 The full evaluation space contains
 $17^5$ combinations. At the time of writing, we have completed
 800,507 combinations (56.38\% of the total space) in 131,563.92
-seconds, with an average duration of 16.44 ms per combination and no timeouts.
+seconds (\~36.55 hours), with an average duration of 16.44 ms per
+combination and no timeouts.
+Our tool was able to find the composition in our original design in
+about 20.43 seconds.
 This case study represents the most complex scenario in our
 evaluation, testing the framework's scalability with realistic
 distributed system topologies.
@@ -49,9 +52,54 @@ distributed system topologies.
 This case study represents a service chain with four services (SVC1
 -> SVC2 -> SVC3 -> SVC4) where causal consistency must be maintained
 across the entire chain. We evaluated all
-$17^4$ combinations, completing the analysis in 14,337.11 seconds
+$17^4$ combinations, completing the analysis in 14,337.11 seconds (\~3.98 hours)
 with an average duration of 17.17 ms per combination.
+Our tool successfully identified the composition in our original design
+in about 261.09 seconds.
 The timeout rate result arout 0.15\%, with non-timeout instances
 averaging 15.65 ms.
 
-% TODO: pairwise check?
+We evaluated all pairwise combinations of consistency models that
+appear in our test suite.
+Table \ref{tab:pairwise-time} shows the execution times for these
+pairwise compatibility checks.
+
+\newcommand{\tableT}{\textcolor{green}{T}}
+\newcommand{\tableF}{\textcolor{red}{F}}
+\newcommand{\tableNA}{-}
+\newcommand{\rotatedHeader}[1]{\rotatebox{90}{\textit{#1}}}
+\begin{table}[htbp]
+  \centering
+  \caption{Pairwise Check Performance (ms)}
+  \label{tab:pairwise-time}
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+    \hline
+    \diagbox{\textit{LHS}}{\textit{RHS}} &
+    \rotatedHeader{EC} &
+    \rotatedHeader{MR} &
+    \rotatedHeader{MW} &
+    \rotatedHeader{RYW} &
+    \rotatedHeader{WFR} &
+    \rotatedHeader{PRAM} &
+    \rotatedHeader{CC} &
+    \rotatedHeader{LIN} \\
+    \hline
+    \textit{EC}            & \tableNA   & 24.22      & 21.85
+    & 25.85      & 24.88      & 23.80      & 35.35      & 32.27 \\
+    \textit{MR}     & 22.77      & \tableNA   & 11.74
+    & 15.53      & 74.75      & 16.25      & 25.99      & 216.87 \\
+    \textit{MW}    & 26.75      & 15.91      & \tableNA
+    & 17.75      & 16.45      & 16.10      & 23.21      & 21.82 \\
+    \textit{RYW}    & 193.33     & 106.25     & 44.71
+    & \tableNA   & 58.73      & 19.72      & 29.42      & 25.82 \\
+    \textit{WFR} & 23.86      & 124.76     & 11.93
+    & 16.66      & \tableNA   & 18.20      & 43.53      & 53.52 \\
+    \textit{PRAM}                & 24.17      & 13.57      & 10.19
+    & 13.53      & 177.53     & \tableNA   & 26.79      & 28.07 \\
+    \textit{CC}              & 32.59      & 19.79      & 15.75
+    & 19.05      & 19.40      & 19.60      & \tableNA   & 281.90 \\
+    \textit{LIN}     & 26.06      & 20.99      & 16.61
+    & 21.57      & 22.14      & 21.69      & 44.14      & \tableNA \\
+    \hline
+  \end{tabular}
+\end{table}

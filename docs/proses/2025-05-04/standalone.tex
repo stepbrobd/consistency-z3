@@ -20,7 +20,7 @@ metadata DB and the developer's \sysmod{} choice for the metadata DB,
 consistency semantics.
 
 \sysname{} follows the definitions provided by
-Viotti et al.~\cite{viotti2016consistency} and others~\needcite{}
+Viotti et al.~\cite{viotti2016consistency} and others \cite{terry1994session, baldoni2002an, burckhardt2014principles}
 and uses predicate logic derived from the definitions to
 model \sysmods{} and reason about consistency semantics with SMT solvers.
 Consistency semantics are defined as logical formulas over axioms and
@@ -37,9 +37,9 @@ session identification).
 \item \textit{type:} the type of the operation such as read, write, or custom).
 \item \textit{obj:} the object the operation is performed on.
 \item \textit{ival:} operation input value.
-\item \textit{oval:} operation output value.
+\item \textit{oval:} operation output value (special marker used for no output value).
 \item \textit{stime:} invocation time of the operation.
-\item \textit{rtime:} response time of the operation.
+\item \textit{rtime:} return time of the operation (special marker used for non-returning operations).
 }
 An operation
 can be conceptualized as a request-response pair, where the request
@@ -129,7 +129,7 @@ and PRAM of Viotti et al.~\cite{viotti2016consistency} (\cref{fig:semdef}),
 we newly propose or augment EC, CC, and LIN for SMT encoding and
 check their correctness with respect to other semantic definitions
 using \sysname{}
-(Section\needref{}).
+(Section \ref{sec:eval}).
 
 \begin{figure}
 \begin{eqnarray*}

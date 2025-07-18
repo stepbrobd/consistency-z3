@@ -374,3 +374,31 @@
   address       = {USA},
   abstract      = {NO ABSTRACT SUPPLIED}
 }
+@inproceedings{finkbeiner2007smt,
+  author        = {Finkbeiner, Bernd and Schewe, Sven},
+  title         = {SMT-based synthesis of distributed systems},
+  year          = {2007},
+  isbn          = {9781595938794},
+  publisher     = {Association for Computing Machinery},
+  address       = {New York, NY, USA},
+  url           = {https://doi.org/10.1145/1345169.1345178},
+  doi           = {10.1145/1345169.1345178},
+  abstract      = {We apply SMT solving to synthesize distributed systems from specifications in linear-time temporal logic (LTL). The LTL formula is translated into an equivalent universal co-B\"{u}chi tree automaton. The existence of a finite transition system in the language of the automaton is then specified as a quantified formula in the theory (N,<) of the ordered natural numbers with uninterpreted function symbols. While our experimental results indicate that the resulting satisfiability problem is generally out of reach for the currently available SMT solvers, the problem immediately becomes tractable if we fix an upper bound on the number of states in the distributed system. After replacing each universal quantifier by an explicit conjunction, the SMT solver Yices solves simple single-process synthesis problems within a few seconds, and distributed synthesis problems, such as a twoprocess distributed arbiter, within one minute.},
+  booktitle     = {Proceedings of the Second Workshop on Automated Formal Methods},
+  pages         = {69–76},
+  numpages      = {8},
+  location      = {Atlanta, Georgia},
+  series        = {AFM '07}
+}
+@inproceedings{tekken2017monitoring,
+  author        = "Tekken Valapil, Vidhya and Yingchareonthawornchai, Sorrachai and Kulkarni, Sandeep and Torng, Eric and Demirbas, Murat",
+  editor        = "Lahiri, Shuvendu and Reger, Giles",
+  title         = "Monitoring Partially Synchronous Distributed Systems Using SMT Solvers",
+  booktitle     = "Runtime Verification",
+  year          = "2017",
+  publisher     = "Springer International Publishing",
+  address       = "Cham",
+  pages         = "277--293",
+  abstract      = "In this paper, we discuss the feasibility of monitoring partially synchronous distributed systems to detect latent bugs, i.e., errors caused by concurrency and race conditions among concurrent processes. We present a monitoring framework where we model both system constraints and latent bugs as Satisfiability Modulo Theories (SMT) formulas, and we detect the presence of latent bugs using an SMT solver. We demonstrate the feasibility of our framework using both synthetic applications where latent bugs occur at any time with random probability and an application involving exclusive access to a shared resource with a subtle timing bug. We illustrate how the time required for verification is affected by parameters such as communication frequency, latency, and clock skew. Our results show that our framework can be used for real-life applications, and because our framework uses SMT solvers, the range of appropriate applications will increase as these solvers become more efficient over time.",
+  isbn          = "978-3-319-67531-2"
+}

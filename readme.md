@@ -460,6 +460,8 @@ WritesFollowReads \triangleq \forall a, c \in H|_{wr}, \forall b \in H|_{rd}: a 
 
 ### 2025-07-18
 
+- color cart, shop, tx log green, also change arbitrator node name to API node
+  or some sort
 - when the checker finds the first correct combination (excluding shopping mall)
 - fix shop:
   - for the shopping mall example write it as if arbitrator requires RYW from

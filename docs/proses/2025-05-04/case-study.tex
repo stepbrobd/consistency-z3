@@ -249,7 +249,7 @@ found, the function returns \texttt{False}, and \texttt{None} for the graph.
       consistency guarantees but relies on the guarantees provided by
       the services it interacts with.
 
-    \item \textbf{Cart}: The shopping cart service maintains customers''
+    \item \textbf{Cart}: The shopping cart service maintains customers
       shopping cart state. It stores items that customers intend to
       purchase and supports read and write operations. The cart service
       allows eventual convergence of state across multiple devices,
@@ -433,74 +433,77 @@ their functional roles:
 \begin{figure}[h]
   \centering
   \begin{tikzpicture}[
-      node distance=2.5cm,
+      node distance=1.8cm,
       service/.style={draw, rounded corners, fill=blue!10, minimum
-      width=1cm, minimum height=0.6cm},
+      width=1cm, minimum height=0.5cm},
       storage/.style={draw, rounded corners, fill=green!10, minimum
-      width=1cm, minimum height=0.6cm},
+      width=1cm, minimum height=0.5cm},
       arrow/.style={->, >=stealth, thick},
       label/.style={font=\small\itshape}
     ]
     % client and admin
     \node[service] (client) at (0,0) {Client};
-    \node[service] (admin) at (0,3.5) {Admin};
+    \node[service, yshift=3mm] (admin) at (0,2.2) {Admin};
 
     % services
-    \node[service] (login) at (2.8,1.8) {Login};
-    \node[service] (review) at (2.8,-1.2) {Review};
-    \node[service] (rent) at (2.8,0.3) {Rent};
-    \node[service] (video) at (2.8,3.2) {Video};
+    \node[service] (login) at (2.6,1.1) {Login};
+    \node[service] (review) at (2.6,-0.7) {Review};
+    \node[service] (rent) at (2.6,0.2) {Rent};
+    \node[service] (video) at (2.6,2.0) {Video};
 
     % db nodes
-    \node[storage] (user_db) at (5.8,1.8) {User DB};
-    \node[storage] (metadata_db) at (5.8,4) {Metadata DB};
-    \node[storage] (review_db) at (5.8,-1.2) {Review DB};
-    \node[storage] (rent_db) at (5.8,0.3) {Rent DB};
-    \node[storage] (video_db) at (5.8,5.2) {Video DB};
+    \node[storage] (user_db) at (5.2,1.1) {User DB};
+    \node[storage] (metadata_db) at (5.2,2.4) {Metadata DB};
+    \node[storage] (review_db) at (5.2,-0.7) {Review DB};
+    \node[storage] (rent_db) at (5.2,0.2) {Rent DB};
+    \node[storage] (video_db) at (5.2,3.3) {Video DB};
 
-    % node labels
-    \node[left=0.15cm, font=\tiny] at (client.west) {C};
-    \node[left=0.15cm, font=\tiny] at (admin.west) {A};
-    \node[left=0.15cm, font=\tiny] at (login.west) {L};
-    \node[left=0.15cm, font=\tiny] at (review.west) {R};
-    \node[left=0.15cm, font=\tiny] at (rent.west) {Rt};
-    \node[left=0.15cm, font=\tiny] at (video.west) {V};
-    \node[right=0.15cm, font=\tiny] at (user_db.east) {U};
-    \node[right=0.15cm, font=\tiny] at (metadata_db.east) {M};
-    \node[right=0.15cm, font=\tiny] at (review_db.east) {Rv};
-    \node[right=0.15cm, font=\tiny] at (rent_db.east) {Rn};
-    \node[right=0.15cm, font=\tiny] at (video_db.east) {Vd};
+    % edges from client with centered, above labels
+    \draw[arrow] (client) -- (login) node[pos=0.5, above, font=\tiny] {1};
+    \draw[arrow] (client) -- (review) node[pos=0.5, above, font=\tiny] {2};
+    \draw[arrow] (client) -- (rent) node[pos=0.5, above, font=\tiny] {3};
+    \draw[arrow] (client) -- (video) node[pos=0.5, above, font=\tiny] {4};
 
-    % edges from client with labels
-    \draw[arrow] (client) -- (login) node[pos=0.2, below, font=\tiny] {1};
-    \draw[arrow] (client) -- (review) node[pos=0.2, above, font=\tiny] {2};
-    \draw[arrow] (client) -- (rent) node[pos=0.2, below, font=\tiny] {3};
-    \draw[arrow] (client) -- (video) node[pos=0.2, above, font=\tiny] {4};
+    % edges from admin
+    \draw[arrow] (admin) -- (login) node[pos=0.5, above, font=\tiny] {5};
+    \draw[arrow] (admin) -- (metadata_db) node[pos=0.5, above, font=\tiny] {6};
+    \draw[arrow] (admin) -- (video) node[pos=0.5, above, yshift=-1mm,
+    font=\tiny] {7};
 
-    % edges from admin with labels
-    \draw[arrow] (admin) -- (login) node[pos=0.2, below, font=\tiny] {5};
-    \draw[arrow] (admin) -- (metadata_db) node[pos=0.2, below, font=\tiny] {6};
-    \draw[arrow] (admin) -- (video) node[pos=0.2, below, font=\tiny] {7};
-
-    % edges from services to db with labels
-    \draw[arrow] (login) -- (user_db) node[pos=0.2, below, font=\tiny] {8};
-    \draw[arrow] (review) -- (review_db) node[pos=0.2, below, font=\tiny] {9};
-    \draw[arrow] (review) -- (metadata_db) node[pos=0.15, left,
-    font=\tiny] {10};
-    \draw[arrow] (rent) -- (rent_db) node[pos=0.2, below, font=\tiny] {11};
-    \draw[arrow] (rent) -- (metadata_db) node[pos=0.15, left, font=\tiny] {12};
-    \draw[arrow] (video) -- (video_db) node[pos=0.2, below, font=\tiny] {13};
-    \draw[arrow] (video) -- (metadata_db) node[pos=0.2, right, font=\tiny] {14};
+    % service to DB edges
+    \draw[arrow] (login) -- (user_db) node[pos=0.5, above,
+    xshift=1mm, yshift=-1mm, font=\tiny] {8};
+    \draw[arrow] (review) -- (review_db) node[pos=0.5, above, font=\tiny] {9};
+    \draw[arrow] (review) -- (metadata_db) node[pos=0.5, above,
+    xshift=-1mm, yshift=-1mm, font=\tiny] {10};
+    \draw[arrow] (rent) -- (rent_db) node[pos=0.5, above, font=\tiny] {11};
+    \draw[arrow] (rent) -- (metadata_db) node[pos=0.5, above, font=\tiny] {12};
+    \draw[arrow] (video) -- (video_db) node[pos=0.5, above, font=\tiny] {13};
+    \draw[arrow] (video) -- (metadata_db) node[pos=0.5, above,
+    yshift=-0.8mm, font=\tiny] {14};
 
     % semantics for databases only
-    \node[below=0.25cm, align=center, font=\tiny] at (user_db) {MW + WFR};
-    \node[below=0.25cm, align=center, font=\tiny] at (metadata_db) {MR + RYW};
-    \node[below=0.25cm, align=center, font=\tiny] at (review_db) {RYW};
-    \node[below=0.25cm, align=center, font=\tiny] at (rent_db) {MR + RYW};
-    \node[below=0.25cm, align=center, font=\tiny] at (video_db) {WFR};
+    \node[below=0.15cm, align=center, font=\tiny] at (user_db) {MW + WFR};
+    \node[below=0.15cm, align=center, xshift=3mm, font=\tiny] at
+    (metadata_db) {MR + RYW};
+    \node[below=0.15cm, align=center, font=\tiny] at (review_db) {RYW};
+    \node[below=0.15cm, align=center, font=\tiny] at (rent_db) {MR + RYW};
+    \node[below=0.15cm, align=center, font=\tiny] at (video_db) {WFR};
   \end{tikzpicture}
   \caption{Architecture of the media streaming service with
-  consistency guarantees}
+    consistency guarantees.
+    Edges are numbered for reference:
+    1–4: Client requests to services (login, review, rent, video).
+    5: Admin login.
+    6: Admin updates metadata.
+    7: Admin uploads video.
+    8: Login service accesses User DB.
+    9: Review service writes to Review DB.
+    10: Review checks content existence in Metadata DB.
+    11: Rent updates Rent DB.
+    12: Rent checks content availability in Metadata DB.
+    13: Video service accesses Video DB.
+  14: Video service verifies metadata before playback.}
   \label{fig:case-study-media}
 \end{figure}
 
@@ -773,35 +776,76 @@ own reviews while maintaining content validity checks.
 
 \subsection{Example: Cross Service Causal}
 
-When reading the graph, think of it as a reversed tree (rooted from svc1) with
-one branch growing from root to leaf (xc). The leaf node's (xc) prov/need field
-in the implementation is set to \texttt{None} to indicate that it
-does not provide any
-guarantees, and will only be used for extraction (see descriptions below).
-Implementation of \texttt{tests/test\_cross\_causal.py}:
+This example demonstrates modeling a system where multiple services, each
+offering only a basic consistency guarantee, are chained together.
+The XC node is used for extraction, and users accessing data through
+the XC node can expect to get causal consistency. However, SVC4
+node's storage backend only provides WFR. To achieve causal
+consistency, application developers are expected to enforce MR + MW +
+RYW business logic on the edge between SVC4 and XC. While the SVC4-XC
+combination can achieve causal consistency, SVC4's downstream service
+node SVC3's storage backend only provides RYW. To achieve
+cross-system causal consistency, application developers are expected
+to enforce MR + MW + WFR on the edge between SVC3 and SVC4, and so on
+down the chain.
 
-\begin{verbatim}
-            xc
-           / <- mr + mw + ryw
-        svc4 - wfr
-       / <- mr + mw + wfr
-     svc3 - ryw
-    / <- mr + ryw + wfr
-  svc2 - mw
- / <- mw + ryw + wfr
-svc1 - mr
-\end{verbatim}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    service/.style={draw, rounded corners, fill=blue!10, minimum
+    width=1.2cm, minimum height=0.6cm},
+    semantic/.style={draw, rounded corners, fill=green!10, minimum
+    width=0.8cm, minimum height=0.4cm},
+    arrow/.style={->, >=stealth, thick},
+    semantic_arrow/.style={->, >=stealth, thin},
+    label/.style={font=\small}
+  ]
+
+  % nodes positioned at 45 degree angle upward
+  \node[service] (svc1) at (0,0) {SVC1};
+  \node[service] (svc2) at (0.85,0.85) {SVC2};
+  \node[service] (svc3) at (1.7,1.7) {SVC3};
+  \node[service] (svc4) at (2.55,2.55) {SVC4};
+  \node[service] (xc) at (3.4,3.4) {XC};
+
+  % semantic nodes at same level as their corresponding services
+  \node[semantic] (mr) at (-1.5,0) {MR};
+  \node[semantic] (mw) at (-0.65,0.85) {MW};
+  \node[semantic] (ryw) at (0.2,1.7) {RYW};
+  \node[semantic] (wfr) at (1.05,2.55) {WFR};
+
+  % arrows from services to semantics
+  \draw[semantic_arrow] (svc1) -- (mr);
+  \draw[semantic_arrow] (svc2) -- (mw);
+  \draw[semantic_arrow] (svc3) -- (ryw);
+  \draw[semantic_arrow] (svc4) -- (wfr);
+
+  % edges
+  \draw[arrow] (svc2) -- (svc1);
+  \draw[arrow] (svc3) -- (svc2);
+  \draw[arrow] (svc4) -- (svc3);
+  \draw[arrow] (xc) -- (svc4);
+
+  % edge constraints (horizontal text, right of edges)
+  \node[right=0.1cm, font=\small] at (0.425,0.425) {MW + RYW + WFR};
+  \node[right=0.1cm, font=\small] at (1.275,1.275) {MR + RYW + WFR};
+  \node[right=0.1cm, font=\small] at (2.125,2.125) {MR + MW + WFR};
+  \node[right=0.1cm, font=\small] at (2.975,2.975) {MR + MW + RYW};
+
+\end{tikzpicture}
+\caption{Cross-service causal consistency composition chain}
+\label{fig:cross-service-causal}
+\end{figure}
 
 This example demonstrates modeling a system where multiple services, each
 offering only a basic consistency guarantee, are chained together. The goal is
 to verify if their composition, mediated by specific inter-service constraints,
 symbolic isolation, and the role of explicit ``glue'' constraints.
 
-\textit{Setup}\footnote{I decided not to use the ``pseudo node'' in
-the write up, it makes the explanation unnecessarily complex.}: We
-model a linear chain of services: $\text{SVC1} \rightarrow
-\text{SVC2} \rightarrow \text{SVC3} \rightarrow \text{SVC4}
-\rightarrow \text{XC}$.
+We model a linear chain of services: $\text{XC} \rightarrow
+\text{SVC4} \rightarrow \text{SVC3} \rightarrow \text{SVC2}
+\rightarrow \text{SVC1}$.
 Each service $\text{SVC}n$ (for $n=1..4$) is designed to provide only
 \textit{one} of the
 four session guarantees via its \texttt{provs} attribute:
@@ -830,55 +874,25 @@ potentially satisfy Causal Consistency up to that point.
 The core idea of this example is to build a stronger guarantee by composing
 weaker guarantees provided by individual services ($\text{SVC}1
 \ldots 4$), using the
-edges to supply the missing pieces. Verbatim:
+edges to supply the missing pieces.
 
 \begin{itemize}
-\item $\text{SVC}1$ starts by providing only MR (via its
-  \texttt{provs}, using symbols like $a_1, b_1, \ldots$).
-  Its own \texttt{needs} are \texttt{None}.
-\item To potentially achieve Causal Consistency for operations
-  passing from $\text{SVC}1$ to $\text{SVC}2$,
-  the edge $\text{Edge}(\text{SVC1} \rightarrow \text{SVC2})$ must
-  provide the other three required
-  session guarantees: MW, RYW, and WFR (via its \texttt{cons},
-  using unique symbols like $a_{12}, b_{12}, \ldots$).
-  However, in real world implementations, edge constraints usually requires
-  additional application specific logic to be satisfiable. In other word, edge
-  constraints used in abstract representation implies the existence
-  of application
-  level protocols that enforces convergence of data either through
-  consensus (like
-  Raft \cite{diego2014raft} or Paxos \cite{lamport1998paxos}) or other means.
-\item When \texttt{composable} evaluates this step, it checks if
-  the interaction is locally
-  consistent based on the nodes' defined
-  \texttt{provs}/\texttt{needs} and the edge's \texttt{cons}. If
-  this local check passes (meaning $\text{SVC}2$'s required guarantee, Causal
-    Consistency, is satisfied through what the edge + $\text{SVC}1$'s
-  provs provide), we
-  \textit{interpret} this (based on our setup) as achieving Causal
-  Consistency for the
-  combined path ($\text{SVC}1 + \text{Edge}(\text{SVC1} \rightarrow
-  \text{SVC2})$) leading \textit{up to} $\text{SVC}2$.
-\item Now, although the path leading to $\text{SVC}2$ is causally
-  consistent, $\text{SVC}2$ itself,
-  according to its definition in this example, only
-  \textit{provides} MW to the outside
-  world (via its \texttt{provs}, using symbols $a_2, b_2, \ldots$).
-\item Therefore, for the \textit{next} service, $\text{SVC}3$, to
-  maintain Causal Consistency
-  relative to the operations flowing through the
-  ($\text{SVC}1\rightarrow\text{SVC}2$) mesh, the edge
-  $\text{Edge}(\text{SVC2} \rightarrow \text{SVC3})$ must
-  supply the guarantees missing relative to $\text{SVC}2$'s
-  provided MW. This means $\text{Edge}(\text{SVC2} \rightarrow
-  \text{SVC3})$ must
-  provide MR, RYW, and WFR (again, with unique symbols).
-\item This pattern repeats: each service node $\text{SVC}n$
-  provides one specific
-  guarantee, and the edge $\text{Edge}(n \rightarrow n+1)$ provides
-  the complementary guarantees
-  needed to ensure the cumulative path maintains the target property.
+\item $\text{SVC}1$ provides only MR via its storage backend.
+\item To achieve Causal Consistency when accessing data through $\text{SVC}2$,
+  the edge between $\text{SVC}1$ and $\text{SVC}2$ must
+  provide the missing session guarantees: MW, RYW, and WFR through
+  application-level business logic.
+\item Similarly, $\text{SVC}2$ provides only MW via its storage
+  backend. To maintain Causal Consistency
+  when accessing data through $\text{SVC}3$, the edge between
+  $\text{SVC}2$ and $\text{SVC}3$ must
+  provide MR, RYW, and WFR.
+\item This pattern continues: $\text{SVC}3$ provides RYW, so the edge
+  to $\text{SVC}4$ must provide MR, MW, and WFR.
+\item Finally, $\text{SVC}4$ provides WFR, so the edge to $\text{XC}$
+  must provide MR, MW, and RYW.
+\item The $\text{XC}$ node serves as the extraction point where users
+  can access data with full causal consistency guarantees.
 \end{itemize}
 
 \textit{Symbol Equivalence:} For this composition to be meaningful, we must

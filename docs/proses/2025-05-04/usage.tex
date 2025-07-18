@@ -56,7 +56,7 @@ additional consistency guarantees.
 Applications that rely on multiple distributed systems with different
 consistency semantics can be checked for correctness by performing a 
 compositional check using the \sysgraph{}.
-Our composability check (\texttt{composable(graph, src, ...)})
+Our composability check
 verifies if a distributed application, modeled as a graph (\ie 
 \sysgraph{}) can have its components interact in a way that
 respects their individual consistency requirements and guarantees.
@@ -90,6 +90,27 @@ considering the constraints already accumulated (path\_premise).
 If all check succeeds then the application is proven to be compatible
 with the plugged in \sysmods{} and the application logics are also
 sound as a whole. 
+
+\subsection{Compatible Combination Search}
+
+\sysname{} is capable of searching for compatible \sysmods{} for an
+application given a \sysgraph{}. When blank \sysmods{} are plugged into the 
+\sysgraph{}, \sysname{} searches for compatible combinations of 
+\sysmods{} for the user.
+Considering that strictly weaker distributed semantics can be replaced
+with strictly stronger ones and the weaker semantics are typically 
+more performant and cheaper to maintain, \sysname{} searches the space
+in an order that prioritize weaker semantics. Specifically, we give scores
+1 to 6 to semantics in the columns from left to right in \cref{fig:semantics-tree}
+and test the combination that has lower sum of scores first during the search. 
+If a compatible combinations are found, the search can stop early; replacing a 
+\sysmod{} in the compatible combination with a strictly stronger one is always 
+guaranteed to be compatible. 
+However, our search strategy is not optimal and investigating more 
+efficient search algorithm remains as future work. 
+
+
+
 %If a compatible combination is found that satisfies all unvisited edges
 %between u and v at the current step, it adds the chosen constraints
 %(needs, provs, cons) to the result graph, updates the path\_premise

@@ -59,6 +59,11 @@ in about 261.09 seconds.
 The timeout rate result arout 0.15\%, with non-timeout instances
 averaging 15.65 ms.
 
+We evaluated all pairwise combinations of consistency models that
+appear in our test suite.
+Table \ref{tab:pairwise-time} shows the execution times for these
+pairwise compatibility checks.
+
 \newcommand{\tableT}{\textcolor{green}{T}}
 \newcommand{\tableF}{\textcolor{red}{F}}
 \newcommand{\tableNA}{-}
@@ -66,7 +71,7 @@ averaging 15.65 ms.
 \begin{table}[htbp]
   \centering
   \caption{Pairwise Check Performance (ms)}
-  \label{tab:compatibility}
+  \label{tab:pairwise-time}
   \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
     \hline
     \diagbox{\textit{LHS}}{\textit{RHS}} &

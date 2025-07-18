@@ -84,17 +84,25 @@ def media() -> None:
     sum_duration = 0.0
     num_composables = 0
     num_terminated = 0
+    time_to_correct = 0
 
     for ok, duration, _score, _user_db, _metadata_db, _rent_db, _review_db, _video_db in result_media:
         sum_duration += duration
         num_composables += 1 if ok else 0
         num_terminated += 1 if ((not ok) and (duration == 10.0)) else 0
+        if "MonotonicWrites" in _user_db[1] and "WritesFollowReads" in _user_db[1]:
+            if "MonotonicReads" in _metadata_db[1] and "ReadYourWrites" in _metadata_db[1]:
+                if "MonotonicReads" in _rent_db[1] and "ReadYourWrites" in _rent_db[1]:
+                    if "ReadYourWrites" in _review_db[1]:
+                        if "WritesFollowReads" in _video_db[1]:
+                            time_to_correct += duration
 
     print(f"num entries: {len(result_media)} out of {17**5}")
     print(f"total time: {sum_duration:.2f} s")
     print(f"avg duration: {sum_duration / len(result_media) * 100:.2f} ms")
     # print(f"percent composable: {num_composables / len(result_media) * 100:.2f}%")
     print(f"timedout: {num_terminated / len(result_media) * 100:.2f}%")
+    print(f"time to correct: {time_to_correct:.2f} s")
 
 def xc() -> None:
     result_xc = []
@@ -129,6 +137,7 @@ def xc() -> None:
     sum_duration = 0.0
     num_composables = 0
     num_terminated = 0
+    time_to_correct = 0
     combos = []
     for ok, duration, score, svc1, svc2, svc3, svc4 in result_xc:
         sum_duration += duration
@@ -136,6 +145,11 @@ def xc() -> None:
         num_terminated += 1 if ((not ok) and (duration == 10.0)) else 0
         if ok:
             combos.append((duration, score, svc1[1], svc2[1], svc3[1], svc4[1]))
+        if "MonotonicReads" in svc1[1]:
+            if "MonotonicWrites" in svc2[1]:
+                if "ReadYourWrites" in svc3[1]:
+                    if "WritesFollowReads" in svc4[1]:
+                        time_to_correct += duration
 
     print(f"num entries: {len(result_xc)}")
     print(f"total time: {sum_duration:.2f} s")
@@ -143,6 +157,7 @@ def xc() -> None:
     print(f"ave no timeout duration: {(sum_duration-10*num_terminated) / (len(result_xc)-num_terminated) * 100:.2f} ms")
     # print(f"percent composable: {num_composables / len(result_xc) * 100:.2f}%")
     print(f"timedout: {num_terminated / len(result_xc) * 100:.2f}%")
+    print(f"time to correct: {time_to_correct:.2f} s")
     # print(combos[300])
 
 

@@ -41,7 +41,10 @@ database, and video database.
 The full evaluation space contains
 $17^5$ combinations. At the time of writing, we have completed
 800,507 combinations (56.38\% of the total space) in 131,563.92
-seconds, with an average duration of 16.44 ms per combination and no timeouts.
+seconds (\~36.55 hours), with an average duration of 16.44 ms per
+combination and no timeouts.
+Our tool was able to find the composition in our original design in
+about 20.43 seconds.
 This case study represents the most complex scenario in our
 evaluation, testing the framework's scalability with realistic
 distributed system topologies.
@@ -49,8 +52,10 @@ distributed system topologies.
 This case study represents a service chain with four services (SVC1
 -> SVC2 -> SVC3 -> SVC4) where causal consistency must be maintained
 across the entire chain. We evaluated all
-$17^4$ combinations, completing the analysis in 14,337.11 seconds
+$17^4$ combinations, completing the analysis in 14,337.11 seconds (\~3.98 hours)
 with an average duration of 17.17 ms per combination.
+Our tool successfully identified the composition in our original design
+in about 261.09 seconds.
 The timeout rate result arout 0.15\%, with non-timeout instances
 averaging 15.65 ms.
 

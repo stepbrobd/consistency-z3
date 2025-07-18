@@ -1,5 +1,11 @@
 # Meeting notes
 
+Hydra Evaluation and Binary Cache:
+
+- Jobset: <https://hydra.ysun.co/jobset/stepbrobd/consistency-z3>
+- Cache: <https://cache.ysun.co/public>
+- Key: `public:Y9EARSt+KLUY1JrY4X8XWmzs6uD+Zh2hRqN9eCUg55U=`
+
 ## 2025-07-18
 
 - media example, no need for stripping out the graph, finish client review flow

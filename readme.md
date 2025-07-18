@@ -5,170 +5,61 @@
 > [!Caution]
 > Experimental project, use at your own risk.
 
-Hydra Evaluation and Binary Cache:
-
-- Jobset: <https://hydra.ysun.co/jobset/stepbrobd/consistency-z3>
-- Cache: <https://cache.ysun.co/public>
-- Key: `public:Y9EARSt+KLUY1JrY4X8XWmzs6uD+Zh2hRqN9eCUg55U=`
-
-Garnix:
-
 - Cache: <https://cache.garnix.io>
 - Key: `cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=`
 
-## Specifications
+## Usage
 
-Framework user: a framework user is someone who provides node and edge
-definitions (e.g. custom operations that should be supported originating from a
-node, or precedences of operations) and relations to the consistency checker.
+Our original plan was to designa CLI tool, but due to time constraints, this
+tool can only be used as a library. Either install with `pip` or make a new
+`pytest` module under the `tests` directory to start immediately.
 
-Operation: an operation is defined as a tuple of (from non-transactional
-survey):
+Some examples might take a very long time to run, so we recommend using the
+`not slow` marker to skip those tests when trying to do artifact evaluation.
 
-- `proc`: the process that issued the operation (used for session
-  identification, e.g. same session constraint).
-- `type`: the type of the operation (e.g. read, write. or custom).
-- `obj`: the object the operation is performed on (e.g. a key in a key-value
-  store).
-- `ival`: operation input value (e.g. the value to be written, not used anywhere
-  yet).
-- `oval`: operation output value (e.g. the value read, not used anywhere yet).
-- `stime`: invocation time of the operation (i.e. the time the operation was
-  issued).
-- `rtime`: response time of the operation (i.e. the time the operation was
-  completed).
-
-Think of an operation as a request-response pair, where the request is the
-operation itself and the response is the operation itself with the response time
-set (assuming the delays between the request and the response are equal for all
-operations, the request takes `(rtime - stime)/2` time to be sent to the
-handling node and to be processed, vice versa for the response).
-
-(Our own interpretation) Operation does not contain the node that issued the
-operation, nor the node that handled the operation. It's defined as a generic
-entity that can be issued by any node and handled by any node. To add
-constraints on the nodes that can issue or handle an operation, the framework
-user must define nodes and edges.
-
-History (in the actual writing, layout the actual Z3 clauses used to encode the
-relational constraints): a set of operations. TODO: add relations between
-operations within history (returns before, same session, session order).
-
-Abstract execution (in the actual writing, layout the actual Z3 clauses used to
-encode the relational constraints): one or more "instantiation" of history. An
-abstract execution is a set of operations (i.e. history) that are further
-constrained by the nondeterminism of the asynchronous environment (e.g., message
-delivery order), and implementation-specific constraints (e.g., conflict
-resolution policies) (from non-transactional survey). AE specific relations:
-visibility, arbitration, happens before.
-
-Relation predicates: a set of predicates that define the relations between
-operations in a history (also includes those in AE). The predicates are used as
-base/premise for consistency models (implementations in `relation.py`,
-`history.py`, `abstract_execution.py`). In the implementation, the predicates
-are singletons and will be added ad-hoc if any clause refers to them.
-
-Node: node issues operations. Nodes with incoming edges can be perceived as
-nodes that can handle operations issued by other nodes (servers). Nodes with
-outgoing edges can be perceived as nodes that can issue operations that can be
-handled by other nodes (clients). They can be used to define custom operations
-(operations with types that are not read or write) that should be supported
-originating from a node. Definitions of those custom operations must be provided
-by the framework user and the clauses defining the custom operations must be
-included in the node definition.
-
-In the implementation, a node is defined as tuple of:
-
-- `name`: the name, used to identify the node in a graph (can have any type, but
-  must be unique).
-- `needs`: a list of tuples of constraints. TODO
-- `provs`: a list of tuples of constraints. TODO
-
-Edge: edge connects nodes. Edges can be used to define the precedence of
-operations on different nodes (one edge can only store exactly one type of
-operation, if multiple types of operations are needed, multiple edges must be
-defined). Definitions of those custom operations must be provided by the
-framework user and the clauses defining the custom operations must be included
-in the source node definition (specifically in the `needs` field).
-
-Constraint: a constraint is a set of clauses that define the relations between
-operations in a history (or abstract execution). Constraints can be used to
-define the precedence of operations on the same node (e.g. the order of
-operations issued by the same node). Or application-specific constraints (e.g.
-assign data to operations' fields).
-
-Graph: a directed multigraph that contains nodes and edges.
-
-Compatible: compatibility is a relation between two consistency models. Two
-consistency models are compatible if the the negation of the implication is
-unsatisfiable (compatibility is not symmetric).
-
-Composable: composition is an additional operator that combines two or more
-consistency models into a single consistency model. It's represented as a direct
-conjunction of the consistency models' constraints (the ordering of the
-composition does not affect the result, relation predicates remain the same and
-will only be added if any clause refers to them). Premise will be added as a
-part of the composition, instead of being conjuncted with each node/edge, use
-`z3.Solver.add` to add the premise to the solver. Framework users must defined
-the premises as non-implicit constraints (i.e. don't use quantifiers like
-`ForAll`, `Exists` and don't use `Implies`).
-
-## What is "visible"
-
-All below definitions have common constraint of all operations must be invoked
-on the same object. The preconditions of concurrent operations include the same
-object constraint anyways.
-
-Definition of atomic operations: an operation is considered as atomic if the
-logical start time equal to its logical end time.
-
-```txt
-  a1         a2
-|---|      |---|
-
-           b (rd)
-       |------------|
-
-     a3              a4
-|---------|     |----------|
-
-            a5
- |----------------------|
+```sh
+pytest --cov=consistency tests -sm 'not slow'
 ```
 
-- Can view: A non-deterministic pairwise partial ordering between a write
-  operation (let's call it a) and a read operation (call it b) that solely
-  depends on time stamps (conceptually, the read happens after or during the
-  write).
-  - non-concurrent (`a1`): `op.rtime(a) < op.stime(b)` (i.e. totally ordered)
-  - concurrent (`a2`):
-    `And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b))`
-  - concurrent (`a3`):
-    `And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b))`
-  - concurrent (`a4`):
-    `And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b))`
-  - concurrent (`a5`):
-    `And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b))`
+Nix is requried to do the artifact evaluation. Please use the official Nix
+installer <https://nixos.org/download> or DetSys Nix installer
+<https://github.com/determinatesystems/nix-installer> to get started.
 
-- Viewed: A non-deterministic pairwise partial ordering between a write
-  operation and a read operation that builds atop "can view". Aside from the
-  timestamps fall into one of the "can view" cases, `ival` of the write must
-  match the `oval` of the read. In case of a write happened after or concurrent
-  to the aforementioned write, viewed relation enforces the output of the read
-  to be either of writes (only one can be chosen). In visible/visibility
-  definition, the transitivity of viewed relation is implicitly enforced.
+After installing Nix, simply run:
 
-- Visible = viewed + arbitration: A deterministic pairwise between any
-  operation.
-  - Case 1: read-read pair: previous read needs to track it's closest visible
-    write, then propagate the closest visible write to the latest read
-  - Case 2: read-write pair: undefined for now
-  - Case 3: write-read pair: simply viewed (value equivalence) + arbitration
-    (preserve the previously viewed ordering as if it's a linearized ordering in
-    the first place)
-  - Case 4: write-write pair: undefined for now
+```sh
+nix develop -c $SHELL
+```
 
-## General guidelines
+to get all dependencies installed and the environment set up (might take a while
+the first time).
+
+To run specific tests, use the `-sk` option print test outputs. For example:
+
+```sh
+pytest -sk test_timing_xc
+```
+
+For timing tests you will need to use the watchdog script to ensure Z3 timeouts
+are handled correctly:
+
+```sh
+# run the test first, and record the output path printed in the first couple lines
+pytest -sk test_timing_media
+# get the pytest PID for monitoring
+ps -ax | grep pytest
+# run the watchdog script with root privileges
+sudo python ./scripts/watchdog.py <PID>
+```
+
+Results can be reproduced by running the analysis script with the:
+
+```sh
+# replace the file paths first
+python scripts/analyze.py
+```
+
+## Guidelines
 
 The verification/checking scopes of our tool are on the axiomatic level, i.e.
 relational constraints between read/write events. When modeling a consistency
@@ -483,9 +374,6 @@ Eventual(\mathcal{F}) \triangleq \text{acyclic}(hb) \land \forall op \in H: op.o
 Context dependent, see implementation for details.
 
 ## License
-
-Based on
-[Consistency in Non-Transactional Distributed Storage Systems](https://arxiv.org/abs/1512.00168).
 
 The contents inside this repository, excluding all submodules, are licensed
 under the [MIT License](license.md). Third-party file(s) and/or code(s) are

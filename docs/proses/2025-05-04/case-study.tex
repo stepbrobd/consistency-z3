@@ -557,14 +557,13 @@ their functional roles:
 {\color{red}
   In this example, we've specified that all users must register for
   an account before they can log in, this would result in a request from
-  client, to login service, then to user database.
-  If users are to post a review, they must
-  be logged in, and the review service must verify that the title exists
-  in the metadata database before allowing the review to be written. This would
-  incur the review service to validate user authentication status, then
-  the existence of the title in the metadata database before writing
-  to the review database. This is one of the clear dependency chains
-  in the media service example.
+  client to login service (edge 1), then to user database (edge 8).
+  If users are to post a review (edge 2), they must
+  be logged in (edge 1), and the review service must verify that the
+  title exists
+  in the metadata database (edge 10) before allowing the review to be
+  written (edge 9).
+  This is one of the clear dependency chains in the media service example.
   This dependency chain creates a cascading effect throughout the system
   where each operation builds upon the successful completion of its
   prerequisites.
@@ -575,21 +574,19 @@ their functional roles:
 
   Semantically, 6 nodes are interacting with each other (client,
     login service, user database, review service, metadata database,
-  and review database).
-  The edges between these nodes represent the flow of data and we
-  encode the prerequisites
-  of each operation as constraints on the edges. Implementation-wise,
-  all constraints on edges can be
-  directly encoded on the nodes themselves along with the
-  aforementioned semantics. However, when modeling
+  and review database) in the aforementioned dependency chain.
+  The edges between these nodes represent the flow of API requests and we
+  encode the prerequisites of each request as constraints on edges.
+  Implementation-wise, all constraints on edges can be
+  directly encoded on the nodes themselves along with our
+  predefined semantics. However, when modeling
   services with complex interactions with cross storage system
   dependencies, edge constraints can clearly
   separate the providing/requiring semantic constraints and
   downstream implementation specific
   service logic. In the implementation, we defined multiple operations
-  with read or write type to represent interactions between nodes on the edge.
-  For the registration operation, we simply abstract it as a write,
-  and login operation as a read, and assign constraints to the operations.
+  with read or write type to represent interactions between client,
+  service nodes, and storage nodes.
   Formally, we can represent client's login operation as follow:
 
   \begin{align*}
@@ -599,7 +596,8 @@ their functional roles:
 \end{align*}
 
 For services initiated from the client side, we modeled the behaviors
-as a set of constraints with the return-before binary relationship. Formally:
+as a set of re-useable common constraints with the return-before
+binary relationship. Formally:
 
 \begin{align*}
   EC_{auth} &\triangleq rb(op_{login}, op_{rdreview}) \land
@@ -607,7 +605,7 @@ as a set of constraints with the return-before binary relationship. Formally:
   &\land rb(op_{login}, op_{rent}) \land rb(op_{login}, op_{watch})
 \end{align*}
 
-These constraints are then added to each edge that's relevant to the
+The common constraints are then added to each edge that's dependent on the
 login service or refer to the login operation, ensuring the chain
 of dependencies is respected throughout the system. For posting reviews,
 the review service must first verify that the content exists in the
@@ -615,10 +613,13 @@ metadata database before allowing the review to be written. Similar to
 the login operation, we can represent the review service's interaction
 as a set of constraints with existential quantification, object constraints,
 and return-before relationships, on top of consistency semantics
-ended at each nodes'
-provide and need fields.
+encoded at each nodes' provide and need fields.
 
-% TODO: add review service constraints
+\begin{align*}
+  EC_{review} &\triangleq \forall op_{review} \in H_{wr} : \exists
+  op_{rdmeta} \in H_{rd} :\\
+  &ob(op_{review}, op_{rdmeta}) \land rb(op_{rdmeta}, op_{review})
+\end{align*}
 }
 
 \subsubsection{Interaction Flows}

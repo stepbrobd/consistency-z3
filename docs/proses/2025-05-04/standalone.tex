@@ -230,7 +230,6 @@ a \xrightarrow{\text{vis}} b]) \\
 y) \in \text{can-view}\}
 \end{eqnarray*}
 
-
 \subsection{Formal Definitions of Visibility}
 \label{subsec:vis}
 One of our key contributions is formally defining visibility.
@@ -319,23 +318,23 @@ write $b$ operations:
 \text{can-view} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in
 H_\text{wr} \land a.\text{obj} = b.\text{obj} \\
 & & \land ((a.\text{stime} > b.\text{rtime}) \\
-& & \quad\lor (a.\text{stime} \leq b.\text{stime} \land
-a.\text{stime} \leq b.\text{rtime} \land \\
-& & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-a.\text{rtime} \geq b.\text{rtime}) \\
-& & \quad\lor (a.\text{stime} \geq b.\text{stime} \land
-a.\text{stime} \leq b.\text{rtime} \land \\
-& & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-a.\text{rtime} \geq b.\text{rtime}) \\
-& & \quad\lor (a.\text{stime} \leq b.\text{stime} \land
-a.\text{stime} \leq b.\text{rtime} \land \\
-& & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-a.\text{rtime} \leq b.\text{rtime}) \\
-& & \quad\lor (a.\text{stime} \geq b.\text{stime} \land
-a.\text{stime} \leq b.\text{rtime} \land \\
-& & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-a.\text{rtime} \leq b.\text{rtime}
-)
+  & & \quad\lor (a.\text{stime} \leq b.\text{stime} \land
+    a.\text{stime} \leq b.\text{rtime} \land \\
+    & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+  a.\text{rtime} \geq b.\text{rtime}) \\
+  & & \quad\lor (a.\text{stime} \geq b.\text{stime} \land
+    a.\text{stime} \leq b.\text{rtime} \land \\
+    & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+  a.\text{rtime} \geq b.\text{rtime}) \\
+  & & \quad\lor (a.\text{stime} \leq b.\text{stime} \land
+    a.\text{stime} \leq b.\text{rtime} \land \\
+    & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+  a.\text{rtime} \leq b.\text{rtime}) \\
+  & & \quad\lor (a.\text{stime} \geq b.\text{stime} \land
+    a.\text{stime} \leq b.\text{rtime} \land \\
+    & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
+    a.\text{rtime} \leq b.\text{rtime}
+  )
 )\}.
 \end{eqnarray*}
 
@@ -345,10 +344,10 @@ result dependency between them is captured by the \textit{viewed} relation:
 \text{viewed} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \\
 & & \land (a, b) \in \text{can-view} \\
 & & \land (
-(a.\text{oval} = b.\text{ival})\lor \\
-& &
-\text{ }(\exists x \in H_\text{wr} : (x, b) \in
-\text{can-view} \land a.\text{oval} = x.\text{ival})
+  (a.\text{oval} = b.\text{ival})\lor \\
+  & &
+  \text{ }(\exists x \in H_\text{wr} : (x, b) \in
+  \text{can-view} \land a.\text{oval} = x.\text{ival})
 )
 \}
 \end{eqnarray*}

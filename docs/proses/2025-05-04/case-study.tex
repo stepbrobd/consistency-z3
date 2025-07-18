@@ -776,12 +776,18 @@ own reviews while maintaining content validity checks.
 
 \subsection{Example: Cross Service Causal}
 
-When reading the graph, think of it as a reversed tree (rooted from svc1) with
-one branch growing from root to leaf (xc). The leaf node's (xc) prov/need field
-in the implementation is set to \texttt{None} to indicate that it
-does not provide any
-guarantees, and will only be used for extraction (see descriptions below).
-Implementation of \texttt{tests/test\_cross\_causal.py}:
+This example demonstrates modeling a system where multiple services, each
+offering only a basic consistency guarantee, are chained together.
+The XC node is used for extraction, and users accessing data through
+the XC node can expect to get causal consistency. However, SVC4
+node's storage backend only provides WFR. To achieve causal
+consistency, application developers are expected to enforce MR + MW +
+RYW business logic on the edge between SVC4 and XC. While the SVC4-XC
+combination can achieve causal consistency, SVC4's downstream service
+node SVC3's storage backend only provides RYW. To achieve
+cross-system causal consistency, application developers are expected
+to enforce MR + MW + WFR on the edge between SVC3 and SVC4, and so on
+down the chain.
 
 \begin{figure}[h]
 \centering
@@ -837,11 +843,9 @@ offering only a basic consistency guarantee, are chained together. The goal is
 to verify if their composition, mediated by specific inter-service constraints,
 symbolic isolation, and the role of explicit ``glue'' constraints.
 
-\textit{Setup}\footnote{I decided not to use the ``pseudo node'' in
-the write up, it makes the explanation unnecessarily complex.}: We
-model a linear chain of services: $\text{SVC1} \rightarrow
-\text{SVC2} \rightarrow \text{SVC3} \rightarrow \text{SVC4}
-\rightarrow \text{XC}$.
+We model a linear chain of services: $\text{XC} \rightarrow
+\text{SVC4} \rightarrow \text{SVC3} \rightarrow \text{SVC2}
+\rightarrow \text{SVC1}$.
 Each service $\text{SVC}n$ (for $n=1..4$) is designed to provide only
 \textit{one} of the
 four session guarantees via its \texttt{provs} attribute:
@@ -870,55 +874,25 @@ potentially satisfy Causal Consistency up to that point.
 The core idea of this example is to build a stronger guarantee by composing
 weaker guarantees provided by individual services ($\text{SVC}1
 \ldots 4$), using the
-edges to supply the missing pieces. Verbatim:
+edges to supply the missing pieces.
 
 \begin{itemize}
-\item $\text{SVC}1$ starts by providing only MR (via its
-  \texttt{provs}, using symbols like $a_1, b_1, \ldots$).
-  Its own \texttt{needs} are \texttt{None}.
-\item To potentially achieve Causal Consistency for operations
-  passing from $\text{SVC}1$ to $\text{SVC}2$,
-  the edge $\text{Edge}(\text{SVC1} \rightarrow \text{SVC2})$ must
-  provide the other three required
-  session guarantees: MW, RYW, and WFR (via its \texttt{cons},
-  using unique symbols like $a_{12}, b_{12}, \ldots$).
-  However, in real world implementations, edge constraints usually requires
-  additional application specific logic to be satisfiable. In other word, edge
-  constraints used in abstract representation implies the existence
-  of application
-  level protocols that enforces convergence of data either through
-  consensus (like
-  Raft \cite{diego2014raft} or Paxos \cite{lamport1998paxos}) or other means.
-\item When \texttt{composable} evaluates this step, it checks if
-  the interaction is locally
-  consistent based on the nodes' defined
-  \texttt{provs}/\texttt{needs} and the edge's \texttt{cons}. If
-  this local check passes (meaning $\text{SVC}2$'s required guarantee, Causal
-    Consistency, is satisfied through what the edge + $\text{SVC}1$'s
-  provs provide), we
-  \textit{interpret} this (based on our setup) as achieving Causal
-  Consistency for the
-  combined path ($\text{SVC}1 + \text{Edge}(\text{SVC1} \rightarrow
-  \text{SVC2})$) leading \textit{up to} $\text{SVC}2$.
-\item Now, although the path leading to $\text{SVC}2$ is causally
-  consistent, $\text{SVC}2$ itself,
-  according to its definition in this example, only
-  \textit{provides} MW to the outside
-  world (via its \texttt{provs}, using symbols $a_2, b_2, \ldots$).
-\item Therefore, for the \textit{next} service, $\text{SVC}3$, to
-  maintain Causal Consistency
-  relative to the operations flowing through the
-  ($\text{SVC}1\rightarrow\text{SVC}2$) mesh, the edge
-  $\text{Edge}(\text{SVC2} \rightarrow \text{SVC3})$ must
-  supply the guarantees missing relative to $\text{SVC}2$'s
-  provided MW. This means $\text{Edge}(\text{SVC2} \rightarrow
-  \text{SVC3})$ must
-  provide MR, RYW, and WFR (again, with unique symbols).
-\item This pattern repeats: each service node $\text{SVC}n$
-  provides one specific
-  guarantee, and the edge $\text{Edge}(n \rightarrow n+1)$ provides
-  the complementary guarantees
-  needed to ensure the cumulative path maintains the target property.
+\item $\text{SVC}1$ provides only MR via its storage backend.
+\item To achieve Causal Consistency when accessing data through $\text{SVC}2$,
+  the edge between $\text{SVC}1$ and $\text{SVC}2$ must
+  provide the missing session guarantees: MW, RYW, and WFR through
+  application-level business logic.
+\item Similarly, $\text{SVC}2$ provides only MW via its storage
+  backend. To maintain Causal Consistency
+  when accessing data through $\text{SVC}3$, the edge between
+  $\text{SVC}2$ and $\text{SVC}3$ must
+  provide MR, RYW, and WFR.
+\item This pattern continues: $\text{SVC}3$ provides RYW, so the edge
+  to $\text{SVC}4$ must provide MR, MW, and WFR.
+\item Finally, $\text{SVC}4$ provides WFR, so the edge to $\text{XC}$
+  must provide MR, MW, and RYW.
+\item The $\text{XC}$ node serves as the extraction point where users
+  can access data with full causal consistency guarantees.
 \end{itemize}
 
 \textit{Symbol Equivalence:} For this composition to be meaningful, we must

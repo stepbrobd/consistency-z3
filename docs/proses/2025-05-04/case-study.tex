@@ -783,17 +783,54 @@ does not provide any
 guarantees, and will only be used for extraction (see descriptions below).
 Implementation of \texttt{tests/test\_cross\_causal.py}:
 
-\begin{verbatim}
-            xc
-           / <- mr + mw + ryw
-        svc4 - wfr
-       / <- mr + mw + wfr
-     svc3 - ryw
-    / <- mr + ryw + wfr
-  svc2 - mw
- / <- mw + ryw + wfr
-svc1 - mr
-\end{verbatim}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    service/.style={draw, rounded corners, fill=blue!10, minimum
+    width=1.2cm, minimum height=0.6cm},
+    semantic/.style={draw, rounded corners, fill=green!10, minimum
+    width=0.8cm, minimum height=0.4cm},
+    arrow/.style={->, >=stealth, thick},
+    semantic_arrow/.style={->, >=stealth, thin},
+    label/.style={font=\small}
+  ]
+
+  % nodes positioned at 45 degree angle upward
+  \node[service] (svc1) at (0,0) {SVC1};
+  \node[service] (svc2) at (0.85,0.85) {SVC2};
+  \node[service] (svc3) at (1.7,1.7) {SVC3};
+  \node[service] (svc4) at (2.55,2.55) {SVC4};
+  \node[service] (xc) at (3.4,3.4) {XC};
+
+  % semantic nodes at same level as their corresponding services
+  \node[semantic] (mr) at (-1.5,0) {MR};
+  \node[semantic] (mw) at (-0.65,0.85) {MW};
+  \node[semantic] (ryw) at (0.2,1.7) {RYW};
+  \node[semantic] (wfr) at (1.05,2.55) {WFR};
+
+  % arrows from services to semantics
+  \draw[semantic_arrow] (svc1) -- (mr);
+  \draw[semantic_arrow] (svc2) -- (mw);
+  \draw[semantic_arrow] (svc3) -- (ryw);
+  \draw[semantic_arrow] (svc4) -- (wfr);
+
+  % edges
+  \draw[arrow] (svc2) -- (svc1);
+  \draw[arrow] (svc3) -- (svc2);
+  \draw[arrow] (svc4) -- (svc3);
+  \draw[arrow] (xc) -- (svc4);
+
+  % edge constraints (horizontal text, right of edges)
+  \node[right=0.1cm, font=\small] at (0.425,0.425) {MW + RYW + WFR};
+  \node[right=0.1cm, font=\small] at (1.275,1.275) {MR + RYW + WFR};
+  \node[right=0.1cm, font=\small] at (2.125,2.125) {MR + MW + WFR};
+  \node[right=0.1cm, font=\small] at (2.975,2.975) {MR + MW + RYW};
+
+\end{tikzpicture}
+\caption{Cross-service causal consistency composition chain}
+\label{fig:cross-service-causal}
+\end{figure}
 
 This example demonstrates modeling a system where multiple services, each
 offering only a basic consistency guarantee, are chained together. The goal is

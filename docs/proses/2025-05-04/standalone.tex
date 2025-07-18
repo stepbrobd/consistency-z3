@@ -1,52 +1,9 @@
-\section{\sysname{} Design}
+\section{Distributed Consistency Models in \sysname{}}
 \label{sec:design}
 
-We first present an example to motivate our work, explain how we model
+First we present the theory and formal details regarding how we model
 the distributed consistency semantics, and how applications can be
 encoded into our \sysname{} framework.
-
-\subsection{Motivating Example}
-\label{subsec:eg}
-Assume a movie streaming service built using a form of 
-microservice architecture where admins manage the serviced
-contents and clients rent movies and leave reviews~\cite{deathstar} (\needref{Fig}).
-There are quite a few functionalities and components to build the
-service, and it is nontrivial to meet all service requirements 
-and to guarantee that all requirements are fulfilled.
-
-For example, a movie metadata database (DB) stores list of
-available movies and each movie's information such as the 
-logline, director, and cast. This DB is accessed 1) when
-the service admin adds/modifies movie information and 
-2) when clients reads the DB before renting a movie
-or writing a review.
-
-The developer of the system can choose an ACID database or linearizable 
-key-value store for the metadata DB but this may not scale well. 
-For utmost scalability and performance eventually consistent 
-key-value store can be used but users may observe anomalies. 
-Thus, to find a proper storage module, key constraints to satisfy for each access 
-functionalities to minimize anomalous user experience needs to be defined: \eg 
-admins must always observe their own updates and clients must be able to see what 
-they have previously seen. The collection of constraints should be satisfied
-by the metadata DB of developer's choice, but if functionalities of the system 
-grow, the constraints can become more sophisticated and checking whether the 
-constrains are fully satisfied by a DB becomes more complicated.
-
-While the metadata DB example above is presented in isolation from 
-what a single DB service must satisfy, cross DB constraints can exacerbate
-the problem. For example, accessing the metadata DB would require 
-checking whether the user is an admin or a client with active movie subscription
-status which may be maintained in a separate storage system, so
-dependencies from the login service and the user DB must be fulfilled:
-the user must be able to observe the user's valid up-to-date status
-and then access the other services. Renting a movie or reading/writing a 
-review involves additional consistency constraints that cross storage services 
-for movies and reviews forming more complex dependencies that the system as a 
-whole must satisfy. 
-
-\sysname{} provides facilities to systematically encode the constraints
-and check whether the constraints are all satisfied.
 
 %\subsection{Modeling Consistency Semantics}
 \subsection{Preliminaries}
@@ -461,23 +418,6 @@ and the arbitration resolves conflicts in concurrent and invisible operations.
 With the complete visibility definition we encode the aformentioned semantics
 into \sysname{} which are then used to reason about the compatibility 
 between applications and semantics/systems. 
-
-%Other relations under Abstract Execution includes arbitration, and
-%happens-before.
-%Arbitration is an application specific, transitive and acyclic
-%relation that provides a total order on conflicting operations,
-%ensuring that observed executions follow a single coherent timeline. In
-%our implementation, arbitration is assigned strong timestamp total ordering.
-%Realistically, arbitration can be achieved with monolithic
-%sequencers, deterministic
-%conflict resolution rules, distributed timestamping \cite{lamport1978time},
-%or consensus protocols
-%\cite{birman1991lightweight,hadzilacos1994modular,lamport2001paxos}.
-%Happens-before is used to capture probable causality,
-%and is previously defined in the literature as the transitive union
-%of session order and visibility:
-%$hb \triangleq (\text{so} \cup {\text{vis}})^{+}$
-%\cite{burckhardt2014principles,viotti2016consistency}.
 
 
 %Operations do not contain the node that issued or

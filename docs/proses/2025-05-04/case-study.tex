@@ -205,17 +205,19 @@ found, the function returns \texttt{False}, and \texttt{None} for the graph.
         node distance=1.2cm,
         service/.style={draw, rounded corners, fill=blue!10, minimum
         width=1.6cm, minimum height=0.7cm},
+        storage/.style={draw, rounded corners, fill=green!10, minimum
+        width=1.6cm, minimum height=0.7cm},
         arrow/.style={->, >=stealth, thick},
         label/.style={font=\small\itshape}
       ]
 
       % nodes
       \node[service] (client) at (-0.3,0) {Client};
-      \node[service] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
-      \node[service] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
+      \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
+      \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
       \node[service] (arbitrator) at ([shift={(315:1.77cm)}]client)
-      {Arbitrator};
-      \node[service] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
+      {Checkout};
+      \node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
 
       % edges
       \draw[arrow] (client) -- (cart) node[midway, above=0.3cm,
@@ -433,71 +435,69 @@ their functional roles:
   \begin{tikzpicture}[
       node distance=2.5cm,
       service/.style={draw, rounded corners, fill=blue!10, minimum
-      width=2cm, minimum height=1cm},
+      width=1cm, minimum height=0.6cm},
       storage/.style={draw, rounded corners, fill=green!10, minimum
-      width=2cm, minimum height=1cm},
+      width=1cm, minimum height=0.6cm},
       arrow/.style={->, >=stealth, thick},
       label/.style={font=\small\itshape}
     ]
     % client and admin
     \node[service] (client) at (0,0) {Client};
-    \node[service] (admin) at (0,3) {Admin};
+    \node[service] (admin) at (0,3.5) {Admin};
 
     % services
-    \node[service] (login) at (3,1.5) {Login};
-    \node[service] (review) at (3,-1) {Review};
-    \node[service] (rent) at (3,0) {Rent};
-    \node[service] (video) at (3,3) {Video};
+    \node[service] (login) at (2.8,1.8) {Login};
+    \node[service] (review) at (2.8,-1.2) {Review};
+    \node[service] (rent) at (2.8,0.3) {Rent};
+    \node[service] (video) at (2.8,3.2) {Video};
 
     % db nodes
-    \node[storage] (user_db) at (6,1.5) {User DB};
-    \node[storage] (metadata_db) at (6,3) {Metadata DB};
-    \node[storage] (review_db) at (6,-1) {Review DB};
-    \node[storage] (rent_db) at (6,0) {Rent DB};
-    \node[storage] (video_db) at (6,4.5) {Video DB};
+    \node[storage] (user_db) at (5.8,1.8) {User DB};
+    \node[storage] (metadata_db) at (5.8,4) {Metadata DB};
+    \node[storage] (review_db) at (5.8,-1.2) {Review DB};
+    \node[storage] (rent_db) at (5.8,0.3) {Rent DB};
+    \node[storage] (video_db) at (5.8,5.2) {Video DB};
 
-    % edges from client
-    \draw[arrow] (client) -- (login) node[midway, above, sloped,
-    label] {register/login};
-    \draw[arrow] (client) -- (review) node[midway, above, sloped,
-    label] {read/write reviews};
-    \draw[arrow] (client) -- (rent) node[midway, above, sloped,
-    label] {rent media};
-    \draw[arrow] (client) -- (video) node[midway, above, sloped,
-    label] {watch video};
+    % node labels
+    \node[left=0.15cm, font=\tiny] at (client.west) {C};
+    \node[left=0.15cm, font=\tiny] at (admin.west) {A};
+    \node[left=0.15cm, font=\tiny] at (login.west) {L};
+    \node[left=0.15cm, font=\tiny] at (review.west) {R};
+    \node[left=0.15cm, font=\tiny] at (rent.west) {Rt};
+    \node[left=0.15cm, font=\tiny] at (video.west) {V};
+    \node[right=0.15cm, font=\tiny] at (user_db.east) {U};
+    \node[right=0.15cm, font=\tiny] at (metadata_db.east) {M};
+    \node[right=0.15cm, font=\tiny] at (review_db.east) {Rv};
+    \node[right=0.15cm, font=\tiny] at (rent_db.east) {Rn};
+    \node[right=0.15cm, font=\tiny] at (video_db.east) {Vd};
 
-    % edges from admin
-    \draw[arrow] (admin) -- (login) node[midway, above, sloped,
-    label] {login/modify};
-    \draw[arrow] (admin) -- (metadata_db) node[midway, above, sloped,
-    label] {update metadata};
-    \draw[arrow] (admin) -- (video) node[midway, above, sloped,
-    label] {upload video};
+    % edges from client with labels
+    \draw[arrow] (client) -- (login) node[pos=0.2, below, font=\tiny] {1};
+    \draw[arrow] (client) -- (review) node[pos=0.2, above, font=\tiny] {2};
+    \draw[arrow] (client) -- (rent) node[pos=0.2, below, font=\tiny] {3};
+    \draw[arrow] (client) -- (video) node[pos=0.2, above, font=\tiny] {4};
 
-    % edges from services to db
-    \draw[arrow] (login) -- (user_db) node[midway, above, label] {read/write};
-    \draw[arrow] (review) -- (review_db) node[midway, above, label]
-    {read/write};
-    \draw[arrow] (review) -- (metadata_db) node[midway, above,
-    sloped, label] {verify title};
-    \draw[arrow] (rent) -- (rent_db) node[midway, above, label] {record rental};
-    \draw[arrow] (rent) -- (metadata_db) node[midway, above, sloped,
-    label] {check availability};
-    \draw[arrow] (video) -- (video_db) node[midway, above, label] {read/write};
-    \draw[arrow] (video) -- (metadata_db) node[midway, above, label]
-    {verify title};
+    % edges from admin with labels
+    \draw[arrow] (admin) -- (login) node[pos=0.2, below, font=\tiny] {5};
+    \draw[arrow] (admin) -- (metadata_db) node[pos=0.2, below, font=\tiny] {6};
+    \draw[arrow] (admin) -- (video) node[pos=0.2, below, font=\tiny] {7};
 
-    % semantics
-    \node[below=0.2cm, align=center, font=\small] at (user_db) {MW + WFR};
-    \node[below=0.2cm, align=center, font=\small] at (metadata_db) {MR + RYW};
-    \node[below=0.2cm, align=center, font=\small] at (review_db) {RYW};
-    \node[below=0.2cm, align=center, font=\small] at (rent_db) {MR + RYW};
-    \node[below=0.2cm, align=center, font=\small] at (video_db) {WFR};
+    % edges from services to db with labels
+    \draw[arrow] (login) -- (user_db) node[pos=0.2, below, font=\tiny] {8};
+    \draw[arrow] (review) -- (review_db) node[pos=0.2, below, font=\tiny] {9};
+    \draw[arrow] (review) -- (metadata_db) node[pos=0.15, left,
+    font=\tiny] {10};
+    \draw[arrow] (rent) -- (rent_db) node[pos=0.2, below, font=\tiny] {11};
+    \draw[arrow] (rent) -- (metadata_db) node[pos=0.15, left, font=\tiny] {12};
+    \draw[arrow] (video) -- (video_db) node[pos=0.2, below, font=\tiny] {13};
+    \draw[arrow] (video) -- (metadata_db) node[pos=0.2, right, font=\tiny] {14};
 
-    \node[below=0.2cm, align=center, font=\small] at (login) {needs: MW + WFR};
-    \node[below=0.2cm, align=center, font=\small] at (review) {needs: RYW};
-    \node[below=0.2cm, align=center, font=\small] at (rent) {needs: MR};
-    \node[below=0.2cm, align=center, font=\small] at (video) {needs: MR};
+    % semantics for databases only
+    \node[below=0.25cm, align=center, font=\tiny] at (user_db) {MW + WFR};
+    \node[below=0.25cm, align=center, font=\tiny] at (metadata_db) {MR + RYW};
+    \node[below=0.25cm, align=center, font=\tiny] at (review_db) {RYW};
+    \node[below=0.25cm, align=center, font=\tiny] at (rent_db) {MR + RYW};
+    \node[below=0.25cm, align=center, font=\tiny] at (video_db) {WFR};
   \end{tikzpicture}
   \caption{Architecture of the media streaming service with
   consistency guarantees}

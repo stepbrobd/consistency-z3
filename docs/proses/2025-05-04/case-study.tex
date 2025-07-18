@@ -210,28 +210,29 @@ found, the function returns \texttt{False}, and \texttt{None} for the graph.
       ]
 
       % nodes
-      \node[service] (client) {Client};
+      \node[service] (client) at (-0.3,0) {Client};
       \node[service] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
       \node[service] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
-      \node[service] (arbitrator) at ([shift={(270:2cm)}]client) {Arbitrator};
-      \node[service] (tx) at ([shift={(270:2cm)}]arbitrator) {Tx Log};
+      \node[service] (arbitrator) at ([shift={(315:1.77cm)}]client)
+      {Arbitrator};
+      \node[service] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
 
       % edges
       \draw[arrow] (client) -- (cart) node[midway, above=0.3cm,
       label] {read/write};
       \draw[arrow] (client) -- (shop) node[midway, above=0.3cm, label] {browse};
-      \draw[arrow] (client) -- (arbitrator) node[midway, left, label]
+      \draw[arrow] (client) -- (arbitrator) node[midway, right, label]
       {purchase};
       \draw[arrow] (arbitrator) -- (shop) node[pos=0.3175,
-      right=0.2cm, yshift=0.2cm, label] {check/update};
-      \draw[arrow] (arbitrator) -- (tx) node[midway, left, label] {record};
+      right=0.2cm, yshift=0.1cm, label] {check/update};
+      \draw[arrow] (arbitrator) -- (tx) node[midway, below, label] {record};
 
       % semantics
       \node[right=0.1cm, align=left, font=\small] at (shop.east)
       {Provides:\\RYW + MR};
       \node[right=0.1cm, align=left, font=\small] at (arbitrator.east)
       {Provides:\\Linearizability};
-      \node[right=0.1cm, align=left, font=\small] at (tx.east)
+      \node[left=0.1cm, align=right, font=\small] at (tx.west)
       {Provides:\\Linearizability};
     \end{tikzpicture}
     \caption{Architecture of the online shopping system with

@@ -4,23 +4,23 @@ requirements and chosen system semantics can introduce subtle bugs,
 but verifying compatibility across complex applications is
 challenging and time-consuming. In particular, existing approaches on
 testing or rigorous formal verification lack flexibility and cannot
-promptly provide correctness guarantees about multi-semantic compositions.
+promptly provide correctness guarantees on multi-semantic compositions.
 
 We present \sysname{}, a framework for checking semantic
 compatibility between applications and compositions of distributed
 systems with heterogeneous consistency models. \sysname{} embeds
-formally defined distributed system modules of distributed
+formally defined distributed system modules of
 consistency semantics which include the first formal definition of
-visibility constraints. \sysname{} introduce the \sysgraph{} for
+visibility constraints. \sysname{} introduces \sysgraph{} for
 systematically modeling complex applications. Applications modeled
 using \sysgraphs{} can be checked for their compatibility against a
 combination of distributed system modules. Alternatively, \sysname{}
 can search for combinations of modules compatible to the application.
 We present three case studies on a movie streaming service, an
 e-commerce platform, and a cross-causal distributed storage service.
-We demonstrate that \sysname{} can model complex service compositions
-with minimal encoding effort and quickly check compatibility with
+We demonstrate that \sysname{} can capture complex service compositions
+with minimal encoding effort and quickly check compositional compatibility with
 underlying systems or find the compatible system sets. \sysname{}
-enables developers to quickly verify distributed application designs
+enables developers to efficiently verify distributed application designs
 and explore alternative consistency configurations, supporting more
 agile development.

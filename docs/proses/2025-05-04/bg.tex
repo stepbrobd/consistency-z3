@@ -3,17 +3,18 @@
 
 \subsection{Background}
 Distributed consistency semantics define in which order updates are
-applied and made visible in replica nodes of a distributed system.
+applied and made visible in replica nodes within a cluster of
+distributed system.
 When an update request is submitted to the distributed system, a
 subset (typically one) of nodes receives it and the update is
 propagated across distributed nodes. Due to the asynchronous nature
-of the network and nodes, replica nodes receive the update with
+of the network, replica nodes receive the update with
 different delays and users accessing distinct nodes could observe
 different data states. Distributed consistency semantics introduce
 ordering constraints on top of such non-determinism so that
-applications can predictably work with the system.
+applications can predictably communicate with the system.
 
-There are many distributed consistency semantics and among them
+There are many distributed consistency semantics, and among them,
 \sysname{} models a few widely used semantics in systems from both
 industry and academia~\cite{pileus, cosmosdb, anna, bayou, yogurt,
 pnuts, cloudflare-session, causalmemory, cops}, including eventual
@@ -28,10 +29,10 @@ updates in history. Informally,
 \itemparen{
 \item \textbf{Eventual consistency (EC):} users may read any versions
   of data but with no incoming updates the most up-to-date version
-  will become visible to all reads.
+  will eventually become visible to all reads.
 }
 
-Session guarantees (SGs), like its name, defines semantics from the
+Session guarantees (SGs), like its name, define semantics from the
 viewpoint of a user session:
 \itemparen{
 \item \textbf{Monotonic reads (MR):} a user sees the same or later
@@ -46,12 +47,12 @@ viewpoint of a user session:
 By choosing whether to enforce each of four session guarantees, a
 total of 16 ($=2^4$) different semantics can be derived. While most
 of them do not have specific names (e.g., MR + RYW), there are a few
-well-known named semantics. For example, EC does not enforcing none of
+well-known named semantics. For example, EC does not enforce any of
 SGs, pipeline RAM consistency (PRAM) is a combination of MR, RYW, and
-MW~\cite{brzezinski2004session}, and causal consistency (CC) is a
+MW \cite{brzezinski2004session}, and causal consistency (CC) is a
 combination of all four SGs, MR, RYW, MW, and
-WFR~\cite{sessiontocausal}. Still, PRAM~\cite{pram} and
-CC~\cite{causaldef} have their own definitions.
+WFR \cite{sessiontocausal}. Still, PRAM \cite{pram} and
+CC \cite{causaldef} have their own definitions:
 \itemparen{
 \item \textbf{PRAM consistency (PRAM):} read and write operations by
   a user happen in first in first out order from this user's point
@@ -97,24 +98,28 @@ the service admin adds/modifies movie information and
 or writing a review.
 
 The developer of the system can choose an ACID database or linearizable
-key-value store for the metadata DB but this may not scale well.
-For utmost scalability and performance an eventually consistent
-key-value store can be used but users may observe anomalies.
-Thus, to find a proper storage module, key constraints to satisfy for
-each access
-functionality to minimize anomalous user experiences need to be defined: \eg
-admins must always observe their own updates and clients must be able
-to see what
-they have previously seen. The collection of constraints should be satisfied
-by the metadata DB of developer's choice, but if functionalities of the system
-grow, the constraints can become more sophisticated and checking whether the
-constraints are fully satisfied by a DB becomes more complicated.
+key-value store for the metadata DB, but this may not scale well as
+stronger consistency models trade data consistency with high latency.
+For utmost scalability and performance, an eventually consistent
+key-value store can be used, but users may observe anomalies (e.g. reviews
+written to one replica may not be visible to the same user reading it).
+Thus, to find a proper storage module, the key constraints are to identify
+each access functionality, and to minimize anomalous users may experience.
+For example, we can define admins must always observe their own
+updates and clients must be able
+to see what they have previously seen. The collection of constraints
+must be satisfied
+by what the consistency model of which metadata DB developer chooses provides.
+But as functionalities of the system grow, constraints can become
+more sophisticated and
+the complexity of checking whether the constraints are fully satisfied by a DB
+grow in positive correlation with the complexity of the system.
 
 While the metadata DB example above is presented in isolation from
 what a single DB service must satisfy, cross-DB constraints can exacerbate
 the problem. For example, accessing the metadata DB would require
 checking whether the user is an admin or a client with active movie subscription
-status which may be maintained in a separate storage system, so
+status which may be maintained in a separate storage system. Thus,
 dependencies from the login service and the user DB must be met:
 the user must be able to observe the user's valid up-to-date status
 and then access the other services. Renting a movie or reading/writing a

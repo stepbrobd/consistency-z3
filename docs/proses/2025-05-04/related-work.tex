@@ -6,16 +6,13 @@ We organize the related work into consistency verification
 frameworks, SMT-based approaches
 for distributed systems, and compositional analysis tools.
 
-% FIXME: MixT
-{\color{red} add MixT here}
-
 Several frameworks have been developed to verify consistency
 properties in distributed systems.
 Quelea \cite{sivaramakrishnan2015declarative} provides a declarative
 programming model where developers
-specify consistency requirements as contracts, using shallow
-extension of Haskell, discharging proof obligations to SMT solvers,
-and the system automatically selects appropriate consistency levels.
+specify consistency requirements as contracts using shallow
+extension of Haskell and discharge proof obligations to SMT solvers.
+Then the system automatically selects appropriate consistency levels.
 However, Quelea focuses on single-system consistency rather than
 cross-service composition and relies on conservative
 approximations of happens-before relationships due to limitations in
@@ -54,6 +51,18 @@ their formalization of ordering relations ($\prec_{rf}$,
 $\prec_{fr}$, $\prec_{ws}$) provides insights
 for our visibility-based encoding of session guarantees.
 
+MixT~\cite{mixt} is a domain specific langauge to simplify
+programming mixed-consistency transactions over multiple
+distributed systems. It uses information flow theory to
+generate a transaction consisting of sub-transactions
+that safely execute across multiple systems with different 
+semantics. While MixT is specialized tool to generate
+safe and efficient transactions that given consistency semantics
+of distributed systems, \sysname{} allows developers to check
+correctness of their operations over chosen combination of
+distributed systems or search for the compatible consistency
+semantic combinations. 
+
 \sysname{} differs from existing approaches in several ways:
 unlike single-system verification frameworks,
 we focus specifically on the composition problem where services with
@@ -65,12 +74,12 @@ the verification process more accessible to practitioners.
 Our encoding strategy addresses limitations identified in prior work
 by avoiding explicit reasoning about global event orderings and
 instead treating consistency as logical constraints over abstract
-executions. This approach makes the verification problem partially decidable
-while remaining expressive enough to handle realistic service
+executions. This approach makes the verification problem partially 
+decidable while remaining expressive enough to handle realistic service
 compositions. Our framework's ability to synthesize end-to-end
 guarantees from component specifications provides developers and
-system architects with
-actionable insights about their system's consistency behavior.
+system architects with actionable insights about their system's consistency behavior.
+
 
 % rework
 % [high prio] mixt paper

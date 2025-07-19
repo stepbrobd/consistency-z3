@@ -3,13 +3,13 @@
 
 First we present the theory and formal details regarding how we model
 the distributed consistency semantics, and how applications can be
-encoded into our \sysname{} framework, then further discharged to
+encoded into our \sysname{} framework, then further dispatched to
 SMT solvers like Z3 \cite{demoura2008z3} or CVC5 \cite{barbosa2022cvc5}.
 
 %\subsection{Modeling Consistency Semantics}
 \subsection{Preliminaries}
 
-\sysname{} provides pre-built pluggable \sysmodlong{} (\sysmods{})
+\sysname{} provides pre-built pluggable \sysmodlongs{} (\sysmods{})
 that represent distributed storage services which can be checked whether
 they are compatible with application constraints.
 Each \sysmod{} models distributed consistency semantics introduced in
@@ -33,14 +33,14 @@ executions.
 To model a consistency semantics for a \sysmod{}, we must first define an
 operation, a tuple containing the following:
 \itemparen{
-\item \textit{proc:} the process that issued the operation, used for
-session identification).
-\item \textit{type:} the type of the operation such as read, write, or custom).
+	\item \textit{proc:} the process that issued the operation which is used for
+session identification.
+\item \textit{type:} the type of the operation such as read, write, or custom.
 \item \textit{obj:} the object the operation is performed on.
-\item \textit{ival:} operation input value.
-\item \textit{oval:} operation output value (special marker used for no output value).
+\item \textit{ival:} operation's input value.
+\item \textit{oval:} operation's output value or a special marker used for no output value.
 \item \textit{stime:} invocation time of the operation.
-\item \textit{rtime:} return time of the operation (special marker used for non-returning operations).
+\item \textit{rtime:} return time of the operation or a special marker used for non-returning operations.
 }
 An operation
 can be conceptualized as a request-response pair, where the request
@@ -73,11 +73,10 @@ $\text{so} \triangleq \text{rb} \cap \text{ss}$
 a.\text{obj} = b.\text{obj}\}$
 }
 
-In our implementation, each history relation function (e.g.,
-\texttt{History.Relation.returns\_before}) accepts an optional
+In our implementation, each history relation function accepts an optional
 \texttt{symbols} argument. This parameter allows framework users to
 explicitly specify the symbolic operations, for example, \texttt{["a\_X",
-"b\_X"]}), over which the relation's constraints should be quantified
+"b\_X"]}, over which the relation's constraints should be quantified
 for that specific instance \texttt{X}. This mechanism enables the application of
 history-based constraints distinctly to operations belonging to
 different modeled systems or components, contributing to the logical
@@ -91,10 +90,10 @@ Abstract execution relations are non-deterministic
 orderings used to capture more complex temporal constraints and
 conflict resolution. The relationships include:
 \itemparen{
-\item \textit{Visibility (vis):} defines effects of write propagation
+\item \textit{Visibility (vis):} defines the effects of write propagation
 where the effect of
 an operation is visible to the process invoking another operation.
-\item \textit{Arbitration (ar):} an application specific, transitive and acyclic
+\item \textit{Arbitration (ar):} an application-specific, transitive and acyclic
 relation that provides a total order on conflicting operations,
 ensuring that observed executions follow a single coherent timeline.
 \item \textit{Happens-before (hb):} used to capture probable causality,
@@ -124,7 +123,7 @@ base consistency semantics, EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in
 The semantics are defined axiomatically using the relations between
 pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
 operations, where $H_\text{wr}$ and $H_\text{rd}$ are histories of reads and
-writes respectively.
+writes, respectively.
 While we adopt the definitions of MR, RYW, MW, WFR,
 and PRAM of Viotti et al.~\cite{viotti2016consistency} (\cref{fig:semdef}),
 we newly propose or augment EC, CC, and LIN for SMT encoding and
@@ -134,7 +133,7 @@ using \sysname{}
 
 \begin{figure}
 \begin{eqnarray*}
-\text{MW} & \triangleq & \forall a, b \in H_\text{wr}: a
+\text{MR} & \triangleq & \forall a, b \in H_\text{wr}: a
 \xrightarrow{\text{so}} b \Rightarrow a \xrightarrow{\text{ar}} b
 \\
 \text{RYW} & \triangleq & \forall a \in H_\text{wr}, \forall b \in
@@ -157,8 +156,7 @@ RAM (PRAM) consistency.}\label{fig:semdef}
 \end{figure}
 
 \para{Eventual Consistency (EC).}
-While EC definitions in other literatures
-\cite{terry1994session, eventual, viotti2016consistency}
+While EC definitions in other literature~\cite{terry1994session, eventual, viotti2016consistency}
 heavily focus on the liveness aspects using the concept of
 eventual visibility of operations,
 \sysname{} excludes liveness properties and concentrates on safety
@@ -213,12 +211,12 @@ session order, observed values, and write sequences maintain alignment, ensuring
 causally dependent writes manifest in proper order from any
 observer's viewpoint.
 
-\para{Liniearizability (LIN).} In our encoding of LIN,
+\para{Linearizability (LIN).} In our encoding of LIN,
 we introduce a modified single global order constraint to unify visibility and
 arbitration for all write operations regardless of operations in
 session-based semantics or not, and enforce real-time ordering to
 ensure that the observed histories comply with returns-before relations:
-i.e., linearization as operations comes in instead of lazily ordering
+i.e., linearization as operations come in instead of lazily ordering
 events when
 reads occur \cite{zhang2018building}.
 \begin{eqnarray*}
@@ -293,7 +291,7 @@ into one of the cases defined in the can-view relation.}
 \label{fig:can-view}
 \end{figure}
 
-We introduce the notion of \textit{can-view} and \textit{viewed} to capture the
+We introduce the notions of \textit{can-view} and \textit{viewed} to capture the
 deterministic and non-deterministic behavior of operations,
 and what it means for one operation to be able to \textit{observe}
 the effects of another operation. To achieve visibility, two
@@ -422,7 +420,7 @@ immediately adjacent write operation $w$, and whether
 that $w$ can satisfy the write-read or write-write pairwise
 constraints of visibility.
 
-Write-read case is straignforward:
+The write-read case is straignforward:
 %we term this rule definitive
 %visibility. Definitive visibility is defined as follows:
 if a write $w$ is visible to a read $r$, then $r$
@@ -437,7 +435,7 @@ Writes unordered by visibility is considered invisible to each
 other~\cite{viotti2016consistency}
 and the arbitration resolves conflicts in concurrent and invisible operations.
 
-With the complete visibility definition we encode the aformentioned semantics
+With the complete visibility definition we encode the aforementioned semantics
 into \sysname{} which are then used to reason about the compatibility
 between applications and semantics/systems.
 

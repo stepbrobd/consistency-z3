@@ -137,8 +137,9 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
 
   \begin{figure}
     \begin{eqnarray*}
-      \text{MR} & \triangleq & \forall a, b \in H_\text{wr}: a
-      \xrightarrow{\text{so}} b \Rightarrow a \xrightarrow{\text{ar}} b
+	    \text{MR} & \triangleq & \forall a \in H, \forall b, c \in H_\text{rd}: a
+	    \xrightarrow{\text{vis}} b \land b \xrightarrow{\text{so}} c \implies
+	    a \xrightarrow{\text{vis}} c
       \\
       \text{RYW} & \triangleq & \forall a \in H_\text{wr}, \forall b \in
       H_\text{rd}: a \xrightarrow{\text{so}} b \Rightarrow a

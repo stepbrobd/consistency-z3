@@ -4,13 +4,13 @@
 To demonstrate how \sysname{} works and to detail how a complex distributed
 application can be specified in \sysname{} for the compatibility check with
 pluggable distributed services, we conduct case studies of three applications.
-Two applications, a movie streaming service and a online shopping mall, are from
+Two applications, a movie streaming service and an online shopping mall, are from
 a microservice benchmark suite~\cite{gan2019an} and the other is from an 
 academic system that designs causally consistent storage service
 across multiple weakly consistent distributed storage services~\cite{boltoncc}.
-We mainly focus on the movie example to delve in the details. 
+We mainly focus on the movie example to delve into the details. 
 Our framework is designed for a quick specification of applications
-and prompt compatibility check, and assume users to be familiar with
+and prompt compatibility checks, and assume users to be familiar with
 axiomatic semantics and SMT encodings. 
 
 \subsection{Movie Streaming Service}
@@ -114,8 +114,8 @@ DB components, they must specify the constraints for the other components.
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Login Service}: Manages user authentication and
         session handling. It requires order preserving writes
-	for correct credential update and user's updates 
-	(e.g., subscription status change) must be always visible for
+	for correct credential update and the user's updates 
+	(e.g., subscription status change) must always be visible for
 	flawless service.
       \item \textbf{User DB}: Stores user credentials and
         profile information. 
@@ -127,7 +127,7 @@ DB components, they must specify the constraints for the other components.
   \item \textbf{Content Management}:
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Video Service}: Handles video streaming requests
-        and requires users to unsee what they saw to ensure consistent content delivery.
+        and requires users to see what they already saw to ensure consistent content delivery.
       \item \textbf{Metadata DB}: Stores information about
         available media content (titles, descriptions, genres, etc.).
 %        with Monotonic Reads (MR) and Read Your Writes (RYW)
@@ -153,10 +153,10 @@ DB components, they must specify the constraints for the other components.
 \end{enumerate}
 
   \para{Constraint Encoding.}
-  In this example, application requires that all users must register for
+  In this example, the application requires that all users must register for
   an account before they can log in, this would result in a request from
   client to login service (edge 1), then to user database (edge 8).
-  If users are to post a review (edge 2), they must
+  If users want to post a review (edge 2), they must
   be logged in (edge 1), and the review service must verify that the
   title exists
   in the metadata database (edge 10) before allowing the review to be
@@ -180,12 +180,11 @@ DB components, they must specify the constraints for the other components.
   predefined semantics. However, when modeling
   services with complex interactions with cross storage system
   dependencies, edge constraints can clearly
-  separate the providing/requiring semantic constraints and
-  downstream implementation specific
+  separate the providing/requiring semantic constraints from downstream implementation-specific
   service logic. In the implementation, we defined multiple operations
   with read or write type to represent interactions between client,
   service nodes, and storage nodes.
-  Formally, we can represent client's login operation (edge 8) as follow:
+  Formally, we can represent client's login operation (edge 8) as follows:
   \begin{align*}
     EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
     op_{reg} \in H_{wr} :\\
@@ -200,7 +199,7 @@ binary relationship. Formally:
   rb(op_{login}, op_{wrreview}) \\
   &\land rb(op_{login}, op_{rent}) \land rb(op_{login}, op_{watch})
 \end{align*}
-The common constraints are then added to each edge that's dependent on the
+The common constraints are then added to each edge that is dependent on the
 login service or refer to the login operation, ensuring the chain
 of dependencies is respected throughout the system. 
 
@@ -246,10 +245,10 @@ Login Service carries the constraint that "User must register before
 login," enforced through a visibility relationship between
 registration and login operations. Similarly, the edge from the
 Review Service to the Metadata Database enforces the constraint that
-"Check metadata before read review," ensuring that reviews are only
+"Check metadata before reading reviews," ensuring that reviews are only
 accessible for valid content.
 
-When we apply \texttt{composable} function to this system,
+When we apply the \texttt{composable} function to this system,
 starting from the client node, it successfully verifies that the
 composition of these services with their respective consistency
 guarantees satisfies the overall system requirements. 
@@ -323,9 +322,9 @@ models client behaviors:
     consistency guarantees but relies on the guarantees provided by
     the services it interacts with.
 
-  \item \textbf{Cart DB}: The shopping cart DB maintains customers
+  \item \textbf{Cart DB}: The shopping cart DB maintains customers'
     shopping cart state. It stores items that customers intend to
-    purchase and supports read and write operations. Cart can be
+    purchase and supports read and write operations. The cart can be
     loosely managed and immediate propagation of updates is not required.
 
   \item \textbf{Shop DB}: Maintains the authoritative inventory state
@@ -338,8 +337,8 @@ models client behaviors:
     critical component ensures that concurrent purchase requests are
     processed in a well-defined sequence, preventing race conditions
     that could lead to inventory inconsistencies or duplicate transactions.
-    Even if it works with DBs that guarantees weaker semantics than linearizability
-    It's logic should guarantee strong consistency. 
+    Even if it works with DBs that guarantee weaker semantics than linearizability,
+    its logic should guarantee strong consistency. 
 
   \item \textbf{Tx Log DB}: Records all completed purchases
     with linearizability guarantees, ensuring that transaction
@@ -412,9 +411,8 @@ The consistency requirements of this system vary by component:
     integrity of the inventory or financial records.
 \end{itemize}
 
-An interesting aspect about this example is Checkout can guarantee
-linearizability as long as it is the sole updating entry 
-updating Shop DB. 
+An interesting aspect of this example is that Checkout can guarantee
+linearizability as long as it is the sole entry updating the Shop DB. 
 The verification confirms that Checkout's linearizability
 guarantee is sufficient to coordinate between the shop's RYW+MR
 guarantees and the transaction log's linearizability, ensuring that
@@ -482,7 +480,7 @@ consistency, application places a shim layer to strengthen the semantics
 in the design and this is imposed on the edge between SVC4 and XC. 
 While the SVC4-XC combination can achieve causal consistency, SVC4's downstream service
 node SVC3's storage backend only provides RYW. Again, to achieve
-cross-system causal consistency, the augmentation goes on down the chain.
+cross-system causal consistency, the augmentation continues down the chain.
 
 %This example demonstrates modeling a system where multiple services, each
 %offering only a basic consistency guarantee, are chained together. 
@@ -514,7 +512,7 @@ constraints defined on the \texttt{cons} attribute of the edges connecting the
 services. Since each service node only provides one session
 guarantee, the edge $\text{SVC}n \rightarrow \text{SVC}(n+1)$ must
 provide constraints representing the other three session guarantees needed to
-potentially satisfy Causal Consistency up to that point.
+potentially satisfy causal consistency up to that point.
 
 The core idea of this example is to build a stronger guarantee by composing
 weaker guarantees provided by individual services ($\text{SVC}1 \ldots 4$), using 
@@ -552,7 +550,7 @@ w_2.\text{ival}$ despite their different symbolic names) is necessary.
 While the current test code
 simplifies this by focusing on composing the consistency axioms, a more rigorous
 model would include these explicit symbol equivalence constraints on the edges
-(we are directly asserting symbols of $w_1$ are identical of those of $w_2$ for
+(we are directly asserting symbols of $w_1$ are identical to those of $w_2$ for
 simplicity).
 
 %\textit{Aggregation:} The \texttt{composable(g, svc1)} call attempts
@@ -564,8 +562,8 @@ simplicity).
 %be composed under the specified edge constraints. Subsequently,
 %\texttt{extract(svc1, svc1, (ok, res))} can
 
-Synthesize a single logical formula representing the net end-to-end guarantee
-achieved by the SVC chain, starting from $\text{SVC}1$ to XC, the formula is then compared against a formal definition of CC to verify compatibility, which succeeds. While 
+After a single logical formula representing the net end-to-end guarantee
+achieved by the SVC chain is synthesized starting from $\text{SVC}1$ to XC, the formula is then compared against a formal definition of CC to verify compatibility, which succeeds. While 
 the original XC implementation~\cite{boltoncc} ties together only EC storage services, this example further explores more diverse storage services and demonstrates the flexibility of \sysname{}.
 %\subsubsection{Interaction Flows}
 %

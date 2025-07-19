@@ -1,13 +1,14 @@
 \section{Evaluation} \label{sec:eval}
 This section discusses the experience in using \sysname{} and evaluate the performance of \sysname{}.
+
 \subsection{Experience} 
-We implemented \sysname{} in python on Z3 version 4.15.1. It took
+We implemented \sysname{} in Python on Z3 version 4.15.1. It took
 approximately 3.7K lines of code to implement \sysname{}. However, with existing
 facilities in the framework, it was easy to model and check compatibility of
-applications. Especially, three cases studies, movie streaming service, online shopping mall, and cross causal storage, only took 183, 80, and 252 lines of code, respectively, to encode the application and check the compatibility against given \sysmods{}. 
+applications. Especially, three case studies, movie streaming service, online shopping mall, and cross causal storage, only took 183, 80, and 252 lines of code, respectively, to encode the application and check the compatibility against given \sysmods{}. 
 
 \subsection{Performance}
-SMT solvers often take extended period to complete their tasks. Thus, we measure the 
+SMT solvers often take an extended period to complete their tasks. Thus, we measure the 
 duration of the compatibility check in \sysname{}.
 All experiments were conducted on an Intel i7-1360P processor with
 64GB RAM running NixOS 25.11 (Linux 6.12.30). 
@@ -29,7 +30,7 @@ All experiments were conducted on an Intel i7-1360P processor with
 First, we evaluated the compatibility between pairs of base consistency semantics,
 EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in \sysname{}.
 Table \ref{tab:pairwise-time} shows the execution times for these
-pairwise compatibility checks and the results of the check encoded in colors (blue: compatible, red: non-compatible). On average, it took only 31 ms per check and results of the checks are correct with respect to the theory. 
+pairwise compatibility checks and the results of the check encoded in colors (blue: compatible, red: non-compatible). On average, it took only 31 ms per check and the results of the checks are correct with respect to the theory. 
 
 \newcommand{\tableT}{\textcolor{blue}{T}}
 \newcommand{\tableF}{\textcolor{red}{F}}
@@ -88,7 +89,7 @@ find valid compositions with a minimal semantic score and its
 performance characteristics under different system complexities.
 
 For each case study, we gave blank \sysmods{} to each application
-so that \sysname{} will search and output compatible \sysmod{} combinations.
+so that \sysname{} search and output compatible \sysmod{} combinations.
 \sysname{} uses the search strategy in \cref{subsec:search}.
 %we enumerated all possible combinations of
 %consistency models for nodes with non-null provs fields, while
@@ -101,7 +102,7 @@ five DB nodes that satisfy application node and edge constraints.
 Given that \sysname{} contains 17 \sysmods{} as illustrated in 
 \cref{fig:semantic-tree} the full search space contains
 $17^5$ combinations. On average checking each combination 
-takes 16.5 ms and can find the compatible combination with the lowest
+takes 16.5 ms and can find a compatible combination with the lowest
 score in 20.43 seconds with a timeout of 10 seconds for each check. 
 Checking the entire search space is feasible but is expected to take 
 64.82 hours (we have completed 800,507 checks or 56.28\% of search space 
@@ -122,5 +123,5 @@ in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
 Overall, depending on the complexity of the constraints the compatibility check time
 varies, but individual checks are done in less than 20ms on average. Even though
 searching through compatible answers in the entire search space could take extended 
-time, finding the most desired, minimum score answer for each cases study takes only less 5 minutes. 
+time, finding the most desired, minimum score answer for each case study takes only less than 5 minutes. 
 

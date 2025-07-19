@@ -22,7 +22,7 @@ guarantees~\cite{terry1994session}, causal
 consistency~\cite{causaldef}, and
 linearizability~\cite{herlihy1990linearizability}.
 
-While eventual consistency (EC) is considered as a liveness property,
+While eventual consistency (EC) is considered a liveness property,
 it defines a minimum safety property that visible data reflects valid
 updates in history. Informally,
 \itemparen{
@@ -36,17 +36,17 @@ viewpoint of a user session:
 \itemparen{
 \item \textbf{Monotonic reads (MR):} a user sees the same or later
   version of data than what was last seen by the same user.
-\item \textbf{Read-your-writes (RYW):} a users sees the same or later
+\item \textbf{Read-your-writes (RYW):} a user sees the same or later
   version of data than what was last written by the same user.
-\item \textbf{Monotonic writes (MW):} writes by a user applies in the
+\item \textbf{Monotonic writes (MW):} writes by a user apply in the
   order that this user wrote.
-\item \textbf{Write-follows-reads (WFR):} writes by a user applies
+\item \textbf{Write-follows-reads (WFR):} writes by a user apply
   after writes corresponding to what this user read apply.
 }
 By choosing whether to enforce each of four session guarantees, a
 total of 16 ($=2^4$) different semantics can be derived. While most
 of them do not have specific names (e.g., MR + RYW), there are a few
-well-known named semantics. For example, EC is not enforcing none of
+well-known named semantics. For example, EC does not enforcing none of
 SGs, pipeline RAM consistency (PRAM) is a combination of MR, RYW, and
 MW~\cite{brzezinski2004session}, and causal consistency (CC) is a
 combination of all four SGs, MR, RYW, MW, and
@@ -54,8 +54,8 @@ WFR~\cite{sessiontocausal}. Still, PRAM~\cite{pram} and
 CC~\cite{causaldef} have their own definitions.
 \itemparen{
 \item \textbf{PRAM consistency (PRAM):} read and write operations by
-  a user happens in first in first out order from this user's point
-  of view, but there is no global ordering guarantees.
+  a user happen in first in first out order from this user's point
+  of view, but there are no global ordering guarantees.
 \item \textbf{Causal consistency (CC):} read and write operations
   follow the causal (or happens-before~\cite{lamport1978time}) ordering.
 }
@@ -73,7 +73,7 @@ of distributed systems.
   (sources of the arrows).}
   \label{fig:semantics-tree}
 \end{figure}
-The semantics can be partially ordered by their
+These semantics can be partially ordered by their
 strength~\cite{viotti2016consistency} where strictly stronger
 semantics subsumes the weaker ones (\cref{fig:semantics-tree}). Thus,
 when an application requires a certain semantics then a strictly
@@ -83,7 +83,7 @@ stronger one can be safely used as a replacement.
 \label{subsec:eg}
 Assume a movie streaming service built using a form of
 microservice architecture where admins manage the serviced
-contents and clients rent movies and leave reviews~\cite{gan2019an}
+content and clients rent movies and leave reviews~\cite{gan2019an}
 (\cref{fig:case-study-media}).
 There are quite a few functionalities and components to build the
 service, and it is nontrivial to meet all service requirements
@@ -93,29 +93,29 @@ For example, a movie metadata database (DB) stores list of
 available movies and each movie's information such as the
 logline, director, and cast. This DB is accessed 1) when
 the service admin adds/modifies movie information and
-2) when clients reads the DB before renting a movie
+2) when clients read the DB before renting a movie
 or writing a review.
 
 The developer of the system can choose an ACID database or linearizable
 key-value store for the metadata DB but this may not scale well.
-For utmost scalability and performance eventually consistent
+For utmost scalability and performance an eventually consistent
 key-value store can be used but users may observe anomalies.
 Thus, to find a proper storage module, key constraints to satisfy for
 each access
-functionalities to minimize anomalous user experience needs to be defined: \eg
+functionality to minimize anomalous user experiences need to be defined: \eg
 admins must always observe their own updates and clients must be able
 to see what
 they have previously seen. The collection of constraints should be satisfied
 by the metadata DB of developer's choice, but if functionalities of the system
 grow, the constraints can become more sophisticated and checking whether the
-constrains are fully satisfied by a DB becomes more complicated.
+constraints are fully satisfied by a DB becomes more complicated.
 
 While the metadata DB example above is presented in isolation from
-what a single DB service must satisfy, cross DB constraints can exacerbate
+what a single DB service must satisfy, cross-DB constraints can exacerbate
 the problem. For example, accessing the metadata DB would require
 checking whether the user is an admin or a client with active movie subscription
 status which may be maintained in a separate storage system, so
-dependencies from the login service and the user DB must be fulfilled:
+dependencies from the login service and the user DB must be met:
 the user must be able to observe the user's valid up-to-date status
 and then access the other services. Renting a movie or reading/writing a
 review involves additional consistency constraints that cross storage services

@@ -1,79 +1,44 @@
 \section{Evaluation} \label{sec:eval}
+This section discusses the experience in using \sysname{} and evaluate the performance of \sysname{}.
+\subsection{Experience} 
+We implemented \sysname{} in python on Z3 version 4.15.1. It took
+approximately 3.7K lines of code to implement \sysname{}. However, with existing
+facilities in the framework, it was easy to model and check compatibility of
+applications. Especially, three cases studies, movie streaming service, online shopping mall, and cross causal storage, only took 183, 80, and 252 lines of code, respectively, to encode the application and check the compatibility against given \sysmods{}. 
 
-We evaluated \sysname{} using three representative case studies to
-demonstrate its effectiveness in checking compatibility between
-applications and compositions of distributed systems.
-Our evaluation focuses on two key metrics: the framework's ability to
-find valid compositions with minimal semantic score and its
-performance characteristics under different system complexities.
-
-For each case study, we enumerated all possible combinations of
-consistency models for nodes with non-null provs fields, while
-keeping nodes with predefined needs fields unchanged. We assigned
-scores to individual consistency models and their combinations based
-on their strength as shown in Figure \ref{fig:semantics-tree}.
-
+\subsection{Performance}
+SMT solvers often take extended period to complete their tasks. Thus, we measure the 
+duration of the compatibility check in \sysname{}.
 All experiments were conducted on an Intel i7-1360P processor with
-64GB RAM running NixOS 25.11 (Linux 6.12.30).
-We used Z3 version 4.15.1 as our SMT solver backend with a 10 seconds
-timeout limit. However, during our evaluation, we discovered a
-termination bug in Z3 4.15.1
-where the solver would not respect timeout parameters, continuing to
-run well beyond the specified limit (e.g., still running after 2
-minutes despite a 10-second timeout). To address this, we implemented
-a watchdog mechanism using strace to monitors write systemcalls to
-stdout, sending SIGINT if the 10-second timeout is exceeded,
-following the philosophy established in recent
-verification work Verus that ``it's better to improve solver
-performance than rely on a slow proof'' \cite{verus}.
+64GB RAM running NixOS 25.11 (Linux 6.12.30). 
+
+% 10 seconds
+% timeout limit. However, during our evaluation, we discovered a
+% termination bug in Z3 4.15.1
+% where the solver would not respect timeout parameters, continuing to
+% run well beyond the specified limit (e.g., still running after 2
+% minutes despite a 10-second timeout). To address this, we implemented
+% a watchdog mechanism using strace to monitors write systemcalls to
+% stdout, sending SIGINT if the 10-second timeout is exceeded,
+% following the philosophy established in recent
+% verification work Verus that ``it's better to improve solver
+% performance than rely on a slow proof'' \cite{verus}.
 % https://github.com/verus-lang/verus/blob/0b6f3cbb8fceff6681b4988c3cac37a8b801f8e6/source/docs/guide/src/smt_failures.md
 
-The shopping mall case study models an e-commerce platform with three
-configurable nodes: arbitrator, transaction processor, and shop
-service. We evaluated all
-$17^3$ possible combinations of consistency models across these
-nodes. The evaluation completed in 251.77 seconds with an average
-duration of 5.12 ms per combination and 0 timeouts.
-
-This case study models a complex media platform with five database
-nodes: user database, metadata database, rental database, review
-database, and video database.
-The full evaluation space contains
-$17^5$ combinations. At the time of writing, we have completed
-800,507 combinations (56.38\% of the total space) in 131,563.92
-seconds (\~36.55 hours), with an average duration of 16.44 ms per
-combination and no timeouts.
-Our tool was able to find the composition in our original design in
-about 20.43 seconds.
-This case study represents the most complex scenario in our
-evaluation, testing the framework's scalability with realistic
-distributed system topologies.
-
-This case study represents a service chain with four services (SVC1
--> SVC2 -> SVC3 -> SVC4) where causal consistency must be maintained
-across the entire chain. We evaluated all
-$17^4$ combinations, completing the analysis in 14,337.11 seconds (\~3.98 hours)
-with an average duration of 17.17 ms per combination.
-Our tool successfully identified the composition in our original design
-in about 261.09 seconds.
-The timeout rate result arout 0.15\%, with non-timeout instances
-averaging 15.65 ms.
-
-We evaluated all pairwise combinations of consistency models that
-appear in our test suite.
+\para{Pairwise Compatibility Check.}
+First, we evaluated the compatibility between pairs of base consistency semantics,
+EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in \sysname{}.
 Table \ref{tab:pairwise-time} shows the execution times for these
-pairwise compatibility checks.
+pairwise compatibility checks and the results of the check encoded in colors (blue: compatible, red: non-compatible). On average, it took only 31 ms per check and results of the checks are correct with respect to the theory. 
 
 \newcommand{\tableT}{\textcolor{blue}{T}}
 \newcommand{\tableF}{\textcolor{red}{F}}
 \newcommand{\tableNA}{-}
-\begin{table}[htbp]
+\begin{table}[t]
   \centering
-  \caption{Pairwise check performance (ms)}
-  \label{tab:pairwise-time}
   \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
     \hline
-    {L \textbackslash \ R} &
+    {} &
     EC &
     MR &
     MW &
@@ -112,4 +77,50 @@ pairwise compatibility checks.
     \textcolor{blue}{44} & \tableNA \\
     \hline
   \end{tabular}
+  \caption{Pairwise check performance. Semantics in the first column are checked if they satisfy semantics in other columns. Each cell shows the time it took to complete the check in milliseconds. The blue text indicates the result of the check is true and red means false. }
+  \label{tab:pairwise-time}
 \end{table}
+
+\para{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using 
+three case studies in \cref{sec:cs}. 
+This evaluation focuses on two key metrics: the framework's ability to
+find valid compositions with a minimal semantic score and its
+performance characteristics under different system complexities.
+
+For each case study, we gave blank \sysmods{} to each application
+so that \sysname{} will search and output compatible \sysmod{} combinations.
+\sysname{} uses the search strategy in \cref{subsec:search}.
+%we enumerated all possible combinations of
+%consistency models for nodes with non-null provs fields, while
+%keeping nodes with predefined needs fields unchanged. We assigned
+%scores to individual consistency models and their combinations based
+%on their strength as shown in Figure \ref{fig:semantics-tree}.
+
+Movie streaming service requires finding \sysmods{} corresponding to
+five DB nodes that satisfy application node and edge constraints.
+Given that \sysname{} contains 17 \sysmods{} as illustrated in 
+\cref{fig:semantic-tree} the full search space contains
+$17^5$ combinations. On average checking each combination 
+takes 16.5 ms and can find the compatible combination with the lowest
+score in 20.43 seconds with a timeout of 10 seconds for each check. 
+Checking the entire search space is feasible but is expected to take 
+64.82 hours (we have completed 800,507 checks or 56.28\% of search space 
+in 36.55 hours).
+
+The online shopping mall example is simpler than the movie streaming service
+and involves only three DB nodes to search.
+We evaluated all $17^3$ possible combinations of consistency semantics across 
+these nodes. The evaluation completed in 251.77 seconds with an average
+duration of 5.12 ms per combination with 0 timeouts.
+
+Finally, four DB node combinations (i.e., $17^4$ cases) are searched for 
+the cross causal storage. The total search completes in 3.98 hours
+with an average duration of 17.17 ms per combination.
+Our tool successfully identified the combination in our original design
+in about 261.09 seconds. The timeout rate is only about 0.15\% of cases. 
+
+Overall, depending on the complexity of the constraints the compatibility check time
+varies, but individual checks are done in less than 20ms on average. Even though
+searching through compatible answers in the entire search space could take extended 
+time, finding the most desired, minimum score answer for each cases study takes only less 5 minutes. 
+

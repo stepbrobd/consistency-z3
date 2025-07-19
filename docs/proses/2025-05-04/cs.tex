@@ -1,4 +1,5 @@
 \section{Case Study}
+\label{sec:cs}
 
 To demonstrate how \sysname{} works and to detail how a complex distributed
 application can be specified in \sysname{} for the compatibility check with
@@ -220,7 +221,7 @@ Following these practices one can specify and compose application constraints.
 %The example already specifies satisfiable \sysmods{}, but users can
 %test other \sysmods{} or ask \sysname{} to search for the compatible \sysmods{}.
 
-\para{Requirements and Verification.}
+\para{Requirements and Compatibility Verification.}
 Each component in the system requires consistency guarantees
 from the DBs:% based on its functional role:
 \begin{itemize}
@@ -260,7 +261,7 @@ maintains its required properties.
 %review system correctly ensures that users can immediately see their
 %own reviews while maintaining content validity checks.
 
-\subsection{Online Shopping System}
+\subsection{Online Shopping Mall}
 
 An e-commerce application~\cite{gan2019an} is similar to the movie 
 streaming service but its architecture and constraints are simpler (\cref{fig:case-study-shop}).
@@ -387,7 +388,7 @@ models client behaviors:
 %inventory is decremented without a corresponding transaction record
 %or vice versa.
 
-\para{Requirements and Verification}
+\para{Requirements and Compatibility Verification}
 The consistency requirements of this system vary by component:
 
 \begin{itemize}
@@ -498,7 +499,7 @@ four session guarantees via its \texttt{provs} attribute:
 $\text{SVC}1$ provides MR, $\text{SVC}2$ provides
 MW, $\text{SVC}3$ provides RYW, and $\text{SVC}4$ provides WFR.
 
-\para{Constraints Encoding and Verification.}
+\para{Constraints Encoding and Compatibility Verification.}
 %\textbf{Symbolic Isolation:} 
 To prevent logical interference, the guarantee provided by
 each service and the constraints added on the edges are instantiated using unique 
@@ -540,7 +541,7 @@ as shown in \cref{fig:cross-service-causal}.
 %\end{itemize}
 
 %\textit{Symbol Equivalence:} 
-For this composition to be meaningful, we must
+For this composition to be meaningful in the SMT-solver-based \sysname{}, we must
 conceptually link operations across services that refer to the same logical
 action or data. For instance, if write $w_1$ in $\text{SVC}1$ and
 write $w_2$ in $\text{SVC}2$ both
@@ -554,19 +555,18 @@ model would include these explicit symbol equivalence constraints on the edges
 (we are directly asserting symbols of $w_1$ are identical of those of $w_2$ for
 simplicity).
 
-\textit{Aggregation:} The \texttt{composable(g, svc1)} call attempts
-to find a satisfying
-assignment for the entire chain, respecting the \texttt{provs} of
-each node and the \texttt{cons} of
-each edge. If it returns \texttt{True}, it confirms that the
-individual guarantees can
-be composed under the specified edge constraints. Subsequently,
-\texttt{extract(svc1, svc1, (ok, res))} can
-synthesize a single logical formula representing the net end-to-end guarantee
-achieved by the chain, starting from $\text{SVC}1$. This aggregated
-constraint (\texttt{aggcons} in
-the test code) could then be compared against a formal definition of Causal
-Consistency.
+%\textit{Aggregation:} The \texttt{composable(g, svc1)} call attempts
+%to find a satisfying
+%assignment for the entire chain, respecting the \texttt{provs} of
+%each node and the \texttt{cons} of
+%each edge. If it returns \texttt{True}, it confirms that the
+%individual guarantees can
+%be composed under the specified edge constraints. Subsequently,
+%\texttt{extract(svc1, svc1, (ok, res))} can
+
+Synthesize a single logical formula representing the net end-to-end guarantee
+achieved by the SVC chain, starting from $\text{SVC}1$ to XC, the formula is then compared against a formal definition of CC to verify compatibility, which succeeds. While 
+the original XC implementation~\cite{boltoncc} ties together only EC storage services, this example further explores more diverse storage services and demonstrates the flexibility of \sysname{}.
 %\subsubsection{Interaction Flows}
 %
 %The media streaming service supports several interaction patterns,

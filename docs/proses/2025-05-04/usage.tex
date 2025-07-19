@@ -1,8 +1,8 @@
 \section{\sysname{} Design}
 
-We design the \sysmodlong{} (\sysmod{}), based on the definitions in
+We design the \sysmodlong{} (\sysmod{}) based on the definitions in
 previous section.
-A \sysmod{} represents a single distributed system with a specific semantics
+A \sysmod{} represents a single distributed system with specific semantics
 and \sysname{} can perform individual \sysmod{} validation to check if all
 semantic constraints are sound and compatible, as
 well as pairwise checks between two \sysmods{} to determine if one
@@ -15,7 +15,7 @@ compositional check using the \sysgraph{}.
 
 \subsection{Compatibility Check}
 
-A key feature of \sysname{} is the ability to reason not only about
+\sysname{} is designed to reason about
 compatibility between consistency semantics.
 We define compatibility between two consistency semantics using \sysmods{}
 $M_1$ and $M_2$ using
@@ -32,17 +32,17 @@ holding does not necessarily mean that $M_2 \Rightarrow M_1$ also holds.
 
 Table \ref{tab:pairwise-time} shows a result of pairwise
 compatibility checks for
-base semantics in \sysname{} which in-part shows that our consistency
-models compatibility faithfully matches with the theoretical results
+base semantics in \sysname{} which in part shows that our consistency
+models' compatibility faithfully matches with the theoretical results
 in \cref{fig:semantics-tree} and in previous literature \cite{terry1994session}.
 
 To combine multiple consistency models into a single stronger model, we used
 logical conjunctions on each \sysmod{}'s constraints. By taking the constraints
 representing each model's semantics and forming their conjunction, we derive a
 composed model that enforces all included constraints simultaneously.
-This approach allows incremental composition, users can start from a
-base model and iteratively strengthen it by adding new sets of constraints
-(either from our implemented models or user-defined constraints) representing
+This approach allows incremental composition: users can start from a
+base model and iteratively strengthen it by adding new sets of constraints,
+either from our implemented models or user-defined constraints, representing
 additional consistency guarantees.
 
 \subsection{\sysgraph{} and Composition Check}
@@ -70,21 +70,21 @@ The \sysgraph{} is composed of \textit{nodes} with two fields:
 (1) \textit{needs}, required constraint tuples from dependent components, and
 (2) \textit{provs}, constraint tuples it provides to other nodes.
 \sysname{} users can freely specify application logics, and each \textit{node}
-have both needs and provs, with either our predefined built-in
+has both needs and provs, with either our predefined built-in
 \sysmods{} or user-defined
-constraints that represent the semantics of the node with our interface.
+constraints that represent the node's semantics using our interface.
 \textit{Edges} connect nodes and have the \textit{cons} field,
 specific constraint tuples for the node pair interaction.
 The tuples within the list represent constraints that must hold together
 (logical and).
 
-In the implementation, we perform a Depth-First Search (DFS) starting from a
+In the implementation, we perform a depth-first search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated
 constraints (\texttt{path\_premise}) along the current path.
-\sysname{} performs compatible checks, \texttt{compatible(check\_provs,
+\sysname{} performs compatibility checks, \texttt{compatible(check\_provs,
 compose(check\_needs, check\_ec), path\_premise)}:
 for each edge (u,v) from the current node u, it checks if provs from v
-and cons from the edge (u, v) satisfy needs from u.
+and cons from edge (u, v) satisfy needs from u.
 This checks if the chosen path provides guarantee of the destination
 (\texttt{check\_provs}) is
 implied by the conjunction (compose) of the chosen needs of the
@@ -92,8 +92,8 @@ source (\texttt{check\_needs}) and the chosen edge constraints
 (\texttt{check\_ec}),
 considering the constraints already accumulated (\texttt{path\_premise}).
 
-If all check succeeds then the application is proven to be compatible
-with the plugged in \sysmods{} and the application logics are also
+If all checks succeed then the application is proven to be compatible
+with the plugged-in \sysmods{} and the application logics are also
 sound as a whole.
 
 \subsection{Compatible Combination Search}
@@ -105,15 +105,15 @@ application given an \sysgraph{}. When blank \sysmods{} are plugged into the
 Considering that strictly weaker distributed semantics can be replaced
 with strictly stronger ones and the weaker semantics are typically
 more performant and cheaper to maintain, \sysname{} searches the space
-in an order that prioritize weaker semantics. Specifically, we give scores
+in an order that prioritizes weaker semantics. Specifically, we give scores
 0 to 5 to semantics in the columns from left to right in
 \cref{fig:semantics-tree}
 and test the combination that has lower sum of scores first during the search.
-If a compatible combinations are found, the search can stop early; replacing a
-\sysmod{} in the compatible combination with a strictly stronger one is always
+If compatible combinations are found, the search can stop early; replacing a
+\sysmod{} in a compatible combination with a strictly stronger one is always
 guaranteed to be compatible.
 However, our search strategy is not optimal and investigating more
-efficient search algorithm remains as future work.
+efficient search algorithms remains as future work.
 
 %If a compatible combination is found that satisfies all unvisited edges
 %between u and v at the current step, it adds the chosen constraints

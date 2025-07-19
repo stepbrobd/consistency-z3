@@ -1,15 +1,15 @@
 \section{Distributed Consistency Models in \sysname{}}
 \label{sec:design}
 
-First we present the theory and formal details regarding how we model
+First, we present the theory and formal details regarding how we modeled
 the distributed consistency semantics, and how applications can be
-encoded into our \sysname{} framework, then further dispatched to
+encoded into our \sysname{} framework, then further discharged to
 SMT solvers like Z3 \cite{demoura2008z3} or CVC5 \cite{barbosa2022cvc5}.
 
 %\subsection{Modeling Consistency Semantics}
 \subsection{Preliminaries}
 
-\sysname{} provides pre-built pluggable \sysmodlongs{} (\sysmods{})
+\sysname{} provides pre-built and pluggable \sysmodlongs{} (\sysmods{})
 that represent distributed storage services which can be checked whether
 they are compatible with application constraints.
 Each \sysmod{} models distributed consistency semantics introduced in
@@ -46,17 +46,18 @@ operation, a tuple containing the following:
   marker used for non-returning operations.
 }
 An operation
-can be conceptualized as a request-response pair, where the request
-is the operation itself and the response is the operation with the
+can be conceptualized as one of an atomic actions with a
+request-response pair, where the request
+is the operation itself and the response is the other operation with the
 response time set.
 
 Consistency semantics are typically defined using universally
 quantified formulas
 (e.g., $\forall a, b: \dots$) applied to relations that are treated
 as uninterpreted
-functions of operations by the SMT solver
+functions with constraints of operations by the SMT solver
 (e.g., $\text{vis}(a, b)$, $\text{so}(a, b)$).
-Typically, they define pairwise constraints defined over operations in history.
+Typically, they are pairwise constraints defined over operations in history.
 A history is a set of operations that have been logically executed in the
 \sysmod{}.
 The functions representing the relations are used as base premises
@@ -121,7 +122,7 @@ environments and implementation-specific constraints.
 \subsection{Base Consistency Semantics}
 \label{subsec:semdef}
 Based on the preliminaries, now we can discuss the formal definitions of
-base consistency semantics, EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in
+base consistency semantics: EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in
 \cref{sec:background}.
 The semantics are defined axiomatically using the relations between
 pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
@@ -184,8 +185,9 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   \end{align*}
 
   \para{Causal Consistency (CC).}
-  Our CC formulation combines concepts from Viotti et
-  al.~\cite{viotti2016consistency} and causal
+  Our CC formulation combines definitions from Viotti et
+  al.~\cite{viotti2016consistency}, Burckhardt et al
+  \cite{burckhardt2014principles}, and causal
   memory~\cite{baldoni2002an}. The \textit{writes-into (wi)}
   relation~\cite{baldoni2002an} connects write operations directly with the
   reads that retrieve their values. This guarantees that when

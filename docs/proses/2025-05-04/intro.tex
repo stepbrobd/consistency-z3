@@ -9,7 +9,7 @@ choose and compose the building blocks in a modular fashion and plug them
 into the application to use.
 
 However, different distributed storage systems provide different consistency
-semantics and the mismatch of the chosen system's semantics and the
+semantics, and the mismatch of the chosen system's semantics and the
 application's expected semantics could introduce subtle and silent
 semantic bugs \cite{silentbugs}. For example, a user may connect a
 key-value store
@@ -23,7 +23,7 @@ matching system. However, when the application depends on multiple
 distributed services, checking the overall compatibility between the
 application logic and multiple system components can easily get out
 of hand. Even
-if one successfully find the correct combination, for example, through
+if one successfully finds the correct combination, for example, through
 extensive testing, developers might change the application code or
 plug in different systems due to management, cost, and performance
 reasons. Thus, sophisticated compatibility check will need to be done again.
@@ -42,10 +42,10 @@ for reasoning about compatibility, the mechanized formal proofs
 can take extensive time and effort \cite{certikos-osdi16,
 klein2009sel4, wormspace}.
 Furthermore, depending on the formal method techniques used, the
-amount of proofs needs to be
+number of proofs that need to be
 written could be several times longer in lines of code comparing with
 the implementation,
-furthermore, minor changes can easily break the entire proof
+furthermore, minor changes can easily invalidate the entire proof
 \cite{klein2009sel4}.
 Thus, formal verification
 leads to a similar problem to above-mentioned testing methods where
@@ -82,8 +82,8 @@ Although axiomatic definitions of distributed consistency semantics
 exist in prior literatures \cite{finkbeiner2007smt,
   tekken2017monitoring, kuper2019toward, fan2023satisfiability,
 ma2024noctua}, encoding the details into the SMT
-clauses for compatibility checks are challenging as the definitions
-gloss over a few key details. For example, commonly used concept
+clauses for compatibility checks is challenging as the definitions
+gloss over a few key details. For example, the commonly used concept
 of \textit{visibility} for defining weak distributed consistency
 semantics is subtle, but to our knowledge, no literature provides
 a concrete definition. \sysname{} fills in these missing gaps to realize
@@ -167,11 +167,11 @@ consistency guarantees from the very beginning.
 % models with "eventual"
 %%%%%% %%%%%%    visibility (see eventual source code)?}
 
-In case study section, we used \sysname{} to model two microservice-based
+In the case study section, we used \sysname{} to model two microservice-based
 applications \cite{gan2019an}, a movie streaming service, an e-commerce
-service, and a cross-causal storage system built on top of
+service, and a cross-service causal storage system built on top of
 multiple weakly consistent distributed storage systems \cite{boltoncc}.
-We evaluated and demonstrate \sysname{}'s ability to check the compatibility
+We evaluated and demonstrated \sysname{}'s ability to check the compatibility
 between user-defined application specfic logic, with underlying
 distributed systems and
 explore other compatible semantics. Our framework is capable of

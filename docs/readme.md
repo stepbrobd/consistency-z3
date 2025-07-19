@@ -6,6 +6,11 @@ Hydra Evaluation and Binary Cache:
 - Cache: <https://cache.ysun.co/public>
 - Key: `public:Y9EARSt+KLUY1JrY4X8XWmzs6uD+Zh2hRqN9eCUg55U=`
 
+## 2025-07-19
+
+- final pass
+- check the use of DMs, app graphs
+
 ## 2025-07-18
 
 - media example, no need for stripping out the graph, finish client review flow

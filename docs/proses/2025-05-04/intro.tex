@@ -14,7 +14,7 @@ semantic bugs~\cite{silentbugs}. For example, a user may connect a
 key-value store
 observing eventual consistency to an application that expects a
 linearizable storage service. In this case, the application could
-read a non-up-to-date copy of the data and application could produce
+read a non-up-to-date copy of the data and the application could produce
 an erroneous outcome.
 
 Developers and system architects could carefully review the application needs and choose a
@@ -40,15 +40,15 @@ for reasoning about compatibility, the formal verification process
 can take extensive time and effort~\cite{certikos-osdi16,
 klein2009sel4, wormspace}.
 Furthermore, depending on the
-formal verification techniques, the amount of proofs that needs to be
-written could be several times compare to the lines of code and small
+formal verification techniques, the amount of proof that needs to be
+written could be several times compared to the lines of code and a small
 change could easily break the entire proof~\cite{klein2009sel4}.
 Thus, formal verification
 leads to a similar problem to testing where the compatibility check
 cannot agilely keep up with the changes in underlying systems and
 applications.
 
-In this paper, we propose \sysname{}, a light-weight \sysnamelong{}. \sysname{}
+In this paper, we propose \sysname{}, a lightweight \sysnamelong{}. \sysname{}
 helps developers to quickly encode their application logic and
 requirements and check the compatibility with underlying distributed
 systems using an SMT-based approach.
@@ -61,7 +61,7 @@ semantics, including eventual consistency,
 linearizability~\cite{viotti2016consistency}, four session
 guarantees~\cite{terry1994session}, pipeline RAM (PRAM) consistency~\cite{pram},
 and causal consistency~\cite{causaldef}, which are commonly used in both
-industry and academia\cite{pileus, cosmosdb, anna, bayou, yogurt,
+industry and academia~\cite{pileus, cosmosdb, anna, bayou, yogurt,
 pnuts, cloudflare-session, causalmemory, cops}.
 Users of our tool can leverage predefined models as
 building blocks to test the compatibility of these models with their
@@ -69,9 +69,9 @@ applications. Additional models can be added to test the
 correctness and compatibility with existing ones as well.
 
 Although axiomatic definitions of distributed consistency semantics
-exist in literatures \cite{finkbeiner2007smt, tekken2017monitoring, kuper2019toward, fan2023satisfiability, ma2024noctua}, encoding the details into the SMT
+exist in the literature~\cite{finkbeiner2007smt, tekken2017monitoring, kuper2019toward, fan2023satisfiability, ma2024noctua}, encoding the details into the SMT
 clauses for compatibility checks are challenging as the definitions
-glosses over a few key details. For example, the commonly used concept
+gloss over a few key details. For example, the commonly used concept
 of \textit{visibility} for defining weak distributed consistency
 semantics is subtle, but to our knowledge, no literature provides
 a formal definition. \sysname{} fills in these missing gaps to realize
@@ -79,7 +79,7 @@ full-fledged formal models for the compatibility check.
 
 Each functionality in the application logic in \sysname{} is encoded
 as a directed acyclic graph (DAG) in a systematic way where the entire
-application can be encoded into a directed multi graph format which
+application can be encoded into a directed multi-graph format which
 we call the \sysgraph{}.
 Each node in the \sysgraph{} represents key functionality in the
 application which requires certain properties from lower-level nodes
@@ -93,13 +93,13 @@ in \sysname{}.
 The \sysgraph{} model is expressive enough to model an application logic
 from a high-level and trace complex dependencies that cross multiple
 application logics and distributed systems that the application
-replies on. \sysname{} can trivially check simple application that
+relies on. \sysname{} can trivially check a simple application that
 relies on one distributed service and can span to a complex
-micro-service application that leverages multiple modules and
+microservice application that leverages multiple modules and
 distributed systems.
 
 Once the user specifies the application logic, \sysname{} can quickly
-check the compatibility with the plugged in distributed system. It
+check the compatibility with the plugged-in distributed system. It
 could be testing what the user chose, or alternatively, \sysname{}
 can explore different combinations of existing models to
 find distributed systems with compatible consistency semantics. These
@@ -156,13 +156,13 @@ consistency guarantees from the very beginning.
 %%%%%% %%%%%%    visibility (see eventual source code)?}
 
 In case studies, we used \sysname{} to model two microservice
-applications~\cite{gan2019an}, e-commerce service and movie streaming
-service, and a causally consistent storage service built on top of
+applications~\cite{gan2019an}, an movie streaming service and an e-commerce
+service, and a causally consistent storage system built on top of
 multiple weakly consistent distributed storage systems~\cite{boltoncc} to
 check the compatibility with underlying distributed systems and
 explore other compatible semantics. Our framework is capable of
-checking the compatibility under 5.12 milliseconds and explore other
-compatible systems in around 251.77 seconds (shopping mall case study).
+checking a single compatibility combination under 20 milliseconds and exploring 
+other compatible combinations in less than 5 minutes.
 
 %%%%%% %%%%%%    \jiyong{Some insights we gained?}
 %%%%%% %%%%%%    \yifei{
@@ -184,13 +184,13 @@ compatible systems in around 251.77 seconds (shopping mall case study).
 This paper makes the following contributions:
 \itemparen{
 \item We present \sysname{}, the first compatibility checking tool for
-  application that is composed of multiple distributed services.
+  applications that are composed of multiple distributed services.
 \item We provide the missing formal definitions to fully express
   and check distributed weak consistency semantics.
 \item We present a systematic way of encoding complex applications
   using the \sysgraph{} structure and checking their compatibility
   collectively using the SMT-based approach.
-\item We carry out a case study on three representative distributed
+\item We conduct case studies on three representative distributed
   applications to demonstrate the workings of \sysname{}.
 }
 

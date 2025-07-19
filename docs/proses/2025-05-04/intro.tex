@@ -17,7 +17,8 @@ linearizable storage service. In this case, the application could
 read a non-up-to-date copy of the data and the application could produce
 an erroneous outcome.
 
-Developers and system architects could carefully review the application needs and choose a
+Developers and system architects could carefully review the
+application needs and choose a
 matching system, but when the application depends on multiple
 distributed services, checking the overall compatibility between the
 application logic and multiple systems easily gets out of hand. Even
@@ -69,7 +70,9 @@ applications. Additional models can be added to test the
 correctness and compatibility with existing ones as well.
 
 Although axiomatic definitions of distributed consistency semantics
-exist in the literature~\cite{finkbeiner2007smt, tekken2017monitoring, kuper2019toward, fan2023satisfiability, ma2024noctua}, encoding the details into the SMT
+exist in the literature~\cite{finkbeiner2007smt,
+  tekken2017monitoring, kuper2019toward, fan2023satisfiability,
+ma2024noctua}, encoding the details into the SMT
 clauses for compatibility checks are challenging as the definitions
 gloss over a few key details. For example, the commonly used concept
 of \textit{visibility} for defining weak distributed consistency
@@ -161,7 +164,7 @@ service, and a causally consistent storage system built on top of
 multiple weakly consistent distributed storage systems~\cite{boltoncc} to
 check the compatibility with underlying distributed systems and
 explore other compatible semantics. Our framework is capable of
-checking a single compatibility combination under 20 milliseconds and exploring 
+checking a single compatibility combination under 20 milliseconds and exploring
 other compatible combinations in less than 5 minutes.
 
 %%%%%% %%%%%%    \jiyong{Some insights we gained?}

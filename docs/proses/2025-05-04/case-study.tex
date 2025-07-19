@@ -1,23 +1,29 @@
 \section{Case Study}
 
-%%% Beyond theoretical explorations, our framework also supports practical modeling
+%%% Beyond theoretical explorations, our framework also supports
+% practical modeling
 %%% distributed applications that may rely on complex combinations of semantics.
-%%% Instead of checking at source code level tracing possible code paths like Noctua
+%%% Instead of checking at source code level tracing possible code
+% paths like Noctua
 %%% \cite{ma2024noctua} with SMT solvers, our approach operates at
 %%% axiomatic logic and
 %%% optionally application level, allowing researchers and system designers to
 %%% encode nodes (representing intermediate API endpoints or storage systems
-%%% providing consistency semantics) and edges (representing interactions or data
+%%% providing consistency semantics) and edges (representing
+% interactions or data
 %%% flows) within their systems. Each node may require or provide specific
-%%% consistency guarantees, while edges capture the ordering/visibility constraints
+%%% consistency guarantees, while edges capture the
+% ordering/visibility constraints
 %%% and optional application specific logics between events across services.
-%%% 
+%%%
 %%% The \texttt{composable} function operates over a directed multigraph
 %%% whose nodes and
 %%% edges represent services (nodes) and interactions (edges) in a distributed
-%%% system. Each node and edge can specify which consistency guarantees it needs or
-%%% provides in the form of constraints (e.g., monotonic reads, read-your-writes).
-%%% 
+%%% system. Each node and edge can specify which consistency
+% guarantees it needs or
+%%% provides in the form of constraints (e.g., monotonic reads,
+% read-your-writes).
+%%%
 %%% \begin{itemize}
 %%%   \item \textit{Nodes:} each node represents a logical component like
 %%%     services or storage
@@ -39,7 +45,7 @@
 %%%         what the node provides to other
 %%%         nodes
 %%%     \end{itemize}
-%%% 
+%%%
 %%%   \item \textit{Edges:} edges represent interactions or data flows
 %%%     between nodes, capturing:
 %%%     \begin{itemize}
@@ -51,14 +57,17 @@
 %%%         relations that must hold between the source and destination nodes
 %%%     \end{itemize}
 %%% \end{itemize}
-%%% 
+%%%
 %%% The \texttt{composable} function attempts to find an assignment of
 %%% constraints that
-%%% makes the entire graph "composable". In other words, it seeks a model in which
+%%% makes the entire graph "composable". In other words, it seeks a
+% model in which
 %%% all nodes' \texttt{needs} can be matched with some nodes'
 %%% \texttt{provs}, and all edges'
-%%% constraints are satisfied simultaneously. This corresponds to verifying if there
-%%% is a coherent assignment of semantics across the system's interactions. Users
+%%% constraints are satisfied simultaneously. This corresponds to
+% verifying if there
+%%% is a coherent assignment of semantics across the system's
+% interactions. Users
 %%% may provide zero or more semantics to \texttt{needs} and
 %%% \texttt{provs} for each node, and
 %%% similarly, zero or more constraints for each edge. During the check at each
@@ -66,20 +75,24 @@
 %%% source node \texttt{needs} in
 %%% conjunction of edge constraints against destination node
 %%% \texttt{provs} is performed.
-%%% If the pairwise check is successful, all previous assignments are recorded and
+%%% If the pairwise check is successful, all previous assignments are
+% recorded and
 %%% used as context for further checks. In case of pairwise check failure
-%%% (contradiction), the function backtracks and selects other possible assignments
+%%% (contradiction), the function backtracks and selects other
+% possible assignments
 %%% if there are more than one provide in each of the source
 %%% \texttt{needs}, edge constraints, and destination \texttt{provs}.
-%%% 
+%%%
 %%% % TODO: do we need pseudocode here?
-%%% 
+%%%
 %%% \textit{Implementation:} given a starting node (conceptually, usually
 %%% a client) and a
-%%% set of premise constraints, the function begins a DFS through the graph. At each
+%%% set of premise constraints, the function begins a DFS through the
+% graph. At each
 %%% node:
 %%% \begin{itemize}
-%%%   \item The function examines outgoing edges and their associated constraints.
+%%%   \item The function examines outgoing edges and their associated
+% constraints.
 %%%   \item Each edge can impose conditions on the relationship between
 %%%     the source node's
 %%%     requirements (\texttt{needs}), the destination node's provided
@@ -95,14 +108,17 @@
 %%% the scenes. For each
 %%% candidate combination of node-level and edge-level constraints, it
 %%% calls \texttt{compatible} to
-%%% ensure that no contradictions arise. If the DFS manages to visit all edges and
+%%% ensure that no contradictions arise. If the DFS manages to visit
+% all edges and
 %%% find consistent assignments for all node needs and provided constraints, the
 %%% function returns a \texttt{True} value along with a subgraph
 %%% (\texttt{result}) that records a
-%%% satisfying assignment. The returned subgraph shows which edges and nodes were
-%%% selected and how their constraints were matched. If no satisfying assignment is
+%%% satisfying assignment. The returned subgraph shows which edges
+% and nodes were
+%%% selected and how their constraints were matched. If no satisfying
+% assignment is
 %%% found, the function returns \texttt{False}, and \texttt{None} for the graph.
-%%% 
+%%%
 %%% % \subsection{Example: Online Shopping}
 %%% %
 %%% % Consider an online shop scenario where multiple services and
@@ -112,27 +128,34 @@
 %%% % of products, and a shopping cart service, a transaction log to
 %%% % record purchases,
 %%% % and the the client itself. Additionally, an arbitrator node to coordinate
-%%% % interactions between the interactions between clients and the entire service
+%%% % interactions between the interactions between clients and the
+% entire service
 %%% % stack.
 %%% %
 %%% % A customer uses a shopping cart service to preserve the state of
 %%% % the items they
-%%% % intend to buy. The customer can read or write the cart's contents, adjusting
-%%% % their intended purchases as they browse products. Let's say in this example,
-%%% % clients do not care to see their latest update to the cart being propagated to
+%%% % intend to buy. The customer can read or write the cart's
+% contents, adjusting
+%%% % their intended purchases as they browse products. Let's say in
+% this example,
+%%% % clients do not care to see their latest update to the cart
+% being propagated to
 %%% % other devices immediately, but the states will eventually converge.
 %%% %
 %%% % The shop holds the canonical inventory state. Before finalizing a
 %%% % purchase, the
 %%% % customer's requested items must be checked against the shop's
 %%% % current inventory.
-%%% % If items are available, the transaction can proceed, if not, the request fails
+%%% % If items are available, the transaction can proceed, if not,
+% the request fails
 %%% % due to insufficient stock.
 %%% %
-%%% % Once the shop confirms inventory, it records the customer's purchase in the
+%%% % Once the shop confirms inventory, it records the customer's
+% purchase in the
 %%% % transaction log, and replicated across multiple nodes for fault tolerance.
 %%% %
-%%% % An arbitrator acts as a gatekeeper that serializes requests and interacts with
+%%% % An arbitrator acts as a gatekeeper that serializes requests and
+% interacts with
 %%% % both the shop (update inventory) and the transaction log
 %%% % (bookkeeping). When the
 %%% % customer decides to make a purchase, the arbitrator:
@@ -147,7 +170,8 @@
 %%% %   \item If not available, reply back to the client with an error
 %%% % \end{itemize}
 %%% %
-%%% % The arbitrator or serialization point pattern is commonly used in other system
+%%% % The arbitrator or serialization point pattern is commonly used
+% in other system
 %%% % implementations like Paxos \cite{lamport2001paxos} to maintain a
 %%% % consistent order of
 %%% % events at critial locations, ensuring that purchase requests are
@@ -176,7 +200,8 @@
 %%% %     purchase request
 %%% %   \item \texttt{Arbitrator} to \texttt{Shop} and \texttt{Arbitrator}
 %%% %     to \texttt{Tx} edges represent the arbitrator's
-%%% %     mediation: writing to the transaction log, reading and updating the shop's
+%%% %     mediation: writing to the transaction log, reading and
+% updating the shop's
 %%% %     inventory state in sequential order
 %%% % \end{itemize}
 %%% %

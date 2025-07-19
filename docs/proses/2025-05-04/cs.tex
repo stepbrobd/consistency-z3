@@ -4,14 +4,15 @@
 To demonstrate how \sysname{} works and to detail how a complex distributed
 application can be specified in \sysname{} for the compatibility check with
 pluggable distributed services, we conduct case studies of three applications.
-Two applications, a movie streaming service and an online shopping mall, are from
-a microservice benchmark suite~\cite{gan2019an} and the other is from an 
+Two applications, a movie streaming service and an online shopping
+mall, are from
+a microservice benchmark suite~\cite{gan2019an} and the other is from an
 academic system that designs causally consistent storage service
 across multiple weakly consistent distributed storage services~\cite{boltoncc}.
-We mainly focus on the movie example to delve into the details. 
+We mainly focus on the movie example to delve into the details.
 Our framework is designed for a quick specification of applications
 and prompt compatibility checks, and assume users to be familiar with
-axiomatic semantics and SMT encodings. 
+axiomatic semantics and SMT encodings.
 
 \subsection{Movie Streaming Service}
 
@@ -24,7 +25,7 @@ that can be captured as \sysmods{} (\cref{fig:case-study-media}).
 The media streaming service consists of eleven interconnected
 components, each with specific consistency requirements based on
 their functional roles. While users can choose a \sysmod{} for the
-DB components, they must specify the constraints for the other components. 
+DB components, they must specify the constraints for the other components.
 
 \begin{figure}[h]
   \centering
@@ -114,12 +115,12 @@ DB components, they must specify the constraints for the other components.
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Login Service}: Manages user authentication and
         session handling. It requires order preserving writes
-	for correct credential update and the user's updates 
-	(e.g., subscription status change) must always be visible for
-	flawless service.
+        for correct credential update and the user's updates
+        (e.g., subscription status change) must always be visible for
+        flawless service.
       \item \textbf{User DB}: Stores user credentials and
-        profile information. 
-	%MW and WFR ensures
+        profile information.
+        %MW and WFR ensures
         %that when users update their profiles or credentials, these
         %changes are consistently visible to subsequent operations.
     \end{itemize}
@@ -127,12 +128,14 @@ DB components, they must specify the constraints for the other components.
   \item \textbf{Content Management}:
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Video Service}: Handles video streaming requests
-        and requires users to see what they already saw to ensure consistent content delivery.
+        and requires users to see what they already saw to ensure
+        consistent content delivery.
       \item \textbf{Metadata DB}: Stores information about
         available media content (titles, descriptions, genres, etc.).
-%        with Monotonic Reads (MR) and Read Your Writes (RYW)
-%        guarantees. This allows administrative updates to be
-%        immediately visible while tolerating some staleness for user reads.
+        %        with Monotonic Reads (MR) and Read Your Writes (RYW)
+        %        guarantees. This allows administrative updates to be
+        %        immediately visible while tolerating some staleness
+        % for user reads.
       \item \textbf{Video DB}: Stores the actual video content
         with WFR guarantees to maintain version consistency.
     \end{itemize}
@@ -142,66 +145,67 @@ DB components, they must specify the constraints for the other components.
       \item \textbf{Review Service}: Manages user reviews and
         requires users to immediately see their own reviews.
       \item \textbf{Review DB}: Stores user reviews.
-	%with RYW
+        %with RYW
         %guarantees, allowing users to see their own reviews
         %immediately while other users might see slightly stale data.
       \item \textbf{Rent Service}: Handles media rental transactions
         and requires users to see their activities immediately.
       \item \textbf{Rent DB}: Records rental transactions.
-	      %with MR and RYW guarantees to maintain consistent transaction history.
+        %with MR and RYW guarantees to maintain consistent transaction history.
     \end{itemize}
 \end{enumerate}
 
-  \para{Constraint Encoding.}
-  In this example, the application requires that all users must register for
-  an account before they can log in, this would result in a request from
-  client to login service (edge 1), then to user database (edge 8).
-  If users want to post a review (edge 2), they must
-  be logged in (edge 1), and the review service must verify that the
-  title exists
-  in the metadata database (edge 10) before allowing the review to be
-  written (edge 9).
-  This is one of the clear dependency chains in the media service example.
-  This dependency chain creates a cascading effect throughout the system
-  where each operation builds upon the successful completion of its
-  prerequisites.
-  The registration-before-login dependency establishes user identity,
-  the login-before-content-access dependency establishes authorization,
-  and the content-validation-before-review dependency establishes
-  referential integrity.
+\para{Constraint Encoding.}
+In this example, the application requires that all users must register for
+an account before they can log in, this would result in a request from
+client to login service (edge 1), then to user database (edge 8).
+If users want to post a review (edge 2), they must
+be logged in (edge 1), and the review service must verify that the
+title exists
+in the metadata database (edge 10) before allowing the review to be
+written (edge 9).
+This is one of the clear dependency chains in the media service example.
+This dependency chain creates a cascading effect throughout the system
+where each operation builds upon the successful completion of its
+prerequisites.
+The registration-before-login dependency establishes user identity,
+the login-before-content-access dependency establishes authorization,
+and the content-validation-before-review dependency establishes
+referential integrity.
 
-  Semantically, 6 nodes are interacting with each other (client,
+Semantically, 6 nodes are interacting with each other (client,
   login service, user database, review service, metadata database,
-  and review database) in the aforementioned dependency chain.
-  The edges between these nodes represent the flow of API requests and we
-  encode the prerequisites of each request as constraints on edges.
-  Implementation-wise, all constraints on edges can be
-  directly encoded on the nodes themselves along with our
-  predefined semantics. However, when modeling
-  services with complex interactions with cross storage system
-  dependencies, edge constraints can clearly
-  separate the providing/requiring semantic constraints from downstream implementation-specific
-  service logic. In the implementation, we defined multiple operations
-  with read or write type to represent interactions between client,
-  service nodes, and storage nodes.
-  Formally, we can represent client's login operation (edge 8) as follows:
-  \begin{align*}
-    EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
-    op_{reg} \in H_{wr} :\\
-  &ob(op_{login}, op_{reg}) \land vis(op_{reg}, op_{login}))
+and review database) in the aforementioned dependency chain.
+The edges between these nodes represent the flow of API requests and we
+encode the prerequisites of each request as constraints on edges.
+Implementation-wise, all constraints on edges can be
+directly encoded on the nodes themselves along with our
+predefined semantics. However, when modeling
+services with complex interactions with cross storage system
+dependencies, edge constraints can clearly
+separate the providing/requiring semantic constraints from downstream
+implementation-specific
+service logic. In the implementation, we defined multiple operations
+with read or write type to represent interactions between client,
+service nodes, and storage nodes.
+Formally, we can represent client's login operation (edge 8) as follows:
+\begin{align*}
+  EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
+  op_{reg} \in H_{wr} :\\
+&ob(op_{login}, op_{reg}) \land vis(op_{reg}, op_{login}))
 \end{align*}
 
 For services initiated from the client side, we modeled the behaviors
 as a set of re-useable common constraints with the return-before
 binary relationship. Formally:
 \begin{align*}
-  EC_{auth} &\triangleq rb(op_{login}, op_{rdreview}) \land
-  rb(op_{login}, op_{wrreview}) \\
-  &\land rb(op_{login}, op_{rent}) \land rb(op_{login}, op_{watch})
+EC_{auth} &\triangleq rb(op_{login}, op_{rdreview}) \land
+rb(op_{login}, op_{wrreview}) \\
+&\land rb(op_{login}, op_{rent}) \land rb(op_{login}, op_{watch})
 \end{align*}
 The common constraints are then added to each edge that is dependent on the
 login service or refer to the login operation, ensuring the chain
-of dependencies is respected throughout the system. 
+of dependencies is respected throughout the system.
 
 For posting reviews,
 the review service must first verify that the content exists in the
@@ -211,14 +215,15 @@ as a set of constraints with existential quantification, object constraints,
 and return-before relationships, on top of consistency semantics
 encoded at each nodes' provide and need fields.
 \begin{align*}
-  EC_{review} &\triangleq \forall op_{review} \in H_{wr} : \exists
-  op_{rdmeta} \in H_{rd} :\\
-  &ob(op_{review}, op_{rdmeta}) \land rb(op_{rdmeta}, op_{review})
+EC_{review} &\triangleq \forall op_{review} \in H_{wr} : \exists
+op_{rdmeta} \in H_{rd} :\\
+&ob(op_{review}, op_{rdmeta}) \land rb(op_{rdmeta}, op_{review})
 \end{align*}
 
 Following these practices one can specify and compose application constraints.
 %The example already specifies satisfiable \sysmods{}, but users can
-%test other \sysmods{} or ask \sysname{} to search for the compatible \sysmods{}.
+%test other \sysmods{} or ask \sysname{} to search for the compatible
+% \sysmods{}.
 
 \para{Requirements and Compatibility Verification.}
 Each component in the system requires consistency guarantees
@@ -251,10 +256,10 @@ accessible for valid content.
 When we apply the \texttt{composable} function to this system,
 starting from the client node, it successfully verifies that the
 composition of these services with their respective consistency
-guarantees satisfies the overall system requirements. 
+guarantees satisfies the overall system requirements.
 This verification confirms that despite the heterogeneous consistency
 guarantees across different components, the system as a whole
-maintains its required properties. 
+maintains its required properties.
 %For instance, the login flow
 %correctly enforces that registration must precede login, and the
 %review system correctly ensures that users can immediately see their
@@ -262,88 +267,89 @@ maintains its required properties.
 
 \subsection{Online Shopping Mall}
 
-An e-commerce application~\cite{gan2019an} is similar to the movie 
-streaming service but its architecture and constraints are simpler (\cref{fig:case-study-shop}).
+An e-commerce application~\cite{gan2019an} is similar to the movie
+streaming service but its architecture and constraints are simpler
+(\cref{fig:case-study-shop}).
 
 \para{Architecture.}
 The online shopping application consists of five key components and only
 models client behaviors:
 
 \begin{figure}[t]
-  \centering
-  \begin{tikzpicture}[
-      node distance=1.2cm,
-      service/.style={draw, rounded corners, fill=blue!10, minimum
-      width=1.6cm, minimum height=0.7cm},
-      storage/.style={draw, rounded corners, fill=green!10, minimum
-      width=1.6cm, minimum height=0.7cm},
-      arrow/.style={->, >=stealth, thick},
-      label/.style={font=\small\itshape}
-    ]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    service/.style={draw, rounded corners, fill=blue!10, minimum
+    width=1.6cm, minimum height=0.7cm},
+    storage/.style={draw, rounded corners, fill=green!10, minimum
+    width=1.6cm, minimum height=0.7cm},
+    arrow/.style={->, >=stealth, thick},
+    label/.style={font=\small\itshape}
+  ]
 
-    % nodes
-    \node[service] (client) at (-0.3,0) {Client};
-    \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
-    \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
-    \node[service] (arbitrator) at ([shift={(315:1.77cm)}]client)
-    {Checkout};
-    \node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
+  % nodes
+  \node[service] (client) at (-0.3,0) {Client};
+  \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
+  \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
+  \node[service] (arbitrator) at ([shift={(315:1.77cm)}]client)
+  {Checkout};
+  \node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
 
-    % edges
-    \draw[arrow] (client) -- (cart) node[midway, above=0.3cm,
-    label] {read/write};
-    \draw[arrow] (client) -- (shop) node[midway, above=0.3cm, label] {browse};
-    \draw[arrow] (client) -- (arbitrator) node[midway, right, label]
-    {purchase};
-    \draw[arrow] (arbitrator) -- (shop) node[pos=0.3175,
-    right=0.2cm, yshift=0.1cm, label] {check/update};
-    \draw[arrow] (arbitrator) -- (tx) node[midway, below, label] {record};
+  % edges
+  \draw[arrow] (client) -- (cart) node[midway, above=0.3cm,
+  label] {read/write};
+  \draw[arrow] (client) -- (shop) node[midway, above=0.3cm, label] {browse};
+  \draw[arrow] (client) -- (arbitrator) node[midway, right, label]
+  {purchase};
+  \draw[arrow] (arbitrator) -- (shop) node[pos=0.3175,
+  right=0.2cm, yshift=0.1cm, label] {check/update};
+  \draw[arrow] (arbitrator) -- (tx) node[midway, below, label] {record};
 
-    % semantics
-    \node[above=0.1cm, align=center, font=\small] at (cart.north)
-    {Provides: EC};
-    \node[right=0.1cm, align=left, font=\small] at (shop.east)
-    {Provides:\\RYW + MR};
-    \node[right=0.1cm, align=left, font=\small] at (arbitrator.east)
-    {Provides:\\Linearizability};
-    \node[left=0.1cm, align=right, font=\small] at (tx.west)
-    {Provides:\\Linearizability};
-  \end{tikzpicture}
-  \caption{Architecture of the online shopping system with
-  consistency guarantees}
-  \label{fig:case-study-shop}
+  % semantics
+  \node[above=0.1cm, align=center, font=\small] at (cart.north)
+  {Provides: EC};
+  \node[right=0.1cm, align=left, font=\small] at (shop.east)
+  {Provides:\\RYW + MR};
+  \node[right=0.1cm, align=left, font=\small] at (arbitrator.east)
+  {Provides:\\Linearizability};
+  \node[left=0.1cm, align=right, font=\small] at (tx.west)
+  {Provides:\\Linearizability};
+\end{tikzpicture}
+\caption{Architecture of the online shopping system with
+consistency guarantees}
+\label{fig:case-study-shop}
 \end{figure}
 
-
 \begin{enumerate}[leftmargin=*, noitemsep,topsep=0pt]
-  \item \textbf{Client}: The end-user interface through which
-    customers browse products, manage their shopping cart, and
-    initiate purchases. The client itself doesn't enforce specific
-    consistency guarantees but relies on the guarantees provided by
-    the services it interacts with.
+\item \textbf{Client}: The end-user interface through which
+  customers browse products, manage their shopping cart, and
+  initiate purchases. The client itself doesn't enforce specific
+  consistency guarantees but relies on the guarantees provided by
+  the services it interacts with.
 
-  \item \textbf{Cart DB}: The shopping cart DB maintains customers'
-    shopping cart state. It stores items that customers intend to
-    purchase and supports read and write operations. The cart can be
-    loosely managed and immediate propagation of updates is not required.
+\item \textbf{Cart DB}: The shopping cart DB maintains customers'
+  shopping cart state. It stores items that customers intend to
+  purchase and supports read and write operations. The cart can be
+  loosely managed and immediate propagation of updates is not required.
 
-  \item \textbf{Shop DB}: Maintains the authoritative inventory state
-    for all products. Clients can observe stale state, but the shop must provide
-    up-to-date information to the checkout service which process purchase 
-    transactions. 
+\item \textbf{Shop DB}: Maintains the authoritative inventory state
+  for all products. Clients can observe stale state, but the shop must provide
+  up-to-date information to the checkout service which process purchase
+  transactions.
 
-  \item \textbf{Checkout}: Acts as a serialization point for
-    purchase transactions, providing linearizability guarantees. This
-    critical component ensures that concurrent purchase requests are
-    processed in a well-defined sequence, preventing race conditions
-    that could lead to inventory inconsistencies or duplicate transactions.
-    Even if it works with DBs that guarantee weaker semantics than linearizability,
-    its logic should guarantee strong consistency. 
+\item \textbf{Checkout}: Acts as a serialization point for
+  purchase transactions, providing linearizability guarantees. This
+  critical component ensures that concurrent purchase requests are
+  processed in a well-defined sequence, preventing race conditions
+  that could lead to inventory inconsistencies or duplicate transactions.
+  Even if it works with DBs that guarantee weaker semantics than
+  linearizability,
+  its logic should guarantee strong consistency.
 
-  \item \textbf{Tx Log DB}: Records all completed purchases
-    with linearizability guarantees, ensuring that transaction
-    records are stored in a strictly consistent manner for auditing
-    and financial reconciliation purposes.
+\item \textbf{Tx Log DB}: Records all completed purchases
+  with linearizability guarantees, ensuring that transaction
+  records are stored in a strictly consistent manner for auditing
+  and financial reconciliation purposes.
 \end{enumerate}
 
 %\subsubsection{Interaction Flow}
@@ -391,28 +397,28 @@ models client behaviors:
 The consistency requirements of this system vary by component:
 
 \begin{itemize}
-  \item The shop DB provides RYW and MR, which are sufficient for 
-    a centralized Checkout service to manage inventory.
-    RYW ensures that once the Checkout updates inventory levels,
-    any subsequent reads will observe these updates. MR ensures that
-    if a client observes a certain inventory state, all subsequent
-    reads will observe either that same state or a more recent one,
-    but seeing outdated state is okay as Checkout will prevent
-    ill-formed purchase transaction (e.g., purchasing out-of-stock item).
+\item The shop DB provides RYW and MR, which are sufficient for
+  a centralized Checkout service to manage inventory.
+  RYW ensures that once the Checkout updates inventory levels,
+  any subsequent reads will observe these updates. MR ensures that
+  if a client observes a certain inventory state, all subsequent
+  reads will observe either that same state or a more recent one,
+  but seeing outdated state is okay as Checkout will prevent
+  ill-formed purchase transaction (e.g., purchasing out-of-stock item).
 
-  \item Checkout and transaction log DB both provide
-    linearizability, the strongest consistency model, ensuring that
-    all operations appear to execute atomically in a sequential order
-    that is consistent with the real-time ordering of those
-    operations. This is critical for the financial aspects of the system.
+\item Checkout and transaction log DB both provide
+  linearizability, the strongest consistency model, ensuring that
+  all operations appear to execute atomically in a sequential order
+  that is consistent with the real-time ordering of those
+  operations. This is critical for the financial aspects of the system.
 
-  \item The cart service has more relaxed consistency requirements,
-    as temporary inconsistencies in cart state don't impact the
-    integrity of the inventory or financial records.
+\item The cart service has more relaxed consistency requirements,
+  as temporary inconsistencies in cart state don't impact the
+  integrity of the inventory or financial records.
 \end{itemize}
 
 An interesting aspect of this example is that Checkout can guarantee
-linearizability as long as it is the sole entry updating the Shop DB. 
+linearizability as long as it is the sole entry updating the Shop DB.
 The verification confirms that Checkout's linearizability
 guarantee is sufficient to coordinate between the shop's RYW+MR
 guarantees and the transaction log's linearizability, ensuring that
@@ -472,20 +478,22 @@ under concurrent operations.
 Cross causal (XC) storage~\cite{boltoncc} is a system that combines
 multiple distributed storage services, each
 offering only a basic consistency guarantee, to provide causal consistency
-as a whole (\cref{fig:cross-service-causal}). 
+as a whole (\cref{fig:cross-service-causal}).
 Users accessing data through the XC node can expect to get causal consistency,
 but individual storage DB maintains weaker semantics than causal.
 SVC4 node's storage backend only provides WFR. To achieve causal
-consistency, application places a shim layer to strengthen the semantics 
-in the design and this is imposed on the edge between SVC4 and XC. 
-While the SVC4-XC combination can achieve causal consistency, SVC4's downstream service
+consistency, application places a shim layer to strengthen the semantics
+in the design and this is imposed on the edge between SVC4 and XC.
+While the SVC4-XC combination can achieve causal consistency, SVC4's
+downstream service
 node SVC3's storage backend only provides RYW. Again, to achieve
 cross-system causal consistency, the augmentation continues down the chain.
 
 %This example demonstrates modeling a system where multiple services, each
-%offering only a basic consistency guarantee, are chained together. 
+%offering only a basic consistency guarantee, are chained together.
 
-The goal here is to verify if their composition, mediated by specific inter-service 
+The goal here is to verify if their composition, mediated by specific
+inter-service
 constraints, symbolic isolation, and the role of explicit ``glue'' constraints.
 
 \para{Architecture.} The architecture forms a chain $\text{XC} \rightarrow
@@ -498,15 +506,16 @@ $\text{SVC}1$ provides MR, $\text{SVC}2$ provides
 MW, $\text{SVC}3$ provides RYW, and $\text{SVC}4$ provides WFR.
 
 \para{Constraints Encoding and Compatibility Verification.}
-%\textbf{Symbolic Isolation:} 
+%\textbf{Symbolic Isolation:}
 To prevent logical interference, the guarantee provided by
-each service and the constraints added on the edges are instantiated using unique 
+each service and the constraints added on the edges are instantiated
+using unique
 symbols specific to that service or edge.
 This ensures, for example, that the MR constraints of
-$\text{SVC}1$ only apply to operations symbolically designated as belonging to 
+$\text{SVC}1$ only apply to operations symbolically designated as belonging to
 $\text{SVC}1$.
 
-%\textit{Composition via Edge Constraints:} 
+%\textit{Composition via Edge Constraints:}
 The composition logic resides in the ``glue''
 constraints defined on the \texttt{cons} attribute of the edges connecting the
 services. Since each service node only provides one session
@@ -515,7 +524,8 @@ provide constraints representing the other three session guarantees needed to
 potentially satisfy causal consistency up to that point.
 
 The core idea of this example is to build a stronger guarantee by composing
-weaker guarantees provided by individual services ($\text{SVC}1 \ldots 4$), using 
+weaker guarantees provided by individual services ($\text{SVC}1
+\ldots 4$), using
 the edges to supply the missing pieces which reflects the application design
 as shown in \cref{fig:cross-service-causal}.
 
@@ -538,15 +548,16 @@ as shown in \cref{fig:cross-service-causal}.
 %  can access data with full causal consistency guarantees.
 %\end{itemize}
 
-%\textit{Symbol Equivalence:} 
-For this composition to be meaningful in the SMT-solver-based \sysname{}, we must
+%\textit{Symbol Equivalence:}
+For this composition to be meaningful in the SMT-solver-based
+\sysname{}, we must
 conceptually link operations across services that refer to the same logical
 action or data. For instance, if write $w_1$ in $\text{SVC}1$ and
 write $w_2$ in $\text{SVC}2$ both
 represent updates to the same user profile, ``glue'' constraints
 equating relevant
 aspects (like $w_1.\text{obj} = w_2.\text{obj}$ or $w_1.\text{ival} =
-w_2.\text{ival}$ despite their different symbolic names) is necessary. 
+w_2.\text{ival}$ despite their different symbolic names) is necessary.
 While the current test code
 simplifies this by focusing on composing the consistency axioms, a more rigorous
 model would include these explicit symbol equivalence constraints on the edges
@@ -563,8 +574,12 @@ simplicity).
 %\texttt{extract(svc1, svc1, (ok, res))} can
 
 After a single logical formula representing the net end-to-end guarantee
-achieved by the SVC chain is synthesized starting from $\text{SVC}1$ to XC, the formula is then compared against a formal definition of CC to verify compatibility, which succeeds. While 
-the original XC implementation~\cite{boltoncc} ties together only EC storage services, this example further explores more diverse storage services and demonstrates the flexibility of \sysname{}.
+achieved by the SVC chain is synthesized starting from $\text{SVC}1$
+to XC, the formula is then compared against a formal definition of CC
+to verify compatibility, which succeeds. While
+the original XC implementation~\cite{boltoncc} ties together only EC
+storage services, this example further explores more diverse storage
+services and demonstrates the flexibility of \sysname{}.
 %\subsubsection{Interaction Flows}
 %
 %The media streaming service supports several interaction patterns,
@@ -586,7 +601,8 @@ the original XC implementation~\cite{boltoncc} ties together only EC storage ser
 %The MW and WFR guarantees of the User Database ensure that once user
 %credentials are updated, all subsequent authentication attempts will
 %see the updated information, preventing authentication anomalies
-%where users might be unable to log in with newly created or changed credentials.
+%where users might be unable to log in with newly created or changed
+% credentials.
 %
 %\textbf{Browsing and Playback}: Once authenticated, users can browse
 %and watch available content:
@@ -663,4 +679,3 @@ the original XC implementation~\cite{boltoncc} ties together only EC storage ser
 %administrators themselves while allowing for controlled propagation
 %to user-facing services.
 %
-

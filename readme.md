@@ -5,7 +5,7 @@
 > [!Caution]
 > Experimental project, use at your own risk.
 
-- Cache: <https://garnix-cache.com>
+- Cache: <https://cache.garnix.io>
 - Key: `cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=`
 
 ## Usage

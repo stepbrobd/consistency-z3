@@ -1,0 +1,179 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{silentbugs}
+\citation{lampson2021hints}
+\citation{certikos-osdi16,klein2009sel4,wormspace}
+\citation{klein2009sel4}
+\citation{viotti2016consistency}
+\citation{terry1994session}
+\citation{pram}
+\citation{causaldef}
+\citation{pileus,cosmosdb,anna,bayou,yogurt,pnuts,cloudflare-session,causalmemory,cops}
+\citation{finkbeiner2007smt,tekken2017monitoring,kuper2019toward,fan2023satisfiability,ma2024noctua}
+\providecommand \oddpage@label [2]{}
+\@writefile{toc}{\contentsline {section}{Abstract}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{gan2019an}
+\citation{boltoncc}
+\citation{pileus,cosmosdb,anna,bayou,yogurt,pnuts,cloudflare-session,causalmemory,cops}
+\citation{burckhardt2014principles}
+\citation{terry1994session}
+\citation{causaldef}
+\citation{herlihy1990linearizability}
+\citation{brzezinski2004session}
+\citation{sessiontocausal}
+\citation{pram}
+\citation{causaldef}
+\citation{lamport1978time}
+\citation{viotti2016consistency}
+\citation{gan2019an}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Motivating Example}{2}{section.2}\protected@file@percent }
+\newlabel{sec:background}{{2}{2}{Background and Motivating Example}{section.2}{}}
+\newlabel{sec:background@cref}{{[section][2][]2}{[1][2][]2}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Background}{2}{subsection.2.1}\protected@file@percent }
+\citation{demoura2008z3}
+\citation{barbosa2022cvc5}
+\citation{viotti2016consistency}
+\citation{terry1994session,baldoni2002an,burckhardt2014principles}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Partially ordered semantics. Strictly stronger ones (destinations of the arrows) subsume the strictly weaker ones (sources of the arrows).}}{3}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:semantics-tree}{{1}{3}{Partially ordered semantics. Strictly stronger ones (destinations of the arrows) subsume the strictly weaker ones (sources of the arrows)}{figure.caption.2}{}}
+\newlabel{fig:semantics-tree@cref}{{[figure][1][]1}{[1][2][]3}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Motivating Example}{3}{subsection.2.2}\protected@file@percent }
+\newlabel{subsec:eg}{{2.2}{3}{Motivating Example}{subsection.2.2}{}}
+\newlabel{subsec:eg@cref}{{[subsection][2][2]2.2}{[1][2][]3}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Distributed Consistency Models in \textsc  {SemantiX}\xspace  {}}{3}{section.3}\protected@file@percent }
+\newlabel{sec:design}{{3}{3}{Distributed Consistency Models in \sysname {}}{section.3}{}}
+\newlabel{sec:design@cref}{{[section][3][]3}{[1][3][]3}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Preliminaries}{3}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Operations, Relations, and History.}{3}{subsection.3.1}\protected@file@percent }
+\citation{burckhardt2014principles,viotti2016consistency}
+\citation{viotti2016consistency}
+\citation{terry1994session,eventual,viotti2016consistency}
+\citation{viotti2016consistency}
+\citation{burckhardt2014principles}
+\citation{baldoni2002an}
+\citation{baldoni2002an}
+\citation{zhang2018building}
+\citation{viotti2016consistency,viotti2016towards,zhang2018building,ferreira2023antipode}
+\@writefile{toc}{\contentsline {paragraph}{Abstract Execution (AE).}{4}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Base Consistency Semantics}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{subsec:semdef}{{3.2}{4}{Base Consistency Semantics}{subsection.3.2}{}}
+\newlabel{subsec:semdef@cref}{{[subsection][2][3]3.2}{[1][4][]4}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Eventual Consistency (EC).}{4}{figure.caption.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Formal definitions of monotonic reads (MR), read-your-writes (RYW), monotonic writes (MW), write-follows-reads (WFR), and pipeline RAM (PRAM) consistency.}}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:semdef}{{2}{4}{Formal definitions of monotonic reads (MR), read-your-writes (RYW), monotonic writes (MW), write-follows-reads (WFR), and pipeline RAM (PRAM) consistency}{figure.caption.3}{}}
+\newlabel{fig:semdef@cref}{{[figure][2][]2}{[1][4][]4}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Causal Consistency (CC).}{4}{figure.caption.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Linearizability (LIN).}{4}{figure.caption.3}\protected@file@percent }
+\citation{viotti2016consistency}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The can-view relation captures the possible visibility between read and write operations. The read-write pairs $r$ and $w_1$, $w_2$, $w_3$, $w_4$, $w_5$ are defined based on their start and return times, where the read operation can view the effect of the write operations if they fall into one of the cases defined in the can-view relation.}}{5}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:can-view}{{3}{5}{The can-view relation captures the possible visibility between read and write operations. The read-write pairs $r$ and $w_1$, $w_2$, $w_3$, $w_4$, $w_5$ are defined based on their start and return times, where the read operation can view the effect of the write operations if they fall into one of the cases defined in the can-view relation}{figure.caption.4}{}}
+\newlabel{fig:can-view@cref}{{[figure][3][]3}{[1][5][]5}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Formal Definitions of Visibility}{5}{subsection.3.3}\protected@file@percent }
+\newlabel{subsec:vis}{{3.3}{5}{Formal Definitions of Visibility}{subsection.3.3}{}}
+\newlabel{subsec:vis@cref}{{[subsection][3][3]3.3}{[1][4][]5}{}{}{}}
+\citation{terry1994session}
+\citation{gan2019an}
+\citation{boltoncc}
+\citation{gan2019an}
+\@writefile{toc}{\contentsline {section}{\numberline {4}\textsc  {SemantiX}\xspace  {} Design}{6}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Compatibility Check}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}AppGraph\xspace  {} and Composition Check}{6}{subsection.4.2}\protected@file@percent }
+\newlabel{subsec:search}{{4.2}{6}{\sysgraph {} and Composition Check}{subsection.4.2}{}}
+\newlabel{subsec:search@cref}{{[subsection][2][4]4.2}{[1][6][]6}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Compatible Combination Search}{6}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Case Study}{6}{section.5}\protected@file@percent }
+\newlabel{sec:cs}{{5}{6}{Case Study}{section.5}{}}
+\newlabel{sec:cs@cref}{{[section][5][]5}{[1][6][]6}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Movie Streaming Service}{7}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{System Architecture}{7}{subsection.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Architecture of the media streaming service with consistency guarantees. Edges are numbered for reference: 1–4: Client requests to services (login, review, rent, video). 5: Admin login. 6: Admin updates metadata. 7: Admin uploads video. 8: Login service accesses User DB. 9: Review service writes to Review DB. 10: Review checks content existence in Metadata DB. 11: Rent updates Rent DB. 12: Rent checks content availability in Metadata DB. 13: Video service accesses Video DB. 14: Video service verifies metadata before playback.}}{7}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:case-study-media}{{4}{7}{Architecture of the media streaming service with consistency guarantees. Edges are numbered for reference: 1–4: Client requests to services (login, review, rent, video). 5: Admin login. 6: Admin updates metadata. 7: Admin uploads video. 8: Login service accesses User DB. 9: Review service writes to Review DB. 10: Review checks content existence in Metadata DB. 11: Rent updates Rent DB. 12: Rent checks content availability in Metadata DB. 13: Video service accesses Video DB. 14: Video service verifies metadata before playback}{figure.caption.5}{}}
+\newlabel{fig:case-study-media@cref}{{[figure][4][]4}{[1][7][]7}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Constraint Encoding.}{7}{Item.4}\protected@file@percent }
+\citation{gan2019an}
+\citation{boltoncc}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Architecture of the online shopping system with consistency guarantees}}{8}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:case-study-shop}{{5}{8}{Architecture of the online shopping system with consistency guarantees}{figure.caption.6}{}}
+\newlabel{fig:case-study-shop@cref}{{[figure][5][]5}{[1][8][]8}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Requirements and Compatibility Verification.}{8}{Item.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Online Shopping Mall}{8}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Architecture.}{8}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Requirements and Compatibility Verification}{8}{Item.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Cross Causal (XC) Storage}{8}{subsection.5.3}\protected@file@percent }
+\citation{boltoncc}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Cross-service causal consistency composition chain}}{9}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:cross-service-causal}{{6}{9}{Cross-service causal consistency composition chain}{figure.caption.7}{}}
+\newlabel{fig:cross-service-causal@cref}{{[figure][6][]6}{[1][8][]9}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Architecture.}{9}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Constraints Encoding and Compatibility Verification.}{9}{subsection.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Pairwise check performance. Semantics in the first column are checked if they satisfy semantics in other columns. Each cell shows the execution time for completing the check in milliseconds. The blue text indicates the result of the check is true and red means false. }}{9}{table.caption.8}\protected@file@percent }
+\newlabel{tab:pairwise-time}{{1}{9}{Pairwise check performance. Semantics in the first column are checked if they satisfy semantics in other columns. Each cell shows the execution time for completing the check in milliseconds. The blue text indicates the result of the check is true and red means false}{table.caption.8}{}}
+\newlabel{tab:pairwise-time@cref}{{[table][1][]1}{[1][9][]9}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Evaluation}{9}{section.6}\protected@file@percent }
+\newlabel{sec:eval}{{6}{9}{Evaluation}{section.6}{}}
+\newlabel{sec:eval@cref}{{[section][6][]6}{[1][9][]9}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Pairwise Compatibility Check.}{9}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Compatible DM\xspace  {} Search.}{9}{table.caption.8}\protected@file@percent }
+\citation{sivaramakrishnan2015declarative}
+\citation{kingsbury2025jepsen}
+\citation{kuper2019toward}
+\citation{fan2023satisfiability}
+\citation{mixt}
+\bibstyle{acmart}
+\bibdata{references,refs2}
+\bibcite{cosmosdb}{{1}{2024}{{cos}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Related Work}{10}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{10}{section.8}\protected@file@percent }
+\bibcite{cloudflare-session}{{2}{2024}{{clo}}{{}}}
+\bibcite{causaldef}{{3}{1995}{{Ahamad et~al\mbox  {.}}}{{}}}
+\bibcite{boltoncc}{{4}{2013}{{Bailis et~al\mbox  {.}}}{{}}}
+\bibcite{baldoni2002an}{{5}{2002}{{Baldoni et~al\mbox  {.}}}{{}}}
+\bibcite{barbosa2022cvc5}{{6}{2022}{{Barbosa et~al\mbox  {.}}}{{}}}
+\bibcite{sessiontocausal}{{7}{2004a}{{Brzezinski et~al\mbox  {.}}}{{}}}
+\bibcite{brzezinski2004session}{{8}{2004b}{{Brzezinski et~al\mbox  {.}}}{{}}}
+\bibcite{burckhardt2014principles}{{9}{2014}{{Burckhardt}}{{}}}
+\bibcite{pnuts}{{10}{2008}{{Cooper et~al\mbox  {.}}}{{}}}
+\bibcite{demoura2008z3}{{11}{2008}{{De~Moura and Bj{\o }rner}}{{}}}
+\bibcite{fan2023satisfiability}{{12}{2023}{{Fan et~al\mbox  {.}}}{{}}}
+\bibcite{ferreira2023antipode}{{13}{2023}{{Ferreira~Loff et~al\mbox  {.}}}{{}}}
+\bibcite{finkbeiner2007smt}{{14}{2007}{{Finkbeiner and Schewe}}{{}}}
+\bibcite{gan2019an}{{15}{2019}{{Gan et~al\mbox  {.}}}{{}}}
+\bibcite{causalmemory}{{16}{2021}{{Gondelman et~al\mbox  {.}}}{{}}}
+\bibcite{certikos-osdi16}{{17}{2016}{{Gu et~al\mbox  {.}}}{{}}}
+\bibcite{herlihy1990linearizability}{{18}{1990}{{Herlihy and Wing}}{{}}}
+\bibcite{kingsbury2025jepsen}{{19}{2025}{{Kingsbury et~al\mbox  {.}}}{{}}}
+\bibcite{klein2009sel4}{{20}{2009}{{Klein et~al\mbox  {.}}}{{}}}
+\bibcite{kuper2019toward}{{21}{2019}{{Kuper and Alvaro}}{{}}}
+\bibcite{lamport1978time}{{22}{1978}{{Lamport}}{{}}}
+\bibcite{lampson2021hints}{{23}{2021}{{Lampson}}{{}}}
+\bibcite{pram}{{24}{1988}{{Lipton and Sandberg}}{{}}}
+\bibcite{cops}{{25}{2011}{{Lloyd et~al\mbox  {.}}}{{}}}
+\bibcite{silentbugs}{{26}{2022}{{Lou et~al\mbox  {.}}}{{}}}
+\bibcite{ma2024noctua}{{27}{2024}{{Ma et~al\mbox  {.}}}{{}}}
+\bibcite{mixt}{{28}{2018}{{Milano and Myers}}{{}}}
+\bibcite{yogurt}{{29}{2016}{{Shin et~al\mbox  {.}}}{{}}}
+\bibcite{wormspace}{{30}{2019}{{Shin et~al\mbox  {.}}}{{}}}
+\bibcite{sivaramakrishnan2015declarative}{{31}{2015}{{Sivaramakrishnan et~al\mbox  {.}}}{{}}}
+\bibcite{tekken2017monitoring}{{32}{2017}{{Tekken~Valapil et~al\mbox  {.}}}{{}}}
+\bibcite{terry1994session}{{33}{1994}{{Terry et~al\mbox  {.}}}{{}}}
+\bibcite{pileus}{{34}{2013}{{Terry et~al\mbox  {.}}}{{}}}
+\@writefile{toc}{\contentsline {section}{References}{11}{section*.9}\protected@file@percent }
+\bibcite{bayou}{{35}{1995}{{Terry et~al\mbox  {.}}}{{}}}
+\bibcite{viotti2016towards}{{36}{2016}{{Viotti et~al\mbox  {.}}}{{}}}
+\bibcite{viotti2016consistency}{{37}{2016}{{Viotti and Vukoli\'{c}}}{{}}}
+\bibcite{eventual}{{38}{2009}{{Vogels}}{{}}}
+\bibcite{anna}{{39}{2018}{{Wu et~al\mbox  {.}}}{{}}}
+\bibcite{zhang2018building}{{40}{2018}{{Zhang et~al\mbox  {.}}}{{}}}
+\newlabel{tocindent-1}{0pt}
+\newlabel{tocindent0}{0pt}
+\newlabel{tocindent1}{0pt}
+\newlabel{tocindent2}{0pt}
+\newlabel{tocindent3}{0pt}
+\newlabel{tocindent4}{0pt}
+\newlabel{tocindent5}{0pt}
+\newlabel{TotPages}{{12}{12}{}{page.12}{}}
+\gdef \@abspage@last{12}

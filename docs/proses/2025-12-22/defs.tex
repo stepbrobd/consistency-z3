@@ -1,0 +1,222 @@
+\usepackage{etoolbox} % toggle
+\usepackage[capitalize,noabbrev,sort]{cleveref} % cref
+\usepackage{listings}
+\usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage{listings}
+\usepackage{url}
+\usepackage{algorithm}
+\usepackage{textcomp}
+\usepackage{xspace}
+\usepackage{hyperref}
+\usepackage{mathpartir}
+\usepackage{natbib}
+\usepackage{diagbox}
+\usepackage[normalem]{ulem} % needed for sout
+
+\usepackage{tikz}
+\usetikzlibrary{tikzmark,shapes.misc,decorations.pathmorphing}
+\usepackage{mathtools}
+
+%\usepackage[dvipsnames]{xcolor}
+%\usepackage{lstparams, lstcoq}
+
+\usepackage[export]{adjustbox} % makebox
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{pifont} % ding
+\usepackage[inline]{enumitem}
+\setlist{leftmargin=5.5mm,topsep=2mm}
+\setlist[enumerate]{label=\textbf{(\arabic*)}}
+
+\sloppypar
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtoggle{comments}
+\toggletrue{comments}
+%\togglefalse{comments}
+
+\setlength{\marginparwidth}{47pt}
+\setlength{\marginparsep}{3pt}
+\newcommand{\mpfont}{\scriptsize\sffamily}
+\newcommand{\MPworker}[2]{
+  \unskip{\color{#1}\vrule\vrule}
+  {\marginpar{\raggedright\color{#1}\mpfont #2}}
+}
+\newcommand{\todo}[1]{
+  \iftoggle{comments} {\MPworker{blue}{To-do: #1}} {}
+}
+
+%\newcommand{\todo}[1]{
+%    \iftoggle{comments} {{\color{teal}[TODO: #1]}} {}
+%}
+\newcommand{\cancut}[1]{
+  %    \iftoggle{comments} {{\color{orange}#1}} {#1}
+  %{{\color{orange}#1}}
+  {}
+}
+
+\newcommand{\namecomment}[3]{
+  \iftoggle{comments} {\textbf{\textcolor{#2}{[#1: #3]}}} {}
+}
+
+% ADD YOUR NAME FOLLOWING THIS FORMAT
+% Default color set:
+%  red, green, blue, cyan, magenta, yellow, black, gray, darkgray, lightgray,
+%  brown, lime, olive, white, orange, pink, purple, teal, violet.
+\newcommand{\jiyong}[1]{\namecomment{Ji-Yong}{cyan}{#1}}
+\newcommand{\toyifei}[1]{\namecomment{ATTN, YIFEI:}{red}{#1}}
+\newcommand{\yifei}[1]{\namecomment{Yifei}{teal}{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Place holders
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\needcite}[1]{\textbf{\textcolor{red}{[cite: #1]}}}
+\newcommand{\needref}[1]{\textbf{\textcolor{red}{[ref: #1]}}}
+\newcommand{\ignore}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Custom names
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\sysname}{\textsc{SemantiX}\xspace}
+\newcommand{\sysnamelong}{semantic compatibility checking framework
+between applications and composition of distributed systems}
+
+\newcommand{\sysgraph}{AppGraph\xspace}
+\newcommand{\sysgraphs}{AppGraphs\xspace}
+
+\newcommand{\sysmod}{DM\xspace}
+\newcommand{\sysmods}{DMs\xspace}
+\newcommand{\sysmodlong}{distributed system module}
+\newcommand{\sysmodlongs}{distributed system modules}
+
+\newcommand{\eg}{\emph{e.g.}, }
+\newcommand{\ie}{\emph{i.e.}, }
+
+\definecolor{StringRed}{rgb}{.637,0.082,0.082}
+\definecolor{CommentGreen}{rgb}{0.0,0.55,0.3}
+\newcommand{\greenCheck}{\textcolor{CommentGreen}{\ding{51}}}%
+\newcommand{\redX}{\textcolor{StringRed}{\ding{55}}}%
+\newcommand{\yellowTriangle}{\textcolor{olive}{\ding{115}}}%
+\newcommand{\purpleTriangle}{\textcolor{purple}{\ding{115}}}%
+
+\newcommand{\wcmark}{{\color{black}\ding{52}}}
+\newcommand{\cmark}{{\color{blue}\ding{52}}}
+\newcommand{\xmark}{{\color{red}\ding{56}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Custom enumerate/itemize/dictionary formats
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{enumitem}
+
+\newcommand{\enumparen}[1]{
+  \begin{enumerate}[noitemsep,topsep=0pt]
+      {#1}
+  \end{enumerate}
+}
+\newcommand{\itemparen}[1]{
+  \begin{itemize}[noitemsep,topsep=0pt]
+      {#1}
+  \end{itemize}
+}
+\newcommand{\customenumparen}[3]{
+  \begin{enumerate}[label={#1},noitemsep,topsep=0pt,left=5pt..25pt]
+      \setcounter{enumi}{#2}
+      {#3}
+  \end{enumerate}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Other formats
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\ballnumber}[1]{
+  \tikz[baseline=(myanchor.base)]
+  \node[circle,fill=.,inner sep=1pt] (myanchor)
+  {\color{-.}\bfseries\footnotesize #1};
+}
+
+\newcommand{\circled}[1]{
+  \tikz[baseline=(char.base)]{
+    \node[shape=circle,draw,inner sep=1pt] (char)
+    {#1};
+  }
+}
+
+\newcommand{\para}[1]{\paragraph{#1}}
+\newcommand{\subpara}[1]{\subparagraph{#1}}
+
+%\newtheorem{assumption}{Assumption}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fine grain edits
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% I'd rather add package "changes" but it conflicts with other
+% things, so this is good enough.
+% Prefix "sug" means "suggested"
+\definecolor{SuggestionGreen}{HTML}{35713A} % taken from Google Docs
+\newcommand{\suginsert}[1]{\textbf{\textcolor{SuggestionGreen}{#1}}}
+% see https://tex.stackexchange.com/a/130626
+\newcommand\sugdelete{\bgroup\markoverwith{\textcolor{SuggestionGreen}{\rule[0.35ex]{2pt}{0.35ex}}}\ULon}
+\newcommand{\sugreplace}[2]{\suginsert{#1} \sugdelete{#2}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Custom section/paragraph formats
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{titlesec}
+
+%-------------------------------------------------------------------------------
+% \titleformat{command}[shape]{format}{label}{space}{before code}[after code]
+%-------------------------------------------------------------------------------
+% command: target command
+% shape: [runin: embed title in the paragraph] [hang: default as in sections]
+% format: title text format
+% labeling: numbering format for table of contents
+% space: space after title
+% before code: code betore title
+% after code: code after title
+
+\titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries}{\theparagraph}{0em}{\uline}
+
+%\titleformat{\subparagraph}[runin]{\normalfont\normalsize\bfseries\itshape}{\thesubparagraph}{1em}{}
+%\titleformat{\subparagraph}[runin]{\normalfont\normalsize}{\thesubparagraph}{1em}{\underline}
+
+%-------------------------------------------------------------------------------
+% \titlespacing{command}{leftmargin}{before space}{after space}[right space]
+%-------------------------------------------------------------------------------
+\titlespacing*{\paragraph}{0pt}{5pt}{0.5em}
+%\titlespacing*{\subparagraph}{\parindent}{5pt}{1em}
+
+\newcommand*{\squigglyarrowhead}[0]{\ \raisebox{0.15em}{\tikz \draw [->,
+      line join=round,
+      line width=0.8pt,
+      decorate, decoration={
+        zigzag,
+        segment length=6,
+        amplitude=.9,
+        post=lineto,
+        post length=1pt
+}] (0,0) -- (0.4,0);}\ }
+\newcommand*{\squigglyarrowtail}[0]{\ \raisebox{0.15em}{\tikz \draw [-,
+      line join=round,
+      line width=0.8pt,
+      decorate, decoration={
+        zigzag,
+        segment length=6,
+        amplitude=.9,
+        post=lineto,
+        post length=1pt
+}] (0,0) -- (0.4,0);}\ }
+
+\newcommand{\ltrans}[1]{\mathopen{\squigglyarrowtail} \hspace{-3pt}
+\fbox{$#1$} \hspace{-3pt} \mathclose{\squigglyarrowhead}}
+\newcommand{\lstep}[3]{#1 \mathop{\ltrans{#2}} #3}
+\newcommand{\lstepStar}[3]{#1 \mathop{\ltrans{#2} \hspace{-3pt}^*} #3}
+\newcommand{\llabel}[1]{\fbox{$#1$}}
+
+\DeclareMathOperator*{\eventually}{\Diamond}
+\DeclareMathOperator*{\always}{\Box}

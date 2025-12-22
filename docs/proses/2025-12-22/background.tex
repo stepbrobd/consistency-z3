@@ -1,0 +1,85 @@
+\section{Background and Motivation}
+
+By modern computing standards, monolithic services often becomes the
+bottleneck when facing substantial traffic.
+Facing this challenge, system designers have turned to multiprocess,
+multi-host to host one or more services.
+This approach made it possible to scale out services by adding more
+hosts, but also introduced new challenges.
+Given the precondition of no byzantine failures, synchronization
+between processes/hosts/services is often the primary problem to solve.
+
+Data synchronization is not an atomic operation, and it is often the
+case that data is not consistent across processes/hosts/services.
+To better understand the atomic operations that build up to data
+synchronization, the consistency part of CAP theorem \cite{brewer2000towards}
+laid the foundation for consistency model in distributed systems.
+Consistency models or consistency semantics are the contract between
+developers and the system, which defines the behavior of data
+synchronization. A system is consistent if
+the result of read, write, update, and other operations matches with
+the predicted behavior.
+
+% cite each failure examples
+
+When applications grow beyond what a single machine can handle, developers
+typically break them apart into smaller services that run across multiple
+hosts. The most common approach is microservices, where each piece of
+functionality becomes its own service with its own database and API.
+Instead of one large application, you end up with dozens or hundreds of
+small services that need to work together. All these services will
+need to find and talk to each other. Service meshes solve this by
+adding a network layer
+that handles routing, load balancing, and service discovery. Every service
+gets a proxy that manages its network connections, but now we would have another
+moving part that can fail or get out of sync. Many systems also move
+away from direct service calls to event-driven
+communication. Instead of Service A calling Service B directly, Service A
+publishes an event that Service B subscribes to. This makes the system
+more resilient since services don't have to wait for each other, but this
+also implies the lost of immediate feedback of synchronous calls.
+
+Different services often need different types of backing storage systems.
+An e-commerce site might use PostgreSQL for orders, MongoDB for
+product catalogs, and Redis for user sessions.
+Each database has different consistency guarantees, so the overall
+system behavior depends on how these different guarantees combine.
+
+The distributed architecture creates several types of bugs that are
+much harder to catch than traditional programming errors. The most
+common problem is reading stale data right after writing.
+Say a user updates their shipping address on a website. The write
+goes to the main user database, but the order service reads from a
+replica that hasn't been updated yet. The user places an order
+expecting it to ship to the new address, but it goes to the old one.
+This happens because many systems use weak consistency models, where
+updates spread slowly across replicas.
+
+Race conditions become much more complex in distributed systems.
+Two order services might both try to buy the last item in stock at
+the same time. Each service checks inventory, sees one item available,
+and places an order. Without proper coordination, the e-commerce site
+might end up selling
+something they don't have. Traditional locking doesn't work well
+across network boundaries, these conflicts are harder to prevent.
+
+Another potential pain point is when the data that is currently being
+read, changes while another process mutates it. Imagine calculating a
+user's account balance by summing their transaction history. If new
+transactions arrive while the calculation is ongoing, we might get an
+inconsistent result.
+
+Cause and effect relationships can also get scrambled. In a social
+media app, if someone posts a message and then immediately comments
+on it, other users might see the comment before the original post
+due to replication delays. This violates the basic expectation that
+causes happen before their effects.
+
+The above mentioned bugs are subtle as they often don't cause
+immediate crashes. Instead, they corrupt data or produce wrong results,
+and developers might not notice until much later. The timing-dependent nature
+of distributed systems means these bugs are hard to reproduce in testing
+environments where everything runs on the same fast network.
+
+% how micro svcs are designed feat. deathstarbench
+% potential bugs if not met etc.

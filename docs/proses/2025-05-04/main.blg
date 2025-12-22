@@ -1,0 +1,86 @@
+This is BibTeX, Version 0.99d (TeX Live 2025/nixos.org)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: acmart.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: references.bib
+Database file #2: refs2.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Warning--no key, author in cosmosdb
+Warning--no author, editor, organization, or key in cosmosdb
+Warning--to sort, need author or key in cosmosdb
+Warning--no key, author in cloudflare-session
+Warning--no author, editor, organization, or key in cloudflare-session
+Warning--to sort, need author or key in cloudflare-session
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Warning--no key, author in cloudflare-session
+Warning--no key, author in cloudflare-session
+Warning--no key, author in cosmosdb
+Warning--no key, author in cosmosdb
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Warning--no key, author in cosmosdb
+Warning--empty author in cosmosdb
+Warning--no key, author in cloudflare-session
+Warning--empty author in cloudflare-session
+Warning--empty address in baldoni2002an
+Warning--empty publisher in sessiontocausal
+Warning--empty address in sessiontocausal
+Warning--empty address in burckhardt2014principles
+Warning--page numbers missing in both pages and numpages fields in fan2023satisfiability
+Warning--empty publisher in certikos-osdi16
+Warning--empty address in certikos-osdi16
+Warning--page numbers missing in both pages and numpages fields in silentbugs
+Warning--empty publisher in terry1994session
+Warning--empty address in terry1994session
+Warning--page numbers missing in both pages and numpages fields in viotti2016towards
+Warning--page numbers missing in both pages and numpages fields in viotti2016consistency
+Warning--empty publisher in anna
+Warning--empty address in anna
+Warning--page numbers missing in both pages and numpages fields in zhang2018building
+You've used 40 entries,
+            6056 wiz_defined-function locations,
+            2373 strings with 50179 characters,
+and the built_in function-call counts, 50645 in all, are:
+= -- 6010
+> -- 2066
+< -- 2
++ -- 720
+- -- 719
+* -- 4103
+:= -- 5028
+add.period$ -- 202
+call.type$ -- 40
+change.case$ -- 374
+chr.to.int$ -- 39
+cite$ -- 77
+duplicate$ -- 4363
+empty$ -- 2974
+format.name$ -- 854
+if$ -- 12014
+int.to.chr$ -- 3
+int.to.str$ -- 1
+missing$ -- 161
+newline$ -- 401
+num.names$ -- 273
+pop$ -- 1686
+preamble$ -- 1
+purify$ -- 690
+quote$ -- 0
+skip$ -- 1730
+stack$ -- 0
+substring$ -- 3386
+swap$ -- 547
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 1039
+warning$ -- 29
+while$ -- 220
+width$ -- 0
+write$ -- 891
+(There were 29 warnings)

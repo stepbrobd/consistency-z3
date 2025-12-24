@@ -124,8 +124,8 @@ parameter is composed by Nodes (\texttt{Node}) with needs (list of
 required semantic tuples) and provs (list of provided semantic
 tuples). Edges (\texttt{Edge}) connect nodes and can have cons (list
 of semantic tuples constraining the interaction). Lists represent
-alternative choices (logical or), while tuples within the list
-represent constraints that must hold together (logical and). In the
+alternative choices (logical \textsc{or}), while tuples within the list
+represent constraints that must hold together (logical \textsc{and}). In the
 implementation, we perform a Depth-First Search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated
 constraints (\texttt{path\_premise}) along the current path. For each
@@ -168,7 +168,7 @@ for this single edge interaction: compose(src\_provs, edge\_cons,
 dst\_needs). This represents the conjunction of constraints relevant
 to this specific step in the flow. It collects these composite
 constraints from all edges reachable from inode in the DFS. Finally,
-it returns the logical and (compose) of all collected composite
+it returns the logical \textsc{and} (compose) of all collected composite
 constraints. Simply put, axioms and relations define constraints on
 Operations; similarly, extract defines a summary constraint on a
 successfully composed subgraph. If the composable check found a valid
@@ -277,8 +277,8 @@ perspective, based on the specific choices made during the composability check.
 % required semantic tuples) and provs (list of provided semantic
 % tuples). Edges (\texttt{Edge}) connect nodes and can have cons (list
 % of semantic tuples constraining the interaction). Lists represent
-% alternative choices (logical or), while tuples within the list
-% represent constraints that must hold together (logical and). In the
+% alternative choices (logical \textsc{or}), while tuples within the list
+% represent constraints that must hold together (logical \textsc{and}). In the
 % implementation, we perform a Depth-First Search (DFS) starting from a
 % given source node, keeping track of visited edges and the accumulated
 % constraints (\texttt{path\_premise}) along the current path. For each
@@ -320,7 +320,7 @@ perspective, based on the specific choices made during the composability check.
 % edge\_cons, dst\_needs). This represents the conjunction of
 % constraints relevant to this specific step in the flow. It collects
 % these composite constraints from all edges reachable from inode in
-% the DFS. Finally, it returns the logical and (compose) of all
+% the DFS. Finally, it returns the logical \textsc{and} (compose) of all
 % collected composite constraints. Simply put, axioms/relations define
 % constraints on Operations, similarly, extract defines a summary
 % constraint on a successfully composed subgraph. If the composable

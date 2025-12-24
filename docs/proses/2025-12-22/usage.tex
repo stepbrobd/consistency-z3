@@ -76,7 +76,7 @@ constraints that represent the node's semantics using our interface.
 \textit{Edges} connect nodes and have the \textit{cons} field,
 specific constraint tuples for the node pair interaction.
 The tuples within the list represent constraints that must hold together
-(logical and).
+(logical \textsc{and}).
 
 In the implementation, we perform a depth-first search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated
@@ -145,7 +145,7 @@ efficient search algorithms remains as future work.
 %dst\_needs). This represents the conjunction of constraints relevant
 %to this specific step in the flow. It collects these composite
 %constraints from all edges reachable from inode in the DFS. Finally,
-%it returns the logical and (compose) of all collected composite
+%it returns the logical \textsc{and} (compose) of all collected composite
 %constraints. Simply put, axioms and relations define constraints on
 %Operations; similarly, extract defines a summary constraint on a
 %successfully composed subgraph. If the composable check found a valid

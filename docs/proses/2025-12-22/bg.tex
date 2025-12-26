@@ -104,7 +104,7 @@ For utmost scalability and performance, an eventually consistent
 key-value store can be used, but users may observe anomalies (e.g. reviews
 written to one replica may not be visible to the same user reading it).
 Thus, to find a proper storage module, the key constraints are to identify
-each access functionality, and to minimize anomalous users may experience.
+each access functionality, and to minimize anomalies users may experience.
 For example, we can define admins must always observe their own
 updates and clients must be able
 to see what they have previously seen. The collection of constraints

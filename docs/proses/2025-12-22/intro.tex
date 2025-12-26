@@ -41,11 +41,9 @@ the complexity of the code, which could include non-essential parts
 for reasoning about compatibility, the mechanized formal proofs
 can take extensive time and effort \cite{certikos-osdi16,
 klein2009sel4, wormspace}.
-Furthermore, depending on the formal method techniques used, the
-number of proofs that need to be
-written could be several times longer in lines of code comparing with
-the implementation,
-furthermore, minor changes can easily invalidate the entire proof
+Furthermore, depending on the technique used, mechanized formal proofs in lines of code (LoC)
+could be several times longer comparing with the implementation.
+Moreover, minor changes can easily invalidate the entire proof
 \cite{klein2009sel4}.
 Thus, formal verification
 leads to a similar problem to above-mentioned testing methods where
@@ -73,9 +71,8 @@ building blocks to rapidly iterate the service compositions and compatibility
 of these models with their applications. Additional models can be
 added to further
 strengthen \sysname{}'s expressiveness with provided interfaces.
-Custom models defined in our interface are automatically
-compatibility with existing ones,
-and can be used to check its own satisfiability and compatibility
+User authored custom models inheriting from our base class are will automatically work with our pre-built ones,
+including assertions for individual satisfiability and compatibility between one or more models
 with user defined application logic.
 
 Although axiomatic definitions of distributed consistency semantics

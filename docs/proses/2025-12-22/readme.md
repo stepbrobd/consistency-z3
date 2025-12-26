@@ -108,12 +108,12 @@ places):
 - Figures 4, 5, 6 should have been more consistent with each other: they
   describe the AppGraph for the different systems, having different details on
   the figures makes it confusing to the reader
-- Line 89: “the number of proofs that need to be written could be several times
+- [addressed] Line 89: “the number of proofs that need to be written could be several times
   longer in lines of code comparing with the implementation”
-- Line 111: “Custom models defined in our interface are automatically
+- [addressed] Line 111: “Custom models defined in our interface are automatically
   compatibility with existing ones, and can be used to check its own
   satisfiability”
-- Line 266: “to minimize anomalous users may experience.”
+- [addressed] Line 266: “to minimize anomalous users may experience.”
 - Line 269: “The collection of constraints must be satisfied by what the
   consistency model of which metadata DB developer chooses provides.”
 - Line 391: “where H_wr and H_rd are histories of reads and writes,

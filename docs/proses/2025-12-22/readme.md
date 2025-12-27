@@ -153,10 +153,42 @@ Given the above, I am increasing my score to weak reject, acknowledging the
 well-argued answers but also the (for me) questionable usability and therefore
 related potential impact of the approach at this stage.
 
-## Questions for authors’ response
+### Questions for authors’ response
 
 1. How can the framework be used in a realistic setting?
 2. What is (an estimation of) the benefit of using the framework for a
    development team, how can this be assessed?
 3. What is (an estimation of) the cost, in terms of extra effort, of using the
    framework for a development team, and how can this be assessed?
+
+## Reviewer C:
+
+**Presentation**
+
+- The can-view relation could be simplified. Perhaps it makes sense to
+  additionally provide a logically reduced definition, that also takes advantage
+  of the invariant $rtime \ge stime$?
+- It may be more comfortable for the reader if the order of the arrow relation
+  is swapped so that intuitively, events preceding their related object are left
+  of the arrow pointing right
+- L565 Unfortunately this paragraph was very difficult to understand
+
+**Minor Comments**
+
+- [addressed] L152 (paragraph) Keep tense consistent instead of switching between past and
+  present
+- L234 This diagram is too crowded, it is difficult to see the arrows
+- [addressed] L300 Awkward wording - "whether" does not fit in this context
+- [addressed] L328 Awkward wording, perhaps rather "An operation can be conceptualized as an
+  atomic action with a request-response pair..."?
+- L407 For completeness sake, the arrow relation syntax should be explicitly
+  introduced
+- L407 The monotonic reads definition is the same as the monotonic writes
+  definition
+- L565 The next two paragraphs should use the same identifiers in the
+  explanation as in the preceding $vis$ definition for clarity
+- [addressed] L574 Typo "straignforward"
+- [addressed] L582 Typo "is" -> "are"
+- [addressed] L694 Type "assume" -> "assumes"
+- L793 Inconsistent notation compared to previous definitions.
+  $ob(op_{login}, op_{rent})$ -> $(op_{login}, op_{rent}) \in ob$

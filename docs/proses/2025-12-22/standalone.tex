@@ -10,8 +10,8 @@ SMT solvers like Z3 \cite{demoura2008z3} or CVC5 \cite{barbosa2022cvc5}.
 \subsection{Preliminaries}
 
 \sysname{} provides pre-built and pluggable \sysmodlongs{} (\sysmods{})
-that represent distributed storage services which can be checked whether
-they are compatible with application constraints.
+that represent distributed storage services, which can be checked individually or in group,
+or as application constraints.
 Each \sysmod{} models distributed consistency semantics introduced in
 \cref{sec:background} and \cref{fig:semantics-tree}.
 In the movie streaming service example, given all the constraints for the
@@ -46,7 +46,7 @@ operation, a tuple containing the following:
   marker used for non-returning operations.
 }
 An operation
-can be conceptualized as one of an atomic actions with a
+can be conceptualized as an atomic action with a
 request-response pair, where the request
 is the operation itself and the response is the other operation with the
 response time set.
@@ -442,9 +442,9 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   linearization point, i.e., to cut off one of the possible paths in
   the viewed relation.
   Then what does it mean for writes to be visible to writes? This translates to
-  write arbitration: whether two writes are visible to each other depends on the
+  write arbitration: whether two writes are visible to each other depend on the
   existence of an arbitration relation between them.
-  Writes unordered by visibility is considered invisible to each
+  Writes unordered by visibility are considered invisible to each
   other~\cite{viotti2016consistency}
   and the arbitration resolves conflicts in concurrent and invisible operations.
 

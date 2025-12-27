@@ -59,13 +59,13 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Base Consistency Semantics}{6}{subsection.3.2}\protected@file@percent }
 \newlabel{subsec:semdef}{{3.2}{6}{Base Consistency Semantics}{subsection.3.2}{}}
 \newlabel{subsec:semdef@cref}{{[subsection][2][3]3.2}{[1][6][]6}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Eventual Consistency (EC).}{6}{figure.caption.3}\protected@file@percent }
 \citation{viotti2016consistency}
 \citation{burckhardt2014principles}
 \citation{baldoni2002an}
 \citation{baldoni2002an}
 \citation{zhang2018building}
 \citation{viotti2016consistency,viotti2016towards,zhang2018building,ferreira2023antipode}
-\@writefile{toc}{\contentsline {paragraph}{Eventual Consistency (EC).}{7}{figure.caption.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Causal Consistency (CC).}{7}{figure.caption.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Linearizability (LIN).}{7}{figure.caption.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Formal Definitions of Visibility}{7}{subsection.3.3}\protected@file@percent }
@@ -76,18 +76,18 @@
 \newlabel{fig:can-view@cref}{{[figure][3][]3}{[1][7][]8}{}{}{}}
 \citation{viotti2016consistency}
 \@writefile{toc}{\contentsline {section}{\numberline {4}\textsc  {SemantiX}\xspace  {} Design}{9}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Compatibility Check}{9}{subsection.4.1}\protected@file@percent }
 \citation{terry1994session}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Compatibility Check}{10}{subsection.4.1}\protected@file@percent }
+\citation{gan2019an}
+\citation{boltoncc}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}AppGraph\xspace  {} and Composition Check}{10}{subsection.4.2}\protected@file@percent }
 \newlabel{subsec:search}{{4.2}{10}{\sysgraph {} and Composition Check}{subsection.4.2}{}}
 \newlabel{subsec:search@cref}{{[subsection][2][4]4.2}{[1][10][]10}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Compatible Combination Search}{10}{subsection.4.3}\protected@file@percent }
 \citation{gan2019an}
-\citation{boltoncc}
-\citation{gan2019an}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Case Study}{11}{section.5}\protected@file@percent }
 \newlabel{sec:cs}{{5}{11}{Case Study}{section.5}{}}
-\newlabel{sec:cs@cref}{{[section][5][]5}{[1][11][]11}{}{}{}}
+\newlabel{sec:cs@cref}{{[section][5][]5}{[1][10][]11}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Movie Streaming Service}{11}{subsection.5.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{System Architecture}{11}{subsection.5.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Architecture of the media streaming service with consistency guarantees. Edges are numbered for reference: 1–4: Client requests to services (login, review, rent, video). 5: Admin login. 6: Admin updates metadata. 7: Admin uploads video. 8: Login service accesses User DB. 9: Review service writes to Review DB. 10: Review checks content existence in Metadata DB. 11: Rent updates Rent DB. 12: Rent checks content availability in Metadata DB. 13: Video service accesses Video DB. 14: Video service verifies metadata before playback.}}{11}{figure.caption.5}\protected@file@percent }
@@ -95,27 +95,27 @@
 \newlabel{fig:case-study-media@cref}{{[figure][4][]4}{[1][11][]11}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Constraint Encoding.}{12}{Item.4}\protected@file@percent }
 \citation{gan2019an}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Architecture of the online shopping system with consistency guarantees}}{13}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:case-study-shop}{{5}{13}{Architecture of the online shopping system with consistency guarantees}{figure.caption.6}{}}
+\newlabel{fig:case-study-shop@cref}{{[figure][5][]5}{[1][13][]13}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Requirements and Compatibility Verification.}{13}{Item.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Online Shopping Mall}{13}{subsection.5.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Architecture.}{13}{subsection.5.2}\protected@file@percent }
 \citation{boltoncc}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Architecture of the online shopping system with consistency guarantees}}{14}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:case-study-shop}{{5}{14}{Architecture of the online shopping system with consistency guarantees}{figure.caption.6}{}}
-\newlabel{fig:case-study-shop@cref}{{[figure][5][]5}{[1][13][]14}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Cross-service causal consistency composition chain}}{14}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:cross-service-causal}{{6}{14}{Cross-service causal consistency composition chain}{figure.caption.7}{}}
+\newlabel{fig:cross-service-causal@cref}{{[figure][6][]6}{[1][14][]14}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Requirements and Compatibility Verification}{14}{Item.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Cross Causal (XC) Storage}{14}{subsection.5.3}\protected@file@percent }
 \citation{boltoncc}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Cross-service causal consistency composition chain}}{15}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:cross-service-causal}{{6}{15}{Cross-service causal consistency composition chain}{figure.caption.7}{}}
-\newlabel{fig:cross-service-causal@cref}{{[figure][6][]6}{[1][14][]15}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Cross Causal (XC) Storage}{15}{subsection.5.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Architecture.}{15}{subsection.5.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Constraints Encoding and Compatibility Verification.}{15}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Evaluation}{15}{section.6}\protected@file@percent }
+\newlabel{sec:eval}{{6}{15}{Evaluation}{section.6}{}}
+\newlabel{sec:eval@cref}{{[section][6][]6}{[1][15][]15}{}{}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Pairwise check performance. Semantics in the first column are checked if they satisfy semantics in other columns. Each cell shows the execution time for completing the check in milliseconds. The blue text indicates the result of the check is true and red means false. }}{16}{table.caption.8}\protected@file@percent }
 \newlabel{tab:pairwise-time}{{1}{16}{Pairwise check performance. Semantics in the first column are checked if they satisfy semantics in other columns. Each cell shows the execution time for completing the check in milliseconds. The blue text indicates the result of the check is true and red means false}{table.caption.8}{}}
 \newlabel{tab:pairwise-time@cref}{{[table][1][]1}{[1][16][]16}{}{}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Evaluation}{16}{section.6}\protected@file@percent }
-\newlabel{sec:eval}{{6}{16}{Evaluation}{section.6}{}}
-\newlabel{sec:eval@cref}{{[section][6][]6}{[1][15][]16}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Pairwise Compatibility Check.}{16}{section.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Compatible DM\xspace  {} Search.}{16}{table.caption.8}\protected@file@percent }
 \citation{sivaramakrishnan2015declarative}
@@ -137,11 +137,11 @@
 \bibcite{burckhardt2014principles}{{9}{2014}{{Burckhardt}}{{}}}
 \bibcite{pnuts}{{10}{2008}{{Cooper et~al\mbox  {.}}}{{}}}
 \bibcite{demoura2008z3}{{11}{2008}{{De~Moura and Bj{\o }rner}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{18}{section.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{References}{18}{section*.9}\protected@file@percent }
 \bibcite{fan2023satisfiability}{{12}{2023}{{Fan et~al\mbox  {.}}}{{}}}
 \bibcite{ferreira2023antipode}{{13}{2023}{{Ferreira~Loff et~al\mbox  {.}}}{{}}}
 \bibcite{finkbeiner2007smt}{{14}{2007}{{Finkbeiner and Schewe}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{18}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{18}{section*.9}\protected@file@percent }
 \bibcite{gan2019an}{{15}{2019}{{Gan et~al\mbox  {.}}}{{}}}
 \bibcite{causalmemory}{{16}{2021}{{Gondelman et~al\mbox  {.}}}{{}}}
 \bibcite{certikos-osdi16}{{17}{2016}{{Gu et~al\mbox  {.}}}{{}}}

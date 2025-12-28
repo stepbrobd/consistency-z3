@@ -122,12 +122,11 @@ environments and implementation-specific constraints.
 \subsection{Base Consistency Semantics}
 \label{subsec:semdef}
 Based on the preliminaries, now we can discuss the formal definitions of
-base consistency semantics: EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in
-\cref{sec:background}.
-The semantics are defined axiomatically using the relations between
+base consistency semantics: EC, MR, RYW, MW, WFR, PRAM, CC, and LIN. In
+\cref{sec:background}., the semantics are defined axiomatically using the relations between
 pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
-  operations, where $H_\text{wr}$ and $H_\text{rd}$ are histories of reads and
-  writes, respectively.
+  operations, where $H_\text{rd}$ and $H_\text{wr}$ are histories of reads and
+  writes respectively.
   While we adopt the definitions of MR, RYW, MW, WFR,
   and PRAM of Viotti et al.~\cite{viotti2016consistency} (\cref{fig:semdef}),
   we newly propose or augment EC, CC, and LIN for SMT encoding and

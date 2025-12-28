@@ -80,14 +80,14 @@ The tuples within the list represent constraints that must hold together
 
 In the implementation, we perform a depth-first search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated
-constraints (\texttt{path\_premise}) along the current path.
+constraints in \texttt{path\_premise}, along the current path.
 \sysname{} performs compatibility checks, \texttt{compatible(check\_provs,
 compose(check\_needs, check\_ec), path\_premise)}:
-for each edge (u,v) from the current node u, it checks if provs from v
-and cons from edge (u, v) satisfy needs from u.
+for each edge $(u, v)$ from the current node $u$, it checks if \texttt{provs} from $v$
+and \texttt{cons} from edge $(u, v)$ satisfy needs from $u$.
 This checks if the chosen path provides guarantee of the destination
 (\texttt{check\_provs}) is
-implied by the conjunction (compose) of the chosen needs of the
+implied by the conjunction (the result returned from call to \texttt{compose}) of the chosen needs of the
 source (\texttt{check\_needs}) and the chosen edge constraints
 (\texttt{check\_ec}),
 considering the constraints already accumulated (\texttt{path\_premise}).

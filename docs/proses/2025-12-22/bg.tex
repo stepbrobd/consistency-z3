@@ -107,9 +107,8 @@ Thus, to find a proper storage module, the key constraints are to identify
 each access functionality, and to minimize anomalies users may experience.
 For example, we can define admins must always observe their own
 updates and clients must be able
-to see what they have previously seen. The collection of constraints
-must be satisfied
-by what the consistency model of which metadata DB developer chooses provides.
+to see what they have previously seen. These constraints
+must be met by the consistency model of the metadata DB application developer chooses to use.
 But as functionalities of the system grow, constraints can become
 more sophisticated and
 the complexity of checking whether the constraints are fully satisfied by a DB

@@ -114,11 +114,11 @@ places):
   compatibility with existing ones, and can be used to check its own
   satisfiability”
 - [addressed] Line 266: “to minimize anomalous users may experience.”
-- Line 269: “The collection of constraints must be satisfied by what the
+- [addressed] Line 269: “The collection of constraints must be satisfied by what the
   consistency model of which metadata DB developer chooses provides.”
-- Line 391: “where H_wr and H_rd are histories of reads and writes,
+- [addressed] Line 391: “where H_wr and H_rd are histories of reads and writes,
   respectively” -> this is the other way round, right?
-- Line 655: “This checks if the chosen path provides guarantee of the
+- [addressed] Line 655: “This checks if the chosen path provides guarantee of the
   destination (check_provs) is implied by the conjunction”
 
 ### Reaction to rebuttal

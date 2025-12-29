@@ -181,9 +181,9 @@ related potential impact of the approach at this stage.
 - [addressed] L300 Awkward wording - "whether" does not fit in this context
 - [addressed] L328 Awkward wording, perhaps rather "An operation can be conceptualized as an
   atomic action with a request-response pair..."?
-- L407 For completeness sake, the arrow relation syntax should be explicitly
+- [addressed] L407 For completeness sake, the arrow relation syntax should be explicitly
   introduced
-- L407 The monotonic reads definition is the same as the monotonic writes
+- [addressed] L407 The monotonic reads definition is the same as the monotonic writes
   definition
 - L565 The next two paragraphs should use the same identifiers in the
   explanation as in the preceding $vis$ definition for clarity

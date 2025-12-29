@@ -63,7 +63,8 @@ A history is a set of operations that have been logically executed in the
 The functions representing the relations are used as base premises
 for consistency
 models and are used in axioms and invariants that the SMT solvers
-interpret and check.
+interpret and check. Given that we extensively use set comprehension to capture relations between operations, throughout the formalization, $a \xrightarrow{\text{rel}} b$ is denotationally equal to $(a, b) \in rel$, and directly translate to \texttt{rel(a, b)} in \sysname's source code.
+Further, $rel^{-1}$ is equivalent to the inverse of $rel$ relation \cite{burckhardt2014principles,viotti2016consistency}.
 
 The relations defined for operations within a history include:
 \itemparen{

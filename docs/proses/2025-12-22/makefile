@@ -2,9 +2,9 @@ MAIN = main
 BIBTEX = bibtex
 LATEX = pdflatex
 
-all: $(MAIN).pdf ./figs/*.pdf
+all: $(MAIN).pdf 
 
-$(MAIN).pdf: $(MAIN).tex *.tex references.bib
+$(MAIN).pdf: $(MAIN).tex *.tex references.bib ./figs/*.pdf
 	$(LATEX) $(MAIN)
 	$(BIBTEX) $(MAIN)
 	$(LATEX) $(MAIN)

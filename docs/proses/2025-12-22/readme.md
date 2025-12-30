@@ -192,3 +192,9 @@ related potential impact of the approach at this stage.
 - [addressed] L694 Type "assume" -> "assumes"
 - L793 Inconsistent notation compared to previous definitions.
   $ob(op_{login}, op_{rent})$ -> $(op_{login}, op_{rent}) \in ob$
+
+## Extras?
+
+- Address usability issue by adding another section with code example?
+- Select one example in evaluation (find an "interesting" one), select a few edges to show the code corresponding to the formalization (ICSE submission page 12)
+- Figures 4-6 should look consistent (stretch 4 5 6, use the extra space on the edges, to use different colors to differentiat semantic constraints vs application specific constraints)

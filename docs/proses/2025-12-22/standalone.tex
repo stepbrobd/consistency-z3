@@ -238,6 +238,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
     y) \in \text{can-view}\}
   \end{eqnarray*}
 
+
   \subsection{Formal Definitions of Visibility}
   \label{subsec:vis}
   One of our key contributions is formally defining visibility.
@@ -253,53 +254,6 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   and perform explicit case analysis on all possible combinations of
   read and write operations that can be \textit{visible} to each other.
 
-  \begin{figure}[tb]
-    \centering
-    \begin{tikzpicture}[scale=0.64]
-      % time
-      \draw[->] (0,1) -- (12,1);
-      \node[below] at (11.5,1) {Time};
-
-      \draw[thick] (1,5) -- (3,5);
-      \draw[thick] (1,4.8) -- (1,5.2); % left terminating bar
-      \draw[thick] (3,4.8) -- (3,5.2); % right terminating bar
-      \node[left] at (0.9,5) {$w_1$};
-
-      \draw[thick] (5,5) -- (7,5);
-      \draw[thick] (5,4.8) -- (5,5.2); % left terminating bar
-      \draw[thick] (7,4.8) -- (7,5.2); % right terminating bar
-      \node[left] at (4.9,5) {$w_2$};
-
-      % middle
-      \draw[thick] (4,4) -- (8,4);
-      \draw[thick] (4,3.8) -- (4,4.2);  % left terminating bar
-      \draw[thick] (8,3.8) -- (8,4.2);  % right terminating bar
-      \node[left] at (3.9,4) {$r$};
-
-      \draw[thick] (3,3) -- (4.5,3);
-      \draw[thick] (3,2.8) -- (3,3.2);   % left terminating bar
-      \draw[thick] (4.5,2.8) -- (4.5,3.2); % right terminating bar
-      \node[left] at (2.9,3) {$w_3$};
-
-      \draw[thick] (7.5,3) -- (9,3);
-      \draw[thick] (7.5,2.8) -- (7.5,3.2); % left terminating bar
-      \draw[thick] (9,2.8) -- (9,3.2);   % right terminating bar
-      \node[left] at (7.4,3) {$w_4$};
-
-      \draw[thick] (2,2) -- (10,2);
-      \draw[thick] (2,1.8) -- (2,2.2);   % left terminating bar
-      \draw[thick] (10,1.8) -- (10,2.2); % right terminating bar
-      \node[left] at (1.9,2) {$w_5$};
-    \end{tikzpicture}
-    \caption{The can-view relation captures the
-      possible visibility between read and write operations. The
-      read-write pairs $r$ and $w_1$, $w_2$, $w_3$, $w_4$, $w_5$ are
-      defined based on their start and return times, where the read
-      operation can view the effect of the write operations if they fall
-    into one of the cases defined in the can-view relation.}
-    \label{fig:can-view}
-  \end{figure}
-
   We introduce the notions of \textit{can-view} and \textit{viewed}
   to capture the
   deterministic and non-deterministic behavior of operations,
@@ -307,60 +261,153 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   the effects of another operation. To achieve visibility, two
   operations must first fall in one of
   the categories in \textit{can-view}: either (1) the write happened
-  before the read
-  in absolute time (note that whether the read/write happened on the
+  before the read in absolute time (\ie the write's rtime is smaller than read's stime as in $w_1$ and $r$ in \cref{fig:can-view}; note that whether the read/write happened on the
     same process does not matter, as synchronization
   is not required to establish probable effect causality)
-  or (2) the read and write happened concurrently such that the read might
-  observe the write's effect (\cref{fig:can-view}).
+  or (2) the read and write are \textit{Concurrent} (\ie the duration of
+  the read and write defined by their stime and rtime overlap as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read might
+  observe the write's effect.
   %
   Formally, this can-view relation, $a \xrightarrow{\text{can-view}} b$,
   is defined over the pairwise start or return time of read $a$ and
   write $b$ operations:
+  \begin{eqnarray*}
+    \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj}  \land ((a.\text{stime} > b.\text{rtime}) \lor \textit{Concurrent}(a, b))\}.
+  \end{eqnarray*}
   %When two operations
   %$a$ and $b$ are defined to be in can-view relation
   %($a \xrightarrow{\text{can-view}} b$), either $a$ returned before
   % $b$, such that $b$'s write effect can be visible to $a$, or $a$ and
   % $b$ happened concurrently such that
   %$b$'s write effect might be visible to $a$.
-  \begin{eqnarray*}
-    \text{can-view} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in
-      H_\text{wr} \land a.\text{obj} = b.\text{obj} \\
-      & & \land ((a.\text{stime} > b.\text{rtime}) \\
-        & & \quad\lor (a.\text{stime} \leq b.\text{stime} \land
-          a.\text{stime} \leq b.\text{rtime} \land \\
-          & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-        a.\text{rtime} \geq b.\text{rtime}) \\
-        & & \quad\lor (a.\text{stime} \geq b.\text{stime} \land
-          a.\text{stime} \leq b.\text{rtime} \land \\
-          & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-        a.\text{rtime} \geq b.\text{rtime}) \\
-        & & \quad\lor (a.\text{stime} \leq b.\text{stime} \land
-          a.\text{stime} \leq b.\text{rtime} \land \\
-          & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-        a.\text{rtime} \leq b.\text{rtime}) \\
-        & & \quad\lor (a.\text{stime} \geq b.\text{stime} \land
-          a.\text{stime} \leq b.\text{rtime} \land \\
-          & & \quad\quad\ \ a.\text{rtime} \geq b.\text{stime} \land
-          a.\text{rtime} \leq b.\text{rtime}
-        )
-    )\}.
-  \end{eqnarray*}
+ %% \begin{eqnarray*}
+ %%   \text{can-view} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj} \\
+ %%       & & \land ((a.\text{stime} > b.\text{rtime}) \\
+ %%       & & \lor (a.\text{stime} \leq b.\text{stime} \land
+ %%       	a.\text{stime} \leq b.\text{rtime} \land  a.\text{rtime} \geq b.\text{stime} \land
+ %%       	a.\text{rtime} \geq b.\text{rtime}) \\
+ %%       & & \lor (a.\text{stime} \geq b.\text{stime} \land a.\text{stime} \leq b.\text{rtime} \land 
+ %%       	a.\text{rtime} \geq b.\text{stime} \land
+ %%       	a.\text{rtime} \geq b.\text{rtime}) \\
+ %%       & & \lor (a.\text{stime} \leq b.\text{stime} \land 
+ %%         a.\text{stime} \leq b.\text{rtime} \land 
+ %%         a.\text{rtime} \geq b.\text{stime} \land
+ %%       a.\text{rtime} \leq b.\text{rtime}) \\
+ %%       & & \lor (a.\text{stime} \geq b.\text{stime} \land
+ %%         a.\text{stime} \leq b.\text{rtime} \land
+ %%         a.\text{rtime} \geq b.\text{stime} \land
+ %%         a.\text{rtime} \leq b.\text{rtime}
+ %%       )
+ %%   )\}
+ %% \end{eqnarray*}
 
   While can-view captures the possible visibility between read and write, the
   result dependency between them is captured by the \textit{viewed} relation:
   \begin{eqnarray*}
     \text{viewed} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in
-      H_\text{wr} \\
-      & & \land (a, b) \in \text{can-view} \\
+      H_\text{wr} \land (a, b) \in \text{can-view} \\
       & & \land (
-        (a.\text{oval} = b.\text{ival})\lor \\
-        & &
+        (a.\text{oval} = b.\text{ival})\lor
         \text{ }(\exists x \in H_\text{wr} : (x, b) \in
         \text{can-view} \land a.\text{oval} = x.\text{ival})
       )
     \}
   \end{eqnarray*}
+%%  \begin{eqnarray*}
+%%    \text{viewed} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in
+%%      H_\text{wr} \\
+%%      & & \land (a, b) \in \text{can-view} \\
+%%      & & \land (
+%%        (a.\text{oval} = b.\text{ival})\lor \\
+%%        & &
+%%        \text{ }(\exists x \in H_\text{wr} : (x, b) \in
+%%        \text{can-view} \land a.\text{oval} = x.\text{ival})
+%%      )
+%%    \}
+%%  \end{eqnarray*}
+
+
+\begin{wrapfigure}{R}{3.3in}
+%%\begin{figure}[tb]
+\Small \centering
+	\begin{tikzpicture}[scale=0.64]
+	  % time
+	  \draw[->, thick] (0.2,1) -- (10.3,1);
+	  \node[below] at (9.8,1) {Time};
+	  \draw[thick] (1,4) -- (3,4);
+	  \draw[thick] (1,3.8) -- (1,4.2); % left terminating bar
+	  \draw[thick] (3,3.8) -- (3,4.2); % right terminating bar
+	  \node[left] at (0.9,4) {$w_1$};
+	  \draw[thick] (5,4) -- (7,4);
+	  \draw[thick] (5,3.8) -- (5,4.2); % left terminating bar
+	  \draw[thick] (7,3.8) -- (7,4.2); % right terminating bar
+	  \node[left] at (4.9,4) {$w_2$};
+	  % middle
+	  \draw[thick] (4,3.3) -- (8,3.3);
+	  \draw[thick] (4,3.1) -- (4,3.5);  % left terminating bar
+	  \draw[thick] (8,3.1) -- (8,3.5);  % right terminating bar
+	  \node[left] at (3.9,3.3) {$r$};
+	  \draw[thick] (3,2.6) -- (4.5,2.6);
+	  \draw[thick] (3,2.4) -- (3,2.8);   % left terminating bar
+	  \draw[thick] (4.5,2.4) -- (4.5,2.8); % right terminating bar
+	  \node[left] at (2.9,2.6) {$w_3$};
+	  \draw[thick] (7.5,2.6) -- (9,2.6);
+	  \draw[thick] (7.5,2.4) -- (7.5,2.8); % left terminating bar
+	  \draw[thick] (9,2.4) -- (9,2.8);   % right terminating bar
+	  \node[left] at (7.4,2.6) {$w_4$};
+	  \draw[thick] (2,2) -- (10,2);
+	  \draw[thick] (2,1.8) -- (2,2.2);   % left terminating bar
+	  \draw[thick] (10,1.8) -- (10,2.2); % right terminating bar
+	  \node[left] at (1.9,2) {$w_5$};
+	\end{tikzpicture}
+%%    \begin{tikzpicture}[scale=0.64]
+%%      % time
+%%      \draw[->] (0,1) -- (11,1);
+%%      \node[below] at (10.3,1) {Time};
+%%
+%%      \draw[thick] (1,5) -- (3,5);
+%%      \draw[thick] (1,4.8) -- (1,5.2); % left terminating bar
+%%      \draw[thick] (3,4.8) -- (3,5.2); % right terminating bar
+%%      \node[left] at (0.9,5) {$w_1$};
+%%
+%%      \draw[thick] (5,5) -- (7,5);
+%%      \draw[thick] (5,4.8) -- (5,5.2); % left terminating bar
+%%      \draw[thick] (7,4.8) -- (7,5.2); % right terminating bar
+%%      \node[left] at (4.9,5) {$w_2$};
+%%
+%%      % middle
+%%      \draw[thick] (4,4) -- (8,4);
+%%      \draw[thick] (4,3.8) -- (4,4.2);  % left terminating bar
+%%      \draw[thick] (8,3.8) -- (8,4.2);  % right terminating bar
+%%      \node[left] at (3.9,4) {$r$};
+%%
+%%      \draw[thick] (3,3) -- (4.5,3);
+%%      \draw[thick] (3,2.8) -- (3,3.2);   % left terminating bar
+%%      \draw[thick] (4.5,2.8) -- (4.5,3.2); % right terminating bar
+%%      \node[left] at (2.9,3) {$w_3$};
+%%
+%%      \draw[thick] (7.5,3) -- (9,3);
+%%      \draw[thick] (7.5,2.8) -- (7.5,3.2); % left terminating bar
+%%      \draw[thick] (9,2.8) -- (9,3.2);   % right terminating bar
+%%      \node[left] at (7.4,3) {$w_4$};
+%%
+%%      \draw[thick] (2,2) -- (10,2);
+%%      \draw[thick] (2,1.8) -- (2,2.2);   % left terminating bar
+%%      \draw[thick] (10,1.8) -- (10,2.2); % right terminating bar
+%%      \node[left] at (1.9,2) {$w_5$};
+%%    \end{tikzpicture}
+    \caption{The can-view relation captures the
+      possible visibility between read and write operations. The
+      read-write pairs $r$ and $w_1$, $w_2$, $w_3$, $w_4$, and $w_5$ are
+      defined based on their start and return times, where the read
+      operation can view the effect of the write operations.
+	  %if they fall into one of the cases defined in the can-view relation.
+	}
+    \label{fig:can-view}
+  \end{wrapfigure}
+%%  \end{figure}
+
+
   The viewed relation is defined as a non-deterministic
   pairwise partial ordering
   between a read and a write that builds upon can-view. Aside from timestamps

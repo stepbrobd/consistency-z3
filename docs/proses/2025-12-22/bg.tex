@@ -2,6 +2,14 @@
 \label{sec:background}
 
 \subsection{Background}
+
+\begin{wrapfigure}[12]{R}{3.3in}
+  \includegraphics{figs/semantics-tree}
+  \caption{Partially ordered semantics. Strictly stronger ones
+    (destinations of the arrows) subsume the strictly weaker ones
+  (sources of the arrows).}
+  \label{fig:semantics-tree}
+\end{wrapfigure}
 Distributed consistency semantics define in which order updates are
 applied and made visible in replica nodes within a cluster of
 distributed system.
@@ -67,13 +75,6 @@ of distributed systems.
   are applied as if they are executed atomically by a single
   non-concurrent user.
 }
-\begin{figure}
-  \includegraphics{figs/semantics-tree}
-  \caption{Partially ordered semantics. Strictly stronger ones
-    (destinations of the arrows) subsume the strictly weaker ones
-  (sources of the arrows).}
-  \label{fig:semantics-tree}
-\end{figure}
 These semantics can be partially ordered by their
 strength~\cite{viotti2016consistency} where strictly stronger
 semantics subsumes the weaker ones (\cref{fig:semantics-tree}). Thus,

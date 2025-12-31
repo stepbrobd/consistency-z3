@@ -260,11 +260,12 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   and what it means for one operation to be able to \textit{observe}
   the effects of another operation. To achieve visibility, two
   operations must first fall in one of
-  the categories in \textit{can-view}: either (1) the write happened
-  before the read in absolute time (\ie the write's rtime is smaller than read's stime as in $w_1$ and $r$ in \cref{fig:can-view}; note that whether the read/write happened on the
-    same process does not matter, as synchronization
-  is not required to establish probable effect causality)
-  or (2) the read and write are \textit{Concurrent} (\ie the duration of
+  the categories in \textit{can-view}: either (1) the write 
+  %happened before 
+  strictly \textit{Precedes}
+  the read in time (\ie the write's rtime is smaller than read's stime as in $w_1$ and $r$ in \cref{fig:can-view}; 
+  note that which process issued the read/write does not matter, as synchronization is not required to establish probable effect causality)
+  or (2) the read and write are \textit{Concurrent} (\ie the durations of
   the read and write defined by their stime and rtime overlap as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read might
   observe the write's effect.
   %
@@ -272,8 +273,15 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   is defined over the pairwise start or return time of read $a$ and
   write $b$ operations:
   \begin{eqnarray*}
-    \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj}  \land ((a.\text{stime} > b.\text{rtime}) \lor \textit{Concurrent}(a, b))\}.
+	  \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj}  \land (\textit{Precede}(b, a) \lor \textit{Concurrent}(a, b))\},
   \end{eqnarray*}
+  where,
+  \begin{align*}
+	  \textit{Precede} & \triangleq  &  \{(a, b) : a, b \in H & \land a.\text{rtime} < b.\text{stime}\}, \\
+	  \textit{Concurrent} & \triangleq & \{(a, b) : a, b \in H & \land ((a.\text{stime} \geq b.\text{stime} \land a.\text{stime} \leq b.\text{rtime}) \\
+	  & & & \lor  (a.\text{rtime} \geq b.\text{stime}  \land a.\text{rtime} \leq b.\text{rtime}) \\
+	  & & & \lor  (a.\text{stime} \leq b.\text{stime} \land a.\text{rtime} \geq b.\text{rtime}))\}.
+  \end{align*}
   %When two operations
   %$a$ and $b$ are defined to be in can-view relation
   %($a \xrightarrow{\text{can-view}} b$), either $a$ returned before

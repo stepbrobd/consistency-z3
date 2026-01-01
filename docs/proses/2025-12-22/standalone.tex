@@ -476,32 +476,32 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   %visible to $a$, and $x$ is in $\text{vis}_\text{wr-rd}$ or
   %$\text{vis}_\text{wr-wr}$ with $b$.
   %
-  We call this the
-  write propagation rule. Conceptually, this means that if a read $r$
-  and another operation (either read or write) $x$ are in the
+  and we call this the
+  write propagation rule. Conceptually, the rule implies that that, if a read $a$
+  and another operation (either read or write) $b$ are in the
   visibility relation,
-  the closest write operation $w$ that is visible to read $r$ must
-  be propagated to $x$. Whether this visibility relation can be satisfied
-  depends solely on the existence of read $r$'s previous and
-  immediately adjacent write operation $w$, and whether
-  that $w$ can satisfy the write-read or write-write pairwise
+  the closest write operation $x$ that is visible to read $a$ must
+  be propagated to $b$. Whether this visibility relation can be satisfied
+  depends solely on the existence of read $a$'s previous and
+  immediately adjacent write operation $x$, and whether
+  that $x$ can satisfy the write-read or write-write pairwise
   constraints of visibility.
 
   The write-read case is straightforward:
   %we term this rule definitive
   %visibility. Definitive visibility is defined as follows:
-  if a write $w$ is visible to a read $r$, then $r$
-  must have viewed $w$ and an arbitration relation must exist between
-  $w$ and $r$
+  if a write $a$ is visible to a read $b$, then $b$
+  must have viewed $a$ and an arbitration relation must exist between
+  $a$ and $b$
   to ensure the non-deterministic viewed relation has a
   linearization point, i.e., to cut off one of the possible paths in
   the viewed relation.
-  Then what does it mean for writes to be visible to writes? This translates to
-  write arbitration: whether two writes are visible to each other depend on the
+  Then what does it mean for writes to be visible to writes? We call this
+  propagation path write arbitration: whether two writes are visible to each other, depend on the
   existence of an arbitration relation between them.
-  Writes unordered by visibility are considered invisible to each
+  Writes not ordered by visibility are considered invisible to each
   other~\cite{viotti2016consistency}
-  and the arbitration resolves conflicts in concurrent and invisible operations.
+  and our proposed write arbitration resolve conflicts in concurrent and invisible operations.
 
   With the complete visibility definition we encode the aforementioned semantics
   into \sysname{} which are then used to reason about the compatibility

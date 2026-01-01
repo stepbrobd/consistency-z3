@@ -185,7 +185,7 @@ related potential impact of the approach at this stage.
   introduced
 - [addressed] L407 The monotonic reads definition is the same as the monotonic writes
   definition
-- L565 The next two paragraphs should use the same identifiers in the
+- [addressed] L565 The next two paragraphs should use the same identifiers in the
   explanation as in the preceding $vis$ definition for clarity
 - [addressed] L574 Typo "straignforward"
 - [addressed] L582 Typo "is" -> "are"

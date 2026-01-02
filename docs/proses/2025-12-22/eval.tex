@@ -139,3 +139,28 @@ searching through compatible answers in the entire search space could
 take extended
 time, finding the most desired, minimum score answer for each case
 study takes only less than 5 minutes.
+
+\para{Usability}
+
+During review, on several instances we were asked on the usability of \sysname.
+We summarized them in these 3 main categories: how can the framework be used,
+the expected user input and effort,
+and the scalability of our methodology in large-scale applications.
+% 1
+For usage, users supply \sysgraph whose nodes and/or edges carry built-in or custom \sysmods that extend the base model and relation interfaces.
+When multiple \sysmods are attached, \sysname exhaustively explores valid combinations.
+The \texttt{check} function optionally emits proof goals via the \texttt{witness} argument (see \texttt{tests/test\_witness.py} in the accompanying artifact), which can be discharged to external SMT solvers.
+% 2
+On effort and learning curve, once semantic requirements are understood, writing \sysgraph is direct.
+Our case studies in total require less than 1000 lines of constraint specifications, much smaller than end-to-end formal verification artifacts usually with higher than 50:1 proof-to-code ratio,
+and these constraints remain stable unless interfaces or consistency requirements change.
+% 3
+The scalability of our tool is mainly expressed via modular composition,
+\sysgraph nodes and edges compose modularly: large systems can be decomposed into sub-\sysgraphs,
+verified independently, and re-aggregated into monolithic node that preserves the verified properties of its components.
+This pattern (see \texttt{tests/test\_aggregate.py} and Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and reuse of solved results for large service meshes.
+% end
+In general, our framework offers early \{in,\}compatibility detection,
+architecture validation before implementation, and pre-verification screening to de-risk downstream formal proofs.
+It targets teams building correctness-critical distributed systems who want a high-level, low-maintenance checker rather than line-by-line proof development
+(comparing with than Verus\cite{verus}/Dafny\cite{dafny}/Rocq\cite{coq}/Lean\cite{lean} style workflows).

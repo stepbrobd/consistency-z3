@@ -19,10 +19,10 @@ Minor:\
 [addressed] Line 574: Typo in “strainghtforward”\
 [addressed] Line 647: “and” could use a different font.
 
-Q1: What inputs does the user exactly provide to the framework to model their
+[addressed] Q1: What inputs does the user exactly provide to the framework to model their
 application constraints?\
-Q2: What is the scalability of the method to large-scale programs?\
-Q3: Are the source code and evaluation data for SemantiX available?
+[addressed] Q2: What is the scalability of the method to large-scale programs?\
+[addressed] Q3: Are the source code and evaluation data for SemantiX available?
 
 ## Reviewer B:
 
@@ -177,7 +177,7 @@ related potential impact of the approach at this stage.
 
 - [addressed] L152 (paragraph) Keep tense consistent instead of switching between past and
   present
-- L234 This diagram is too crowded, it is difficult to see the arrows
+- [addressed] L234 This diagram is too crowded, it is difficult to see the arrows
 - [addressed] L300 Awkward wording - "whether" does not fit in this context
 - [addressed] L328 Awkward wording, perhaps rather "An operation can be conceptualized as an
   atomic action with a request-response pair..."?
@@ -195,6 +195,9 @@ related potential impact of the approach at this stage.
 
 ## Extras?
 
-- Address usability issue by adding another section with code example?
+- [addressed] Address usability in evaluation
+- When mentioning on the models pluggined in to each node/edge, distinguish application level semantics vs consistency models (not at the intro of DMs, sect. 4.2, around line 644)
+- Add AppGraph skeleton (high level code snippet) in Section 4.2 (make a figure, like couple squares with prov, need, cons on the edge, with edges pointing to each other, in the figure description include formula)
+- Address usability issue by adding another section with code example (this should be in case study)?
 - Select one example in evaluation (find an "interesting" one), select a few edges to show the code corresponding to the formalization (ICSE submission page 12)
-- Figures 4-6 should look consistent (stretch 4 5 6, use the extra space on the edges, to use different colors to differentiat semantic constraints vs application specific constraints)
+- Figures 4-6 should look consistent (stretch 4 5 6, use the extra space on the edges, to use different colors to differential semantic constraints vs application specific constraints)

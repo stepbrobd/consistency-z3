@@ -1,17 +1,45 @@
 \section{Evaluation} \label{sec:eval}
-This section discusses the experience in using \sysname{} and
-evaluate the performance of \sysname{}.
+We discusses the experience in using \sysname{} and
+its performance in checking compatibilities.
 
-\textbf{Experience}
+\para{Experience}
 We implemented \sysname{} in Python on Z3 version 4.15.1. It took
-approximately 3.7K lines of code to implement \sysname{}. However, with existing
-facilities in the framework, it was easy to model and check compatibility of
-applications. Especially, three case studies, movie streaming
-service, online shopping mall, and cross causal storage, only took
-183, 80, and 252 lines of code, respectively, to encode the
-application and check the compatibility against given \sysmods{}.
+approximately 3.7K lines of code to implement \sysname{}. 
+%
+%% \textbf{Usability}
+%% During review, on several instances we were asked on the usability of \sysname.
+%% We summarized them in these 3 main categories: how can the framework be used,
+%% the expected user input and effort,
+%% and the scalability of our methodology in large-scale applications.
+% 1
+To use \sysname{}, users supply \sysgraph whose nodes and/or edges carry
+built-in or custom \sysmods that extend the base model and relation interfaces.
+When multiple \sysmods are attached, \sysname checks for compatibility of given
+input or exhaustively explores valid combinations.
 
-\textbf{Performance}
+%The \texttt{check} function optionally emits proof goals via the \texttt{witness} argument (see \texttt{tests/test\_witness.py} in the accompanying artifact), which can be discharged to external SMT solvers.
+
+% 2
+On effort and learning curve, once semantic requirements are understood, writing \sysgraph is direct.
+Our case studies only require 183, 80, and 252 lines of code for encoding the moving streaming service, online shopping mall, and XC storage, respectively, thanks to existing facilities such as the \sysmods{} in the \sysname{} framework. 
+These relatively small efforts for constraint encoding and automated checks justifies our framework's intention for agile compatibility checks compared to typical end-to-end formal verification which could have 20:1 proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet} which could follow with confidence after our check passes. 
+%Our effort constraints remain stable unless interfaces or consistency requirements change.
+
+% 3
+The scalability of our tool is mainly expressed via modular composition,
+\sysgraph nodes and edges compose modularly: large systems can be decomposed into sub-\sysgraphs,
+verified independently, and re-aggregated into monolithic node that preserves the verified properties of its components.
+This pattern (\eg Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and 
+reuse of solved results for large service meshes.
+%(see \texttt{tests/test\_aggregate.py} and Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and reuse of solved results for large service meshes.
+
+% end
+In general, our framework offers early compatibility detection,
+architecture validation before implementation, and pre-verification screening to de-risk downstream formal proofs.
+It targets teams building correctness-critical distributed systems who want a high-level, low-maintenance checker rather than line-by-line deductive proof development (\eg using tools like Verus\cite{verus}, Dafny\cite{dafny}, Rocq\cite{coq}, and Lean\cite{lean}).
+
+
+\para{Performance}
 SMT solvers often take an extended period to complete their tasks.
 Thus, we measure the
 duration of the compatibility check in \sysname{}.
@@ -31,7 +59,7 @@ All experiments were conducted on an Intel i7-1360P processor with
 % performance than rely on a slow proof'' \cite{verus}.
 % https://github.com/verus-lang/verus/blob/0b6f3cbb8fceff6681b4988c3cac37a8b801f8e6/source/docs/guide/src/smt_failures.md
 
-\para{Pairwise Compatibility Check.}
+\textbf{Pairwise Compatibility Check.}
 First, we evaluated the compatibility between pairs of base
 consistency semantics,
 EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in \sysname{}.
@@ -94,7 +122,7 @@ respect to the theory.
   \label{tab:pairwise-time}
 \end{table}
 
-\para{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using
+\textbf{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using
 three case studies in \cref{sec:cs}.
 This evaluation focuses on two key metrics: the framework's ability to
 find valid compositions with a minimal semantic score and its
@@ -140,27 +168,4 @@ take extended
 time, finding the most desired, minimum score answer for each case
 study takes only less than 5 minutes.
 
-\para{Usability}
 
-During review, on several instances we were asked on the usability of \sysname.
-We summarized them in these 3 main categories: how can the framework be used,
-the expected user input and effort,
-and the scalability of our methodology in large-scale applications.
-% 1
-For usage, users supply \sysgraph whose nodes and/or edges carry built-in or custom \sysmods that extend the base model and relation interfaces.
-When multiple \sysmods are attached, \sysname exhaustively explores valid combinations.
-The \texttt{check} function optionally emits proof goals via the \texttt{witness} argument (see \texttt{tests/test\_witness.py} in the accompanying artifact), which can be discharged to external SMT solvers.
-% 2
-On effort and learning curve, once semantic requirements are understood, writing \sysgraph is direct.
-Our case studies in total require less than 1000 lines of constraint specifications, much smaller than end-to-end formal verification artifacts usually with higher than 50:1 proof-to-code ratio,
-and these constraints remain stable unless interfaces or consistency requirements change.
-% 3
-The scalability of our tool is mainly expressed via modular composition,
-\sysgraph nodes and edges compose modularly: large systems can be decomposed into sub-\sysgraphs,
-verified independently, and re-aggregated into monolithic node that preserves the verified properties of its components.
-This pattern (see \texttt{tests/test\_aggregate.py} and Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and reuse of solved results for large service meshes.
-% end
-In general, our framework offers early \{in,\}compatibility detection,
-architecture validation before implementation, and pre-verification screening to de-risk downstream formal proofs.
-It targets teams building correctness-critical distributed systems who want a high-level, low-maintenance checker rather than line-by-line proof development
-(comparing with than Verus\cite{verus}/Dafny\cite{dafny}/Rocq\cite{coq}/Lean\cite{lean} style workflows).

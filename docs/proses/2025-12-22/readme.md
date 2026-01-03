@@ -196,7 +196,7 @@ related potential impact of the approach at this stage.
 ## Extras?
 
 - [addressed] Address usability in evaluation
-- When mentioning on the models pluggined in to each node/edge, distinguish application level semantics vs consistency models (not at the intro of DMs, sect. 4.2, around line 644)
+- [addressed] When mentioning on the models pluggined in to each node/edge, distinguish application level semantics vs consistency models (not at the intro of DMs, sect. 4.2, around line 644)
 - Add AppGraph skeleton (high level code snippet) in Section 4.2 (make a figure, like couple squares with prov, need, cons on the edge, with edges pointing to each other, in the figure description include formula)
 - Address usability issue by adding another section with code example (this should be in case study)?
 - Select one example in evaluation (find an "interesting" one), select a few edges to show the code corresponding to the formalization (ICSE submission page 12)

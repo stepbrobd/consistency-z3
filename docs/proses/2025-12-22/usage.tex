@@ -66,17 +66,33 @@ respects their individual consistency requirements and guarantees.
 %specific semantics (from the choices provided in needs/provs/cons)
 %such that all interactions are consistent.
 
+% The \sysgraph{} is composed of \textit{nodes} with two fields:
+% (1) \textit{needs}, required constraint tuples from dependent components, and
+% (2) \textit{provs}, constraint tuples it provides to other nodes.
+% \sysname{} users can freely specify application logics, and each node
+% has both \textit{needs} and \textit{provs}, with either our predefined built-in
+% \sysmods{} or user-defined
+% constraints that represent the node's semantics using our interface.
+% \textit{Edges} connect nodes and have the \textit{cons} field,
+% specific constraint tuples for the node pair interaction.
+% In pluggable constraints for \textit{needs}, \textit{provs}, and \textit{cons},
+% users may use (1) pre-build or bring-your-own \sysmods representing consistency semantics,
+% (2) application-level and application-specific logic.
+% The tuples within the list represent constraints that must hold together
+% (logical \textsc{and}).
+
 The \sysgraph{} is composed of \textit{nodes} with two fields:
 (1) \textit{needs}, required constraint tuples from dependent components, and
-(2) \textit{provs}, constraint tuples it provides to other nodes.
-\sysname{} users can freely specify application logics, and each \textit{node}
-has both needs and provs, with either our predefined built-in
-\sysmods{} or user-defined
-constraints that represent the node's semantics using our interface.
-\textit{Edges} connect nodes and have the \textit{cons} field,
-specific constraint tuples for the node pair interaction.
-The tuples within the list represent constraints that must hold together
-(logical \textsc{and}).
+(2) \textit{provs}, constraint tuples provided to other nodes.
+Each node's semantics can be expressed using our predefined consistency \sysmods{}
+or user-defined constraints that implement the same interface. Edges connect nodes
+and carry \textit{cons}, constraint tuples for that node pair's interaction.
+Each tuple is a conjunction of constraints.
+
+For pluggable constraints in \textit{needs}, \textit{provs}, and \textit{cons},
+users can combine:
+(1) consistency semantics (pre-built or custom \sysmods{}), and
+(2) application-level or application-specific logic.
 
 In the implementation, we perform a depth-first search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated

@@ -189,20 +189,39 @@ service logic. In the implementation, we defined multiple operations
 with read or write type to represent interactions between client,
 service nodes, and storage nodes.
 Formally, we can represent client's login operation (edge 8) as follows:
-\begin{align*}
-  EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
-  op_{reg} \in H_{wr} :\\
-&ob(op_{login}, op_{reg}) \land vis(op_{reg}, op_{login}))
-\end{align*}
+
+% old version with linefeed
+% \begin{align*}
+%   EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
+%   op_{reg} \in H_{wr} :\\
+% &ob(op_{login}, op_{reg}) \land vis(op_{reg}, op_{login}))
+% \end{align*}
+% new version wo linefeed and consistent notation
+\[
+  EC_{\text{login}} \triangleq \forall op_{\text{login}} \in H_{\text{rd}} : \exists op_{\text{reg}} \in H_{\text{wr}} :
+  (op_{\text{login}}, op_{\text{reg}}) \in ob \land (op_{\text{reg}}, op_{\text{login}}) \in vis
+\]
 
 For services initiated from the client side, we modeled the behaviors
 as a set of re-useable common constraints with the return-before
 binary relationship. Formally:
+
+% old version with linefeed
+% \begin{align*}
+% EC_{auth} &\triangleq rb(op_{login}, op_{rdreview}) \land
+% rb(op_{login}, op_{wrreview}) \\
+% &\land rb(op_{login}, op_{rent}) \land rb(op_{login}, op_{watch})
+% \end{align*}
+% new version with linefeed and consistent notation
+% this is too wide
 \begin{align*}
-EC_{auth} &\triangleq rb(op_{login}, op_{rdreview}) \land
-rb(op_{login}, op_{wrreview}) \\
-&\land rb(op_{login}, op_{rent}) \land rb(op_{login}, op_{watch})
+  EC_{\text{auth}} &\triangleq
+  (op_{\text{login}}, op_{\text{rdreview}}) \in rb \land
+  (op_{\text{login}}, op_{\text{wrreview}}) \in rb \\ &\land
+  (op_{\text{login}}, op_{\text{rent}}) \in rb \land
+  (op_{\text{login}}, op_{\text{watch}}) \in rb
 \end{align*}
+
 The common constraints are then added to each edge that is dependent on the
 login service or refer to the login operation, ensuring the chain
 of dependencies is respected throughout the system.
@@ -214,10 +233,10 @@ the login operation, we can represent the review service's interaction
 as a set of constraints with existential quantification, object constraints,
 and return-before relationships, on top of consistency semantics
 encoded at each nodes' provide and need fields.
+
 \begin{align*}
-EC_{review} &\triangleq \forall op_{review} \in H_{wr} : \exists
-op_{rdmeta} \in H_{rd} :\\
-&ob(op_{review}, op_{rdmeta}) \land rb(op_{rdmeta}, op_{review})
+EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \exists op_{\text{rdmeta}} \in H_{\text{rd}} :\\
+&(op_{\text{review}}, op_{\text{rdmeta}}) \in ob \land (op_{\text{rdmeta}}, op_{\text{review}}) \in rb
 \end{align*}
 
 Following these practices one can specify and compose application constraints.

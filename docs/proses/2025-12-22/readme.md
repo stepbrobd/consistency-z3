@@ -190,7 +190,7 @@ related potential impact of the approach at this stage.
 - [addressed] L574 Typo "straignforward"
 - [addressed] L582 Typo "is" -> "are"
 - [addressed] L694 Type "assume" -> "assumes"
-- L793 Inconsistent notation compared to previous definitions.
+- [addressed] L793 Inconsistent notation compared to previous definitions.
   $ob(op_{login}, op_{rent})$ -> $(op_{login}, op_{rent}) \in ob$
 
 ## Extras?

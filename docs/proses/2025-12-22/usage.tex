@@ -54,6 +54,62 @@ additional consistency guarantees.
 %system semantics or outputs results of all satisfiable assignments
 %for the \sysgraph{}.
 
+\usetikzlibrary{arrows.meta, positioning, calc, fit}
+
+% Preamble (once):
+% \usetikzlibrary{arrows.meta, positioning, calc, fit}
+
+% Preamble (once):
+% \usetikzlibrary{arrows.meta, positioning, calc, fit}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  node distance=12mm,
+  box/.style={draw, rounded corners, align=center, inner sep=3pt},
+  boxwide/.style={draw, rounded corners, align=left, inner sep=4pt},
+  lbl/.style={font=\scriptsize},
+  ->, >=Latex
+]
+% nodes
+\node[box] (u) {node $u$ \\ \textbf{needs} provs};
+\node[box, right=25mm of u] (v) {node $v$ \\ needs \textbf{provs}};
+% group box
+\node[draw, dashed, rounded corners, fit=(u)(v), inner sep=6pt,
+      label=above:{\scriptsize pick needs/cons/provs from \sysgraph}] (sel) {};
+% compose
+\node[box] (compose) [below=5mm of sel] {\texttt{compose(check\_needs, check\_ec)}};
+% premise
+\node[box] (path) [below=5mm of compose, xshift=-25mm] {$\texttt{path\_premise}$ \\ (accumulated)};
+% provs
+\node[box] (provs) [right=26mm of compose] {$\texttt{check\_provs}$ \\ {\scriptsize (selected provs at node $v$)}};
+
+% compat
+\node[boxwide, thick] (compat) [below=10mm of $(compose)!0.5!(provs)$] {%
+\texttt{compatible(}\\
+\quad \texttt{check\_provs,}\\
+\quad \texttt{compose(check\_needs, check\_ec),}\\
+\quad \texttt{path\_premise,}\\
+\texttt{)}};
+
+% result
+\node[box, fill=green!10] (ok) [below=8mm of compat] {edge $(u,v)$ passes \\ (constraints compatible)};
+
+% arrows
+\draw[->]
+  (u) -- node[lbl, above] {select $\,\texttt{check\_needs}$}
+        node[lbl, below, align=center] {edge $(u,v)$\\select $\texttt{check\_ec}$} (v);
+\draw[->, dashed] (u.north) .. controls +(0,15mm) and +(0,24mm) .. (provs.north);
+\draw[->] (sel.south) -- (compose);
+\draw[->] (compose) -- (compat);
+\draw[->] (provs) -- (compat);
+\draw[->] (path) |- (compat);
+\draw[->] (compat) -- node[lbl, right] {unsat $\Rightarrow$ discard} (ok);
+\end{tikzpicture}
+\caption{Example flow for a single edge $(u,v)$: choose a tuple of \texttt{needs} (node $u$), \texttt{cons} (edge $(u,v)$), and \texttt{provs} (node $v$); compute \texttt{compose(needs, cons)}; check \texttt{compatible} against \texttt{provs} under the accumulated \texttt{path\_premise}. For multigraphs, repeat this per parallel edge (or combination of multiple edges) with its own chosen \texttt{cons} tuple.}
+\label{fig:skel}
+\end{figure}
+
 Applications that rely on multiple distributed systems with different
 consistency semantics can be checked for correctness by performing a
 compositional check using the \sysgraph{}.
@@ -94,7 +150,7 @@ users can combine:
 (1) consistency semantics (pre-built or custom \sysmods{}), and
 (2) application-level or application-specific logic.
 
-In the implementation, we perform a depth-first search (DFS) starting from a
+In the implementation (also see Fig. \ref{fig:skel}), we perform a depth-first search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated
 constraints in \texttt{path\_premise}, along the current path.
 \sysname{} performs compatibility checks, \texttt{compatible(check\_provs,

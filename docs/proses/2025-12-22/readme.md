@@ -200,4 +200,7 @@ related potential impact of the approach at this stage.
 - [addressed] Add AppGraph skeleton (high level code snippet) in Section 4.2 (make a figure, like couple squares with prov, need, cons on the edge, with edges pointing to each other, in the figure description include formula)
 - Address usability issue by adding another section with code example (this should be in case study)?
 - Select one example in evaluation (find an "interesting" one), select a few edges to show the code corresponding to the formalization (ICSE submission page 12)
+- In the figure and also in the page 11 explanation, make it clear where path_premise is from
+- Maybe remove check_provs or compose box and make them a caption on the arrow
+- Change font size for new fig 4 (around the same size as caption), move green box (also need to change the color and shape) to the left, use a different arrow for ones outside of the appgraph box (different shape for the bounding box, or color?), arrows outside of appgraph box should be marked as control flow (maybe add a legend)
 - Figures 4-6 should look consistent (stretch 4 5 6, use the extra space on the edges, to use different colors to differential semantic constraints vs application specific constraints)

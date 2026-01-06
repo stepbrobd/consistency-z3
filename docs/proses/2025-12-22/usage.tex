@@ -56,57 +56,45 @@ additional consistency guarantees.
 
 \usetikzlibrary{arrows.meta, positioning, calc, fit}
 
-% Preamble (once):
-% \usetikzlibrary{arrows.meta, positioning, calc, fit}
-
-% Preamble (once):
-% \usetikzlibrary{arrows.meta, positioning, calc, fit}
-
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-  node distance=12mm,
-  box/.style={draw, rounded corners, align=center, inner sep=3pt},
-  boxwide/.style={draw, rounded corners, align=left, inner sep=4pt},
+  font=\footnotesize,
+  node distance=8mm,
+  u/.style={draw, rounded corners, fill=blue!10, align=center, inner sep=3pt},
+  v/.style={draw, rounded corners, fill=green!10, align=center, inner sep=3pt},
+  boxext/.style={draw, rectangle, align=left, inner sep=3pt},
   lbl/.style={font=\scriptsize},
   ->, >=Latex
 ]
-% nodes
-\node[box] (u) {node $u$ \\ \textbf{needs} provs};
-\node[box, right=25mm of u] (v) {node $v$ \\ needs \textbf{provs}};
-% group box
-\node[draw, dashed, rounded corners, fit=(u)(v), inner sep=6pt,
-      label=above:{\scriptsize pick needs/cons/provs from \sysgraph}] (sel) {};
-% compose
-\node[box] (compose) [below=5mm of sel] {\texttt{compose(check\_needs, check\_ec)}};
-% premise
-\node[box] (path) [below=5mm of compose, xshift=-25mm] {$\texttt{path\_premise}$ \\ (accumulated)};
-% provs
-\node[box] (provs) [right=26mm of compose] {$\texttt{check\_provs}$ \\ {\scriptsize (selected provs at node $v$)}};
-
+\node[u] (u) {node $u$ \\ \textbf{needs} / provs};
+\node[v, right=22mm of u] (v) {node $v$ \\ needs / \textbf{provs}\\{\scriptsize selects \textcolor{red!70!black}{\texttt{check\_provs}}}};
+\node[draw, dotted, rectangle, fit=(u)(v), inner sep=6pt,
+      label=above:{\scriptsize \sysgraph: pick needs/cons/provs}] (sel) {};
+% path premise
+\node[boxext] (path) [below=12mm of u, xshift=-3mm] {\textcolor{orange!80!black}{$\texttt{path\_premise}$} \\ (accumulated)};
 % compat
-\node[boxwide, thick] (compat) [below=10mm of $(compose)!0.5!(provs)$] {%
+\node[boxext, align=left, thick] (compat) [right=4mm of path] {%
 \texttt{compatible(}\\
-\quad \texttt{check\_provs,}\\
-\quad \texttt{compose(check\_needs, check\_ec),}\\
-\quad \texttt{path\_premise,}\\
+\quad \textcolor{red!70!black}{\texttt{check\_provs}},\\
+\quad \texttt{compose(}\textcolor{blue!70!black}{\texttt{check\_needs}}\texttt{, }\textcolor{purple!70!black}{\texttt{check\_ec}}\texttt{)},\\
+\quad \textcolor{orange!80!black}{\texttt{path\_premise}},\\
 \texttt{)}};
-
 % result
-\node[box, fill=green!10] (ok) [below=8mm of compat] {edge $(u,v)$ passes \\ (constraints compatible)};
-
-% arrows
+\node[boxext, align=center] (ok) [below=4mm of compat] {edge $(u,v)$ passes / discard};
+% inside app graph
 \draw[->]
-  (u) -- node[lbl, above] {select $\,\texttt{check\_needs}$}
-        node[lbl, below, align=center] {edge $(u,v)$\\select $\texttt{check\_ec}$} (v);
-\draw[->, dashed] (u.north) .. controls +(0,15mm) and +(0,24mm) .. (provs.north);
-\draw[->] (sel.south) -- (compose);
-\draw[->] (compose) -- (compat);
-\draw[->] (provs) -- (compat);
-\draw[->] (path) |- (compat);
-\draw[->] (compat) -- node[lbl, right] {unsat $\Rightarrow$ discard} (ok);
+  (u) -- node[lbl, above] {select \textcolor{blue!70!black}{\texttt{check\_needs}}}
+        node[lbl, below, align=center] {edge $(u,v)$\\select \textcolor{purple!70!black}{\texttt{check\_ec}}} (v);
+% app graph to compatible args
+\draw[->, dashed] (sel.south) -- (compat.north);
+% path premise into compatible
+\draw[->, dashed] (path.east) -- node[lbl, above] {} (compat.west);
+% result
+\draw[->, dashed] (compat) -- (ok);
+
 \end{tikzpicture}
-\caption{Example flow for a single edge $(u,v)$: choose a tuple of \texttt{needs} (node $u$), \texttt{cons} (edge $(u,v)$), and \texttt{provs} (node $v$); compute \texttt{compose(needs, cons)}; check \texttt{compatible} against \texttt{provs} under the accumulated \texttt{path\_premise}. For multigraphs, repeat this per parallel edge (or combination of multiple edges) with its own chosen \texttt{cons} tuple.}
+\caption{Example flow for a single edge $(u,v)$: inside \sysgraph, select \texttt{check\_needs}, \texttt{check\_ec}, and the node’s \texttt{check\_provs}; outside, evaluate \texttt{compatible} on \texttt{compose(check\_needs, check\_ec)} and \texttt{path\_premise}. For multigraphs, repeat per parallel edge (or edge combinations) with its own \texttt{cons} tuple. Solid arrows are part of \sysgraph and have the same meaning of the figures below. Dashed arrows represent control flow.}
 \label{fig:skel}
 \end{figure}
 
@@ -153,6 +141,9 @@ users can combine:
 In the implementation (also see Fig. \ref{fig:skel}), we perform a depth-first search (DFS) starting from a
 given source node, keeping track of visited edges and the accumulated
 constraints in \texttt{path\_premise}, along the current path.
+Constraints in \texttt{path\_premise} are invisible to users and are dynamic in nature based on which
+edge(s), \texttt{needs}, \texttt{provs} are selected. Constraints are populated in and out
+based on the satisfiability of the previous levels, and current level checks.
 \sysname{} performs compatibility checks, \texttt{compatible(check\_provs,
 compose(check\_needs, check\_ec), path\_premise)}:
 for each edge $(u, v)$ from the current node $u$, it checks if \texttt{provs} from $v$

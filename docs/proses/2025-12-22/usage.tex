@@ -70,7 +70,7 @@ additional consistency guarantees.
 \node[u] (u) {node $u$ \\ \textbf{needs} / provs};
 \node[v, right=22mm of u] (v) {node $v$ \\ needs / \textbf{provs}\\{\scriptsize selects \textcolor{red!70!black}{\texttt{check\_provs}}}};
 \node[draw, dotted, rectangle, fit=(u)(v), inner sep=6pt,
-      label=above:{\scriptsize \sysgraph: pick needs/cons/provs}] (sel) {};
+      label=above:{\scriptsize \sysgraph: needs/cons/provs}] (sel) {};
 % path premise
 \node[boxext] (path) [below=12mm of u, xshift=-3mm] {\textcolor{orange!80!black}{$\texttt{path\_premise}$} \\ (accumulated)};
 % compat

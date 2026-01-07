@@ -202,16 +202,6 @@ Formally, we can represent client's login operation (edge 8) as follows:
   (op_{\text{login}}, op_{\text{reg}}) \in ob \land (op_{\text{reg}}, op_{\text{login}}) \in vis
 \]
 
-Assuming the operations (login, reg, etc.)
-and relations (ob, rb, etc.) are defined, the same constraints
-become the following pseudocode that can be attaches to edges:
-
-\begin{verbatim}
-ec_login = ForAll op_login in H_rd:
-             Exists op_reg in H_wr:
-               ob(op_login, op_reg) and vis(op_reg, op_login)
-\end{verbatim}
-
 For services initiated from the client side, we modeled the behaviors
 as a set of re-useable common constraints with the return-before
 binary relationship. Formally:
@@ -249,24 +239,7 @@ EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \e
 &(op_{\text{review}}, op_{\text{rdmeta}}) \in ob \land (op_{\text{rdmeta}}, op_{\text{review}}) \in rb
 \end{align*}
 
-These snippets mirror the formal clauses, reusing \texttt{ec\_review} on the
-Review ReviewDB edge shows how a single gate enforces the dependency along the path.
-These examples illustrate how we translate the formal edge constraints into the \sysgraph encoding checked by \texttt{compose} and \texttt{compatible} calls.
-
-\begin{verbatim}
-ec_review = Forall op_wrreview in H_wr:
-              Exists op_rdmeta in H_rd:
-                ob(op_wrreview, op_rdmeta) and rb(op_rdmeta, op_wrreview)
-
-# node semantics (needs/provs) carry MR/RYW/etc.
-edges = [
-  Edge(Client, Login,  ec_login), # register-before-login
-  Edge(Client, Review, ec_auth),  # login-before-review ops
-  Edge(Review, MetadataDB, ec_review),
-  Edge(Review, ReviewDB, ec_review) # reuse same gate for the DB write
-]
-# check constraints along paths w/ compose/compatible
-\end{verbatim}
+Following these practices one can specify and compose application constraints.
 
 %The example already specifies satisfiable \sysmods{}, but users can
 %test other \sysmods{} or ask \sysname{} to search for the compatible

@@ -204,11 +204,11 @@ related potential impact of the approach at this stage.
 - [addressed] Maybe remove check_provs or compose box and make them a caption on the arrow
 - [addressed] Change font size for new fig 4 (around the same size as caption), move green box (also need to change the color and shape) to the left, use a different arrow for ones outside of the appgraph box (different shape for the bounding box, or color?), arrows outside of appgraph box should be marked as control flow (maybe add a legend)
 - Figure 4 should be wrapfigure, source of the path_premise should be a text saying "accumulated"
-- Check on the edge pseudocode, edge 1 and edge 8 should be included in the edge list
+- [addressed] Check on the edge pseudocode, edge 1 and edge 8 should be included in the edge list
 - In section 4 introduce `extract` function by using media example edge 8 in section 5, and how login db and user node can be aggregated with semantic constraints + app level constraints
 - In Section 5 change the use of compose and composed to smth else to avoid confusion
 - In the first case study before showing formalization, mention we will show a interaction flow from user login to writing review
 - After showing login flow, mention how the appgraph is constructed (just by writing nodes and edges with constraints), demonstrate simplicity
-- Get rid of all code in section 5
+- [addressed] Get rid of all code in section 5
 - Mention extraction in XC case study
 - Figures 4-6 should look consistent (stretch 4 5 6, use the extra space on the edges, to use different colors to differential semantic constraints vs application specific constraints)

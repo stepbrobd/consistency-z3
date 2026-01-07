@@ -307,9 +307,8 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   the categories in \textit{can-view}: either (1) the write 
   returns before (\eg $w_1$ and $r$ in \cref{fig:can-view}; 
   note that which process issued the read/write does not matter, as synchronization is not required to establish probable effect causality)
-  or (2) the read and write are \textit{concurrent} (\ie the durations of
-  the read and write defined by their stime and rtime overlap as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read might
-  observe the write's effect.
+  or (2) the read and write are \textit{concurrent} (\ie returns before relations do not hold as the durations of the read and write overlap 
+  as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read might observe the write's effect.
   %
   Formally, this can-view relation, $a \xrightarrow{\text{can-view}} b$,
   is defined over the pairwise start or return time of read $a$ and

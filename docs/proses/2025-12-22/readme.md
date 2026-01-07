@@ -205,7 +205,8 @@ related potential impact of the approach at this stage.
 - [addressed] Change font size for new fig 4 (around the same size as caption), move green box (also need to change the color and shape) to the left, use a different arrow for ones outside of the appgraph box (different shape for the bounding box, or color?), arrows outside of appgraph box should be marked as control flow (maybe add a legend)
 - [addressed] Figure 4 should be wrapfigure, source of the path_premise should be a text saying "accumulated"
 - [addressed] Check on the edge pseudocode, edge 1 and edge 8 should be included in the edge list
-- In section 4 introduce `extract` function by using media example edge 8 in section 5, and how login db and user node can be aggregated with semantic constraints + app level constraints
+- [addressed] In section 4 introduce `extract` function
+- Media example edge 8 in section 5, and how login db and user node can be aggregated with semantic constraints + app level constraints
 - In Section 5 change the use of compose and composed to smth else to avoid confusion
 - In the first case study before showing formalization, mention we will show a interaction flow from user login to writing review
 - After showing login flow, mention how the appgraph is constructed (just by writing nodes and edges with constraints), demonstrate simplicity

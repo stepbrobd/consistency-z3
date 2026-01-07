@@ -56,7 +56,9 @@ additional consistency guarantees.
 
 \usetikzlibrary{arrows.meta, positioning, calc, fit}
 
-\begin{figure}[t]
+\begin{wrapfigure}[19]{R}{3.3in}
+\vspace{-0.1in}
+\Small \centering
 \centering
 \begin{tikzpicture}[
   font=\footnotesize,
@@ -72,7 +74,7 @@ additional consistency guarantees.
 \node[draw, dotted, rectangle, fit=(u)(v), inner sep=6pt,
       label=above:{\scriptsize \sysgraph: needs/cons/provs}] (sel) {};
 % path premise
-\node[boxext] (path) [below=12mm of u, xshift=-3mm] {\textcolor{orange!80!black}{$\texttt{path\_premise}$} \\ (accumulated)};
+\node[boxext] (path) [below=12mm of u, xshift=-3mm] {(accumulated) \\ \textcolor{orange!80!black}{$\texttt{path\_premise}$}};
 % compat
 \node[boxext, align=left, thick] (compat) [right=4mm of path] {%
 \texttt{compatible(}\\
@@ -94,9 +96,10 @@ additional consistency guarantees.
 \draw[->, dashed] (compat) -- (ok);
 
 \end{tikzpicture}
+\vspace{-0.1in}
 \caption{Example flow for a single edge $(u,v)$: inside \sysgraph, select \texttt{check\_needs}, \texttt{check\_ec}, and the node’s \texttt{check\_provs}; outside, evaluate \texttt{compatible} on \texttt{compose(check\_needs, check\_ec)} and \texttt{path\_premise}. For multigraphs, repeat per parallel edge (or edge combinations) with its own \texttt{cons} tuple. Solid arrows are part of \sysgraph and have the same meaning of the figures below. Dashed arrows represent control flow.}
 \label{fig:skel}
-\end{figure}
+\end{wrapfigure}
 
 Applications that rely on multiple distributed systems with different
 consistency semantics can be checked for correctness by performing a

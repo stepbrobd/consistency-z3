@@ -209,7 +209,7 @@ related potential impact of the approach at this stage.
 - [addressed] Clarify compatibility vs composition
 - [addressed] Unify composition check compositionality check, etc. throughout paper
 - Media example edge 8 in section 5, and how login db and user node can be aggregated with semantic constraints + app level constraints
-- Remove the mentioning of onode in extract explanation (no need mention limitation)
+- [addressed] Remove the mentioning of onode in extract explanation (no need mention limitation)
 - Add another node to the left of edge(u,v) mentioning extract function, also update caption
 - [addressed] In Section 5 change the use of compose and composed to smth else to avoid confusion
 - In the first case study before showing formalization, mention we will show a interaction flow from user login to writing review

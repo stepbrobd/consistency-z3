@@ -166,30 +166,30 @@ with the plugged-in \sysmods{} and the application logics are also
 sound as a whole.
 
 After a successful compositional check, our node/edge aggregation function
-\texttt{extract(inode, onode, result)}, takes the resulting graph
+\texttt{extract}, takes the resulting graph
 from composability check (which represents one valid assignment of
 constraints) and output a single node that represents the net or
 equivalent semantic guarantee of provided (sub-)graph
-reachable from the specified node, assuming \texttt{inode} (graph entry) and \texttt{onode} (graph exit) are
-the same (this is a feature limitation, we currently only allow entry and exit node to be the same to prevent cross edges from/to outside nodes appearing in the subgraph).
+reachable from the subgraph root node, and there are no cross edges from/to outside nodes in the subgraph.
 The function performs a DFS starting from the
-specified \texttt{inode} on this \texttt{result} graph. For each edge (\texttt{src}, \texttt{dst})
+specified subgraph root on the graph provided in function argument.
+For each edge (\texttt{src}, \texttt{dst})
 traversed in the DFS, the extraction function uses the specific \texttt{provs}
 constraint assigned to \texttt{src} in the result graph, uses the specific
-needs constraint assigned to \texttt{dst} in the \texttt{result} graph, and retrieves
+needs constraint assigned to \texttt{dst} in the provided graph, and retrieves
 \texttt{cons} constraint assigned to the edge in
-the result graph. The extract function creates a composite constraint
+the argument graph. The extract function creates a composite constraint
 for this single edge interaction: \texttt{compose(src\_provs, edge\_cons,
 dst\_needs)}. This represents the conjunction of constraints relevant
 to this specific step in the flow. It collects these composite
-constraints from all edges reachable from \texttt{inode} in the DFS. Finally,
+constraints from all edges reachable from subgraph root in the DFS. Finally,
 it returns the logical \textsc{and} of all collected composite
 constraints. Simply put, axioms and relations define constraints on
-Operations; similarly, extract defines a summary constraint on a
+Operations; similarly, \texttt{extract} defines a summary constraint on a
 successfully composed subgraph. If the compositional check found a valid
 way for components A, B, and C to interact starting from A,
-extract(A, A, result) generates a single formula representing the
-overall guarantee provided by the A $\,\to\,$ B $\,\to\,$ C... chain, as seen from A's
+\texttt{extract(A, A, graph)} generates a single formula representing the
+overall guarantee provided by the A $\,\to\,$ B $\,\to\,$ C chain, as seen from A's
 perspective, based on the specific choices made during the composability check.
 
 \subsection{Compatible Combination Search}

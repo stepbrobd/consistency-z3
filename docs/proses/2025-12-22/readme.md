@@ -215,5 +215,5 @@ related potential impact of the approach at this stage.
 - [addressed] In the first case study before showing formalization, mention we will show a interaction flow from user login to writing review
 - [addressed] After showing login flow, mention how the appgraph is constructed (just by writing nodes and edges with constraints), demonstrate simplicity
 - [addressed] Get rid of all code in section 5
-- Mention extraction in XC case study
+- [addressed] Mention extraction in XC case study
 - Figures 4-6 should look consistent (stretch 4 5 6, use the extra space on the edges, to use different colors to differential semantic constraints vs application specific constraints)

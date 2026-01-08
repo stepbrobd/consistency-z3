@@ -612,6 +612,12 @@ to verify compatibility, which succeeds. While
 the original XC implementation~\cite{boltoncc} ties together only EC
 storage services, this example further explores more diverse storage
 services and demonstrates the flexibility of \sysname{}.
+With the successful composition check, the multi-node XC chain can be
+collapsed into a single entity (similar to how Login + User DB could be summarized)
+by applying \texttt{extract} to the full XC graph.
+This yields one aggregated \texttt{provs}/\texttt{needs} tuple representing
+the composed cross storage system causal consistency guarantee for downstream use.
+
 %\subsubsection{Interaction Flows}
 %
 %The media streaming service supports several interaction patterns,

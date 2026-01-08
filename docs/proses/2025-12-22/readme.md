@@ -206,8 +206,12 @@ related potential impact of the approach at this stage.
 - [addressed] Figure 4 should be wrapfigure, source of the path_premise should be a text saying "accumulated"
 - [addressed] Check on the edge pseudocode, edge 1 and edge 8 should be included in the edge list
 - [addressed] In section 4 introduce `extract` function
+- [addressed] Clarify compatibility vs composition
+- [addressed] Unify composition check compositionality check, etc. throughout paper
 - Media example edge 8 in section 5, and how login db and user node can be aggregated with semantic constraints + app level constraints
-- In Section 5 change the use of compose and composed to smth else to avoid confusion
+- Remove the mentioning of onode in extract explanation (no need mention limitation)
+- Add another node to the left of edge(u,v) mentioning extract function, also update caption
+- [addressed] In Section 5 change the use of compose and composed to smth else to avoid confusion
 - In the first case study before showing formalization, mention we will show a interaction flow from user login to writing review
 - After showing login flow, mention how the appgraph is constructed (just by writing nodes and edges with constraints), demonstrate simplicity
 - [addressed] Get rid of all code in section 5

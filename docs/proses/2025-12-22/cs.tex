@@ -202,6 +202,10 @@ Formally, we can represent client's login operation (edge 8) as follows:
   (op_{\text{login}}, op_{\text{reg}}) \in ob \land (op_{\text{reg}}, op_{\text{login}}) \in vis
 \]
 
+Since all interactions to User DB pass through Login, and Login node do not have cross
+edges to outside graph components other than User DB, the subgraph Login, User DB and
+edge 8 can be aggregated with \texttt{extract} function.
+
 For services initiated from the client side, we modeled the behaviors
 as a set of re-useable common constraints with the return-before
 binary relationship. Formally:
@@ -239,7 +243,7 @@ EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \e
 &(op_{\text{review}}, op_{\text{rdmeta}}) \in ob \land (op_{\text{rdmeta}}, op_{\text{review}}) \in rb
 \end{align*}
 
-Following these practices one can specify and compose application constraints.
+Following these practices one can specify relatively complex and construct \sysgraph with \sysmods and application-level constraints.
 
 %The example already specifies satisfiable \sysmods{}, but users can
 %test other \sysmods{} or ask \sysname{} to search for the compatible

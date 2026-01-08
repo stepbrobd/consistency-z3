@@ -1,7 +1,11 @@
 \section{\sysname{} Design}
 
 We design the \sysmodlong{} (\sysmod{}) based on the definitions in
-previous section.
+previous section. There are 2 main ways to interact with our framework,
+compatibility check and composition check. Compatibility check is specific
+to \sysmods and is meant to assert the pairwise relationship between provided
+arguments, whereas compositional check is specific to \sysgraph, and is
+build upon compatibility check.
 A \sysmod{} represents a single distributed system with specific semantics
 and \sysname{} can perform individual \sysmod{} validation to check if all
 semantic constraints are sound and compatible, as
@@ -9,15 +13,15 @@ well as pairwise checks between two \sysmods{} to determine if one
 is satisfiable under another's constraints.
 More importantly, \sysname{} can model applications that rely on multiple
 distributed systems with different
-consistency semantics (i.e., \sysmods{}) and can check for compatibility
-between the application logic and the assigned semantics by performing a
+consistency semantics (i.e., \sysmods{}) and can check for constraint satisfiability
+between application logic and assigned semantics by performing a
 compositional check using the \sysgraph{}.
 
 \subsection{Compatibility Check}
 
 \sysname{} is designed to reason about
 compatibility among consistency semantics.
-We define compatibility between two consistency semantics using \sysmods{}
+We define (pairwise) compatibility between two consistency semantics using \sysmods{}
 $M_1$ and $M_2$ using
 an implication-based criterion. $M_1$ is considered compatible with
 $M_2$ if the formula $M_1 \Rightarrow M_2$ is valid, i.e., there is no
@@ -39,7 +43,7 @@ in \cref{fig:semantics-tree} and in previous literature \cite{terry1994session}.
 To combine multiple consistency models into a single stronger model, we used
 logical conjunctions on each \sysmod{}'s constraints. By taking the constraints
 representing each model's semantics and forming their conjunction, we derive a
-composed model that enforces all included constraints simultaneously.
+aggregated model that enforces all included constraints simultaneously.
 This approach allows incremental composition: users can start from a
 base model and iteratively strengthen it by adding new sets of constraints,
 either from our implemented models or user-defined constraints, representing
@@ -100,12 +104,11 @@ additional consistency guarantees.
 \caption{Example flow for a single edge $(u,v)$: inside \sysgraph, select \texttt{check\_needs}, \texttt{check\_ec}, and the node’s \texttt{check\_provs}; outside, evaluate \texttt{compatible} on \texttt{compose(check\_needs, check\_ec)} and \texttt{path\_premise}. For multigraphs, repeat per parallel edge (or edge combinations) with its own \texttt{cons} tuple. Solid arrows are part of \sysgraph and have the same meaning of the figures below. Dashed arrows represent control flow.}
 \label{fig:skel}
 \end{wrapfigure}
-\jiyong{There are three checks that seem to mean the same thing: compositional check, composability check, composition check. Pick one and use it consistently.}
-\jiyong{What is the difference between composition check and compatibility check?}
+
 Applications that rely on multiple distributed systems with different
 consistency semantics can be checked for correctness by performing a
 compositional check using the \sysgraph{}.
-Our composability check
+Our compositional check
 verifies if a distributed application, modeled as a graph (\ie
 \sysgraph{}) can have its components interact in a way that
 respects their individual consistency requirements and guarantees.
@@ -148,7 +151,7 @@ constraints in \texttt{path\_premise}, along the current path.
 Constraints in \texttt{path\_premise} are invisible to users and are dynamic in nature based on which
 edge(s), \texttt{needs}, \texttt{provs} are selected. Constraints are populated in and out
 based on the satisfiability of the previous levels, and current level checks.
-\sysname{} performs compatibility checks, \texttt{compatible(check\_provs,
+\sysname{} perform compatibility checks, \texttt{compatible(check\_provs,
 compose(check\_needs, check\_ec), path\_premise)}:
 for each edge $(u, v)$ from the current node $u$, it checks if \texttt{provs} from $v$
 and \texttt{cons} from edge $(u, v)$ satisfy needs from $u$.
@@ -162,7 +165,7 @@ If all checks succeed then the application is proven to be compatible
 with the plugged-in \sysmods{} and the application logics are also
 sound as a whole.
 
-After a successful composable check, our node/edge aggregation function
+After a successful compositional check, our node/edge aggregation function
 \texttt{extract(inode, onode, result)}, takes the resulting graph
 from composability check (which represents one valid assignment of
 constraints) and output a single node that represents the net or
@@ -183,7 +186,7 @@ constraints from all edges reachable from \texttt{inode} in the DFS. Finally,
 it returns the logical \textsc{and} of all collected composite
 constraints. Simply put, axioms and relations define constraints on
 Operations; similarly, extract defines a summary constraint on a
-successfully composed subgraph. If the composable check found a valid
+successfully composed subgraph. If the compositional check found a valid
 way for components A, B, and C to interact starting from A,
 extract(A, A, result) generates a single formula representing the
 overall guarantee provided by the A $\,\to\,$ B $\,\to\,$ C... chain, as seen from A's

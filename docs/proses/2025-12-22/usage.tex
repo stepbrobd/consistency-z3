@@ -56,7 +56,7 @@ additional consistency guarantees.
 
 \usetikzlibrary{arrows.meta, positioning, calc, fit}
 
-\begin{wrapfigure}[19]{R}{3.3in}
+\begin{wrapfigure}[20]{R}{3.3in}
 \vspace{-0.1in}
 \Small \centering
 \centering
@@ -100,7 +100,8 @@ additional consistency guarantees.
 \caption{Example flow for a single edge $(u,v)$: inside \sysgraph, select \texttt{check\_needs}, \texttt{check\_ec}, and the node’s \texttt{check\_provs}; outside, evaluate \texttt{compatible} on \texttt{compose(check\_needs, check\_ec)} and \texttt{path\_premise}. For multigraphs, repeat per parallel edge (or edge combinations) with its own \texttt{cons} tuple. Solid arrows are part of \sysgraph and have the same meaning of the figures below. Dashed arrows represent control flow.}
 \label{fig:skel}
 \end{wrapfigure}
-
+\jiyong{There are three checks that seem to mean the same thing: compositional check, composability check, composition check. Pick one and use it consistently.}
+\jiyong{What is the difference between composition check and compatibility check?}
 Applications that rely on multiple distributed systems with different
 consistency semantics can be checked for correctness by performing a
 compositional check using the \sysgraph{}.
@@ -128,7 +129,7 @@ respects their individual consistency requirements and guarantees.
 % The tuples within the list represent constraints that must hold together
 % (logical \textsc{and}).
 
-The \sysgraph{} is composed of \textit{nodes} with two fields:
+The \sysgraph{} consists of \textit{nodes} with two fields:
 (1) \textit{needs}, required constraint tuples from dependent components, and
 (2) \textit{provs}, constraint tuples provided to other nodes.
 Each node's semantics can be expressed using our predefined consistency \sysmods{}

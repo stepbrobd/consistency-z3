@@ -244,6 +244,10 @@ EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \e
 \end{align*}
 
 Following these practices one can specify relatively complex and construct \sysgraph with \sysmods and application-level constraints.
+Moreover, depending on system designers' need, Login node, User DB, and edge 8 can be collapsed into a single
+aggregated node by applying \texttt{extract} (introduced in \cref{sec:background}) to the subgraph accumulates
+both the semantic constraints (MW+WFR) and the application constraint $EC_{\text{login}}$ into one summary \texttt{provs}/\texttt{needs} tuple.
+This lets us reuse the combined guarantee downstream or use it as a portable node in another \sysgraph.
 
 %The example already specifies satisfiable \sysmods{}, but users can
 %test other \sysmods{} or ask \sysname{} to search for the compatible

@@ -61,7 +61,7 @@ additional consistency guarantees.
 
 \usetikzlibrary{arrows.meta, positioning, calc, fit}
 
-\begin{wrapfigure}[20]{R}{3.3in}
+\begin{wrapfigure}[22]{R}{3.3in}
 \vspace{-0.1in}
 \Small \centering
 \centering
@@ -89,6 +89,8 @@ additional consistency guarantees.
 \texttt{)}};
 % result
 \node[boxext, align=center] (ok) [below=4mm of compat] {edge $(u,v)$ passes / discard};
+% extract
+\node[boxext, align=center] (extract) [left=12mm of ok] {\texttt{extract(...)}\\(optional aggregate)};
 % inside app graph
 \draw[->]
   (u) -- node[lbl, above] {select \textcolor{blue!70!black}{\texttt{check\_needs}}}
@@ -99,10 +101,11 @@ additional consistency guarantees.
 \draw[->, dashed] (path.east) -- node[lbl, above] {} (compat.west);
 % result
 \draw[->, dashed] (compat) -- (ok);
+\draw[->, dashed] (ok.west) -- node[lbl, above] {after} node[lbl, below] {success} (extract.east);
 
 \end{tikzpicture}
 \vspace{-0.1in}
-\caption{Example flow for a single edge $(u,v)$: inside \sysgraph, select \texttt{check\_needs}, \texttt{check\_ec}, and the node’s \texttt{check\_provs}; outside, evaluate \texttt{compatible} on \texttt{compose(check\_needs, check\_ec)} and \texttt{path\_premise}. For multigraphs, repeat per parallel edge (or edge combinations) with its own \texttt{cons} tuple. Solid arrows are part of \sysgraph and have the same meaning of the figures below. Dashed arrows represent control flow.}
+        \caption{Example flow for a single edge $(u,v)$: inside \sysgraph, select \texttt{check\_needs}, \texttt{check\_ec}, and the node’s \texttt{check\_provs}; outside, evaluate \texttt{compatible} on \texttt{compose(check\_needs, check\_ec)} and \texttt{path\_premise}. After a successful compatibility check, \texttt{extract} function can optionally aggregate \texttt{compatible} return value. For multigraphs, repeat per parallel edge (or edge combinations) with its own \texttt{cons} tuple. Solid arrows are part of \sysgraph and have the same meaning as the figures below. Dashed arrows represent control flow.}
 \label{fig:skel}
 \end{wrapfigure}
 

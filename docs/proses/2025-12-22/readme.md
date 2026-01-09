@@ -210,7 +210,7 @@ related potential impact of the approach at this stage.
 - [addressed] Unify composition check compositionality check, etc. throughout paper
 - [addressed] Media example edge 8 in section 5, and how login db and user node can be aggregated with semantic constraints + app level constraints
 - [addressed] Remove the mentioning of onode in extract explanation (no need mention limitation)
-- Add another node to the left of edge(u,v) mentioning extract function, also update caption
+- [addressed] Add another node to the left of edge(u,v) mentioning extract function, also update caption
 - [addressed] In Section 5 change the use of compose and composed to smth else to avoid confusion
 - [addressed] In the first case study before showing formalization, mention we will show a interaction flow from user login to writing review
 - [addressed] After showing login flow, mention how the appgraph is constructed (just by writing nodes and edges with constraints), demonstrate simplicity

@@ -195,6 +195,8 @@ way for components A, B, and C to interact starting from A,
 \texttt{extract(A, A, graph)} generates a single formula representing the
 overall guarantee provided by the A $\,\to\,$ B $\,\to\,$ C chain, as seen from A's
 perspective, based on the specific choices made during the composability check.
+To better improve scalability, previously checked results are reusable with
+the above introduced extraction function.
 
 \subsection{Compatible Combination Search}
 

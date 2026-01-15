@@ -216,6 +216,6 @@ related potential impact of the approach at this stage.
 - [addressed] After showing login flow, mention how the appgraph is constructed (just by writing nodes and edges with constraints), demonstrate simplicity
 - [addressed] Get rid of all code in section 5
 - [addressed] Mention extraction in XC case study
-- Add sentence at the beginning of 4.3 on extraction, at the first sentence, our framework provides scalability and check re-use with extraction function...
-- Link scalability with extraction
+- [addressed] Add sentence at the beginning of 4.3 on extraction, at the first sentence, our framework provides scalability and check re-use with extraction function...
+- [addressed] Link scalability with extraction
 - Figures 5-7 should look consistent (stretch 5 6 7, use the extra space on the edges, to use different colors to differential semantic constraints vs application specific constraints)

@@ -30,13 +30,14 @@ DB components, they must specify the constraints for the other components.
 \begin{figure}[h]
   \centering
   \begin{tikzpicture}[
+      font=\footnotesize,
       node distance=1.8cm,
-      service/.style={draw, rounded corners, fill=blue!10, minimum
-      width=1cm, minimum height=0.5cm},
-      storage/.style={draw, rounded corners, fill=green!10, minimum
-      width=1cm, minimum height=0.5cm},
+      service/.style={draw, rounded corners, fill=blue!10, minimum width=1cm, minimum height=0.5cm},
+      storage/.style={draw, rounded corners, fill=green!10, minimum width=1cm, minimum height=0.5cm},
       arrow/.style={->, >=stealth, thick},
-      label/.style={font=\small\itshape}
+      label/.style={font=\small\itshape},
+      app/.style={font=\scriptsize, text=purple!70!black},
+      cons/.style={font=\scriptsize, text=teal!70!black}
     ]
     % client and admin
     \node[service] (client) at (0,0) {Client};
@@ -55,41 +56,37 @@ DB components, they must specify the constraints for the other components.
     \node[storage] (rent_db) at (5.2,0.2) {Rent DB};
     \node[storage] (video_db) at (5.2,3.3) {Video DB};
 
-    % edges from client with centered, above labels
-    \draw[arrow] (client) -- (login) node[pos=0.5, above, font=\tiny] {1};
-    \draw[arrow] (client) -- (review) node[pos=0.5, above, font=\tiny] {2};
-    \draw[arrow] (client) -- (rent) node[pos=0.5, above, font=\tiny] {3};
-    \draw[arrow] (client) -- (video) node[pos=0.5, above, font=\tiny] {4};
+    % edges from client
+    \draw[arrow] (client) -- (login)       node[midway, above, app, yshift=-0.8mm] {1};
+    \draw[arrow] (client) -- (review)      node[midway, above, app, yshift=-0.8mm] {2};
+    \draw[arrow] (client) -- (rent)        node[midway, above, app, yshift=-0.8mm] {3};
+    \draw[arrow] (client) -- (video)       node[midway, above, app, yshift=-0.8mm] {4};
 
     % edges from admin
-    \draw[arrow] (admin) -- (login) node[pos=0.5, above, font=\tiny] {5};
-    \draw[arrow] (admin) -- (metadata_db) node[pos=0.5, above, font=\tiny] {6};
-    \draw[arrow] (admin) -- (video) node[pos=0.5, above, yshift=-1mm,
-    font=\tiny] {7};
+    \draw[arrow] (admin) -- (login)        node[midway, above, app, yshift=-0.8mm] {5};
+    \draw[arrow] (admin) -- (metadata_db)  node[midway, above, app, yshift=-0.8mm] {6};
+    \draw[arrow] (admin) -- (video)        node[midway, above, app, yshift=-1.8mm] {7};
 
     % service to DB edges
-    \draw[arrow] (login) -- (user_db) node[pos=0.5, above,
-    xshift=1mm, yshift=-1mm, font=\tiny] {8};
-    \draw[arrow] (review) -- (review_db) node[pos=0.5, above, font=\tiny] {9};
-    \draw[arrow] (review) -- (metadata_db) node[pos=0.5, above,
-    xshift=-1mm, yshift=-1mm, font=\tiny] {10};
-    \draw[arrow] (rent) -- (rent_db) node[pos=0.5, above, font=\tiny] {11};
-    \draw[arrow] (rent) -- (metadata_db) node[pos=0.5, above, font=\tiny] {12};
-    \draw[arrow] (video) -- (video_db) node[pos=0.5, above, font=\tiny] {13};
-    \draw[arrow] (video) -- (metadata_db) node[pos=0.5, above,
-    yshift=-0.8mm, font=\tiny] {14};
+    \draw[arrow] (login)   -- (user_db)     node[midway, above, app, yshift=-0.8mm] {8};
+    \draw[arrow] (review)  -- (review_db)   node[midway, above, app, yshift=-0.8mm] {9};
+    \draw[arrow] (review)  -- (metadata_db) node[midway, above, app, yshift=-0.8mm] {10};
+    \draw[arrow] (rent)    -- (rent_db)     node[midway, above, app, yshift=-0.8mm] {11};
+    \draw[arrow] (rent)    -- (metadata_db) node[midway, above, app, yshift=-0.8mm] {12};
+    \draw[arrow] (video)   -- (video_db)    node[midway, above, app, yshift=-0.8mm] {13};
+    \draw[arrow] (video)   -- (metadata_db) node[midway, above, app, yshift=-1.6mm] {14};
 
-    % semantics for databases only
-    \node[below=0.15cm, align=center, font=\tiny] at (user_db) {MW + WFR};
-    \node[below=0.15cm, align=center, xshift=3mm, font=\tiny] at
-    (metadata_db) {MR + RYW};
-    \node[below=0.15cm, align=center, font=\tiny] at (review_db) {RYW};
-    \node[below=0.15cm, align=center, font=\tiny] at (rent_db) {MR + RYW};
-    \node[below=0.15cm, align=center, font=\tiny] at (video_db) {WFR};
+    % consistency semantics
+    \node[below=0.15cm, align=center, cons, yshift=-0.8mm] at (user_db) {MW + WFR};
+    \node[below=0.15cm, align=center, cons, xshift=3mm, yshift=-0.8mm] at (metadata_db) {MR + RYW};
+    \node[below=0.15cm, align=center, cons, yshift=-0.8mm] at (review_db) {RYW};
+    \node[below=0.15cm, align=center, cons, yshift=-0.8mm] at (rent_db) {MR + RYW};
+    \node[below=0.15cm, align=center, cons, yshift=-0.8mm] at (video_db) {WFR};
   \end{tikzpicture}
   \caption{Architecture of the media streaming service with
-    consistency guarantees.
-    Edges are numbered for reference:
+    consistency guarantees. The numbers denote application
+    constraints/flow, node labels on storage systems show
+    provided consistency. Edges:
     1–4: Client requests to services (login, review, rent, video).
     5: Admin login.
     6: Admin updates metadata.
@@ -310,45 +307,36 @@ models client behaviors:
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
+    font=\footnotesize,
     node distance=1.2cm,
-    service/.style={draw, rounded corners, fill=blue!10, minimum
-    width=1.6cm, minimum height=0.7cm},
-    storage/.style={draw, rounded corners, fill=green!10, minimum
-    width=1.6cm, minimum height=0.7cm},
+    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.6cm, minimum height=0.7cm, align=center},
+    storage/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.6cm, minimum height=0.7cm, align=center},
     arrow/.style={->, >=stealth, thick},
-    label/.style={font=\small\itshape}
+    app/.style={font=\scriptsize, text=purple!70!black},
+    cons/.style={font=\scriptsize, text=teal!70!black}
   ]
 
   % nodes
   \node[service] (client) at (-0.3,0) {Client};
   \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
   \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
-  \node[service] (arbitrator) at ([shift={(315:1.77cm)}]client)
-  {Checkout};
+  \node[service] (arbitrator) at ([shift={(315:1.77cm)}]client) {Checkout};
   \node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
 
   % edges
-  \draw[arrow] (client) -- (cart) node[midway, above=0.3cm,
-  label] {read/write};
-  \draw[arrow] (client) -- (shop) node[midway, above=0.3cm, label] {browse};
-  \draw[arrow] (client) -- (arbitrator) node[midway, right, label]
-  {purchase};
-  \draw[arrow] (arbitrator) -- (shop) node[pos=0.3175,
-  right=0.2cm, yshift=0.1cm, label] {check/update};
-  \draw[arrow] (arbitrator) -- (tx) node[midway, below, label] {record};
+  \draw[arrow] (client) -- (cart)       node[midway, above, app, yshift=-0.8mm] {1};
+  \draw[arrow] (client) -- (shop)       node[midway, above, app, yshift=-0.8mm] {2};
+  \draw[arrow] (client) -- (arbitrator) node[midway, right, app] {3};
+  \draw[arrow] (arbitrator) -- (shop)   node[pos=0.35, right=0.2cm, yshift=-0.2mm, app] {4};
+  \draw[arrow] (arbitrator) -- (tx)     node[midway, below, app, yshift=0.8mm] {5};
 
   % semantics
-  \node[above=0.1cm, align=center, font=\small] at (cart.north)
-  {Provides: EC};
-  \node[right=0.1cm, align=left, font=\small] at (shop.east)
-  {Provides:\\RYW + MR};
-  \node[right=0.1cm, align=left, font=\small] at (arbitrator.east)
-  {Provides:\\Linearizability};
-  \node[left=0.1cm, align=right, font=\small] at (tx.west)
-  {Provides:\\Linearizability};
+  \node[cons, align=center, yshift=1.2mm] at (cart.north) {EC};
+  \node[cons, align=left, right=1mm] at (shop.east) {RYW + MR};
+  \node[cons, align=left, right=1mm] at (arbitrator.east) {Linearizability};
+  \node[cons, align=right, left=1mm] at (tx.west) {Linearizability};
 \end{tikzpicture}
-\caption{Architecture of the online shopping system with
-consistency guarantees}
+\caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
 \label{fig:case-study-shop}
 \end{figure}
 

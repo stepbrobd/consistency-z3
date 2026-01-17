@@ -299,47 +299,9 @@ maintains its required properties.
 An e-commerce application~\cite{gan2019an} is similar to the movie
 streaming service but its architecture and constraints are simpler
 (\cref{fig:case-study-shop}).
-
 \para{Architecture.}
 The online shopping application consists of five key components and only
 models client behaviors:
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[
-    font=\footnotesize,
-    node distance=1.2cm,
-    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.6cm, minimum height=0.7cm, align=center},
-    storage/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.6cm, minimum height=0.7cm, align=center},
-    arrow/.style={->, >=stealth, thick},
-    app/.style={font=\scriptsize, text=purple!70!black},
-    cons/.style={font=\scriptsize, text=teal!70!black}
-  ]
-
-  % nodes
-  \node[service] (client) at (-0.3,0) {Client};
-  \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
-  \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
-  \node[service] (arbitrator) at ([shift={(315:1.77cm)}]client) {Checkout};
-  \node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
-
-  % edges
-  \draw[arrow] (client) -- (cart)       node[midway, above, app, yshift=-0.8mm] {1};
-  \draw[arrow] (client) -- (shop)       node[midway, above, app, yshift=-0.8mm] {2};
-  \draw[arrow] (client) -- (arbitrator) node[midway, right, app] {3};
-  \draw[arrow] (arbitrator) -- (shop)   node[pos=0.35, right=0.2cm, yshift=-0.2mm, app] {4};
-  \draw[arrow] (arbitrator) -- (tx)     node[midway, below, app, yshift=0.8mm] {5};
-
-  % semantics
-  \node[cons, align=center, yshift=1.2mm] at (cart.north) {EC};
-  \node[cons, align=left, right=1mm] at (shop.east) {RYW + MR};
-  \node[cons, align=left, right=1mm] at (arbitrator.east) {Linearizability};
-  \node[cons, align=right, left=1mm] at (tx.west) {Linearizability};
-\end{tikzpicture}
-\caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
-\label{fig:case-study-shop}
-\end{figure}
-
 \begin{enumerate}[leftmargin=*, noitemsep,topsep=0pt]
 \item \textbf{Client}: The end-user interface through which
   customers browse products, manage their shopping cart, and
@@ -413,6 +375,44 @@ models client behaviors:
 %inventory is decremented without a corresponding transaction record
 %or vice versa.
 
+\begin{wrapfigure}[12]{R}{2.8in}
+\centering
+\begin{tikzpicture}[
+    font=\footnotesize,
+    node distance=1.2cm,
+    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
+    storage/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
+    arrow/.style={->, >=stealth, thick},
+    app/.style={font=\scriptsize, text=purple!70!black},
+    cons/.style={font=\scriptsize, text=teal!70!black}
+  ]
+
+  % nodes
+  \node[service] (client) at (-0.3,0) {Client};
+  \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
+  \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
+  %\node[service] (arbitrator) at ([shift={(315:1.77cm)}]client) {Checkout};
+  %\node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
+  \node[service] (arbitrator) at ([shift={(325:1.5cm)}]client) {Checkout};
+  \node[storage] (tx) at ([shift={(215:1.5cm)}]client) {Tx Log};
+
+  % edges
+  \draw[arrow] (client) -- (cart)       node[midway, above, app, yshift=-0.8mm] {1};
+  \draw[arrow] (client) -- (shop)       node[midway, above, app, yshift=-0.8mm] {2};
+  \draw[arrow] (client) -- (arbitrator) node[midway, right, app] {3};
+  \draw[arrow] (arbitrator) -- (shop)   node[pos=0.35, right=0.2cm, yshift=-0.2mm, app] {4};
+  \draw[arrow] (arbitrator) -- (tx)     node[midway, below, app, yshift=0.8mm] {5};
+
+  % semantics
+  \node[cons, align=center, yshift=1.2mm] at (cart.north) {EC};
+  %\node[cons, align=left, right=1mm] at (shop.east) {RYW + MR};
+  \node[cons, align=center, yshift=1.2mm] at (shop.north) {RYW + MR};
+  \node[cons, align=left, right=1mm] at (arbitrator.east) {LIN};
+  \node[cons, align=right, left=1mm] at (tx.west) {LIN};
+\end{tikzpicture}
+\caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
+\label{fig:case-study-shop}
+\end{wrapfigure}
 \para{Requirements and Compatibility Verification}
 The consistency requirements of this system vary by component:
 
@@ -425,7 +425,9 @@ The consistency requirements of this system vary by component:
   reads will observe either that same state or a more recent one,
   but seeing outdated state is okay as Checkout will prevent
   ill-formed purchase transaction (e.g., purchasing out-of-stock item).
+\end{itemize}
 
+\begin{itemize}
 \item Checkout and transaction log DB both provide
   linearizability, the strongest consistency model, ensuring that
   all operations appear to execute atomically in a sequential order

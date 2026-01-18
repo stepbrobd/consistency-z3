@@ -413,6 +413,7 @@ models client behaviors:
 \caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
 \label{fig:case-study-shop}
 \end{wrapfigure}
+
 \para{Requirements and Compatibility Verification}
 The consistency requirements of this system vary by component:
 
@@ -450,49 +451,42 @@ under concurrent operations.
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=1.2cm,
-    service/.style={draw, rounded corners, fill=blue!10, minimum
-    width=1.2cm, minimum height=0.6cm},
-    semantic/.style={draw, rounded corners, fill=green!10, minimum
-    width=0.8cm, minimum height=0.4cm},
+    font=\footnotesize,
+    node distance=1.0cm,
+    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.4cm, minimum height=0.6cm, align=center},
+    semantic/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.0cm, minimum height=0.45cm, align=center},
     arrow/.style={->, >=stealth, thick},
     semantic_arrow/.style={->, >=stealth, thin},
-    label/.style={font=\small}
+    app/.style={font=\scriptsize, text=purple!70!black}
   ]
 
-  % nodes positioned at 45 degree angle upward
-  \node[service] (svc1) at (0,0) {SVC1};
-  \node[service] (svc2) at (0.85,0.85) {SVC2};
-  \node[service] (svc3) at (1.7,1.7) {SVC3};
-  \node[service] (svc4) at (2.55,2.55) {SVC4};
-  \node[service] (xc) at (3.4,3.4) {XC};
-
-  % semantic nodes at same level as their corresponding services
-  \node[semantic] (mr) at (-1.5,0) {MR};
-  \node[semantic] (mw) at (-0.65,0.85) {MW};
-  \node[semantic] (ryw) at (0.2,1.7) {RYW};
-  \node[semantic] (wfr) at (1.05,2.55) {WFR};
+  % stacked services
+  \node[service] (xc)   at (0,3.2) {XC};
+  \node[service] (svc4) at (0,2.1) {SVC4};
+  \node[service] (svc3) at (0,1.0) {SVC3};
+  \node[service] (svc2) at (0,-0.1) {SVC2};
+  \node[service] (svc1) at (0,-1.2) {SVC1};
 
   % arrows from services to semantics
-  \draw[semantic_arrow] (svc1) -- (mr);
-  \draw[semantic_arrow] (svc2) -- (mw);
-  \draw[semantic_arrow] (svc3) -- (ryw);
-  \draw[semantic_arrow] (svc4) -- (wfr);
+  \node[semantic] (wfr) at (-1.9,2.1) {WFR};
+  \node[semantic] (ryw) at (-1.9,1.0) {RYW};
+  \node[semantic] (mw)  at (-1.9,-0.1) {MW};
+  \node[semantic] (mr)  at (-1.9,-1.2) {MR};
 
   % edges
-  \draw[arrow] (svc2) -- (svc1);
-  \draw[arrow] (svc3) -- (svc2);
-  \draw[arrow] (svc4) -- (svc3);
-  \draw[arrow] (xc) -- (svc4);
+  \draw[semantic_arrow] (svc4) -- (wfr);
+  \draw[semantic_arrow] (svc3) -- (ryw);
+  \draw[semantic_arrow] (svc2) -- (mw);
+  \draw[semantic_arrow] (svc1) -- (mr);
 
-  % edge constraints (horizontal text, right of edges)
-  \node[right=0.1cm, font=\small] at (0.425,0.425) {MW + RYW + WFR};
-  \node[right=0.1cm, font=\small] at (1.275,1.275) {MR + RYW + WFR};
-  \node[right=0.1cm, font=\small] at (2.125,2.125) {MR + MW + WFR};
-  \node[right=0.1cm, font=\small] at (2.975,2.975) {MR + MW + RYW};
+  % edge constraints
+  \draw[arrow] (xc) -- (svc4)   node[midway, right=0.16cm, app] {1};
+  \draw[arrow] (svc4) -- (svc3) node[midway, right=0.16cm, app] {2};
+  \draw[arrow] (svc3) -- (svc2) node[midway, right=0.16cm, app] {3};
+  \draw[arrow] (svc2) -- (svc1) node[midway, right=0.16cm, app] {4};
 
 \end{tikzpicture}
-\caption{Cross-service causal consistency composition chain}
+\caption{Cross-service causal composition chain. Edge labels mark the application-level semantic ``glue'' added per hop, e.g., XC$\to$SVC4 supplies the missing guarantees (MR+MW+RYW) to reach causal consistency, and the downstream edges do likewise for their missing session guarantees. Per-level storage nodes provide guarantees for each service layer.}
 \label{fig:cross-service-causal}
 \end{figure}
 

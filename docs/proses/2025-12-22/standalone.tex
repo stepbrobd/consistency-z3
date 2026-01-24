@@ -79,7 +79,7 @@ The relations defined for operations within a history include:
 }
 
 In our implementation, each history relation function accepts an optional
-\texttt{symbols} argument. This parameter allows framework users to
+\texttt{symbols} argument. This parameter allows users to
 explicitly specify the symbolic operations, for example, \texttt{["a\_X",
 "b\_X"]}, over which the relation's constraints should be quantified
 for that specific instance \texttt{X}. This mechanism enables the application of
@@ -150,7 +150,7 @@ environments and implementation-specific constraints.
       (RYW), monotonic writes (MW), write-follows-reads (WFR), and pipeline
     RAM (PRAM) consistency.}\label{fig:semdef}
   \end{wrapfigure}
-Based on the preliminaries, now we can discuss the formal definitions of
+Building on these preliminaries, we now discuss the formal definitions of
 base consistency semantics: EC, MR, RYW, MW, WFR, PRAM, CC, and LIN. In
 \cref{sec:background}., the semantics are defined axiomatically using the relations between
 pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
@@ -158,7 +158,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   writes respectively.
   While we adopt the definitions of MR, RYW, MW, WFR,
   and PRAM of Viotti et al.~\cite{viotti2016consistency} (\cref{fig:semdef}),
-  we newly propose or augment EC, CC, and LIN for SMT encoding and
+  we introduce or augment EC, CC, and LIN for SMT encoding and
   check their correctness with respect to other semantic definitions
   using \sysname{}
   (Section \ref{sec:eval}).
@@ -166,7 +166,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   \para{Eventual Consistency (EC).}
   While EC definitions in other literature~\cite{terry1994session,
   eventual, viotti2016consistency}
-  heavily focus on the liveness aspects using the concept of
+  focus primarily on liveness aspects using the concept of
   eventual visibility of operations,
   \sysname{} excludes liveness properties and concentrates on safety
   properties:
@@ -288,10 +288,10 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   One of our key contributions is formally defining visibility.
   Although visibility is used as part of defining almost all semantics in
   \cref{subsec:semdef} and \cref{fig:semdef}, its definitions in
-  existing literatures are informal and ambiguous regarding exact
+  existing literature is informal and ambiguous regarding exact
   behavior under concurrent
   settings~\cite{viotti2016consistency,viotti2016towards,zhang2018building,ferreira2023antipode}.
-  As with many seemingly simple informal definitions surrounding
+  As with many seemingly simple informal definitions concerning
   concurrent and distributed environments, formally defining visibility
   for use in \sysname{}-like tools is non-trivial.
   We restructure visibility as a binary relation
@@ -308,7 +308,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   returns before read (\eg $w_1$ and $r$ in \cref{fig:can-view}; 
   note that which process issued the read/write does not matter, as synchronization is not required to establish probable effect causality)
   or (2) the read and write are \textit{concurrent} (\ie returns before relations do not hold as the durations of the read and write overlap 
-  as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read might observe the write's effect.
+  as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read is eligible to observe the write's effect.
   %
   Formally, this can-view relation, $a \xrightarrow{\text{can-view}} b$,
   is defined over the pairwise start or return time of read $a$ and
@@ -462,7 +462,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   to ensure the non-deterministic viewed relation has a
   linearization point, i.e., to cut off one of the possible paths in
   the viewed relation.
-  Then what does it mean for writes to be visible to writes? We call this
+  We next define visibility between write operations. We call this
   propagation path write arbitration: whether two writes are visible to each other, depend on the
   existence of an arbitration relation between them.
   Writes not ordered by visibility are considered invisible to each

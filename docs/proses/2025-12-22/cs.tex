@@ -1,9 +1,9 @@
 \section{Case Study}
 \label{sec:cs}
 
-To demonstrate how \sysname{} works and to detail how a complex distributed
+To demonstrate \sysname{}' utility, and to detail how a complex distributed
 application can be specified in \sysname{} for the compatibility check with
-pluggable distributed services, we conduct case studies of three applications.
+pluggable distributed services, we present case studies of three applications.
 Two applications, a movie streaming service and an online shopping
 mall, are from
 a microservice benchmark suite~\cite{gan2019an} and the other is from an
@@ -161,7 +161,7 @@ be logged in (edge 1), and the review service must verify that the
 title exists
 in the metadata database (edge 10) before allowing the review to be
 written (edge 9).
-This is one of the clear dependency chains in the media service example.
+This represents a clear dependency chain in the media service example.
 This dependency chain creates a cascading effect throughout the system
 where each operation builds upon the successful completion of its
 prerequisites.
@@ -245,7 +245,7 @@ EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \e
 Following these practices one can specify relatively complex and construct \sysgraph with \sysmods and application-level constraints.
 \sysgraph construction is straightforward, we instantiate nodes with their
 \texttt{needs}/\texttt{provs} and connect them with edges carrying the above constraints.
-Moreover, depending on system designers' need, Login node, User DB, and edge 8 can be collapsed into a single
+Moreover, depending on system designers' requirements, Login node, User DB, and edge 8 can be collapsed into a single
 aggregated node by applying \texttt{extract} (introduced in \cref{sec:background}) to the subgraph accumulates
 both the semantic constraints (MW+WFR) and the application constraint $EC_{\text{login}}$ into one summary \texttt{provs}/\texttt{needs} tuple.
 This lets us reuse the combined guarantee downstream or use it as a portable node in another \sysgraph.
@@ -509,7 +509,7 @@ cross-system causal consistency, the augmentation continues down the chain.
 %This example demonstrates modeling a system where multiple services, each
 %offering only a basic consistency guarantee, are chained together.
 
-The goal here is to verify if their composition, mediated by specific
+The goal here is to verify whether their composition, mediated by specific
 inter-service
 constraints, symbolic isolation, and the role of explicit ``glue'' constraints.
 

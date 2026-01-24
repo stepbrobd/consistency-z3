@@ -5,8 +5,8 @@ We design the \sysmodlong{} (\sysmod{}) based on the definitions in
 previous section. There are 2 main ways to interact with our framework,
 compatibility check and composition check. Compatibility check is specific
 to \sysmods and is meant to assert the pairwise relationship between provided
-arguments, whereas compositional check is specific to \sysgraph, and is
-build upon compatibility check.
+arguments, whereas compositional checks are specific to \sysgraph, and are
+build upon the compatibility check.
 A \sysmod{} represents a single distributed system with specific semantics
 and \sysname{} can perform individual \sysmod{} validation to check if all
 semantic constraints are sound and compatible, as
@@ -159,21 +159,20 @@ based on the satisfiability of the previous levels, and current level checks.
 compose(check\_needs, check\_ec), path\_premise)}:
 for each edge $(u, v)$ from the current node $u$, it checks if \texttt{provs} from $v$
 and \texttt{cons} from edge $(u, v)$ satisfy needs from $u$.
-This checks if the chosen path provides guarantee of the destination
+This checks if the chosen path satisfies the guarantees required by the destination
 (\texttt{check\_provs}) is
 implied by the conjunction (the result returned from call to \texttt{compose}) of the chosen needs of the
 source (\texttt{check\_needs}) and the chosen edge constraints
 (\texttt{check\_ec}),
 considering the constraints already accumulated (\texttt{path\_premise}).
-If all checks succeed then the application is proven to be compatible
+If all checks succeed, the application is deemed compatible
 with the plugged-in \sysmods{} and the application logics are also
 sound as a whole.
 
 After a successful compositional check, our node/edge aggregation function
 \texttt{extract}, takes the resulting graph
 from composability check (which represents one valid assignment of
-constraints) and output a single node that represents the net or
-equivalent semantic guarantee of provided (sub-)graph
+constraints) and outputs a single node representing the net semantic guarantee of provided (sub-)graph
 reachable from the subgraph root node, and there are no cross edges from/to outside nodes in the subgraph.
 The function performs a DFS starting from the
 specified subgraph root on the graph provided in function argument.

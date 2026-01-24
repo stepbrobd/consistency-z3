@@ -1,6 +1,6 @@
 \section{Evaluation} \label{sec:eval}
 
-We discusses the experience in using \sysname{} and
+We discuss our experience in using \sysname{} and
 its performance in checking compatibilities.
 
 \newcommand{\tableT}{\textcolor{blue}{T}}
@@ -75,9 +75,9 @@ input or exhaustively explores valid combinations.
 %The \texttt{check} function optionally emits proof goals via the \texttt{witness} argument (see \texttt{tests/test\_witness.py} in the accompanying artifact), which can be discharged to external SMT solvers.
 
 % 2
-On effort and learning curve, once semantic requirements are understood, writing \sysgraph is direct.
+Regarding effort and the learning curve, once semantic requirements are understood, encoding an \sysgraph is straightforward.
 Our case studies only require 183, 80, and 252 lines of code for encoding the moving streaming service, online shopping mall, and XC storage, respectively, thanks to existing facilities such as the \sysmods{} in the \sysname{} framework. 
-These relatively small efforts for constraint encoding and automated checks justifies our framework's intention for agile compatibility checks compared to typical end-to-end formal verification which could have 20:1 proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet} which could follow with confidence after our check passes. 
+These relatively small efforts for constraint encoding and automated checks validates our framework's goal of enabling agile compatibility checks compared to typical end-to-end formal verification which could have 20:1 proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet} which could follow with confidence after our check passes. 
 %Our effort constraints remain stable unless interfaces or consistency requirements change.
 
 % 3
@@ -164,9 +164,9 @@ Our tool successfully identified the combination in our original design
 in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
 
 Overall, depending on the complexity of the constraints the
-compatibility check time
-varies, but individual checks are done in less than 20ms on average. Even though
+compatibility check times
+vary, but individual checks are done in less than 20ms on average. Even though
 searching through compatible answers in the entire search space could
 take extended
-time, finding the most desired, minimum score answer for each case
+time, finding the optimal, minimum-score configuration for each case
 study takes only less than 5 minutes.

@@ -100,7 +100,7 @@ or writing a review.
 
 The developer of the system can choose an ACID database or linearizable
 key-value store for the metadata DB, but this may not scale well as
-stronger consistency models trade data consistency with high latency.
+stronger consistency models trade stronger data consistency guarantee with higher latency.
 For utmost scalability and performance, an eventually consistent
 key-value store can be used, but users may observe anomalies (e.g. reviews
 written to one replica may not be visible to the same user reading it).

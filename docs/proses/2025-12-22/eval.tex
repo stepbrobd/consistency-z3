@@ -1,6 +1,61 @@
 \section{Evaluation} \label{sec:eval}
+
 We discusses the experience in using \sysname{} and
 its performance in checking compatibilities.
+
+\newcommand{\tableT}{\textcolor{blue}{T}}
+\newcommand{\tableF}{\textcolor{red}{F}}
+\newcommand{\tableNA}{-}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+    \hline
+    {} &
+    EC &
+    MR &
+    MW &
+    RYW &
+    WFR &
+    PRAM &
+    CC &
+    LIN \\
+    \hline
+    EC   & \tableNA & \textcolor{red}{24} & \textcolor{red}{22} &
+    \textcolor{red}{26} & \textcolor{red}{25} & \textcolor{red}{24} &
+    \textcolor{red}{35} & \textcolor{red}{32} \\
+    MR   & \textcolor{blue}{23} & \tableNA & \textcolor{red}{12} &
+    \textcolor{red}{16} & \textcolor{red}{75} & \textcolor{red}{16} &
+    \textcolor{red}{26} & \textcolor{red}{217} \\
+    MW   & \textcolor{blue}{27} & \textcolor{red}{16} & \tableNA &
+    \textcolor{red}{18} & \textcolor{red}{16} & \textcolor{red}{16} &
+    \textcolor{red}{23} & \textcolor{red}{22} \\
+    RYW  & \textcolor{blue}{193} & \textcolor{red}{106} &
+    \textcolor{red}{45} & \tableNA & \textcolor{red}{59} &
+    \textcolor{red}{20} & \textcolor{red}{29} & \textcolor{red}{26} \\
+    WFR  & \textcolor{blue}{24} & \textcolor{red}{125} &
+    \textcolor{red}{12} & \textcolor{red}{17} & \tableNA &
+    \textcolor{red}{18} & \textcolor{red}{44} & \textcolor{red}{54} \\
+    PRAM & \textcolor{blue}{24} & \textcolor{blue}{14} &
+    \textcolor{blue}{10} & \textcolor{blue}{14} &
+    \textcolor{red}{178} & \tableNA & \textcolor{red}{27} &
+    \textcolor{red}{28} \\
+    CC   & \textcolor{blue}{33} & \textcolor{blue}{20} &
+    \textcolor{blue}{16} & \textcolor{blue}{19} &
+    \textcolor{blue}{19} & \textcolor{blue}{20} & \tableNA &
+    \textcolor{red}{282} \\
+    LIN  & \textcolor{blue}{26} & \textcolor{blue}{21} &
+    \textcolor{blue}{17} & \textcolor{blue}{22} &
+    \textcolor{blue}{22} & \textcolor{blue}{22} &
+    \textcolor{blue}{44} & \tableNA \\
+    \hline
+  \end{tabular}
+  \caption{Pairwise check performance. Semantics in the first column
+    are checked if they satisfy semantics in other columns. Each cell
+    shows the execution time for completing the check in milliseconds. The
+  blue text indicates the result of the check is true and red means false. }
+  \label{tab:pairwise-time}
+\end{table}
+\vspace{-0.3in}
 
 \para{Experience}
 We implemented \sysname{} in Python on Z3 version 4.15.1. It took
@@ -60,6 +115,7 @@ All experiments were conducted on an Intel i7-1360P processor with
 % https://github.com/verus-lang/verus/blob/0b6f3cbb8fceff6681b4988c3cac37a8b801f8e6/source/docs/guide/src/smt_failures.md
 
 \textbf{Pairwise Compatibility Check.}
+
 First, we evaluated the compatibility between pairs of base
 consistency semantics,
 EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in \sysname{}.
@@ -68,59 +124,6 @@ pairwise compatibility checks and the results of the check encoded in
 colors (blue: compatible, red: non-compatible). On average, it took
 only 31 ms per check and the results of the checks are correct with
 respect to the theory.
-
-\newcommand{\tableT}{\textcolor{blue}{T}}
-\newcommand{\tableF}{\textcolor{red}{F}}
-\newcommand{\tableNA}{-}
-\begin{table}[t]
-  \centering
-  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
-    \hline
-    {} &
-    EC &
-    MR &
-    MW &
-    RYW &
-    WFR &
-    PRAM &
-    CC &
-    LIN \\
-    \hline
-    EC   & \tableNA & \textcolor{red}{24} & \textcolor{red}{22} &
-    \textcolor{red}{26} & \textcolor{red}{25} & \textcolor{red}{24} &
-    \textcolor{red}{35} & \textcolor{red}{32} \\
-    MR   & \textcolor{blue}{23} & \tableNA & \textcolor{red}{12} &
-    \textcolor{red}{16} & \textcolor{red}{75} & \textcolor{red}{16} &
-    \textcolor{red}{26} & \textcolor{red}{217} \\
-    MW   & \textcolor{blue}{27} & \textcolor{red}{16} & \tableNA &
-    \textcolor{red}{18} & \textcolor{red}{16} & \textcolor{red}{16} &
-    \textcolor{red}{23} & \textcolor{red}{22} \\
-    RYW  & \textcolor{blue}{193} & \textcolor{red}{106} &
-    \textcolor{red}{45} & \tableNA & \textcolor{red}{59} &
-    \textcolor{red}{20} & \textcolor{red}{29} & \textcolor{red}{26} \\
-    WFR  & \textcolor{blue}{24} & \textcolor{red}{125} &
-    \textcolor{red}{12} & \textcolor{red}{17} & \tableNA &
-    \textcolor{red}{18} & \textcolor{red}{44} & \textcolor{red}{54} \\
-    PRAM & \textcolor{blue}{24} & \textcolor{blue}{14} &
-    \textcolor{blue}{10} & \textcolor{blue}{14} &
-    \textcolor{red}{178} & \tableNA & \textcolor{red}{27} &
-    \textcolor{red}{28} \\
-    CC   & \textcolor{blue}{33} & \textcolor{blue}{20} &
-    \textcolor{blue}{16} & \textcolor{blue}{19} &
-    \textcolor{blue}{19} & \textcolor{blue}{20} & \tableNA &
-    \textcolor{red}{282} \\
-    LIN  & \textcolor{blue}{26} & \textcolor{blue}{21} &
-    \textcolor{blue}{17} & \textcolor{blue}{22} &
-    \textcolor{blue}{22} & \textcolor{blue}{22} &
-    \textcolor{blue}{44} & \tableNA \\
-    \hline
-  \end{tabular}
-  \caption{Pairwise check performance. Semantics in the first column
-    are checked if they satisfy semantics in other columns. Each cell
-    shows the execution time for completing the check in milliseconds. The
-  blue text indicates the result of the check is true and red means false. }
-  \label{tab:pairwise-time}
-\end{table}
 
 \textbf{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using
 three case studies in \cref{sec:cs}.
@@ -167,5 +170,3 @@ searching through compatible answers in the entire search space could
 take extended
 time, finding the most desired, minimum score answer for each case
 study takes only less than 5 minutes.
-
-

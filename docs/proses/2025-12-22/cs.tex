@@ -189,6 +189,8 @@ with read or write type to represent interactions between client,
 service nodes, and storage nodes.
 Formally, we can represent client's login operation (edge 8) as follows:
 
+\vspace{-0.1in}
+
 % old version with linefeed
 % \begin{align*}
 %   EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
@@ -450,30 +452,30 @@ under concurrent operations.
 
 \subsection{Cross Causal (XC) Storage}
 
-\begin{wrapfigure}[21]{R}{2.8in}
+\begin{wrapfigure}[13]{R}{2.8in}
 \centering
 \begin{tikzpicture}[
     font=\footnotesize,
-    node distance=1.0cm,
-    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.4cm, minimum height=0.6cm, align=center},
-    semantic/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.0cm, minimum height=0.45cm, align=center},
+    node distance=1.45cm,
+    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.0cm, minimum height=0.6cm, align=center},
+    semantic/.style={draw, rounded corners=2pt, fill=green!10, minimum width=0.8cm, minimum height=0.45cm, align=center},
     arrow/.style={->, >=stealth, thick},
     semantic_arrow/.style={->, >=stealth, thin},
     app/.style={font=\scriptsize, text=purple!70!black}
   ]
 
   % stacked services
-  \node[service] (xc)   at (0,3.2) {XC};
-  \node[service] (svc4) at (0,2.1) {SVC4};
-  \node[service] (svc3) at (0,1.0) {SVC3};
-  \node[service] (svc2) at (0,-0.1) {SVC2};
-  \node[service] (svc1) at (0,-1.2) {SVC1};
+  \node[service] (xc)   at (0,0) {XC};
+  \node[service] (svc4) [right of=xc] {SVC4};
+  \node[service] (svc3) [right of=svc4] {SVC3};
+  \node[service] (svc2) [right of=svc3] {SVC2};
+  \node[service] (svc1) [right of=svc2] {SVC1};
 
   % arrows from services to semantics
-  \node[semantic] (wfr) at (-1.9,2.1) {WFR};
-  \node[semantic] (ryw) at (-1.9,1.0) {RYW};
-  \node[semantic] (mw)  at (-1.9,-0.1) {MW};
-  \node[semantic] (mr)  at (-1.9,-1.2) {MR};
+  \node[semantic] (wfr) [above of=svc4, node distance=1.0cm] {WFR};
+  \node[semantic] (ryw) [above of=svc3, node distance=1.0cm] {RYW};
+  \node[semantic] (mw)  [above of=svc2, node distance=1.0cm] {MW};
+  \node[semantic] (mr)  [above of=svc1, node distance=1.0cm] {MR};
 
   % edges
   \draw[semantic_arrow] (svc4) -- (wfr);
@@ -482,10 +484,10 @@ under concurrent operations.
   \draw[semantic_arrow] (svc1) -- (mr);
 
   % edge constraints
-  \draw[arrow] (xc) -- (svc4)   node[midway, right=0.16cm, app] {1};
-  \draw[arrow] (svc4) -- (svc3) node[midway, right=0.16cm, app] {2};
-  \draw[arrow] (svc3) -- (svc2) node[midway, right=0.16cm, app] {3};
-  \draw[arrow] (svc2) -- (svc1) node[midway, right=0.16cm, app] {4};
+  \draw[arrow] (xc) -- (svc4)   node[midway, below=0.1cm, app] {1};
+  \draw[arrow] (svc4) -- (svc3) node[midway, below=0.1cm, app] {2};
+  \draw[arrow] (svc3) -- (svc2) node[midway, below=0.1cm, app] {3};
+  \draw[arrow] (svc2) -- (svc1) node[midway, below=0.1cm, app] {4};
 
 \end{tikzpicture}
 \caption{Cross-service causal composition chain. Edge labels mark the application-level semantic ``glue'' added per hop, e.g., XC$\to$SVC4 supplies the missing guarantees (MR+MW+RYW) to reach causal consistency, and the downstream edges do likewise for their missing session guarantees. Per-level storage nodes provide guarantees for each service layer.}

@@ -6,14 +6,14 @@ large-scale distributed application. System architects and developers
 following the
 microservice or service-oriented designs can freely
 choose and compose the building blocks in a modular fashion and plug them
-into the application to use.
+into the application.
 
 However, different distributed storage systems provide different consistency
 semantics, and the mismatch of the chosen system's semantics and the
 application's expected semantics could introduce subtle and silent
 semantic bugs \cite{silentbugs}. For example, a user may connect a
-key-value store
-observing eventual consistency to an application that expects a
+key-value store providing
+eventual consistency to an application that expects a
 linearizable storage service. In this case, the application could
 read outdated information causing erroneous outcomes.
 
@@ -21,19 +21,18 @@ Developers and system architects could carefully review the
 application needs and choose a
 matching system. However, when the application depends on multiple
 distributed services, checking the overall compatibility between the
-application logic and multiple system components can easily get out
-of hand. Even
+application logic and multiple system components can easily become unmanageable. Even
 if one successfully finds the correct combination, for example, through
 extensive testing, developers might change the application code or
-plug in different systems due to management, cost, and performance
-reasons. Thus, sophisticated compatibility check will need to be done again.
+plug in different systems due to management, reasons of cost, and performance.
+Consequently, sophisticated compatibility checks must be repeated.
 
 % When you have fixed application logic, you may choose two
 % compatible systems. Two systems may collectively satisfy the
 % application requirement, and changing one may invalidate both.
 % NOTE: addressed below
 
-Formal verification can be the other way to address such challenges,
+Formal verification offers an alternative approach to these challenges,
 where the correctness of the code can mathematically guarantee the
 compatibility between code and system \cite{lampson2021hints}.
 However, depending on
@@ -41,14 +40,14 @@ the complexity of the code, which could include non-essential parts
 for reasoning about compatibility, the mechanized formal proofs
 can take extensive time and effort \cite{certikos-osdi16,
 klein2009sel4, wormspace}.
-Furthermore, depending on the technique used, mechanized formal proofs in lines of code (LoC)
-could be several times longer comparing with the implementation.
+Furthermore, depending on the technique used, mechanized formal
+proofs can be several times larger, in Lines of Code (LoC), than the implementation.
 Moreover, minor changes can easily invalidate the entire proof
 \cite{klein2009sel4}.
 Thus, formal verification
 leads to a similar problem to above-mentioned testing methods where
 the compatibility check
-cannot agilely keep up with changes in underlying systems and
+lacks the agility to adapt to changes in underlying systems and
 applications.
 
 In this paper, we propose \sysname{}, a lightweight \sysnamelong{}. \sysname{}
@@ -71,40 +70,39 @@ building blocks to rapidly iterate the service compositions and compatibility
 of these models with their applications. Additional models can be
 added to further
 strengthen \sysname{}'s expressiveness with provided interfaces.
-User authored custom models inheriting from our base class are will automatically work with our pre-built ones,
+User-authored custom models inheriting from our base class automatically work with our pre-built ones,
 including assertions for individual satisfiability and compatibility between one or more models
 with user defined application logic.
 
 Although axiomatic definitions of distributed consistency semantics
-exist in prior literatures \cite{finkbeiner2007smt,
+exist in prior literature \cite{finkbeiner2007smt,
   tekken2017monitoring, kuper2019toward, fan2023satisfiability,
 ma2024noctua}, encoding the details into the SMT
 clauses for compatibility checks is challenging as the definitions
-gloss over a few key details. For example, the commonly used concept
+omit key details. For example, the commonly used concept
 of \textit{visibility} for defining weak distributed consistency
 semantics is subtle, but to our knowledge, no literature provides
 a concrete definition. \sysname{} fills in these missing gaps to realize
 full-fledged formal models for the compatibility checking.
 
-Each functionality in the application logic in \sysname{} is encoded
-as a directed acyclic graph (DAG) systematically where the entire
-application is encoded into a directed multi-graph format which
-we call the \sysgraph{}.
-Each node in the \sysgraph{} represents key functionality in the
-application which requires certain properties from lower-level nodes
-for it depends on, and provides certain properties to the upper-level nodes.
+Each application functionality is systematically encoded as a
+directed acyclic graph (DAG), and the entire application is modeled as
+a directed multi-graph format which we call the \sysgraph{}.
+Each node in the \sysgraph{} represents key functionality in the application
+that requires certain properties from the lower-level nodes it depends on,
+and provides certain properties to the upper-level nodes.
 The edges are used to specify more specific requirements and condition that each
 functionality needs to enforce in accessing the downstream nodes.
-The leaf nodes are typically external distributed services that
-follow one of the pre-built distributed consistency semantic models
+The leaf nodes typically represent external distributed services
+following one of the pre-built distributed consistency semantic models
 in \sysname{}.
 
 The \sysgraph{} model is expressive enough to model an application logic
 from high-level and trace complex dependencies that go across multiple
 application logic boundaries, and distributed systems which the application
-relies on. \sysname{} can trivially check a simple application that
-relies on one distributed service, but can also span to a complex
-microservice-based application that leverages multiple modules and
+relies on. \sysname{} verifies simple application that
+relies on one distributed service, and scales to complex
+microservice-based production environment that leverages multiple modules and
 distributed storage systems.
 
 Once the user specifies the application logic, \sysname{} can quickly

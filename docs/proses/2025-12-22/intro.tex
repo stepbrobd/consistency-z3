@@ -24,7 +24,7 @@ distributed services, checking the overall compatibility between the
 application logic and multiple system components can easily become unmanageable. Even
 if one successfully finds the correct combination, for example, through
 extensive testing, developers might change the application code or
-plug in different systems due to management, reasons of cost, and performance.
+plug in different systems due to management, considerations of cost and performance.
 Consequently, sophisticated compatibility checks must be repeated.
 
 % When you have fixed application logic, you may choose two
@@ -51,7 +51,7 @@ lacks the agility to adapt to changes in underlying systems and
 applications.
 
 In this paper, we propose \sysname{}, a lightweight \sysnamelong{}. \sysname{}
-helps developers to quickly encode their application logic and
+helps developers quickly encode their application logic and
 requirements and check the compatibility with underlying distributed
 systems using an SMT-based approach.
 %to encode and analyze
@@ -100,14 +100,13 @@ in \sysname{}.
 The \sysgraph{} model is expressive enough to model an application logic
 from high-level and trace complex dependencies that go across multiple
 application logic boundaries, and distributed systems which the application
-relies on. \sysname{} verifies simple application that
-relies on one distributed service, and scales to complex
+relies on. \sysname{} verifies simple applications relying on one distributed service, and scales to complex
 microservice-based production environment that leverages multiple modules and
 distributed storage systems.
 
 Once the user specifies the application logic, \sysname{} can quickly
 check the compatibility with the plugged-in consistency models. This
-could be testing what the user chose, or alternatively, \sysname{}
+could be verifying the user's selection, or alternatively, \sysname{}
 can explore different combinations of existing models to
 find compositions of distributed system with compatible consistency semantics.
 These approaches enable fast exploration and iteration of alternative

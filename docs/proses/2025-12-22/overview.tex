@@ -134,7 +134,7 @@ combinations (product) of possible needs from u, provs from v, and
 cons from the edge (u, v). For each combination, it performs a
 compatible check: \texttt{compatible(check\_provs,
 compose(check\_needs, check\_ec), path\_premise)}. This checks if the
-chosen provides guarantee of the destination (check\_provs) is
+guarantees provided by the chosen destination (check\_provs) are
 implied by the conjunction (compose) of the chosen needs of the
 source (check\_needs) and the chosen edge constraints (check\_ec),
 considering the constraints already accumulated (path\_premise). If a
@@ -287,7 +287,7 @@ perspective, based on the specific choices made during the composability check.
 % cons from the edge (u, v). For each combination, it performs a
 % compatible check: \texttt{compatible(check\_provs,
 % compose(check\_needs, check\_ec), path\_premise)}. This checks if the
-% chosen provides guarantee of the destination (check\_provs) is
+% chosen satisfies the guarantees required by the destination (check\_provs) is
 % implied by the conjunction (compose) of the chosen needs of the
 % source (check\_needs) and the chosen edge constraints (check\_ec),
 % considering the constraints already accumulated (path\_premise). If a

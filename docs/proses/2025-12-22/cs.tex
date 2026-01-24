@@ -27,7 +27,7 @@ components, each with specific consistency requirements based on
 their functional roles. While users can choose a \sysmod{} for the
 DB components, they must specify the constraints for the other components.
 
-\begin{figure}[h]
+\begin{wrapfigure}[25]{R}{2.8in}
   \centering
   \begin{tikzpicture}[
       font=\footnotesize,
@@ -99,7 +99,7 @@ DB components, they must specify the constraints for the other components.
     13: Video service accesses Video DB.
   14: Video service verifies metadata before playback.}
   \label{fig:case-study-media}
-\end{figure}
+\end{wrapfigure}
 
 \begin{enumerate}[leftmargin=*,noitemsep,topsep=2pt]
   \item \textbf{Client and Admin}: These components represent the
@@ -448,7 +448,9 @@ guarantees and the transaction log's linearizability, ensuring that
 inventory updates and transaction records remain consistent even
 under concurrent operations.
 
-\begin{figure}[t]
+\subsection{Cross Causal (XC) Storage}
+
+\begin{wrapfigure}[21]{R}{2.8in}
 \centering
 \begin{tikzpicture}[
     font=\footnotesize,
@@ -488,9 +490,8 @@ under concurrent operations.
 \end{tikzpicture}
 \caption{Cross-service causal composition chain. Edge labels mark the application-level semantic ``glue'' added per hop, e.g., XC$\to$SVC4 supplies the missing guarantees (MR+MW+RYW) to reach causal consistency, and the downstream edges do likewise for their missing session guarantees. Per-level storage nodes provide guarantees for each service layer.}
 \label{fig:cross-service-causal}
-\end{figure}
+\end{wrapfigure}
 
-\subsection{Cross Causal (XC) Storage}
 Cross causal (XC) storage~\cite{boltoncc} is a system that combines
 multiple distributed storage services, each
 offering only a basic consistency guarantee, to provide causal consistency

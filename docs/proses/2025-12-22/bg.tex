@@ -22,10 +22,10 @@ different data states. Distributed consistency semantics introduce
 ordering constraints on top of such non-determinism so that
 applications can predictably communicate with the system.
 
-There are many distributed consistency semantics, and among them,
-\sysname{} models a few widely used semantics in systems from both
+Among many distributed consistency semantics,
+\sysname{} models seventeen widely used semantics in systems from both
 industry and academia~\cite{pileus, cosmosdb, anna, bayou, yogurt,
-pnuts, cloudflare-session, causalmemory, cops}, including eventual
+pnuts, cloudflare-session, causalmemory, cops}, which includes eventual
 consistency~\cite{burckhardt2014principles}, session
 guarantees~\cite{terry1994session}, causal
 consistency~\cite{causaldef}, and
@@ -66,7 +66,7 @@ CC \cite{causaldef} have their own definitions:
   a user happen in first in first out order from this user's point
   of view, but there are no global ordering guarantees.
 \item \textbf{Causal consistency (CC):} read and write operations
-  follow the causal (or happens-before~\cite{lamport1978time}) ordering.
+  follow the causal ordering (or happens-before ordering~\cite{lamport1978time}) .
 }
 Finally, linearizability hides all distributed and concurrent natures
 of distributed systems.
@@ -79,7 +79,7 @@ These semantics can be partially ordered by their
 strength~\cite{viotti2016consistency} where strictly stronger
 semantics subsumes the weaker ones (\cref{fig:semantics-tree}). Thus,
 when an application requires a certain semantics then a strictly
-stronger one can be safely used as a replacement.
+stronger one can safely replace the strictly weaker one without consistency violations.
 
 \subsection{Motivating Example}
 \label{subsec:eg}
@@ -96,24 +96,23 @@ available movies and each movie's information such as the
 logline, director, and cast. This DB is accessed 1) when
 the service admin adds/modifies movie information and
 2) when clients read the DB before renting a movie
-or writing a review.
+or writing a movie review.
 
 The developer of the system can choose an ACID database or linearizable
 key-value store for the metadata DB, but this may not scale well as
 stronger consistency models trade stronger data consistency guarantee with higher latency.
 For utmost scalability and performance, an eventually consistent
-key-value store can be used, but users may observe anomalies (e.g. reviews
-written to one replica may not be visible to the same user reading it).
+key-value store can be used, but users may observe anomalies: for example, reviews
+written to one replica may not be visible to the same user reading it.
 Thus, to find a proper storage module, the key constraints are to identify
 each access functionality, and to minimize anomalies users may experience.
 For example, we can define admins must always observe their own
 updates and clients must be able
 to see what they have previously seen. These constraints
-must be met by the consistency model of the metadata DB application developer chooses to use.
-But as functionalities of the system grow, constraints can become
-more sophisticated and
-the complexity of checking whether the constraints are fully satisfied by a DB
-grow in positive correlation with the complexity of the system.
+must be met by the consistency model of the metadata DB that the application developer chooses to use.
+However, as functionalities of the system grow, constraints typically become
+more sophisticated and the complexity of checking whether the constraints are fully satisfied by the 
+DB also grows accordingly.
 
 While the metadata DB example above is presented in isolation from
 what a single DB service must satisfy, cross-DB constraints can exacerbate

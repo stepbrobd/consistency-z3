@@ -3,19 +3,19 @@
 Modern cloud environments provide hundreds of services on various platforms
 that are readily available for developers to build a
 large-scale distributed application. System architects and developers
-following the
-microservice or service-oriented designs can freely
+following the microservice or service-oriented designs can freely
 choose and compose the building blocks in a modular fashion and plug them
 into the application.
 
 However, different distributed storage systems provide different consistency
 semantics, and the mismatch of the chosen system's semantics and the
 application's expected semantics could introduce subtle and silent
-semantic bugs \cite{silentbugs}. For example, a user may connect a
+semantic bugs \cite{silentbugs, silentbugs2}. For example, a user may connect a
 key-value store providing
 eventual consistency to an application that expects a
 linearizable storage service. In this case, the application could
-read outdated information causing erroneous outcomes.
+read outdated information causing erroneous outcomes but without
+crash-like explicit errors.
 
 Developers and system architects could carefully review the
 application needs and choose a
@@ -96,14 +96,16 @@ functionality needs to enforce in accessing the downstream nodes.
 The leaf nodes typically represent external distributed services
 following one of the pre-built distributed consistency semantic models
 in \sysname{}.
-
+%
 The \sysgraph{} model is expressive enough to model an application logic
 from high-level and trace complex dependencies that go across multiple
 application logic boundaries, and distributed systems which the application
-relies on. \sysname{} verifies simple applications relying on one distributed service, and scales to complex
-microservice-based production environment that leverages multiple modules and
-distributed storage systems.
+relies on. 
 
+Using the \sysgraph{}, \sysname{} can verify simple applications 
+relying on one distributed service and scale to complex microservice-based 
+production environment that leverages multiple modules and distributed storage systems.
+%
 Once the user specifies the application logic, \sysname{} can quickly
 check the compatibility with the plugged-in consistency models. This
 could be verifying the user's selection, or alternatively, \sysname{}
@@ -161,7 +163,7 @@ consistency guarantees from the very beginning.
 % models with "eventual"
 %%%%%% %%%%%%    visibility (see eventual source code)?}
 
-In the case study section, we use \sysname{} to model two microservice-based
+As case studies, we use \sysname{} to model two microservice-based
 applications \cite{gan2019an}, a movie streaming service, an e-commerce
 service, and a cross-service causal storage system built on top of
 multiple weakly consistent distributed storage systems \cite{boltoncc}.
@@ -192,7 +194,7 @@ This paper makes the following contributions:
 \itemparen{
 \item We present \sysname{}, the first compatibility checking tool for
   applications that are composed of multiple distributed services.
-\item We provide the missing formal definitions to fully express
+\item We provide the missing formal definitions including visibility to fully express
   and check distributed weak consistency semantics.
 \item We present a systematic way of encoding complex applications
   using the \sysgraph{} structure and checking their compatibility

@@ -123,8 +123,8 @@ environments and implementation-specific constraints.
 \subsection{Base Consistency Semantics}
 \label{subsec:semdef}
 
-  \begin{wrapfigure}[11]{R}{3.5in}
-	  \vspace{-0.3in}
+  \begin{wrapfigure}[12]{R}{3.5in}
+	  \vspace{-0.2in}
   \begin{minipage}{3.5in}
     \begin{eqnarray*}
 	    \text{MR} & \triangleq & \forall a \in H, \forall b, c \in H_\text{rd}: a
@@ -235,7 +235,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
     \text{LIN} & \triangleq & (\forall a, b \in H: [a
       \xrightarrow{\text{vis}} b \implies a \xrightarrow{\text{ar}} b] \land  [a \xrightarrow{\text{ar}} b \land a.rtime < \infty \implies
     a \xrightarrow{\text{vis}} b]) \\
-    & & \land rb \subseteq ar \land \forall x \in H: x.oval \in \{y.ival \in H_\text{wr} : (x,
+    & & \land \quad rb \subseteq ar \quad \land \quad \forall x \in H: x.oval \in \{y.ival \in H_\text{wr} : (x,
     y) \in \text{can-view}\}
   \end{eqnarray*}
 
@@ -243,8 +243,8 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   \subsection{Formal Definitions of Visibility}
   \label{subsec:vis}
 
-\begin{wrapfigure}[11]{R}{3.3in}
-	\vspace{-0.1in}
+\begin{wrapfigure}[12]{R}{3.3in}
+%	\vspace{-0.1in}
 \Small \centering
 	\begin{tikzpicture}[scale=0.64]
 	  % time
@@ -295,7 +295,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   concurrent and distributed environments, formally defining visibility
   for use in \sysname{}-like tools is non-trivial.
   We restructure visibility as a binary relation
-  and perform explicit case analysis on all possible combinations of
+  and perform case analysis on all possible combinations of
   read and write operations that can be \textit{visible} to each other.
 
   We introduce the notions of \textit{can-view} and \textit{viewed}
@@ -314,7 +314,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   is defined over the pairwise start or return time of read $a$ and
   write $b$ operations:
   \begin{equation*}
-	  \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj}  \land (b \xrightarrow{\text{rb}} a
+	  \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj} \quad \land \quad (b \xrightarrow{\text{rb}} a
 	  \lor \lnot(a \xrightarrow{\text{rb}} b \lor b \xrightarrow{\text{rb}} a))\}.
   \end{equation*}
 %%  \begin{eqnarray*}
@@ -362,9 +362,9 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   result dependency between them is captured by the \textit{viewed} relation:
   \begin{eqnarray*}
     \text{viewed} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in
-      H_\text{wr} \land (a, b) \in \text{can-view} \\
+      H_\text{wr} \quad \land \quad (a, b) \in \text{can-view} \\
       & & \land (
-        (a.\text{oval} = b.\text{ival})\lor
+        (a.\text{oval} = b.\text{ival}) \quad \lor \quad
         \text{ }(\exists x \in H_\text{wr} : (x, b) \in
         \text{can-view} \land a.\text{oval} = x.\text{ival})
       )
@@ -420,16 +420,16 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   operations that can be viewed by each other.
   When constraint $a \xrightarrow{\text{vis}} b$ is assigned to a pair
   of operations,
-  the following cases are considered:
+  the following four cases are considered:
   \begin{align*}
-    \text{vis} & \triangleq \{(a, b) : (a \in H_\text{rd}, b \in H_\text{rd} : \exists x \in
+	  \text{vis} \triangleq & \{(a, b) : (a \in H_\text{rd}, b \in H_\text{rd} : \exists x \in
       H_\text{wr}: (x, a) \in \text{vis} \Rightarrow (x, b) \in \text{vis}) \\
       & \lor
       (a \in H_\text{rd}, b \in H_\text{wr} : \exists x \in
       H_\text{wr}: (x, a) \in \text{vis} \Rightarrow (x, b) \in \text{vis}) \\
       & \lor
       (a \in H_\text{wr}, b \in H_\text{rd} : \text{viewed} \subseteq
-      \text{ar})  \lor
+      \text{ar})  \quad \lor \quad
     (a \in H_\text{wr}, b \in H_\text{wr} : (a, b) \in \text{ar})\}.
   \end{align*}
   %\end{eqnarray*}
@@ -463,7 +463,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   linearization point, i.e., to cut off one of the possible paths in
   the viewed relation.
   We next define visibility between write operations. We call this
-  propagation path write arbitration: whether two writes are visible to each other, depend on the
+  propagation path write arbitration: whether two writes are visible to each other depends on the
   existence of an arbitration relation between them.
   Writes not ordered by visibility are considered invisible to each
   other~\cite{viotti2016consistency}

@@ -198,14 +198,15 @@ constraints. Simply put, axioms and relations define constraints on
 operations; similarly, \texttt{extract} defines a summary constraint on a
 successfully composed subgraph. If the compositional check found a valid
 way for components A, B, and C to interact starting from A,
-\texttt{extract(A, A, graph)}
-(first argument is aggregate node's constraint flow entrance, second is the exit.
-Current implementation requires the first two arguments to be identical.
-The third is the return result from \texttt{compose} call, containing the full graph's nodes and edges)
+\texttt{extract(A, graph)}---the first argument is aggregated subgraph's root node and the second is the return result from 
+\texttt{compose} call, containing the full graph's nodes and edges---%
+%(first argument is aggregate node's constraint flow entrance, second is the exit.
+%Current implementation requires the first two arguments to be identical.
+%The third is the return result from \texttt{compose} call, containing the full graph's nodes and edges)
 % \jiyong{What does each arguement represent and how do they connect to components A B and C?}
 generates a single formula representing the
 overall guarantee provided by the A $\,\to\,$ B $\,\to\,$ C chain, as seen from A's
-perspective, based on the specific choices made during the composability check.
+perspective, based on the specific choices made during the compositional check.
 % Previously checked results are reusable with the above introduced extraction function
 % \jiyong{If we do DFS do we ever get to reuse the checked results?}
 %  not here because the "reuse" i mean is that, once the new aggregate node is created

@@ -1,34 +1,8 @@
-\section{Case Study}
-\label{sec:cs}
-
-To demonstrate \sysname{}' utility, and to detail how a complex distributed
-application can be specified in \sysname{} for the compatibility check with
-pluggable distributed services, we present case studies of three applications.
-Two applications, a movie streaming service and an online shopping
-mall, are from
-a microservice benchmark suite~\cite{gan2019an} and the other is from an
-academic system that designs causally consistent storage service
-across multiple weakly consistent distributed storage services~\cite{boltoncc}.
-We mainly focus on the movie example to delve into the details.
-Our framework is designed for a quick specification of applications
-and prompt compatibility checks, and assumes users to be familiar with
-axiomatic semantics and SMT encodings.
-
-\subsection{Movie Streaming Service}
-
-Our movie streaming service application~\cite{gan2019an} involves
-multiple functionalities that can be represented as
-regular nodes and edges in \sysgraph{} and distributed storage services (or DBs)
-that can be captured as \sysmods{} (\cref{fig:case-study-media}).
-
-\para{System Architecture}
-The media streaming service consists of eleven interconnected
-components, each with specific consistency requirements based on
-their functional roles. While users can choose a \sysmod{} for the
-DB components, they must specify the constraints for the other components.
-
-\begin{wrapfigure}[25]{R}{2.8in}
+%\begin{wrapfigure}[25]{R}{2.8in}
+\begin{figure*}
   \centering
+	\begin{minipage}[c]{0.5\textwidth}
+		\centering
   \begin{tikzpicture}[
       font=\footnotesize,
       node distance=1.8cm,
@@ -83,6 +57,9 @@ DB components, they must specify the constraints for the other components.
     \node[below=0.15cm, align=center, cons, yshift=-0.8mm] at (rent_db) {MR + RYW};
     \node[below=0.15cm, align=center, cons, yshift=-0.8mm] at (video_db) {WFR};
   \end{tikzpicture}
+	\end{minipage}
+	\begin{minipage}[c]{0.48\textwidth}
+		\centering
   \caption{Architecture of the media streaming service with
     consistency guarantees. The numbers denote application
     constraints/flow, node labels on storage systems show
@@ -97,9 +74,45 @@ DB components, they must specify the constraints for the other components.
     11: Rent updates Rent DB.
     12: Rent checks content availability in Metadata DB.
     13: Video service accesses Video DB.
-  14: Video service verifies metadata before playback.}
+    14: Video service verifies metadata before playback.
+    \\
+}
   \label{fig:case-study-media}
-\end{wrapfigure}
+	\end{minipage}
+		\vspace{-0.3in}
+\end{figure*}
+%\end{wrapfigure}
+\section{Case Study}
+\label{sec:cs}
+
+To demonstrate \sysname{}' utility, and to detail how a complex distributed
+application can be specified in \sysname{} for the compatibility check with
+pluggable distributed services, we present case studies of three applications.
+Two applications, a movie streaming service and an online shopping
+mall, are from
+a microservice benchmark suite~\cite{gan2019an} and the other is from an
+academic system that designs causally consistent storage service
+across multiple weakly consistent distributed storage services~\cite{boltoncc}.
+We mainly focus on the movie example to delve into the details.
+Our framework is designed for a quick specification of applications
+and prompt compatibility checks, and assumes users to be familiar with
+axiomatic semantics and SMT encodings which are becoming more common and 
+widely taught in schools~\cite{fmedu1, fmedu2, fmedu3, fmedu4}.
+
+\subsection{Movie Streaming Service}
+
+Our movie streaming service application~\cite{gan2019an} involves
+multiple functionalities that can be represented as
+regular nodes and edges in \sysgraph{} and distributed storage services (or DBs)
+that can be captured as \sysmods{} (\cref{fig:case-study-media}).
+
+\para{System Architecture}
+The media streaming service consists of eleven interconnected
+components, each with specific consistency requirements based on
+their functional roles. While users can choose a \sysmod{} for the
+DB components, they must specify the constraints for the other components.
+
+
 
 \begin{enumerate}[leftmargin=*,noitemsep,topsep=2pt]
   \item \textbf{Client and Admin}: These components represent the
@@ -108,7 +121,7 @@ DB components, they must specify the constraints for the other components.
     themselves but rely on the guarantees provided by the services
     they interact with.
 
-  \item \textbf{Authentication}:
+  \item \textbf{Authentication}: Involves two nodes for clients and admins to authenticate.
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Login Service}: Manages user authentication and
         session handling. It requires order preserving writes
@@ -122,31 +135,30 @@ DB components, they must specify the constraints for the other components.
         %changes are consistently visible to subsequent operations.
     \end{itemize}
 
-  \item \textbf{Content Management}:
+  \item \textbf{Content Management}: Movie-related contents made accessible to clients by the admin.
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Video Service}: Handles video streaming requests
         and requires users to observe their own prior operations to ensure
         consistent content delivery.
       \item \textbf{Metadata DB}: Stores information about
-        available media content (titles, descriptions, genres, etc.).
+        available videos (titles, descriptions, genres, etc.).
         %        with Monotonic Reads (MR) and Read Your Writes (RYW)
         %        guarantees. This allows administrative updates to be
         %        immediately visible while tolerating some staleness
         % for user reads.
-      \item \textbf{Video DB}: Stores the actual video content
-        with WFR guarantees to maintain version consistency.
+      \item \textbf{Video DB}: Stores the actual video contents.
+%        with WFR guarantees to maintain version consistency.
     \end{itemize}
 
-  \item \textbf{User-Centered Functions}:
+  \item \textbf{User-Centered Functions}: Mostly hosts client-driven activities. 
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
-      \item \textbf{Review Service}: Manages user reviews and
-        requires users to immediately see their own reviews.
+      \item \textbf{Review Service}: Manages user reviews; reviews should be immediately visible to the writer.
       \item \textbf{Review DB}: Stores user reviews.
         %with RYW
         %guarantees, allowing users to see their own reviews
         %immediately while other users might see slightly stale data.
-      \item \textbf{Rent Service}: Handles media rental transactions
-        and requires users to see their activities immediately.
+      \item \textbf{Rent Service}: Handles media rental transactions;
+        users must see their activities immediately.
       \item \textbf{Rent DB}: Records rental transactions.
         %with MR and RYW guarantees to maintain consistent transaction history.
     \end{itemize}

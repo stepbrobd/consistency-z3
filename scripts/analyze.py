@@ -33,16 +33,23 @@ def shop() -> None:
     sum_duration = 0.0
     num_composables = 0
     num_terminated = 0
+    time_to_correct = 0.0
+
     for ok, duration, _score, _arbitrator, _tx, _shop in result_shop:
         sum_duration += duration
         num_composables += 1 if ok else 0
         num_terminated += 1 if ((not ok) and (duration == 10.0)) else 0
+        if "Linearizability" in _arbitrator[1]:
+            if "CausalConsistency" in _tx[1] or "PRAMConsistency" in _tx[1]:
+                if "CausalConsistency" in _shop[1] or "ReadYourWrites" in _shop[1]:
+                    time_to_correct += duration
 
     print(f"num entries: {len(result_shop)}")
     print(f"total time: {sum_duration:.2f} s")
     print(f"avg duration: {sum_duration / len(result_shop) * 100:.2f} ms")
     # print(f"percent composable: {num_composables / len(result_shop) * 100:.2f}%")
     print(f"timedout: {num_terminated / len(result_shop) * 100:.2f}%")
+    print(f"time to correct: {time_to_correct:.2f} s")
 
 def media() -> None:
     result_media = []

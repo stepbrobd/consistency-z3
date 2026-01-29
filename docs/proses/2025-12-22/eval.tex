@@ -6,8 +6,10 @@ its performance in checking compatibilities.
 \newcommand{\tableT}{\textcolor{blue}{T}}
 \newcommand{\tableF}{\textcolor{red}{F}}
 \newcommand{\tableNA}{-}
-\begin{table}[H]
+\begin{wraptable}[13]{R}{3.4in}
+	\vspace{-0.15in}
   \centering
+  \small
   \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
     \hline
     {} &
@@ -52,9 +54,9 @@ its performance in checking compatibilities.
   \caption{Pairwise check performance. Semantics in the first column
     are checked if they satisfy semantics in other columns. Each cell
     shows the execution time for completing the check in milliseconds. The
-  blue text indicates the result of the check is true and red means false. }
+  blue text indicates the check result is true and red means false. }
   \label{tab:pairwise-time}
-\end{table}
+\end{wraptable}
 %\vspace{-0.3in}
 
 \para{Experience}
@@ -128,6 +130,7 @@ respect to the theory.
 
 \begin{wraptable}{R}{3in}
 	\center
+	\small
 	\begin{tabular}{ |l|r|r|r| }
 		\hline
 		Application & All & Min Score & Single case \\

@@ -78,8 +78,8 @@ input or exhaustively explores valid combinations.
 
 % 2
 Regarding effort and the learning curve, once semantic requirements are understood, encoding an \sysgraph is straightforward.
-Our case studies only require 183, 80, and 252 lines of code for encoding the moving streaming service, online shopping mall, and XC storage, respectively, thanks to existing facilities such as the \sysmods{} in the \sysname{} framework. 
-These relatively small efforts for constraint encoding and automated checks validates our framework's goal of enabling agile compatibility checks compared to typical end-to-end formal verification which could have 20:1 proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet} which could follow with confidence after our check passes. 
+Our case studies only require 183, 80, and 252 lines of code for encoding the movie streaming service, online shopping mall, and XC storage, respectively, thanks to existing facilities such as the \sysmods{} in the \sysname{} framework. 
+These relatively small efforts for constraint encoding and automated checks validates our framework's goal of enabling agile compatibility checks compared to typical end-to-end formal verification which could have huge proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet, disel} which could follow with confidence after our \sysname{} check passes. 
 %Our effort constraints remain stable unless interfaces or consistency requirements change.
 
 % 3
@@ -117,7 +117,7 @@ All experiments were conducted on an Intel i7-1360P processor with
 % https://github.com/verus-lang/verus/blob/0b6f3cbb8fceff6681b4988c3cac37a8b801f8e6/source/docs/guide/src/smt_failures.md
 
 \textbf{Pairwise Compatibility Check.}
-
+%
 First, we evaluated the compatibility between pairs of base
 consistency semantics,
 EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in \sysname{}.
@@ -128,19 +128,19 @@ only 31 ms per check and the results of the checks are correct with
 respect to the theory.
 
 
-\begin{wraptable}{R}{3in}
+\begin{wraptable}[9]{R}{3.37in}
 	\center
 	\small
-	\begin{tabular}{ |l|r|r|r| }
+	\begin{tabular}{ |l|r|r|r|r| }
 		\hline
-		Application & All & Min Score & Single case \\
+		Application & \# of combs. & All & Min score & Single \\
 		\hline
-		Movie    & 64.82 hr$^*$ & 20.43 sec  & 16.5 ms\\
-		Shopping & 251.77 sec   & 1.65 sec   & 5.12 ms \\
-		XC store & 3.98 hr      & 261.09 sec & 17.17 ms\\
+		Movie    & $17^5=1.4\textrm{M}$ & 64.82 hr$^*$ & 20.43 sec  & 16.5 ms\\
+		Shopping & $17^3=4.9\textrm{K}$ &251.77 sec   & 1.65 sec   & 5.12 ms \\
+		XC store & $17^4=83.5\textrm{K}$ &3.98 hr      & 261.09 sec & 17.17 ms\\
 		\hline
 	\end{tabular}
-        \caption{Search time for compatible DMs. ($^*$ predicted time)}
+	\caption{Search time for compatible DMs. Columns show number of searched DM combinations, time to search all combinations (all), time to find the minimum score combination (min score), and average time to check one combination (single).  ($^*$ predicted time)}
         % \jiyong{fill in the blank. Also for XC, the min score combination is the combination we give as input in case study, which is the number here right (see the text below)?}
 	\label{tbl:searchtime}
 %	\end{table}
@@ -148,12 +148,12 @@ respect to the theory.
 \textbf{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using
 three case studies in \cref{sec:cs}.
 This evaluation focuses on two key metrics: the framework's ability to
-find valid compositions with a minimal semantic score and its
+find valid compositions with the weakest semantics (i.e., the minimum score combination in \cref{subsec:search}) and its
 performance characteristics under different system complexities.
-
+%
 For each case study, we gave blank \sysmods{} to each application
 so that \sysname{} search and output compatible \sysmod{} combinations.
-\sysname{} uses the search strategy in \cref{subsec:search}.
+\sysname{} uses the search strategy in \cref{subsec:search}. The results are summarized in \cref{tbl:searchtime}.
 %we enumerated all possible combinations of
 %consistency models for nodes with non-null provs fields, while
 %keeping nodes with predefined needs fields unchanged. We assigned
@@ -164,7 +164,7 @@ Movie streaming service requires finding \sysmods{} corresponding to
 five DB nodes that satisfy application node and edge constraints.
 Given that \sysname{} contains 17 \sysmods{} as illustrated in
 \cref{fig:semantics-tree} the full search space contains
-$17^5$ combinations. On average checking each combination
+$17^5$ combinations. On average, checking each combination
 takes 16.5 ms and can find a compatible combination with the lowest
 score in 20.43 seconds with a timeout of 10 seconds for each check.
 Checking the entire search space is feasible but is expected to take
@@ -175,15 +175,14 @@ The online shopping mall example is simpler than the movie streaming service
 and involves only three DB nodes to search.
 We evaluated all $17^3$ possible combinations of consistency semantics across
 these nodes. The evaluation completed in 251.77 seconds with an average
-duration of 5.12 ms per combination with 0 timeouts.
+duration of 5.12 ms per combination with 0 timeouts. The minimum score combination 
+was found in 1.65 seconds. 
 
 Finally, four DB node combinations (i.e., $17^4$ cases) are searched for
 the cross causal storage. The total search completes in 3.98 hours
 with an average duration of 17.17 ms per combination.
-Our tool successfully identified the combination in our original design
-in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
-% \jiyong{Min score number is this 261 second number right?}
-% yes
+Our tool successfully identified the combination in our original design (also the
+minimun score combination) in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
 
 Overall, depending on the complexity of the constraints the
 compatibility check times

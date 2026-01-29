@@ -52,7 +52,6 @@ either from our implemented models or user-defined constraints, representing
 additional consistency guarantees.
 
 \subsection{\sysgraph{} and Compositional Check}
-\label{subsec:search}
 %. Components (e.g., functionality)
 %of an application are modeled as nodes and data flow and constraints
 %between systems are represented as edges connecting the nodes in the
@@ -217,6 +216,7 @@ Subsequent checks on the full application graph can treat this summary as a prim
 thereby bypassing the internal complexity of the original subgraph and improving solver scalability.
 
 \subsection{Compatible Combination Search}
+\label{subsec:search}
 
 \sysname{} is capable of searching for compatible \sysmods{} for an
 application given an \sysgraph{}. When blank \sysmods{} are plugged into the

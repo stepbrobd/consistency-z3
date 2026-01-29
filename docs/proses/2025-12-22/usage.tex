@@ -172,16 +172,17 @@ If all checks succeed, the application is deemed compatible
 with the plugged-in \sysmods{} and the application logics are also
 sound as a whole.
 
-To avoid redundant checks and for scalability, \sysname{} can aggretate nodes and edges into
-a single logical node using the \texttt{extract} function. \jiyong{Does this previous sentence make sense?}
-After a successful compositional check,
-\texttt{extract} takes the resulting graph
-from composability check (which represents one valid assignment of
-constraints) \jiyong{What is composability check? Is it compatibility check or compositional check or something else?}
-and outputs a single node representing the net semantic guarantee of provided (sub-)graph
-reachable from the subgraph root node, and there are no cross edges from/to outside nodes in the subgraph.
-The function performs a DFS starting from the
-specified subgraph root on the graph provided in function argument.
+
+To avoid redundant checks in case of a subset of nodes and edges needs to be reused for scalability,
+\sysname{} can aggretate a subgraph into a single logical node using the \texttt{extract} function.
+% \jiyong{Does this previous sentence make sense?}
+% \jiyong{What is composability check? Is it compatibility check or compositional check or something else?}
+% same thing, prob missed it when revising the terms
+After a successful compositional check, \texttt{extract} processes the resulting graph
+representing a valid assignment of constraints, and outputs a single summary node.
+This node encapsulates the net semantic guarantee of the subgraph reachable from the 
+\texttt{entry} node, provided there are no external edges crossing the subgraph boundary.
+The function performs a DFS starting from \texttt{entry} to compute this summary.
 For each edge (\texttt{src}, \texttt{dst})
 traversed in the DFS, the extraction function uses the specific \texttt{provs}
 constraint assigned to \texttt{src} in the result graph, uses the specific
@@ -197,11 +198,22 @@ constraints. Simply put, axioms and relations define constraints on
 operations; similarly, \texttt{extract} defines a summary constraint on a
 successfully composed subgraph. If the compositional check found a valid
 way for components A, B, and C to interact starting from A,
-\texttt{extract(A, A, graph)} \jiyong{What does each arguement represent and how do they connect to components A B and C?} generates a single formula representing the
+\texttt{extract(A, A, graph)}
+(first argument is aggregate node's constraint flow entrance, second is the exit.
+Current implementation requires the first two arguments to be identical.
+The third is the return result from \texttt{compose} call, containing the full graph's nodes and edges)
+% \jiyong{What does each arguement represent and how do they connect to components A B and C?}
+generates a single formula representing the
 overall guarantee provided by the A $\,\to\,$ B $\,\to\,$ C chain, as seen from A's
 perspective, based on the specific choices made during the composability check.
-Previously checked results are reusable with the above introduced extraction function
-\jiyong{If we do DFS do we ever get to reuse the checked results?}
+% Previously checked results are reusable with the above introduced extraction function
+% \jiyong{If we do DFS do we ever get to reuse the checked results?}
+%  not here because the "reuse" i mean is that, once the new aggregate node is created
+% users can re-create a new full appgraph, so the intermediate steps of are skipped
+% in new checks
+By replacing a verified subgraph with its summary node, \sysname{} enables modular verification.
+Subsequent checks on the full application graph can treat this summary as a primitive component,
+thereby bypassing the internal complexity of the original subgraph and improving solver scalability.
 
 \subsection{Compatible Combination Search}
 

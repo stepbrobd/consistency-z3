@@ -42,13 +42,13 @@
     \draw[arrow] (admin) -- (video)        node[midway, above, app, yshift=-1.8mm] {7};
 
     % service to DB edges
-    \draw[arrow] (login)   -- (user_db)     node[midway, above, app, yshift=-0.8mm] {8};
+    \draw[arrow] (login)   -- (user_db)     node[midway, above, app, yshift=-0.8mm, xshift=-0.5cm] {8};
     \draw[arrow] (review)  -- (review_db)   node[midway, above, app, yshift=-0.8mm] {9};
-    \draw[arrow] (review)  -- (metadata_db) node[midway, above, app, yshift=-0.8mm] {10};
+    \draw[arrow] (review)  -- (metadata_db) node[midway, above, app, yshift=-3mm, xshift=-2.5mm] {10};
     \draw[arrow] (rent)    -- (rent_db)     node[midway, above, app, yshift=-0.8mm] {11};
-    \draw[arrow] (rent)    -- (metadata_db) node[midway, above, app, yshift=-0.8mm] {12};
-    \draw[arrow] (video)   -- (video_db)    node[midway, above, app, yshift=-0.8mm] {13};
-    \draw[arrow] (video)   -- (metadata_db) node[midway, above, app, yshift=-1.6mm] {14};
+    \draw[arrow] (rent)    -- (metadata_db) node[midway, above, app, yshift=-0.1mm] {12};
+    \draw[arrow] (video)   -- (video_db)    node[midway, above, app, yshift=-0.6mm] {13};
+    \draw[arrow] (video)   -- (metadata_db) node[midway, above, app, yshift=-1.4mm, xshift=-2mm] {14};
 
     % consistency semantics
     \node[below=0.15cm, align=center, cons, yshift=-0.8mm] at (user_db) {MW + WFR};
@@ -165,6 +165,8 @@ DB components, they must specify the constraints for the other components.
 \end{enumerate}
 
 \para{Constraint Encoding.}
+We focus on the login and review services in \cref{fig:case-study-media}
+to explain how constrains are encoded in \sysname{}.
 In this example, the application requires that all users must register for
 an account before they can log in, this would result in a request from
 client to login service (edge 1), then to user database (edge 8).
@@ -181,28 +183,31 @@ The registration-before-login dependency establishes user identity,
 the login-before-content-access dependency establishes authorization,
 and the content-validation-before-review dependency establishes
 referential integrity.
+
+
 We next show the interaction flow from user login through posting a review
 and formalize the corresponding edge constraints.
-
 Semantically, 6 nodes are interacting with each other (client,
   login service, user database, review service, metadata database,
 and review database) in the aforementioned dependency chain.
 The edges between these nodes represent the flow of API requests and we
 encode the prerequisites of each request as constraints on edges.
-Implementation-wise, all constraints on edges can be
-directly encoded on the nodes themselves along with our
-predefined semantics. However, when modeling
-services with complex interactions with cross storage system
-dependencies, edge constraints can clearly
-separate the providing/requiring semantic constraints from downstream
-implementation-specific
+%Implementation-wise, 
+Note that all constraints on edges can be
+directly added to the nodes.
+%encoded on the nodes 
+%along with our
+%predefined semantics. 
+However, when modeling services with complex interactions 
+with cross storage system dependencies, 
+edge constraints can clearly
+separate the providing/requiring constraints from downstream
+%implementation-specific
 service logic. In the implementation, we defined multiple operations
 with read or write type to represent interactions between client,
 service nodes, and storage nodes.
 Formally, we can represent client's login operation (edge 8) as follows:
-
-\vspace{-0.1in}
-
+%\vspace{-0.1in}
 % old version with linefeed
 % \begin{align*}
 %   EC_{login} &\triangleq \forall op_{login} \in H_{rd} : \exists
@@ -212,17 +217,15 @@ Formally, we can represent client's login operation (edge 8) as follows:
 % new version wo linefeed and consistent notation
 \[
   EC_{\text{login}} \triangleq \forall op_{\text{login}} \in H_{\text{rd}} : \exists op_{\text{reg}} \in H_{\text{wr}} :
-  (op_{\text{login}}, op_{\text{reg}}) \in ob \land (op_{\text{reg}}, op_{\text{login}}) \in vis
+  (op_{\text{login}}, op_{\text{reg}}) \in ob \quad \land \quad (op_{\text{reg}}, op_{\text{login}}) \in vis.
 \]
-
 Since all interactions to User DB pass through Login, and Login node do not have cross
 edges to outside graph components other than User DB, the subgraph Login, User DB and
 edge 8 can be aggregated with \texttt{extract} function.
 
 For services initiated from the client side, we modeled the behaviors
-as a set of re-useable common constraints with the return-before
+as a set of reuseable common constraints with the return-before
 binary relationship. Formally:
-
 % old version with linefeed
 % \begin{align*}
 % EC_{auth} &\triangleq rb(op_{login}, op_{rdreview}) \land
@@ -233,12 +236,11 @@ binary relationship. Formally:
 % this is too wide
 \begin{align*}
   EC_{\text{auth}} &\triangleq
-  (op_{\text{login}}, op_{\text{rdreview}}) \in rb \land
-  (op_{\text{login}}, op_{\text{wrreview}}) \in rb \\ &\land
-  (op_{\text{login}}, op_{\text{rent}}) \in rb \land
-  (op_{\text{login}}, op_{\text{watch}}) \in rb
+  (op_{\text{login}}, op_{\text{rdreview}}) \in rb \quad \land \quad
+  (op_{\text{login}}, op_{\text{wrreview}}) \in rb \\ 
+	&\land \quad (op_{\text{login}}, op_{\text{rent}}) \in rb \quad \land \quad
+  (op_{\text{login}}, op_{\text{watch}}) \in rb.
 \end{align*}
-
 The common constraints are then added to each edge that is dependent on the
 login service or refer to the login operation, ensuring the chain
 of dependencies is respected throughout the system.
@@ -249,11 +251,10 @@ metadata database before allowing the review to be written. Similar to
 the login operation, we can represent the review service's interaction
 as a set of constraints with existential quantification, object constraints,
 and return-before relationships, on top of consistency semantics
-encoded at each nodes' provide and need fields.
-
+encoded at each nodes' provide and need fields. Formally,
 \begin{align*}
 EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \exists op_{\text{rdmeta}} \in H_{\text{rd}} :\\
-&(op_{\text{review}}, op_{\text{rdmeta}}) \in ob \land (op_{\text{rdmeta}}, op_{\text{review}}) \in rb
+&(op_{\text{review}}, op_{\text{rdmeta}}) \in ob \quad \land \quad (op_{\text{rdmeta}}, op_{\text{review}}) \in rb.
 \end{align*}
 
 Following these practices one can specify relatively complex and construct \sysgraph with \sysmods and application-level constraints.
@@ -296,20 +297,62 @@ Review Service to the Metadata Database enforces the constraint that
 ``Check metadata before reading reviews'', ensuring that reviews are only
 accessible for valid content.
 
-When we apply the \texttt{composable} function to this system,
+When we apply the compositional check to this system,
 starting from the client node, it successfully verifies that the
 composition of these services with their respective consistency
 guarantees satisfies the overall system requirements.
 This verification confirms that despite the heterogeneous consistency
 guarantees across different components, the system as a whole
 maintains its required properties.
-%For instance, the login flow
-%correctly enforces that registration must precede login, and the
-%review system correctly ensures that users can immediately see their
-%own reviews while maintaining content validity checks.
+For instance, the login flow
+correctly enforces that registration must precede login, and the
+review system correctly ensures that users can immediately see their
+own reviews. %while maintaining content validity checks.
 
 \subsection{Online Shopping Mall}
+%
+%
+\begin{wrapfigure}[10]{R}{2.8in}
+	\vspace{-0.4in}
+\centering
+\begin{tikzpicture}[
+    font=\footnotesize,
+    node distance=1.2cm,
+    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
+    storage/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
+    arrow/.style={->, >=stealth, thick},
+    app/.style={font=\scriptsize, text=purple!70!black},
+    cons/.style={font=\scriptsize, text=teal!70!black}
+  ]
 
+  % nodes
+  \node[service] (client) at (-0.3,0) {Client};
+  \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
+  \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
+  %\node[service] (arbitrator) at ([shift={(315:1.77cm)}]client) {Checkout};
+  %\node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
+  \node[service] (arbitrator) at ([shift={(325:1.5cm)}]client) {Checkout};
+  \node[storage] (tx) at ([shift={(215:1.5cm)}]client) {Tx Log};
+
+  % edges
+  \draw[arrow] (client) -- (cart)       node[midway, above, app, yshift=-0.8mm] {1};
+  \draw[arrow] (client) -- (shop)       node[midway, above, app, yshift=-0.8mm] {2};
+  \draw[arrow] (client) -- (arbitrator) node[midway, right, app] {3};
+  \draw[arrow] (arbitrator) -- (shop)   node[pos=0.35, right=0.2cm, yshift=-0.2mm, app] {4};
+  \draw[arrow] (arbitrator) -- (tx)     node[midway, below, app, yshift=0.8mm] {5};
+
+  % semantics
+  \node[cons, align=center, yshift=1.2mm] at (cart.north) {EC};
+  %\node[cons, align=left, right=1mm] at (shop.east) {RYW + MR};
+  \node[cons, align=center, yshift=1.2mm] at (shop.north) {RYW + MR};
+  \node[cons, align=left, right=1mm] at (arbitrator.east) {LIN};
+  \node[cons, align=right, left=1mm] at (tx.west) {LIN};
+\end{tikzpicture}
+\caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
+\label{fig:case-study-shop}
+\end{wrapfigure}
+%
+%
 An e-commerce application~\cite{gan2019an} is similar to the movie
 streaming service but its architecture and constraints are simpler
 (\cref{fig:case-study-shop}).
@@ -320,14 +363,17 @@ models client behaviors:
 \item \textbf{Client}: The end-user interface through which
   customers browse products, manage their shopping cart, and
   initiate purchases. The client itself doesn't enforce specific
-  consistency guarantees but relies on the guarantees provided by
-  the services it interacts with.
+  consistency guarantees but relies on guarantees provided by
+  the interacting services.
 
+\end{enumerate}
+
+\begin{enumerate}[leftmargin=*, noitemsep,topsep=0pt]
+\setcounter{enumi}{1}
 \item \textbf{Cart DB}: The shopping cart DB maintains customers'
   shopping cart state. It stores items that customers intend to
   purchase and supports read and write operations. The cart can be
   loosely managed and immediate propagation of updates is not required.
-
 \item \textbf{Shop DB}: Maintains the authoritative inventory state
   for all products. Clients can observe stale state, but the shop must provide
   up-to-date information to the checkout service which process purchase
@@ -389,44 +435,44 @@ models client behaviors:
 %inventory is decremented without a corresponding transaction record
 %or vice versa.
 
-\begin{wrapfigure}[12]{R}{2.8in}
-\centering
-\begin{tikzpicture}[
-    font=\footnotesize,
-    node distance=1.2cm,
-    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
-    storage/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
-    arrow/.style={->, >=stealth, thick},
-    app/.style={font=\scriptsize, text=purple!70!black},
-    cons/.style={font=\scriptsize, text=teal!70!black}
-  ]
-
-  % nodes
-  \node[service] (client) at (-0.3,0) {Client};
-  \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
-  \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
-  %\node[service] (arbitrator) at ([shift={(315:1.77cm)}]client) {Checkout};
-  %\node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
-  \node[service] (arbitrator) at ([shift={(325:1.5cm)}]client) {Checkout};
-  \node[storage] (tx) at ([shift={(215:1.5cm)}]client) {Tx Log};
-
-  % edges
-  \draw[arrow] (client) -- (cart)       node[midway, above, app, yshift=-0.8mm] {1};
-  \draw[arrow] (client) -- (shop)       node[midway, above, app, yshift=-0.8mm] {2};
-  \draw[arrow] (client) -- (arbitrator) node[midway, right, app] {3};
-  \draw[arrow] (arbitrator) -- (shop)   node[pos=0.35, right=0.2cm, yshift=-0.2mm, app] {4};
-  \draw[arrow] (arbitrator) -- (tx)     node[midway, below, app, yshift=0.8mm] {5};
-
-  % semantics
-  \node[cons, align=center, yshift=1.2mm] at (cart.north) {EC};
-  %\node[cons, align=left, right=1mm] at (shop.east) {RYW + MR};
-  \node[cons, align=center, yshift=1.2mm] at (shop.north) {RYW + MR};
-  \node[cons, align=left, right=1mm] at (arbitrator.east) {LIN};
-  \node[cons, align=right, left=1mm] at (tx.west) {LIN};
-\end{tikzpicture}
-\caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
-\label{fig:case-study-shop}
-\end{wrapfigure}
+%\begin{wrapfigure}[12]{R}{2.8in}
+%\centering
+%\begin{tikzpicture}[
+%    font=\footnotesize,
+%    node distance=1.2cm,
+%    service/.style={draw, rounded corners=2pt, fill=blue!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
+%    storage/.style={draw, rounded corners=2pt, fill=green!10, minimum width=1.6cm, minimum height=0.5cm, align=center},
+%    arrow/.style={->, >=stealth, thick},
+%    app/.style={font=\scriptsize, text=purple!70!black},
+%    cons/.style={font=\scriptsize, text=teal!70!black}
+%  ]
+%
+%  % nodes
+%  \node[service] (client) at (-0.3,0) {Client};
+%  \node[storage] (cart) at ([shift={(180:2.5cm)}]client) {Cart};
+%  \node[storage] (shop) at ([shift={(0:2.5cm)}]client) {Shop};
+%  %\node[service] (arbitrator) at ([shift={(315:1.77cm)}]client) {Checkout};
+%  %\node[storage] (tx) at ([shift={(225:1.77cm)}]client) {Tx Log};
+%  \node[service] (arbitrator) at ([shift={(325:1.5cm)}]client) {Checkout};
+%  \node[storage] (tx) at ([shift={(215:1.5cm)}]client) {Tx Log};
+%
+%  % edges
+%  \draw[arrow] (client) -- (cart)       node[midway, above, app, yshift=-0.8mm] {1};
+%  \draw[arrow] (client) -- (shop)       node[midway, above, app, yshift=-0.8mm] {2};
+%  \draw[arrow] (client) -- (arbitrator) node[midway, right, app] {3};
+%  \draw[arrow] (arbitrator) -- (shop)   node[pos=0.35, right=0.2cm, yshift=-0.2mm, app] {4};
+%  \draw[arrow] (arbitrator) -- (tx)     node[midway, below, app, yshift=0.8mm] {5};
+%
+%  % semantics
+%  \node[cons, align=center, yshift=1.2mm] at (cart.north) {EC};
+%  %\node[cons, align=left, right=1mm] at (shop.east) {RYW + MR};
+%  \node[cons, align=center, yshift=1.2mm] at (shop.north) {RYW + MR};
+%  \node[cons, align=left, right=1mm] at (arbitrator.east) {LIN};
+%  \node[cons, align=right, left=1mm] at (tx.west) {LIN};
+%\end{tikzpicture}
+%\caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
+%\label{fig:case-study-shop}
+%\end{wrapfigure}
 
 \para{Requirements and Compatibility Verification}
 The consistency requirements of this system vary by component:
@@ -447,7 +493,7 @@ The consistency requirements of this system vary by component:
   linearizability, the strongest consistency model, ensuring that
   all operations appear to execute atomically in a sequential order
   that is consistent with the real-time ordering of those
-  operations. This is critical for the financial aspects of the system.
+  operations. This is critical for the financial transactions. %aspects of the system.
 
 \item The cart service has more relaxed consistency requirements,
   as temporary inconsistencies in cart state don't impact the
@@ -465,6 +511,7 @@ under concurrent operations.
 \subsection{Cross Causal (XC) Storage}
 
 \begin{wrapfigure}[13]{R}{2.8in}
+	\vspace{-0.1in}
 \centering
 \begin{tikzpicture}[
     font=\footnotesize,
@@ -506,18 +553,20 @@ under concurrent operations.
 \label{fig:cross-service-causal}
 \end{wrapfigure}
 
-Cross causal (XC) storage~\cite{boltoncc} is a system that combines
+Cross causal (XC) storage~\cite{boltoncc} combines
 multiple distributed storage services, each
 offering only a basic consistency guarantee, to provide causal consistency
-as a whole (\cref{fig:cross-service-causal}).
-Users accessing data through the XC node can expect to get causal consistency,
+as a whole (\cref{fig:cross-service-causal}). 
+As XC storage itself is a system, its constraints are very different from application-level constraints in previous case studies;
+XC storage showcases the capability of \sysname{} beyond modeling application logics.
+
+Users accessing data through the XC node get causal consistency,
 but individual storage DB maintains weaker semantics than causal.
 SVC4 node's storage backend only provides WFR. To achieve causal
 consistency, application places a shim layer to strengthen the semantics
 in the design and this is imposed on the edge between SVC4 and XC.
 While the SVC4-XC combination can achieve causal consistency, SVC4's
-downstream service
-node SVC3's storage backend only provides RYW. Again, to achieve
+downstream service SVC3's storage backend only provides RYW. To achieve
 cross-system causal consistency, the augmentation continues down the chain.
 
 %This example demonstrates modeling a system where multiple services, each
@@ -530,7 +579,7 @@ constraints, symbolic isolation, and the role of explicit ``glue'' constraints.
 \para{Architecture.} The architecture forms a chain $\text{XC} \rightarrow
 \text{SVC4} \rightarrow \text{SVC3} \rightarrow \text{SVC2}
 \rightarrow \text{SVC1}$.
-Each service $\text{SVC}n$ (for $n=1..4$) is designed to provide only
+Each service $\text{SVC}n$ ($n=1..4$) is designed to provide only
 \textit{one} of the
 four session guarantees via its \texttt{provs} attribute:
 $\text{SVC}1$ provides MR, $\text{SVC}2$ provides
@@ -592,7 +641,7 @@ w_2.\text{ival}$ despite their different symbolic names) is necessary.
 While the current test code
 simplifies this by focusing on composing the consistency axioms, a more rigorous
 model would include these explicit symbol equivalence constraints on the edges
-(we are directly asserting symbols of $w_1$ are identical to those of $w_2$ for
+(we are asserting symbols of $w_1$ are identical to those of $w_2$ for
 simplicity).
 
 %\textit{Aggregation:} The \texttt{composable(g, svc1)} call attempts
@@ -611,11 +660,11 @@ to verify compatibility, which succeeds. While
 the original XC implementation~\cite{boltoncc} ties together only EC
 storage services, this example further explores more diverse storage
 services and demonstrates the flexibility of \sysname{}.
-With the successful composition check, the multi-node XC chain can be
+With the successful compositional check, the multi-node XC chain can be
 collapsed into a single entity (similar to how Login + User DB could be summarized)
 by applying \texttt{extract} to the full XC graph.
 This yields one aggregated \texttt{provs}/\texttt{needs} tuple representing
-the composed cross storage system causal consistency guarantee for downstream use.
+the composed cross storage system causal consistency guarantee for any future downstream use.
 
 %\subsubsection{Interaction Flows}
 %

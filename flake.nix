@@ -54,7 +54,7 @@
               tex-fmt
               texliveFull
               typst
-              typstfmt
+              typstyle
               uv
               z3
             ];
@@ -76,7 +76,7 @@
             ${lib.getExe pkgs.nixpkgs-fmt} .
             ${lib.getExe pkgs.mypy} --disable-error-code=import .
             ${lib.getExe pkgs.ruff} check --fix --unsafe-fixes .
-            ${lib.getExe pkgs.typstfmt} **/*.typ
+            ${lib.getExe pkgs.typstyle} **/*.typ
           '';
         };
     };

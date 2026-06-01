@@ -1,10 +1,9 @@
 # Meeting notes
 
-Hydra Evaluation and Binary Cache:
+Binary Cache:
 
-- Jobset: <https://hydra.ysun.co/jobset/stepbrobd/consistency-z3>
-- Cache: <https://cache.ysun.co/public>
-- Key: `public:Y9EARSt+KLUY1JrY4X8XWmzs6uD+Zh2hRqN9eCUg55U=`
+- Cache: <https://cache.ysun.co>
+- Key: `cache.ysun.co-1:WxPYwT5g3kt9XhUhHPpNLZKI9HIOsVVAuqSHpok8Qt4=`
 
 ## 2025-07-19
 

@@ -5,8 +5,10 @@
 > [!Caution]
 > Experimental project, use at your own risk.
 
-- Cache: <https://cache.garnix.io>
-- Key: `cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=`
+Binary Cache:
+
+- Cache: <https://cache.ysun.co>
+- Key: `cache.ysun.co-1:WxPYwT5g3kt9XhUhHPpNLZKI9HIOsVVAuqSHpok8Qt4=`
 
 ## Usage
 

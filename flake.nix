@@ -16,7 +16,6 @@
 
       debug = true;
       flake = { inherit lib; };
-      flake.hydraJobs = { inherit (self) packages devShells; };
 
       perSystem = { pkgs, ... }:
         let

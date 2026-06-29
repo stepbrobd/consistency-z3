@@ -12,7 +12,7 @@ class RVal(Model):
     """
 
     @staticmethod
-    def assertions(
+    def assertions(  # ty: ignore[missing-override-decorator]
         symbols: list[str] | None = None, f: z3.FuncDeclRef | None = None
     ) -> z3.BoolRef:  # type: ignore
         if f is None:

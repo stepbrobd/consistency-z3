@@ -15,7 +15,7 @@ class ReadYourWrites(Model):
     then operation $a$ is visible to operation $b$.
     """
     @staticmethod
-    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:  # ty: ignore[invalid-method-override, missing-override-decorator]
         """
         Add read-your-writes constraints.
         """

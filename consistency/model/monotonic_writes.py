@@ -15,7 +15,7 @@ class MonotonicWrites(Model):
     """
 
     @staticmethod
-    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:  # ty: ignore[invalid-method-override, missing-override-decorator]
         if symbols is None:
             symbols = ["a", "b", "c"]
         decl = " ".join(symbols)

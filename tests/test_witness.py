@@ -1,6 +1,6 @@
 import pathlib
 import shutil
-import subprocess
+import subprocess  # noqa: S404
 import tempfile
 
 import z3

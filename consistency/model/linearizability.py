@@ -9,7 +9,7 @@ from consistency.operation import Operation as Op
 
 class LinearizabilityWith(Model):
     @staticmethod
-    def assertions(
+    def assertions(  # ty: ignore[invalid-method-override, missing-override-decorator]
         symbols: list[str] | None = None, ctx: z3.FuncDeclRef | None = None
     ) -> z3.BoolRef:
         if ctx is None:
@@ -62,7 +62,7 @@ class LinearizabilityWith(Model):
 
 class Linearizability(Model):
     @staticmethod
-    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:  # ty: ignore[invalid-method-override, missing-override-decorator]
         return LinearizabilityWith.assertions(
             symbols, AE.Relation.can_view(symbols)
         )  # must be can_view

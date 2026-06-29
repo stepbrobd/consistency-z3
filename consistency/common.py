@@ -3,6 +3,7 @@ from collections.abc import Callable, Collection, Generator
 from functools import cache, wraps
 from itertools import chain, combinations, product
 from typing import (
+    Any,
     Literal,
     NamedTuple,
     ParamSpec,
@@ -132,7 +133,7 @@ def compatible(
     return result
 
 
-def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
+def compose(*assertions: z3.AstRef) -> z3.BoolRef:
     # direct conjunction of all provided **boolean** constraints
     return z3.And(*[assertion for assertion in assertions if assertion is not None])
 
@@ -155,7 +156,7 @@ class Edge(NamedTuple):
 
 
 @cache
-def powerset(s: Collection) -> list:
+def powerset(s: Collection[Any]) -> list[tuple[Any, ...]]:
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))
 
 
@@ -268,7 +269,7 @@ def composable(
             edges.setdefault((u, v), []).append(k)
         return edges
 
-    def traverse(curr_node: str, visited_edges: set, path_premise: z3.BoolRef) -> bool:
+    def traverse(curr_node: str, visited_edges: set[tuple[Any, ...]], path_premise: z3.BoolRef) -> bool:
         # DFS traverse with backtracking:
         # curr_node: current node name
         # visited_edges: set of (u, v, k) tuples of visited edges
@@ -317,8 +318,8 @@ def composable(
             dst_provs = dst_node.provs if dst_node.provs else [node_prov_na[0]]
             # try each combination
             for needs, provs in product(src_needs, dst_provs):
-                check_needs = compose(*[n.cons for n in needs])  # type: ignore
-                check_provs = compose(*[p.cons for p in provs])  # type: ignore
+                check_needs = compose(*[n.cons for n in needs])
+                check_provs = compose(*[p.cons for p in provs])
 
                 # track edges that pass checks at this level
                 valid_edges = []
@@ -331,7 +332,7 @@ def composable(
 
                     # try each edge constraint
                     for cons in edge_cons:
-                        check_ec = compose(*[c.cons for c in cons])  # type: ignore
+                        check_ec = compose(*[c.cons for c in cons])
 
                         # check compatibility with path so far
                         if compatible(
@@ -507,7 +508,7 @@ def extract(
     # conjunct reachable node& edge constraints from inode
     for src, dst, ec in dfs(graph, inode.name):
         aggcons.append(
-            compose(get_node_cons(src, "provs"), ec, get_node_cons(dst, "needs"))  # type: ignore
+            compose(get_node_cons(src, "provs"), ec, get_node_cons(dst, "needs"))
         )
 
     return compose(*aggcons)

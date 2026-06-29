@@ -11,7 +11,7 @@ from consistency.operation import Operation as Op
 # quiescent consistency cannot be modeled for now due to the same reason
 class EventualWith(Model):
     @staticmethod
-    def assertions(
+    def assertions(  # ty: ignore[invalid-method-override, missing-override-decorator]
         symbols: list[str] | None = None, ctx: z3.FuncDeclRef | None = None
     ) -> z3.BoolRef:
         if ctx is None:
@@ -48,7 +48,7 @@ class EventualWith(Model):
 
 class EventualConsistency(Model):
     @staticmethod
-    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:  # ty: ignore[invalid-method-override, missing-override-decorator]
         return EventualWith.assertions(
             symbols, AE.Relation.can_view(symbols)  # can view is the weakest value equivalence relation
         )

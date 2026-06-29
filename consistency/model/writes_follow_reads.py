@@ -15,7 +15,7 @@ class WritesFollowReads(Model):
     then operation $a$ must precede operation $c$ in the total order imposed by arbitration.
     """
     @staticmethod
-    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
+    def assertions(symbols: list[str] | None = None) -> z3.BoolRef:  # ty: ignore[invalid-method-override, missing-override-decorator]
         if symbols is None:
             symbols = ["a", "b", "c", "x"]
         decl = " ".join(symbols)

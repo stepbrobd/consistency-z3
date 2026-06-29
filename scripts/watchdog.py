@@ -1,6 +1,6 @@
 import select
 import signal
-import subprocess
+import subprocess  # noqa: S404
 import sys
 import threading
 import time
@@ -28,6 +28,8 @@ def monitor_stdout_writes(pid) -> None:
         def strace_monitor() -> None:
             nonlocal last_write_time, monitoring
 
+            strace_proc = None
+
             try:
                 strace_proc = subprocess.Popen(  # noqa: S603
                     strace_cmd,
@@ -38,10 +40,10 @@ def monitor_stdout_writes(pid) -> None:
                 )
 
                 while monitoring and strace_proc.poll() is None:
-                    ready, _, _ = select.select([strace_proc.stderr], [], [], 0.1)
+                    ready, _, _ = select.select([strace_proc.stderr], [], [], 0.1)  # ty: ignore[invalid-argument-type]
 
                     if ready:
-                        line = strace_proc.stderr.readline()
+                        line = strace_proc.stderr.readline()  # ty: ignore[unresolved-attribute]
                         if line and ('write(1,' in line or 'write(2,' in line):
                             last_write_time = time.time()
                             print(f"[{time.strftime('%H:%M:%S')}] output detected - resetting timer")
@@ -49,7 +51,7 @@ def monitor_stdout_writes(pid) -> None:
             except Exception as e:
                 print(f"error while strace: {e}")
             finally:
-                if "strace_proc" in locals():
+                if strace_proc is not None:
                     strace_proc.terminate()
 
         monitor_thread = threading.Thread(target=strace_monitor, daemon=True)

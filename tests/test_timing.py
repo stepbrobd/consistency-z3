@@ -25,6 +25,7 @@ from consistency.history import History as H
 from consistency.model.causal_consistency import CausalConsistency
 from consistency.model.eventual_consistency import EventualConsistency
 from consistency.model.linearizability import Linearizability
+from consistency.model.model import Model
 from consistency.model.monotonic_reads import MonotonicReads
 from consistency.model.monotonic_writes import MonotonicWrites
 from consistency.model.pram_consistency import PRAMConsistency
@@ -57,7 +58,7 @@ def test_timing_shop() -> None:
     #         choices.append((total, models))
     # choices.sort(key=lambda x: x[0])
     # now we'll just hardcode the choices
-    choices: list[tuple[int, tuple[type, ...]]] = [
+    choices: list[tuple[int, tuple[type[Model], ...]]] = [
         # score 0: EC
         (0, (EventualConsistency,)),
         # score 1: individual session guarantees
@@ -85,16 +86,16 @@ def test_timing_shop() -> None:
         (5, (Linearizability,)),
     ]
 
-    def get_assertions(models: tuple[type, ...]) -> list[z3.AstRef]:
+    def get_assertions(models: tuple[type[Model], ...]) -> z3.BoolRef:
         if len(models) == 1:
             return models[0].assertions()
 
         result = models[0].assertions()
         for model in models[1:]:
             result = compose(result, model.assertions())
-        return result  # type: ignore[return-value]
+        return result
 
-    def get_name(choice: tuple[int, tuple[type, ...]]) -> str:
+    def get_name(choice: tuple[int, tuple[type[Model], ...]]) -> str:
         _, models = choice
         if len(models) == 1:
             return models[0].__name__
@@ -140,17 +141,17 @@ def test_timing_shop() -> None:
         arbitrator = Node(
             name="Arbitrator",
             needs=None,
-            provs=[(Cons("ARB", get_assertions(arb_models)),)],  # type: ignore[call-arg]
+            provs=[(Cons("ARB", get_assertions(arb_models)),)],
         )
         tx = Node(
             name="Tx",
             needs=None,
-            provs=[(Cons("TX", get_assertions(tx_models)),)],  # type: ignore[call-arg]
+            provs=[(Cons("TX", get_assertions(tx_models)),)],
         )
         shop = Node(
             name="Shop",
             needs=None,
-            provs=[(Cons("SHOP", get_assertions(shop_models)),)],  # type: ignore[call-arg]
+            provs=[(Cons("SHOP", get_assertions(shop_models)),)],
         )
 
         nodes = [arbitrator, tx, shop, client, cart]

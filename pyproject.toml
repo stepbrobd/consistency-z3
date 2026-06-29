@@ -12,17 +12,17 @@ license = { file = "license.txt" }
 authors = [{ name = "Yifei Sun", email = "ysun@hey.com" }]
 classifiers = ["Programming Language :: Python"]
 dependencies = [
-    "click",
-    "click-aliases",
-    "click-option-group",
-    "matplotlib",
-    "mypy",
-    "networkx",
-    "psutil",
-    "pytest",
-    "pytest-cov",
-    "rich",
-    "z3-solver",
+  "click",
+  "click-aliases",
+  "click-option-group",
+  "matplotlib",
+  "mypy",
+  "networkx",
+  "psutil",
+  "pytest",
+  "pytest-cov",
+  "rich",
+  "z3-solver",
 ]
 
 [project.urls]
@@ -34,29 +34,27 @@ Issues = "https://github.com/stepbrobd/consistency/issues"
 consistency = "consistency.main:main"
 
 [tool.pytest.ini_options]
-addopts = [
-    "--import-mode=importlib",
-]
+addopts = ["--import-mode=importlib"]
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle error
-    "F",   # pyflakes
-    "I",   # isort
-    "W",   # pycodestyle warning
-    "UP",  # pyupgrade
-    "S",   # flake8-bandit
-    "B",   # flake8-bugbear
-    "ANN", # flake8-annotations
+  "E",   # pycodestyle error
+  "F",   # pyflakes
+  "I",   # isort
+  "W",   # pycodestyle warning
+  "UP",  # pyupgrade
+  "S",   # flake8-bandit
+  "B",   # flake8-bugbear
+  "ANN", # flake8-annotations
 ]
 ignore = [
-    "E501",   # line too long
-    "S101",   # use of `assert` detected"
-    "S113",   # probable use of requests call without timeout
-    "B008",   # do not perform function call in argument defaults
-    "ANN001", # missing type annotation for function argument
-    "ANN002", # missing type annotation for `*args`
-    "ANN003", # missing type annotation for `**kwargs`
-    "ANN401", # dynamically typed expressions are disallowed
+  "E501",   # line too long
+  "S101",   # use of `assert` detected"
+  "S113",   # probable use of requests call without timeout
+  "B008",   # do not perform function call in argument defaults
+  "ANN001", # missing type annotation for function argument
+  "ANN002", # missing type annotation for `*args`
+  "ANN003", # missing type annotation for `**kwargs`
+  "ANN401", # dynamically typed expressions are disallowed
 ]
 isort.known-first-party = ["consistency"]

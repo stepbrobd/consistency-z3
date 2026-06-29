@@ -41,19 +41,14 @@
 
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
-              bibtex-tidy
               cvc5
+              deno
               direnv
-              git
-              hayagriva
               nix-direnv
+              nixpkgs-fmt
               python
               python.pkgs.venvShellHook
               ruff
-              tex-fmt
-              texliveFull
-              typst
-              typstyle
               uv
               z3
             ];
@@ -65,17 +60,30 @@
             UV_PYTHON = python.interpreter;
 
             venvDir = "./.venv";
-            preShellHook = "uv venv $venvDir";
+            preShellHook = "uv venv $venvDir --allow-existing";
             postShellHook = "uv sync";
+          };
+
+          devShells.paper = pkgs.mkShell {
+            packages = with pkgs;[
+              bibtex-tidy
+              hayagriva
+              tex-fmt
+              texliveFull
+              typst
+              typstyle
+            ];
           };
 
           formatter = pkgs.writeShellScriptBin "formatter" ''
             set -x
             shopt -s globstar
+            ${lib.getExe pkgs.deno} fmt **/*.md **/*.yaml
             ${lib.getExe pkgs.nixpkgs-fmt} .
-            ${lib.getExe pkgs.mypy} --disable-error-code=import .
-            ${lib.getExe pkgs.ruff} check --fix --unsafe-fixes .
-            ${lib.getExe pkgs.typstyle} **/*.typ
+            ${lib.getExe pkgs.ruff} check --fix --unsafe-fixes --preview .
+            ${lib.getExe pkgs.taplo} format pyproject.toml
+            ${lib.getExe pkgs.typstyle} -i **/*.typ
+            ${lib.getExe pkgs.ty} check --fix --error all .
           '';
         };
     };

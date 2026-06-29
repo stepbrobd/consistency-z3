@@ -29,7 +29,7 @@ def monitor_stdout_writes(pid) -> None:
             nonlocal last_write_time, monitoring
 
             try:
-                strace_proc = subprocess.Popen( # noqa: S603
+                strace_proc = subprocess.Popen(  # noqa: S603
                     strace_cmd,
                     stderr=subprocess.PIPE,
                     stdout=subprocess.DEVNULL,
@@ -103,6 +103,7 @@ def monitor_stdout_writes(pid) -> None:
     except Exception as e:
         print(f"error: {e}")
 
+
 def main() -> None:
     if len(sys.argv) != 2:
         print("usage: python monitor.py <PID>")
@@ -125,6 +126,6 @@ def main() -> None:
         print("\nmonitoring interrupted by user")
         sys.exit(0)
 
+
 if __name__ == "__main__":
     main()
-

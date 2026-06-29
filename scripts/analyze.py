@@ -51,6 +51,7 @@ def shop() -> None:
     print(f"timedout: {num_terminated / len(result_shop) * 100:.2f}%")
     print(f"time to correct: {time_to_correct:.2f} s")
 
+
 def media() -> None:
     result_media = []
 
@@ -111,6 +112,7 @@ def media() -> None:
     print(f"timedout: {num_terminated / len(result_media) * 100:.2f}%")
     print(f"time to correct: {time_to_correct:.2f} s")
 
+
 def xc() -> None:
     result_xc = []
     with open("./scripts/xc_timing_results.csv") as file:
@@ -161,7 +163,7 @@ def xc() -> None:
     print(f"num entries: {len(result_xc)}")
     print(f"total time: {sum_duration:.2f} s")
     print(f"avg duration: {sum_duration / len(result_xc) * 100:.2f} ms")
-    print(f"ave no timeout duration: {(sum_duration-10*num_terminated) / (len(result_xc)-num_terminated) * 100:.2f} ms")
+    print(f"ave no timeout duration: {(sum_duration - 10 * num_terminated) / (len(result_xc) - num_terminated) * 100:.2f} ms")
     # print(f"percent composable: {num_composables / len(result_xc) * 100:.2f}%")
     print(f"timedout: {num_terminated / len(result_xc) * 100:.2f}%")
     print(f"time to correct: {time_to_correct:.2f} s")

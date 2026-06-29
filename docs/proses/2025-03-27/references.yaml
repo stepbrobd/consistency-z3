@@ -2,8 +2,8 @@ viotti2016consistency:
   type: article
   title: Consistency in Non-Transactional Distributed Storage Systems
   author:
-  - Viotti, Paolo
-  - Vukolić, Marko
+    - Viotti, Paolo
+    - Vukolić, Marko
   date: 2016-06
   url: https://doi.org/10.1145/2926965
   serial-number:
@@ -33,14 +33,14 @@ burckhardt2014principles:
 
 demoura2008z3:
   type: article
-  title: 'Z3: an efficient SMT solver'
+  title: "Z3: an efficient SMT solver"
   author:
-  - De Moura, Leonardo
-  - Bj̸rner, Nikolaj
+    - De Moura, Leonardo
+    - Bj̸rner, Nikolaj
   date: 2008
   page-range: 337
   serial-number:
-    isbn: '3540787992'
+    isbn: "3540787992"
   parent:
     type: proceedings
     title: Proceedings of the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems
@@ -52,24 +52,24 @@ demoura2008z3:
 
 barbosa2022cvc5:
   type: article
-  title: 'cvc5: A Versatile and Industrial-Strength SMT Solver'
+  title: "cvc5: A Versatile and Industrial-Strength SMT Solver"
   author:
-  - Barbosa, Haniel
-  - Barrett, Clark
-  - Brain, Martin
-  - Kremer, Gereon
-  - Lachnitt, Hanna
-  - Mann, Makai
-  - Mohamed, Abdalrhman
-  - Mohamed, Mudathir
-  - Niemetz, Aina
-  - Nötzli, Andres
-  - Ozdemir, Alex
-  - Preiner, Mathias
-  - Reynolds, Andrew
-  - Sheng, Ying
-  - Tinelli, Cesare
-  - Zohar, Yoni
+    - Barbosa, Haniel
+    - Barrett, Clark
+    - Brain, Martin
+    - Kremer, Gereon
+    - Lachnitt, Hanna
+    - Mann, Makai
+    - Mohamed, Abdalrhman
+    - Mohamed, Mudathir
+    - Niemetz, Aina
+    - Nötzli, Andres
+    - Ozdemir, Alex
+    - Preiner, Mathias
+    - Reynolds, Andrew
+    - Sheng, Ying
+    - Tinelli, Cesare
+    - Zohar, Yoni
   date: 2022
   page-range: 415
   url: https://doi.org/10.1007/978-3-030-99524-9_24
@@ -78,7 +78,7 @@ barbosa2022cvc5:
     isbn: 978-3-030-99523-2
   parent:
     type: proceedings
-    title: 'Tools and Algorithms for the Construction and Analysis of Systems: 28th International Conference, TACAS 2022, Held as Part of the European Joint Conferences on Theory and Practice of Software, ETAPS 2022, Munich, Germany, April 2–7, 2022, Proceedings, Part I'
+    title: "Tools and Algorithms for the Construction and Analysis of Systems: 28th International Conference, TACAS 2022, Held as Part of the European Joint Conferences on Theory and Practice of Software, ETAPS 2022, Munich, Germany, April 2–7, 2022, Proceedings, Part I"
     publisher: Springer-Verlag
     location: Munich, Germany
 
@@ -86,13 +86,13 @@ bryant2002modeling:
   type: article
   title: Modeling and Verifying Systems Using a Logic of Counter Arithmetic with Lambda Expressions and Uninterpreted Functions
   author:
-  - Bryant, Randal E.
-  - Lahiri, Shuvendu K.
-  - Seshia, Sanjit A.
+    - Bryant, Randal E.
+    - Lahiri, Shuvendu K.
+    - Seshia, Sanjit A.
   date: 2002
   page-range: 78-92
   serial-number:
-    isbn: '3540439978'
+    isbn: "3540439978"
   parent:
     type: proceedings
     title: Proceedings of the 14th International Conference on Computer Aided Verification
@@ -107,14 +107,14 @@ viotti2016towards:
   type: article
   title: Towards property-based consistency verification
   author:
-  - Viotti, Paolo
-  - Meiklejohn, Christopher
-  - Vukolić, Marko
+    - Viotti, Paolo
+    - Meiklejohn, Christopher
+    - Vukolić, Marko
   date: 2016
   url: https://doi.org/10.1145/2911151.2911162
   serial-number:
     doi: 10.1145/2911151.2911162
-    isbn: '9781450342964'
+    isbn: "9781450342964"
   parent:
     type: proceedings
     title: Proceedings of the 2nd Workshop on the Principles and Practice of Consistency for Distributed Data
@@ -129,11 +129,11 @@ zhang2018building:
   type: article
   title: Building Consistent Transactions with Inconsistent Replication
   author:
-  - Zhang, Irene
-  - Sharma, Naveen Kr.
-  - Szekeres, Adriana
-  - Krishnamurthy, Arvind
-  - Ports, Dan R. K.
+    - Zhang, Irene
+    - Sharma, Naveen Kr.
+    - Szekeres, Adriana
+    - Krishnamurthy, Arvind
+    - Ports, Dan R. K.
   date: 2018-12
   url: https://doi.org/10.1145/3269981
   serial-number:
@@ -150,19 +150,19 @@ zhang2018building:
 
 ferreira2023antipode:
   type: article
-  title: 'Antipode: Enforcing Cross-Service Causal Consistency in Distributed Applications'
+  title: "Antipode: Enforcing Cross-Service Causal Consistency in Distributed Applications"
   author:
-  - Ferreira Loff, João
-  - Porto, Daniel
-  - Garcia, João
-  - Mace, Jonathan
-  - Rodrigues, Rodrigo
+    - Ferreira Loff, João
+    - Porto, Daniel
+    - Garcia, João
+    - Mace, Jonathan
+    - Rodrigues, Rodrigo
   date: 2023
   page-range: 298-313
   url: https://doi.org/10.1145/3600006.3613176
   serial-number:
     doi: 10.1145/3600006.3613176
-    isbn: '9798400702297'
+    isbn: "9798400702297"
   parent:
     type: proceedings
     title: Proceedings of the 29th Symposium on Operating Systems Principles
@@ -177,14 +177,14 @@ baldoni2002an:
   type: article
   title: An Implementation of Causal Memories using the Writing Semantic
   author:
-  - Baldoni, Roberto
-  - Sparziani, C.
-  - Tucci Piergiovanni, Sara
-  - Tulone, Daniela
+    - Baldoni, Roberto
+    - Sparziani, C.
+    - Tucci Piergiovanni, Sara
+    - Tulone, Daniela
   date: 2002
   editor:
-  - Bui, Alain
-  - Fouchal, Hacène
+    - Bui, Alain
+    - Fouchal, Hacène
   page-range: 41-50
   parent:
     type: proceedings
@@ -199,17 +199,17 @@ zhang2015building:
   type: article
   title: Building consistent transactions with inconsistent replication
   author:
-  - Zhang, Irene
-  - Sharma, Naveen Kr.
-  - Szekeres, Adriana
-  - Krishnamurthy, Arvind
-  - Ports, Dan R. K.
+    - Zhang, Irene
+    - Sharma, Naveen Kr.
+    - Szekeres, Adriana
+    - Krishnamurthy, Arvind
+    - Ports, Dan R. K.
   date: 2015
   page-range: 263-278
   url: https://doi.org/10.1145/2815400.2815404
   serial-number:
     doi: 10.1145/2815400.2815404
-    isbn: '9781450338349'
+    isbn: "9781450338349"
   parent:
     type: proceedings
     title: Proceedings of the 25th Symposium on Operating Systems Principles
@@ -224,15 +224,15 @@ brzezinski2004session:
   type: article
   title: Session Guarantees to Achieve PRAM Consistency of Replicated Shared Objects
   author:
-  - Brzezinski, Jerzy
-  - Sobaniec, Cezary
-  - Wawrzyniak, Dariusz
+    - Brzezinski, Jerzy
+    - Sobaniec, Cezary
+    - Wawrzyniak, Dariusz
   date: 2004
   editor:
-  - Wyrzykowski, Roman
-  - Dongarra, Jack
-  - Paprzycki, Marcin
-  - Waśniewski, Jerzy
+    - Wyrzykowski, Roman
+    - Dongarra, Jack
+    - Paprzycki, Marcin
+    - Waśniewski, Jerzy
   page-range: 1-8
   serial-number:
     isbn: 978-3-540-24669-5
@@ -247,12 +247,12 @@ terry1994session:
   type: article
   title: Session guarantees for weakly consistent replicated data
   author:
-  - Terry, D.B.
-  - Demers, A.J.
-  - Petersen, K.
-  - Spreitzer, M.J.
-  - Theimer, M.M.
-  - Welch, B.B.
+    - Terry, D.B.
+    - Demers, A.J.
+    - Petersen, K.
+    - Spreitzer, M.J.
+    - Theimer, M.M.
+    - Welch, B.B.
   date: 1994
   page-range: 140-149
   serial-number:
@@ -260,20 +260,20 @@ terry1994session:
   parent:
     type: proceedings
     title: Proceedings of 3rd International Conference on Parallel and Distributed Information Systems
-    issue: ''
+    issue: ""
     volume: 0
 10.1145/2851141.2851170:
   type: article
-  title: 'Causal consistency: beyond memory'
+  title: "Causal consistency: beyond memory"
   author:
-  - Perrin, Matthieu
-  - Mostefaoui, Achour
-  - Jard, Claude
+    - Perrin, Matthieu
+    - Mostefaoui, Achour
+    - Jard, Claude
   date: 2016
   url: https://doi.org/10.1145/2851141.2851170
   serial-number:
     doi: 10.1145/2851141.2851170
-    isbn: '9781450340922'
+    isbn: "9781450340922"
   parent:
     type: proceedings
     title: Proceedings of the 21st ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming
@@ -286,11 +286,11 @@ terry1994session:
 
 perrin2016causal:
   type: article
-  title: 'Causal consistency: beyond memory'
+  title: "Causal consistency: beyond memory"
   author:
-  - Perrin, Matthieu
-  - Mostefaoui, Achour
-  - Jard, Claude
+    - Perrin, Matthieu
+    - Mostefaoui, Achour
+    - Jard, Claude
   date: 2016-02
   url: https://doi.org/10.1145/3016078.2851170
   serial-number:
@@ -320,20 +320,20 @@ lamport1977proving:
 
 ma2024noctua:
   type: article
-  title: 'Noctua: Towards Automated and Practical Fine-grained Consistency Analysis'
+  title: "Noctua: Towards Automated and Practical Fine-grained Consistency Analysis"
   author:
-  - Ma, Kai
-  - Li, Cheng
-  - Zhu, Enzuo
-  - Chen, Ruichuan
-  - Yan, Feng
-  - Chen, Kang
+    - Ma, Kai
+    - Li, Cheng
+    - Zhu, Enzuo
+    - Chen, Ruichuan
+    - Yan, Feng
+    - Chen, Kang
   date: 2024
   page-range: 704-719
   url: https://doi.org/10.1145/3627703.3629570
   serial-number:
     doi: 10.1145/3627703.3629570
-    isbn: '9798400704376'
+    isbn: "9798400704376"
   parent:
     type: proceedings
     title: Proceedings of the Nineteenth European Conference on Computer Systems
@@ -360,36 +360,36 @@ gan2019an:
   type: article
   title: An Open-Source Benchmark Suite for Microservices and Their Hardware-Software Implications for Cloud & Edge Systems
   author:
-  - Gan, Yu
-  - Zhang, Yanqi
-  - Cheng, Dailun
-  - Shetty, Ankitha
-  - Rathi, Priyal
-  - Katarki, Nayan
-  - Bruno, Ariana
-  - Hu, Justin
-  - Ritchken, Brian
-  - Jackson, Brendon
-  - Hu, Kelvin
-  - Pancholi, Meghna
-  - He, Yuan
-  - Clancy, Brett
-  - Colen, Chris
-  - Wen, Fukang
-  - Leung, Catherine
-  - Wang, Siyuan
-  - Zaruvinsky, Leon
-  - Espinosa, Mateo
-  - Lin, Rick
-  - Liu, Zhongling
-  - Padilla, Jake
-  - Delimitrou, Christina
+    - Gan, Yu
+    - Zhang, Yanqi
+    - Cheng, Dailun
+    - Shetty, Ankitha
+    - Rathi, Priyal
+    - Katarki, Nayan
+    - Bruno, Ariana
+    - Hu, Justin
+    - Ritchken, Brian
+    - Jackson, Brendon
+    - Hu, Kelvin
+    - Pancholi, Meghna
+    - He, Yuan
+    - Clancy, Brett
+    - Colen, Chris
+    - Wen, Fukang
+    - Leung, Catherine
+    - Wang, Siyuan
+    - Zaruvinsky, Leon
+    - Espinosa, Mateo
+    - Lin, Rick
+    - Liu, Zhongling
+    - Padilla, Jake
+    - Delimitrou, Christina
   date: 2019
   page-range: 3-18
   url: https://doi.org/10.1145/3297858.3304013
   serial-number:
     doi: 10.1145/3297858.3304013
-    isbn: '9781450362405'
+    isbn: "9781450362405"
   parent:
     type: proceedings
     title: Proceedings of the Twenty-Fourth International Conference on Architectural Support for Programming Languages and Operating Systems

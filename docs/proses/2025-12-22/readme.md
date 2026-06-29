@@ -19,8 +19,8 @@ Minor:\
 [addressed] Line 574: Typo in “strainghtforward”\
 [addressed] Line 647: “and” could use a different font.
 
-[addressed] Q1: What inputs does the user exactly provide to the framework to model their
-application constraints?\
+[addressed] Q1: What inputs does the user exactly provide to the framework to
+model their application constraints?\
 [addressed] Q2: What is the scalability of the method to large-scale programs?\
 [addressed] Q3: Are the source code and evaluation data for SemantiX available?
 
@@ -108,18 +108,18 @@ places):
 - Figures 4, 5, 6 should have been more consistent with each other: they
   describe the AppGraph for the different systems, having different details on
   the figures makes it confusing to the reader
-- [addressed] Line 89: “the number of proofs that need to be written could be several times
-  longer in lines of code comparing with the implementation”
-- [addressed] Line 111: “Custom models defined in our interface are automatically
-  compatibility with existing ones, and can be used to check its own
-  satisfiability”
+- [addressed] Line 89: “the number of proofs that need to be written could be
+  several times longer in lines of code comparing with the implementation”
+- [addressed] Line 111: “Custom models defined in our interface are
+  automatically compatibility with existing ones, and can be used to check its
+  own satisfiability”
 - [addressed] Line 266: “to minimize anomalous users may experience.”
-- [addressed] Line 269: “The collection of constraints must be satisfied by what the
-  consistency model of which metadata DB developer chooses provides.”
+- [addressed] Line 269: “The collection of constraints must be satisfied by what
+  the consistency model of which metadata DB developer chooses provides.”
 - [addressed] Line 391: “where H_wr and H_rd are histories of reads and writes,
   respectively” -> this is the other way round, right?
-- [addressed] Line 655: “This checks if the chosen path provides guarantee of the
-  destination (check_provs) is implied by the conjunction”
+- [addressed] Line 655: “This checks if the chosen path provides guarantee of
+  the destination (check_provs) is implied by the conjunction”
 
 ### Reaction to rebuttal
 
@@ -175,18 +175,19 @@ related potential impact of the approach at this stage.
 
 **Minor Comments**
 
-- [addressed] L152 (paragraph) Keep tense consistent instead of switching between past and
-  present
-- [addressed] L234 This diagram is too crowded, it is difficult to see the arrows
+- [addressed] L152 (paragraph) Keep tense consistent instead of switching
+  between past and present
+- [addressed] L234 This diagram is too crowded, it is difficult to see the
+  arrows
 - [addressed] L300 Awkward wording - "whether" does not fit in this context
-- [addressed] L328 Awkward wording, perhaps rather "An operation can be conceptualized as an
-  atomic action with a request-response pair..."?
-- [addressed] L407 For completeness sake, the arrow relation syntax should be explicitly
-  introduced
-- [addressed] L407 The monotonic reads definition is the same as the monotonic writes
-  definition
-- [addressed] L565 The next two paragraphs should use the same identifiers in the
-  explanation as in the preceding $vis$ definition for clarity
+- [addressed] L328 Awkward wording, perhaps rather "An operation can be
+  conceptualized as an atomic action with a request-response pair..."?
+- [addressed] L407 For completeness sake, the arrow relation syntax should be
+  explicitly introduced
+- [addressed] L407 The monotonic reads definition is the same as the monotonic
+  writes definition
+- [addressed] L565 The next two paragraphs should use the same identifiers in
+  the explanation as in the preceding $vis$ definition for clarity
 - [addressed] L574 Typo "straignforward"
 - [addressed] L582 Typo "is" -> "are"
 - [addressed] L694 Type "assume" -> "assumes"
@@ -196,26 +197,52 @@ related potential impact of the approach at this stage.
 ## Extras?
 
 - [addressed] Address usability in evaluation
-- [addressed] When mentioning on the models pluggined in to each node/edge, distinguish application level semantics vs consistency models (not at the intro of DMs, sect. 4.2, around line 644)
-- [addressed] Add AppGraph skeleton (high level code snippet) in Section 4.2 (make a figure, like couple squares with prov, need, cons on the edge, with edges pointing to each other, in the figure description include formula)
-- [addressed] Address usability issue by adding another section with code example (this should be in case study)?
-- [addressed] Select one example in evaluation (find an "interesting" one), select a few edges to show the code corresponding to the formalization (ICSE submission page 12)
-- [addressed] In the figure and also in the page 11 explanation, make it clear where path_premise is from
-- [addressed] Maybe remove check_provs or compose box and make them a caption on the arrow
-- [addressed] Change font size for new fig 4 (around the same size as caption), move green box (also need to change the color and shape) to the left, use a different arrow for ones outside of the appgraph box (different shape for the bounding box, or color?), arrows outside of appgraph box should be marked as control flow (maybe add a legend)
-- [addressed] Figure 4 should be wrapfigure, source of the path_premise should be a text saying "accumulated"
-- [addressed] Check on the edge pseudocode, edge 1 and edge 8 should be included in the edge list
+- [addressed] When mentioning on the models pluggined in to each node/edge,
+  distinguish application level semantics vs consistency models (not at the
+  intro of DMs, sect. 4.2, around line 644)
+- [addressed] Add AppGraph skeleton (high level code snippet) in Section 4.2
+  (make a figure, like couple squares with prov, need, cons on the edge, with
+  edges pointing to each other, in the figure description include formula)
+- [addressed] Address usability issue by adding another section with code
+  example (this should be in case study)?
+- [addressed] Select one example in evaluation (find an "interesting" one),
+  select a few edges to show the code corresponding to the formalization (ICSE
+  submission page 12)
+- [addressed] In the figure and also in the page 11 explanation, make it clear
+  where path_premise is from
+- [addressed] Maybe remove check_provs or compose box and make them a caption on
+  the arrow
+- [addressed] Change font size for new fig 4 (around the same size as caption),
+  move green box (also need to change the color and shape) to the left, use a
+  different arrow for ones outside of the appgraph box (different shape for the
+  bounding box, or color?), arrows outside of appgraph box should be marked as
+  control flow (maybe add a legend)
+- [addressed] Figure 4 should be wrapfigure, source of the path_premise should
+  be a text saying "accumulated"
+- [addressed] Check on the edge pseudocode, edge 1 and edge 8 should be included
+  in the edge list
 - [addressed] In section 4 introduce `extract` function
 - [addressed] Clarify compatibility vs composition
-- [addressed] Unify composition check compositionality check, etc. throughout paper
-- [addressed] Media example edge 8 in section 5, and how login db and user node can be aggregated with semantic constraints + app level constraints
-- [addressed] Remove the mentioning of onode in extract explanation (no need mention limitation)
-- [addressed] Add another node to the left of edge(u,v) mentioning extract function, also update caption
-- [addressed] In Section 5 change the use of compose and composed to smth else to avoid confusion
-- [addressed] In the first case study before showing formalization, mention we will show a interaction flow from user login to writing review
-- [addressed] After showing login flow, mention how the appgraph is constructed (just by writing nodes and edges with constraints), demonstrate simplicity
+- [addressed] Unify composition check compositionality check, etc. throughout
+  paper
+- [addressed] Media example edge 8 in section 5, and how login db and user node
+  can be aggregated with semantic constraints + app level constraints
+- [addressed] Remove the mentioning of onode in extract explanation (no need
+  mention limitation)
+- [addressed] Add another node to the left of edge(u,v) mentioning extract
+  function, also update caption
+- [addressed] In Section 5 change the use of compose and composed to smth else
+  to avoid confusion
+- [addressed] In the first case study before showing formalization, mention we
+  will show a interaction flow from user login to writing review
+- [addressed] After showing login flow, mention how the appgraph is constructed
+  (just by writing nodes and edges with constraints), demonstrate simplicity
 - [addressed] Get rid of all code in section 5
 - [addressed] Mention extraction in XC case study
-- [addressed] Add sentence at the beginning of 4.3 on extraction, at the first sentence, our framework provides scalability and check re-use with extraction function...
+- [addressed] Add sentence at the beginning of 4.3 on extraction, at the first
+  sentence, our framework provides scalability and check re-use with extraction
+  function...
 - [addressed] Link scalability with extraction
-- [partial] Figures 5-7 should look consistent (stretch 5 6 7, use the extra space on the edges, to use different colors to differential semantic constraints vs application specific constraints)
+- [partial] Figures 5-7 should look consistent (stretch 5 6 7, use the extra
+  space on the edges, to use different colors to differential semantic
+  constraints vs application specific constraints)

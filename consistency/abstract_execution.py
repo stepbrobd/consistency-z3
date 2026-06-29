@@ -39,17 +39,17 @@ class AbstractExecution:
                             op.rtime(a) >= op.stime(a),  # type: ignore
                             op.rtime(b) >= op.stime(b),  # type: ignore
                             # timing constraints
-                            op.returned(a) == z3.BoolVal(True), # type: ignore
-                            op.returned(b) == z3.BoolVal(True), # type: ignore
+                            op.returned(a) == z3.BoolVal(True),  # type: ignore
+                            op.returned(b) == z3.BoolVal(True),  # type: ignore
                             z3.Or(
                                 # non-concurrent
                                 op.stime(a) > op.rtime(b),  # type: ignore
                                 # concurrent
                                 # this only captures the case where a and b *MIGHT* be concurrent
-                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)), # type: ignore
-                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)), # type: ignore
-                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
-                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)), # type: ignore
+                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)),  # type: ignore
+                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) >= op.rtime(b)),  # type: ignore
+                                z3.And(op.stime(a) <= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)),  # type: ignore
+                                z3.And(op.stime(a) >= op.stime(b), op.stime(a) <= op.rtime(b), op.rtime(a) >= op.stime(b), op.rtime(a) <= op.rtime(b)),  # type: ignore
                             ),
                         ),
                         # else
@@ -59,7 +59,6 @@ class AbstractExecution:
             )
 
             return can_view
-
 
         @staticmethod
         def viewed(symbols: list[str] | None = None) -> z3.FuncDeclRef:
@@ -86,25 +85,25 @@ class AbstractExecution:
                             # x -vis-> a
                             # where x concur b
                             # strict value equavalence
-                            op.oval(a) == op.ival(b), # type: ignore
+                            op.oval(a) == op.ival(b),  # type: ignore
                             # there might be a write that happened after the write b or concurrent to write b
                             # that changes the value of read a (still legal)
                             # need to ensure the output of read a is either the value of write b or the value of a write x that happened
                             z3.Exists(
                                 x,
                                 z3.And(
-                                    op.type(x) == wr, # type: ignore
+                                    op.type(x) == wr,  # type: ignore
                                     # make sure x is after write b or concurrent to write b
                                     # allow atomic ops
                                     op.rtime(x) >= op.stime(x),  # type: ignore
                                     op.rtime(b) >= op.stime(b),  # type: ignore
                                     # timing constraints
-                                    op.returned(a) == z3.BoolVal(True), # type: ignore
-                                    op.returned(b) == z3.BoolVal(True), # type: ignore
-                                    op.returned(x) == z3.BoolVal(True), # type: ignore
+                                    op.returned(a) == z3.BoolVal(True),  # type: ignore
+                                    op.returned(b) == z3.BoolVal(True),  # type: ignore
+                                    op.returned(x) == z3.BoolVal(True),  # type: ignore
                                     # can-view + value equivalence
                                     can_view(x, b),
-                                    op.oval(a) == op.ival(x), # type: ignore
+                                    op.oval(a) == op.ival(x),  # type: ignore
                                 ),
                             ),
                         ),
@@ -113,7 +112,6 @@ class AbstractExecution:
             )
 
             return viewed
-
 
         @staticmethod
         def visibility(symbols: list[str] | None = None) -> z3.FuncDeclRef:
@@ -133,7 +131,7 @@ class AbstractExecution:
             # case 4: write arbitration
             AbstractExecution.Relation.AddConstraint(
                 "vis",
-                z3.And( # type: ignore
+                z3.And(
                     # case analysis on op type
                     # i think 4 explicit z3.If statements can work here but it's not clear
                     # that only 1 of them can be true at a time, so i'm using z3.Or
@@ -141,17 +139,17 @@ class AbstractExecution:
                         # case 1: read-read pair
                         # previous read needs to track to its closest visible write if any
                         # and propagate the write to the later read
-                        z3.If( # type: ignore
-                            z3.And(op.type(a) == rd, op.type(b) == rd), # type: ignore
+                        z3.If(
+                            z3.And(op.type(a) == rd, op.type(b) == rd),  # type: ignore
                             z3.Implies(
                                 z3.Exists(
                                     x,
                                     z3.And(
-                                        op.type(x) == wr, # type: ignore
+                                        op.type(x) == wr,  # type: ignore
                                         vis(x, a),
                                     ),
                                 ),
-                                vis(x, b), # thought about changing this to ar(x, b)
+                                vis(x, b),  # thought about changing this to ar(x, b)
                                 # but vis(x, b) is more relaxed
                             ),
                             z3.BoolVal(True),
@@ -161,12 +159,12 @@ class AbstractExecution:
                         # propagate writes visible to current read op to next write op
                         # for arbitration
                         z3.If(
-                            z3.And(op.type(a) == rd, op.type(b) == wr), # type: ignore
+                            z3.And(op.type(a) == rd, op.type(b) == wr),  # type: ignore
                             z3.Implies(
                                 z3.Exists(
                                     x,
                                     z3.And(
-                                        op.type(x) == wr, # type: ignore
+                                        op.type(x) == wr,  # type: ignore
                                         vis(x, a)),
                                 ),
                                 vis(x, b)
@@ -176,11 +174,11 @@ class AbstractExecution:
                         # case 3: write-read pair
                         # equivalent to viewed + arbitration
                         # i.e. make sure the write and read have a linearization point
-                        z3.If( # type: ignore
-                            z3.And(op.type(a) == wr, op.type(b) == rd), # type: ignore
+                        z3.If(
+                            z3.And(op.type(a) == wr, op.type(b) == rd),  # type: ignore
                             z3.If(
                                 # guard
-                                op.returned(a) == z3.BoolVal(True), # type: ignore
+                                op.returned(a) == z3.BoolVal(True),  # type: ignore
                                 # if write a is a returning operation
                                 z3.Implies(viewed(b, a), ar(a, b)),
                                 # if write a is not returning
@@ -190,7 +188,7 @@ class AbstractExecution:
                         ),
                         # case 4: write-write pair
                         z3.If(
-                            z3.And(op.type(a) == wr, op.type(b) == wr), # type: ignore
+                            z3.And(op.type(a) == wr, op.type(b) == wr),  # type: ignore
                             # """
                             # z3.And(
                             #     # case 4.a and 4.b
@@ -202,32 +200,32 @@ class AbstractExecution:
                             #     z3.If(
                             #         z3.And(
                             #             z3.Or(
-                            #                 op.obj(a) == op.obj(b), # type: ignore
-                            #                 op.obj(a) != op.obj(b), # type: ignore
-                            #                 op.proc(a) == op.proc(b), # type: ignore
-                            #                 op.proc(a) != op.proc(b), # type: ignore
+                            #                 op.obj(a) == op.obj(b),
+                            #                 op.obj(a) != op.obj(b),
+                            #                 op.proc(a) == op.proc(b),
+                            #                 op.proc(a) != op.proc(b),
                             #             ),
-                            #             op.returned(a) == z3.BoolVal(True), # type: ignore
-                            #             op.returned(b) == z3.BoolVal(True), # type: ignore
+                            #             op.returned(a) == z3.BoolVal(True),
+                            #             op.returned(b) == z3.BoolVal(True),
                             #         ),
                             #         z3.And(ar(a, b), z3.Implies(ar(a, b), vis(a, b))), # ar <=> vis
                             #         z3.BoolVal(True),
                             #     ),
                             #     # case 4.c: if first write is non returning
                             #     z3.If(
-                            #         z3.And(op.returned(a) == z3.BoolVal(False), op.returned(b) == z3.BoolVal(True)), # type: ignore
+                            #         z3.And(op.returned(a) == z3.BoolVal(False), op.returned(b) == z3.BoolVal(True)),
                             #         z3.BoolVal(False), # dont allow non returning writes to be visible
                             #         z3.BoolVal(True),
                             #     ),
                             #     # case 4.d: if the second write is non returning
                             #     z3.If(
-                            #         z3.And(op.returned(a) == z3.BoolVal(True), op.returned(b) == z3.BoolVal(False)), # type: ignore
+                            #         z3.And(op.returned(a) == z3.BoolVal(True), op.returned(b) == z3.BoolVal(False)),
                             #         z3.BoolVal(False), # dont allow non returning writes to be visible
                             #         z3.BoolVal(True)
                             #     ),
                             #     # case 4.d: both writes are non returning
                             #     z3.If(
-                            #         z3.And(op.returned(a) == z3.BoolVal(False), op.returned(b) == z3.BoolVal(False)), # type: ignore
+                            #         z3.And(op.returned(a) == z3.BoolVal(False), op.returned(b) == z3.BoolVal(False)),
                             #         z3.BoolVal(False), # dont allow non returning writes to be visible
                             #         z3.BoolVal(True)
                             #     ),
@@ -248,7 +246,6 @@ class AbstractExecution:
 
             return vis
 
-
         @staticmethod
         def arbitration(symbols: list[str] | None = None) -> z3.FuncDeclRef:
             if symbols is None:
@@ -265,7 +262,7 @@ class AbstractExecution:
             a, b, c, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "ar",
-                z3.And(  # type: ignore
+                z3.And(
                     # FIXME: this is the root cause of PRAM v.s. MW failing
                     # MW enforces per session strict ordering for w-w pairs
                     # where as in PRAM w-w dependencies are not session specific
@@ -274,15 +271,15 @@ class AbstractExecution:
                     # the correct fix is to add the vis guard in arbitration def
                     # bridging session ordering and global arbitration
                     # BUT this wont work because with this, vis and ar are mutually recursive...
-                    # z3.If(vis(a, b), z3.ForAll([a, b], z3.Implies(so(a, b), ar(a, b)))), # type: ignore
+                    # z3.If(vis(a, b), z3.ForAll([a, b], z3.Implies(so(a, b), ar(a, b)))),
                     # tested with below version without vis guard, and PRAM MW check passes
                     # but other pairwise check on semantic on write ordering or so will start failing
                     # MR, WFR, RYW (and the failure actually makes sense)
-                    # z3.ForAll([a, b], z3.Implies(so(a, b), ar(a, b))), # type: ignore
+                    # z3.ForAll([a, b], z3.Implies(so(a, b), ar(a, b))),
                     # must return
-                    op.returned(a) == z3.BoolVal(True), # type: ignore
-                    op.returned(b) == z3.BoolVal(True), # type: ignore
-                    op.returned(c) == z3.BoolVal(True), # type: ignore
+                    op.returned(a) == z3.BoolVal(True),  # type: ignore
+                    op.returned(b) == z3.BoolVal(True),  # type: ignore
+                    op.returned(c) == z3.BoolVal(True),  # type: ignore
                     # ordering
                     z3.Implies(ar(a, b), op.rtime(a) < op.stime(b)),  # type: ignore
                     # acyclicity
@@ -295,7 +292,6 @@ class AbstractExecution:
             )
 
             return ar
-
 
         @staticmethod
         def happens_before(symbols: list[str] | None = None) -> z3.FuncDeclRef:
@@ -311,7 +307,7 @@ class AbstractExecution:
             a, b, *_ = Op.Consts(decl)
             AbstractExecution.Relation.AddConstraint(
                 "hb",
-                z3.And(  # type: ignore
+                z3.And(
                     # transitive closure
                     # hb is the transitive closure of the union of so and vis
                     # https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-transitive-closure

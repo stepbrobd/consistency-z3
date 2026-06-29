@@ -17,11 +17,10 @@ class History:
 
             a, b, *_ = Op.Consts(decl)
             History.Relation.AddConstraint("rb",
-                z3.Implies(rb(a, b), z3.And(op.returned == z3.BoolVal(True), op.rtime(a) < op.stime(b))) # type: ignore
+                z3.Implies(rb(a, b), z3.And(op.returned == z3.BoolVal(True), op.rtime(a) < op.stime(b)))  # type: ignore
             )
 
             return rb
-
 
         @staticmethod
         def same_session(symbols: list[str] | None = None) -> z3.FuncDeclRef:
@@ -34,14 +33,13 @@ class History:
 
             a, b, *_ = Op.Consts(decl)
             History.Relation.AddConstraint("ss",
-                z3.Implies(ss(a, b), op.proc(a) == op.proc(b)) # type: ignore
+                z3.Implies(ss(a, b), op.proc(a) == op.proc(b))  # type: ignore
             )
             # each op is in the same session with itself
-            History.Relation.AddConstraint("ss", ss(a, a)) # type: ignore
-            History.Relation.AddConstraint("ss", ss(b, b)) # type: ignore
+            History.Relation.AddConstraint("ss", ss(a, a))
+            History.Relation.AddConstraint("ss", ss(b, b))
 
             return ss
-
 
         @staticmethod
         def session_order(symbols: list[str] | None = None) -> z3.FuncDeclRef:
@@ -57,11 +55,10 @@ class History:
             ss = History.Relation.same_session()
             History.Relation.AddConstraint("so",
                 # so is the intersection of rb and ss
-               z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b))) # type: ignore
+               z3.Implies(so(a, b), z3.And(rb(a, b), ss(a, b)))
             )
 
             return so
-
 
         @staticmethod
         def same_object(symbols: list[str] | None = None) -> z3.FuncDeclRef:
@@ -74,7 +71,7 @@ class History:
 
             a, b, *_ = Op.Consts(decl)
             History.Relation.AddConstraint("ob",
-               z3.Implies(ob(a, b), op.obj(a) == op.obj(b)) # type: ignore
+               z3.Implies(ob(a, b), op.obj(a) == op.obj(b))  # type: ignore
             )
 
             return ob

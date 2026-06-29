@@ -5,7 +5,6 @@ class Relation:
     _constraints: dict[str, z3.AstVector] | None = None
     _functions: dict[str, z3.FuncDeclRef] | None = None
 
-
     @staticmethod
     def AddConstraint(parent_func: str, constraints: z3.AstVector) -> None:
         """
@@ -15,7 +14,6 @@ class Relation:
             Relation._constraints = {}
 
         Relation._constraints[parent_func] = constraints
-
 
     @staticmethod
     def Constraints() -> z3.AstVector:
@@ -31,7 +29,6 @@ class Relation:
 
         return vec
 
-
     @staticmethod
     def Declare(name: str, *sig: z3.SortRef) -> z3.FuncDeclRef:
         """
@@ -46,7 +43,6 @@ class Relation:
         Relation._functions[name] = z3.Function(name, *sig)
 
         return Relation._functions[name]
-
 
     @staticmethod
     def Reset() -> None:

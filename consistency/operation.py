@@ -6,7 +6,6 @@ class Operation:
     _op_type = None
     _op_symbols: dict[str, z3.DatatypeRef] | None = None
 
-
     @staticmethod
     def Create(extensions: list[tuple[str, z3.SortRef]] | None = None) -> z3.DatatypeSortRef:
         """
@@ -14,7 +13,7 @@ class Operation:
         op = Operation.Create([("svc", z3.IntSort())])  # with additional fields
         """
         if Operation._op is not None:
-            return Operation._op # type: ignore
+            return Operation._op
 
         OperationType, (_, _) = Operation.Sort()
         Operation._op = z3.Datatype("Operation")
@@ -47,7 +46,6 @@ class Operation:
 
         return Operation._op
 
-
     @staticmethod
     def Sort(types: list[str] | None = None) -> tuple[z3.DatatypeSortRef, tuple[z3.DatatypeRef, ...]]:
         """
@@ -61,8 +59,7 @@ class Operation:
 
         Operation._op_type = z3.EnumSort("OperationType", types)
 
-        return Operation._op_type  # type: ignore
-
+        return Operation._op_type
 
     @staticmethod
     def Const(name: str) -> z3.DatatypeRef:
@@ -76,10 +73,9 @@ class Operation:
             return Operation._op_symbols[name]
 
         op = Operation.Create()
-        Operation._op_symbols[name] = z3.Const(name, op)  # type: ignore
+        Operation._op_symbols[name] = z3.Const(name, op)
 
         return Operation._op_symbols[name]
-
 
     @staticmethod
     def Consts(names: str) -> tuple[z3.DatatypeRef, ...]:

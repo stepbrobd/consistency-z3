@@ -43,12 +43,12 @@ class EventualWith(Model):
         # return value consistency specifies the return value consistency of a replicated data type
         rval = RVal.assertions(symbols, ctx)
 
-        return z3.And(eventual_visibility, no_circular_causality, rval)  # type: ignore
+        return z3.And(eventual_visibility, no_circular_causality, rval)
 
 
 class EventualConsistency(Model):
     @staticmethod
     def assertions(symbols: list[str] | None = None) -> z3.BoolRef:
         return EventualWith.assertions(
-            symbols, AE.Relation.can_view(symbols) # can view is the weakest value equivalence relation
+            symbols, AE.Relation.can_view(symbols)  # can view is the weakest value equivalence relation
         )

@@ -14,7 +14,7 @@ class RVal(Model):
     @staticmethod
     def assertions(
         symbols: list[str] | None = None, f: z3.FuncDeclRef | None = None
-    ) -> z3.BoolRef: # type: ignore
+    ) -> z3.BoolRef:  # type: ignore
         if f is None:
             raise ValueError("RVal requires a binary relation F")
 
@@ -31,17 +31,17 @@ class RVal(Model):
 
         # vis^-1 at principals of eventual consistency pp.21
         def visi(arg1: z3.AstRef, arg2: z3.AstRef) -> z3.FuncDeclRef:
-            return vis(arg2, arg1)  # vis^-1 # type: ignore
+            return vis(arg2, arg1)  # vis^-1
 
         return z3.And(
             # F_reg non-transactional pp.6
             # distributed registers (last write wins)
             # z3.Exists(
             #     [c],
-            #     z3.And(ar(c, x), op.type(c) == wr, op.type(x) == rd ,op.ival(c) == op.oval(x)) # type: ignore
+            #     z3.And(ar(c, x), op.type(c) == wr, op.type(x) == rd ,op.ival(c) == op.oval(x))
             # ),
             f(x, a),
             visi(x, a),
             vis(a, b),
             ar(a, b),
-        ) # type: ignore
+        )

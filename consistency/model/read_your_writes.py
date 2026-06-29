@@ -33,7 +33,7 @@ class ReadYourWrites(Model):
         # read-your-writes
         return z3.ForAll([a, b],
                 z3.Implies(
-                    z3.And(so(a, b), op.type(a) == wr, op.type(b) == rd), # type: ignore
+                    z3.And(so(a, b), op.type(a) == wr, op.type(b) == rd),  # type: ignore
                     vis(a, b)
                 )
         )

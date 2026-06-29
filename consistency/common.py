@@ -134,7 +134,7 @@ def compatible(
 
 def compose(*assertions: z3.BoolRef) -> z3.BoolRef:
     # direct conjunction of all provided **boolean** constraints
-    return z3.And(*[assertion for assertion in assertions if assertion is not None])  # type: ignore
+    return z3.And(*[assertion for assertion in assertions if assertion is not None])
 
 
 class Cons(NamedTuple):
@@ -174,7 +174,7 @@ def graph(nodes: list[Node], edges: list[Edge]) -> nx.MultiDiGraph:
     return g
 
 
-def plot(g: nx.MultiDiGraph) -> plt.Figure:  # type: ignore
+def plot(g: nx.MultiDiGraph) -> plt.Figure:
     # modified from networkx example
     # https://networkx.org/documentation/stable/auto_examples/drawing/plot_clusters.html
     communities = nx.community.greedy_modularity_communities(g)
@@ -234,7 +234,7 @@ def plot(g: nx.MultiDiGraph) -> plt.Figure:  # type: ignore
                 shrinkB=5,
                 patchA=None,
                 patchB=None,
-                connectionstyle="arc3,rad=rrr".replace("rrr", str(0.3 * e[2])),  # type: ignore
+                connectionstyle="arc3,rad=rrr".replace("rrr", str(0.3 * e[2])),
             ),
         )
 
@@ -264,7 +264,7 @@ def composable(
     def get_outgoing_edges(node_name: str) -> dict[tuple[str, str], list[int]]:
         # get all outgoing edges grouped by source-destination pairs
         edges: dict[tuple[str, str], list[int]] = {}
-        for u, v, k in graph.edges(node_name, keys=True):  # type: ignore
+        for u, v, k in graph.edges(node_name, keys=True):
             edges.setdefault((u, v), []).append(k)
         return edges
 
@@ -402,7 +402,7 @@ def composable(
             result.nodes[node]["needs"] = None
         if result.nodes[node]["provs"] == node_prov_na:
             result.nodes[node]["provs"] = None
-    for edge in result.edges(keys=True):  # type: ignore
+    for edge in result.edges(keys=True):
         if result.get_edge_data(*edge)["cons"] == edge_na:
             result.get_edge_data(*edge)["cons"] = None
     return is_composable, result

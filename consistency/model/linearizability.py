@@ -37,8 +37,8 @@ class LinearizabilityWith(Model):
                 # global event ordering
                 z3.Implies(vis(a, b), ar(a, b)),
                 z3.Implies(
-                    z3.And(ar(a, b), op.returned(a) == z3.BoolVal(True)), # type: ignore
-                    vis(a, b),  # type: ignore
+                    z3.And(ar(a, b), op.returned(a) == z3.BoolVal(True)),  # type: ignore
+                    vis(a, b),
                 ),
                 # added to ensure compatibility with session semantics
                 # the single order defined above enforces GLOBAL serializationi of events
@@ -57,7 +57,7 @@ class LinearizabilityWith(Model):
         # return value consistency specifies the return value consistency of a replicated data type
         rval = RVal.assertions(symbols, ctx)
 
-        return z3.And(single_order, real_time, rval)  # type: ignore
+        return z3.And(single_order, real_time, rval)
 
 
 class Linearizability(Model):

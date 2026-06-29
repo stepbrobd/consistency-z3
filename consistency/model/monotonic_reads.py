@@ -32,7 +32,7 @@ class MonotonicReads(Model):
         vis = AE.Relation.visibility(symbols)
 
         # monotonic read
-        return z3.And(  # type: ignore
+        return z3.And(
             # (a -vis-> b /\ b --so-> c) -> a -vis-> c
             z3.ForAll(
                 [a, b, c],

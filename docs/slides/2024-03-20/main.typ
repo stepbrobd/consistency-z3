@@ -28,18 +28,18 @@
   belonging to a session, or else it informs the calling application that the
   guarantee cannot be met." @terry1994session
 ][
-```txt
-  client <--(1)-- cart
-  ^
-  |
- (1)
-  |
-  |
-  shop --- arbitrator --- tx
+  ```txt
+   client <--(1)-- cart
+   ^
+   |
+  (1)
+   |
+   |
+   shop --- arbitrator --- tx
   ```
 
-(1): Storage systems should provide guarantees to all read and write operations
-within a session.
+  (1): Storage systems should provide guarantees to all read and write operations
+  within a session.
 ]
 
 #pagebreak()
@@ -55,14 +55,14 @@ within a session.
 
   $"f"("LHS", "RHS") eq.delta not (exists l in "LHS", exists r in "RHS", not (l -> r))$
 ][
-```txt
-  client <--(1)-- cart
-  ^
-  |
- (1)
-  |
-  |
-  shop --- arbitrator --- tx
+  ```txt
+   client <--(1)-- cart
+   ^
+   |
+  (1)
+   |
+   |
+   shop --- arbitrator --- tx
   ```
 ]
 

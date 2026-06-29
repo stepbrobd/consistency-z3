@@ -31,13 +31,19 @@
  * be negative.
  */
 #let bdiagbox(
-  text_left, text_right,
-  width: none, height: none,
-  inset: 5pt, text_pad: none,
-  box_stroke: none, line_stroke: 1pt,
+  text_left,
+  text_right,
+  width: none,
+  height: none,
+  inset: 5pt,
+  text_pad: none,
+  box_stroke: none,
+  line_stroke: 1pt,
   inner_width: none,
-  left_sep: 0pt, right_sep: 0pt,
-  left_outer_sep: 0pt, right_outer_sep: 0pt,
+  left_sep: 0pt,
+  right_sep: 0pt,
+  left_outer_sep: 0pt,
+  right_outer_sep: 0pt,
 ) = context {
   let left_measure = measure(text_left)
   let right_measure = measure(text_right)
@@ -45,30 +51,42 @@
   let text_pad = if text_pad == none {
     // some adjusting; sum 3pt for the base case (5pt)
     // for larger insets, it isn't very relevant
-    -2*inset/3 + 3pt
+    -2 * inset / 3 + 3pt
   } else {
     text_pad
   }
-  
+
   let height = if height != none {
     height
   } else {
-    2*(left_measure.height + right_measure.height)
+    2 * (left_measure.height + right_measure.height)
   }
 
   let inner_width = if inner_width != none {
     inner_width
   } else if width != none {
-    width - 2*inset
+    width - 2 * inset
   } else {
-    2*calc.max(left_measure.width, right_measure.width)
+    2 * calc.max(left_measure.width, right_measure.width)
   }
-  
+
   box(width: inner_width, height: height, stroke: box_stroke)[
     #show line: place.with(top + left)
-    #place(top + right, move(dx: -right_sep - text_pad, dy: text_pad, text_right))
-    #line(start: (left_outer_sep - inset, -inset), end: (inner_width + inset - right_outer_sep, height + inset), stroke: line_stroke)
-    #place(bottom + left, move(dx: left_sep + text_pad, dy: -text_pad, text_left))
+    #place(top + right, move(
+      dx: -right_sep - text_pad,
+      dy: text_pad,
+      text_right,
+    ))
+    #line(
+      start: (left_outer_sep - inset, -inset),
+      end: (inner_width + inset - right_outer_sep, height + inset),
+      stroke: line_stroke,
+    )
+    #place(bottom + left, move(
+      dx: left_sep + text_pad,
+      dy: -text_pad,
+      text_left,
+    ))
   ]
 }
 
@@ -79,13 +97,19 @@
  * right -> `text_right`).
  */
 #let tdiagbox(
-  text_left, text_right,
-  width: none, height: none,
-  inset: 5pt, text_pad: none,
-  box_stroke: none, line_stroke: 1pt,
+  text_left,
+  text_right,
+  width: none,
+  height: none,
+  inset: 5pt,
+  text_pad: none,
+  box_stroke: none,
+  line_stroke: 1pt,
   inner_width: none,
-  left_sep: 0pt, right_sep: 0pt,
-  left_outer_sep: 0pt, right_outer_sep: 0pt,
+  left_sep: 0pt,
+  right_sep: 0pt,
+  left_outer_sep: 0pt,
+  right_outer_sep: 0pt,
 ) = context {
   let left_measure = measure(text_left)
   let right_measure = measure(text_right)
@@ -93,29 +117,37 @@
   let text_pad = if text_pad == none {
     // some adjusting; sum 3pt for the base case (5pt)
     // for larger insets, it isn't very relevant
-    -2*inset/3 + 3pt
+    -2 * inset / 3 + 3pt
   } else {
     text_pad
   }
-  
+
   let height = if height != none {
     height
   } else {
-    2*(left_measure.height + right_measure.height)
+    2 * (left_measure.height + right_measure.height)
   }
 
   let inner_width = if inner_width != none {
     inner_width
   } else if width != none {
-    width - 2*inset
+    width - 2 * inset
   } else {
-    2*calc.max(left_measure.width, right_measure.width)
+    2 * calc.max(left_measure.width, right_measure.width)
   }
 
   box(width: inner_width, height: height, stroke: box_stroke)[
     #show line: place.with(top + left)
     #place(top + left, move(dx: left_sep + text_pad, dy: text_pad, text_left))
-    #line(start: (left_outer_sep - inset, height + inset), end: (inner_width + inset - right_outer_sep, -inset), stroke: line_stroke)
-    #place(bottom + right, move(dx: -right_sep - text_pad, dy: -text_pad, text_right))
+    #line(
+      start: (left_outer_sep - inset, height + inset),
+      end: (inner_width + inset - right_outer_sep, -inset),
+      stroke: line_stroke,
+    )
+    #place(bottom + right, move(
+      dx: -right_sep - text_pad,
+      dy: -text_pad,
+      text_right,
+    ))
   ]
 }

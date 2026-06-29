@@ -5,11 +5,16 @@
   align(center)[#block(text(weight: 700, 1.75em, title))]
 
   pad(
-    top: 0.5em, bottom: 0.5em, x: 2em, grid(
-      columns: (1fr,) * calc.min(3, authors.len()), gutter: 1em, ..authors.map(author => align(center)[
-        *#author.name* \
-        #author.email
-      ]),
+    top: 0.5em,
+    bottom: 0.5em,
+    x: 2em,
+    grid(
+      columns: (1fr,) * calc.min(3, authors.len()), gutter: 1em, ..authors.map(
+        author => align(center)[
+          *#author.name* \
+          #author.email
+        ],
+      ),
     ),
   )
 
@@ -21,7 +26,9 @@
 }
 
 #show: doc.with(
-  title: "Literature Review", authors: ((name: "Yifei Sun", email: "ysun@ccs.neu.edu"),), date: "January 10, 2024",
+  title: "Literature Review",
+  authors: ((name: "Yifei Sun", email: "ysun@ccs.neu.edu"),),
+  date: "January 10, 2024",
 )
 
 = Toward Domain-Specific Solvers for Distributed Consistency
@@ -175,5 +182,7 @@ experiments on evaluations, we should also consider this.
 = Bibliography
 
 #bibliography(
-  "bibliography.yml", title: none, style: "association-for-computing-machinery",
+  "bibliography.yml",
+  title: none,
+  style: "association-for-computing-machinery",
 )

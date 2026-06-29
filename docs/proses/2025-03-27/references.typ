@@ -3,5 +3,7 @@
 = References
 
 #bibliography(
-  "references.yaml", title: none, style: "association-for-computing-machinery",
+  "references.yaml",
+  title: none,
+  style: "association-for-computing-machinery",
 )

@@ -7,11 +7,16 @@
   align(center)[#block(text(weight: 700, 1.75em, title))]
 
   pad(
-    top: 0.5em, bottom: 0.5em, x: 2em, grid(
-      columns: (1fr,) * calc.min(3, authors.len()), gutter: 1em, ..authors.map(author => align(center)[
-        *#author.name* \
-        #author.email
-      ]),
+    top: 0.5em,
+    bottom: 0.5em,
+    x: 2em,
+    grid(
+      columns: (1fr,) * calc.min(3, authors.len()), gutter: 1em, ..authors.map(
+        author => align(center)[
+          *#author.name* \
+          #author.email
+        ],
+      ),
     ),
   )
 
@@ -23,7 +28,9 @@
 }
 
 #show: doc.with(
-  title: "CS 8674 Project Report", authors: ((name: "Yifei Sun", email: "ysun@ccs.neu.edu"),), date: "April 26, 2025",
+  title: "CS 8674 Project Report",
+  authors: ((name: "Yifei Sun", email: "ysun@ccs.neu.edu"),),
+  date: "April 26, 2025",
 )
 
 = Introduction
@@ -208,30 +215,30 @@ explicitly to relate operations across these distinct symbolic domains, as
 demonstrated in our cross-causal consistency modeling.
 
 /* FIXME: from readme
-*
-* these are more relevant to composition, add them here won't make much sense?
-*
-* Operation: an operation is defined as a tuple of (from non-transactional survey):
-* proc: the process that issued the operation (used for session identification, e.g. same session constraint).
-* type: the type of the operation (e.g. read, write. or custom).
-* obj: the object the operation is performed on (e.g. a key in a key-value store).
-* ival: operation input value (e.g. the value to be written, not used anywhere yet).
-* oval: operation output value (e.g. the value read, not used anywhere yet).
-* stime: invocation time of the operation (i.e. the time the operation was issued).
-* rtime: response time of the operation (i.e. the time the operation was completed).
-* Think of an operation as a request-response pair, where the request is the operation itself and the response is the operation itself with the response time set (assuming the delays between the request and the response are equal for all operations, the request takes (rtime - stime)/2 time to be sent to the handling node and to be processed, vice versa for the response).
-*
-* (Our own interpretation)
-* Operation does not contain the node that issued the operation, nor the node that handled the operation. It's defined as a generic entity that can be issued by any node and handled by any node. To add constraints on the nodes that can issue or handle an operation, the framework user must define nodes and edges.
-*/
+ *
+ * these are more relevant to composition, add them here won't make much sense?
+ *
+ * Operation: an operation is defined as a tuple of (from non-transactional survey):
+ * proc: the process that issued the operation (used for session identification, e.g. same session constraint).
+ * type: the type of the operation (e.g. read, write. or custom).
+ * obj: the object the operation is performed on (e.g. a key in a key-value store).
+ * ival: operation input value (e.g. the value to be written, not used anywhere yet).
+ * oval: operation output value (e.g. the value read, not used anywhere yet).
+ * stime: invocation time of the operation (i.e. the time the operation was issued).
+ * rtime: response time of the operation (i.e. the time the operation was completed).
+ * Think of an operation as a request-response pair, where the request is the operation itself and the response is the operation itself with the response time set (assuming the delays between the request and the response are equal for all operations, the request takes (rtime - stime)/2 time to be sent to the handling node and to be processed, vice versa for the response).
+ *
+ * (Our own interpretation)
+ * Operation does not contain the node that issued the operation, nor the node that handled the operation. It's defined as a generic entity that can be issued by any node and handled by any node. To add constraints on the nodes that can issue or handle an operation, the framework user must define nodes and edges.
+ */
 
 == Axiom
 
 /*
-* Relation predicates:
-* A set of predicates that define the relations between operations in a history (also includes those in AE).
-* The predicates are used as base/premise for consistency models (implementations in relation.py, history.py, abstract_execution.py). In the implementation, the predicates are singletons and will be added ad-hoc if any clause refers to them.
-*/
+ * Relation predicates:
+ * A set of predicates that define the relations between operations in a history (also includes those in AE).
+ * The predicates are used as base/premise for consistency models (implementations in relation.py, history.py, abstract_execution.py). In the implementation, the predicates are singletons and will be added ad-hoc if any clause refers to them.
+ */
 Similar to how Lamport et al. @lamport1977proving defines axioms, they are
 operational invariants defined over operations. In our implementation, these
 axioms/invariants/relations are declared as uninterpreted functions, where the
@@ -241,9 +248,9 @@ constraints.
 === History
 
 /*
-* History (in the actual writing, layout the actual Z3 clauses used to encode the relational constraints): a set of operations.
-* Add relations between operations within history (returns before, same session, session order).
-*/
+ * History (in the actual writing, layout the actual Z3 clauses used to encode the relational constraints): a set of operations.
+ * Add relations between operations within history (returns before, same session, session order).
+ */
 
 A history is a set of operations that have been executed in the system the tool
 is modeling @viotti2016consistency. Although it is not specifically defined as
@@ -276,13 +283,13 @@ single-system analysis.
 === Abstract Execution
 
 /*
-* Abstract execution (in the actual writing, layout the actual Z3 clauses used to
-* encode the relational constraints): one or more "instantiation" of history. An
-* abstract execution is a set of operations (i.e. history) that are further
-* constrained by the nondeterminism of the asynchronous environment (e.g., message
-* delivery order), and implementation-specific constraints (e.g., conflict
-* resolution policies) (from non-transactional survey).
-*/
+ * Abstract execution (in the actual writing, layout the actual Z3 clauses used to
+ * encode the relational constraints): one or more "instantiation" of history. An
+ * abstract execution is a set of operations (i.e. history) that are further
+ * constrained by the nondeterminism of the asynchronous environment (e.g., message
+ * delivery order), and implementation-specific constraints (e.g., conflict
+ * resolution policies) (from non-transactional survey).
+ */
 
 Abstract executions are instantiated from a given history by specifying which
 operations are visible to each other and how they are ordered. Multiple multiple
@@ -311,16 +318,16 @@ Axioms defined for operations within abstract executions:
 
 // FIXME: way too ugly
 can-view (cv): $"cv" eq.delta {(a, b) : a in H_"rd", b in H_"wr" and a."obj" = b."obj" and (
-a."stime" > b."rtime" // non-concurrent
-or
-(a."stime" <= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" >= b."rtime")
-or
-(a."stime" >= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" >= b."rtime")
-or
-(a."stime" <= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" <= b."rtime")
-or
-(a."stime" >= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" <= b."rtime")
-)}$
+    a."stime" > b."rtime" // non-concurrent
+    or
+    (a."stime" <= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" >= b."rtime")
+    or
+    (a."stime" >= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" >= b."rtime")
+    or
+    (a."stime" <= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" <= b."rtime")
+    or
+    (a."stime" >= b."stime" and a."stime" <= b."rtime" and a."rtime" >= b."stime" and a."rtime" <= b."rtime")
+  )}$
 
 In the above encoding, "can-view" is defined as a non-deterministic pairwise
 partial ordering that solely depends on time stamps (conceptually, it captures
@@ -339,29 +346,29 @@ element is a write. The read *can view* (nondeterminism included) the write if:
 + (a5) The read started after the write starts and ended before the write ends.
 
 #align(center)[
-```txt
-    a1         a2
-  |---|      |---|
+  ```txt
+      a1         a2
+    |---|      |---|
 
-             b (rd)
-         |------------|
+               b (rd)
+           |------------|
 
-       a3              a4
-  |---------|     |----------|
+         a3              a4
+    |---------|     |----------|
 
-              a5
-   |----------------------|
-```
+                a5
+     |----------------------|
+  ```
 ]
 
 While "can-view" captures the possible visibility between read and write, the
 result dependency between them is captured by the "viewed" relation:
 
 $"viewed" eq.delta {(a, b) : a in H_"rd", b in H_"wr" and (
-a."oval" = b."ival"
-or
-(exists x in H_"wr" and (x, b) in "cv" and a."oval" = x."ival")
-)}$
+    a."oval" = b."ival"
+    or
+    (exists x in H_"wr" and (x, b) in "cv" and a."oval" = x."ival")
+  )}$
 
 In the encoding above, "viewed" is a non-deterministic pairwise partial ordering
 between a write and a read that build atop "can-view". Aside from the timestamps
@@ -630,7 +637,62 @@ holding does not necessarily mean that $M_2 arrow.double M_1$ also holds.
 #let table_t = [#text(green)[T]]
 #let table_f = [#text(red)[F]]
 #table(
-  columns: (auto, auto, auto, auto, auto, auto, auto), bdiagbox(width: 2.275cm, height: 1.25cm)[*LHS*][*RHS*], [*PRAM*], [*Monotonic Reads*], [*Monotonic Writes*], [*Read Your Writes*], [*Writes Follow Reads*], [*Lineariza-bility*], [*PRAM*], [#table_na], [#table_t], [#table_t], [#table_t], [#table_f], [#table_f], [*Monotonic Reads*], [#table_f], [#table_na], [#table_f], [#table_f], [#table_f], [#table_f], [*Monotonic Writes*], [#table_f], [#table_f], [#table_na], [#table_f], [#table_f], [#table_f], [*Read Your Writes*], [#table_f], [#table_f], [#table_f], [#table_na], [#table_f], [#table_f], [*Writes Follow Reads*], [#table_f], [#table_f], [#table_f], [#table_f], bdiagbox(width: 2.3cm, height: 1.25cm)[][], [#table_f], [*Lineariza-bility*], [#table_t], [#table_t], [#table_t], [#table_t], [#table_t], bdiagbox(width: 2.3cm, height: 1.25cm)[][],
+  columns: (auto, auto, auto, auto, auto, auto, auto),
+  bdiagbox(width: 2.275cm, height: 1.25cm)[*LHS*][*RHS*],
+  [*PRAM*],
+  [*Monotonic Reads*],
+  [*Monotonic Writes*],
+  [*Read Your Writes*],
+  [*Writes Follow Reads*],
+  [*Lineariza-bility*],
+
+  [*PRAM*],
+  [#table_na],
+  [#table_t],
+  [#table_t],
+  [#table_t],
+  [#table_f],
+  [#table_f],
+
+  [*Monotonic Reads*],
+  [#table_f],
+  [#table_na],
+  [#table_f],
+  [#table_f],
+  [#table_f],
+  [#table_f],
+
+  [*Monotonic Writes*],
+  [#table_f],
+  [#table_f],
+  [#table_na],
+  [#table_f],
+  [#table_f],
+  [#table_f],
+
+  [*Read Your Writes*],
+  [#table_f],
+  [#table_f],
+  [#table_f],
+  [#table_na],
+  [#table_f],
+  [#table_f],
+
+  [*Writes Follow Reads*],
+  [#table_f],
+  [#table_f],
+  [#table_f],
+  [#table_f],
+  bdiagbox(width: 2.3cm, height: 1.25cm)[][],
+  [#table_f],
+
+  [*Lineariza-bility*],
+  [#table_t],
+  [#table_t],
+  [#table_t],
+  [#table_t],
+  [#table_t],
+  bdiagbox(width: 2.3cm, height: 1.25cm)[][],
 )
 
 To combine multiple consistency models into a single stronger model, we used
@@ -866,9 +928,7 @@ offering only a basic consistency guarantee, are chained together. The goal is
 to verify if their composition, mediated by specific inter-service constraints,
 symbolic isolation, and the role of explicit "glue" constraints.
 
-*Setup #footnote(
-  "I decided not to use the \"pseudo node\" in the write up, it makes the explanation unnecessarily complex.",
-):* We model a linear chain of services: $"SVC1" -> "SVC2" -> "SVC3" -> "SVC4" -> "XC"$.
+*Setup #footnote("I decided not to use the \"pseudo node\" in the write up, it makes the explanation unnecessarily complex."):* We model a linear chain of services: $"SVC1" -> "SVC2" -> "SVC3" -> "SVC4" -> "XC"$.
 Each service $"SVC"n$ (for $n=1..4$) is designed to provide only *one* of the
 four session guarantees via its `provs` attribute: $"SVC"1$ provides MR, $"SVC"2$ provides
 MW, $"SVC"3$ provides RYW, and $"SVC"4$ provides WFR.
@@ -950,9 +1010,9 @@ Steps:
 - Get the code:
 
   ```sh
-    nix –-extra-experimental-features "flakes nix-command" run nixpkgs#git -- clone https://github.com/stepbrobd/consistency-z3.git`
-    cd consistency-z3
-    ```
+  nix –-extra-experimental-features "flakes nix-command" run nixpkgs#git -- clone https://github.com/stepbrobd/consistency-z3.git`
+  cd consistency-z3
+  ```
 
 - Get dependencies: `nix –-extra-experimental-features "flakes nix-command" develop -c $SHELL` (required)
   - After this step, you should be automatically dropped in a virtual environment
@@ -967,5 +1027,7 @@ Steps:
 = Bibliography
 
 #bibliography(
-  "bibliography.yml", title: none, style: "association-for-computing-machinery",
+  "bibliography.yml",
+  title: none,
+  style: "association-for-computing-machinery",
 )

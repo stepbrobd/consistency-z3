@@ -32,9 +32,9 @@
 ]
 
 #slide[
-== Premitives
+  == Premitives
 
-```py
+  ```py
   OperationType = z3.EnumSort("OperationType", ["rd", "wr"])
   Operation.declare("cons",
     ("proc", z3.IntSort()),    # process id
@@ -93,11 +93,11 @@
 ]
 
 #slide[
-== Results
+  == Results
 
-Satisfiability of models:
+  Satisfiability of models:
 
-```txt
+  ```txt
   MonotonicReads: True
   MonotonicWrites: True
   PRAMConsistency: True
@@ -107,13 +107,13 @@ Satisfiability of models:
 ]
 
 #slide[
-== Results
+  == Results
 
-// check LHS and RHS, whether all assertions in RHS can be satisfied in LHS under all possible assignments
-Pairwise validity (check whether $not ("LHS" arrow.r.double "RHS") eq.triple "LHS" and not "RHS"$ is
-unsatisfiable or not):
+  // check LHS and RHS, whether all assertions in RHS can be satisfied in LHS under all possible assignments
+  Pairwise validity (check whether $not ("LHS" arrow.r.double "RHS") eq.triple "LHS" and not "RHS"$ is
+  unsatisfiable or not):
 
-```txt
+  ```txt
   MonotonicReads <- MonotonicWrites: False
   MonotonicReads <- PRAMConsistency: False
   MonotonicReads <- ReadYourWrites: False
@@ -138,12 +138,12 @@ unsatisfiable or not):
 ]
 
 #slide[
-== Results
+  == Results
 
-// take the result of the conjunction, then check pairwise validity
-Composition (conjunction of assertions):
+  // take the result of the conjunction, then check pairwise validity
+  Composition (conjunction of assertions):
 
-```txt
+  ```txt
   PRAM <- {RYW, MR, MW}: False
   {RYW, MR, MW} <- PRAM: False
   PRAM <- {MR, RYW}: True

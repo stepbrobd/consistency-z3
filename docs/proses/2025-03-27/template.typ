@@ -12,21 +12,49 @@
   //  - acmsmall
   format: "acmsmall",
   // Title, subtitle, authors, abstract, ACM ccs, keywords
-  title: "Title", subtitle: none, shorttitle: none, authors: (), shortauthors: none, abstract: none, ccs: (
+  title: "Title",
+  subtitle: none,
+  shorttitle: none,
+  authors: (),
+  shortauthors: none,
+  abstract: none,
+  ccs: (
     (
-      [Do Not Use This Code], (
-        (500, [Generate the Correct Terms for Your Paper]), (300, [Generate the Correct Terms for Your Paper]), (100, [Generate the Correct Terms for Your Paper]), (100, [Generate the Correct Terms for Your Paper]),
+      [Do Not Use This Code],
+      (
+        (500, [Generate the Correct Terms for Your Paper]),
+        (300, [Generate the Correct Terms for Your Paper]),
+        (100, [Generate the Correct Terms for Your Paper]),
+        (100, [Generate the Correct Terms for Your Paper]),
       ),
     ),
-  ), keywords: (
-    "Do", "not", "Us", "This", "Code", "Put", "the", "Correct", "Terms", "for", "Your", "Paper",
+  ),
+  keywords: (
+    "Do",
+    "not",
+    "Us",
+    "This",
+    "Code",
+    "Put",
+    "the",
+    "Correct",
+    "Terms",
+    "for",
+    "Your",
+    "Paper",
   ),
   // acm journal
-  acmJournal: none, acmVolume: 1, acmNumber: 1, acmArticle: none, acmMonth: 5,
+  acmJournal: none,
+  acmVolume: 1,
+  acmNumber: 1,
+  acmArticle: none,
+  acmMonth: 5,
   // acm information
-  acmYear: 2023, acmDOI: "XXXXXXX.XXXXXXX",
+  acmYear: 2023,
+  acmDOI: "XXXXXXX.XXXXXXX",
   // copyright
-  copyright: none, copyrightYear: 2023,
+  copyright: none,
+  copyrightYear: 2023,
   // paper's content
   body,
 ) = {
@@ -37,7 +65,18 @@
   }
 
   let displayMonth(month) = (
-    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ).at(month - 1)
 
   if shorttitle == none {
@@ -53,7 +92,10 @@
 
   // Configure the page.
   set page(
-    width: 6.75in, height: 10in, margin: (top: 58pt + 27pt, bottom: 39pt + 24pt, left: 46pt, right: 46pt), header: context{
+    width: 6.75in,
+    height: 10in,
+    margin: (top: 58pt + 27pt, bottom: 39pt + 24pt, left: 46pt, right: 46pt),
+    header: context {
       set text(size: 8pt, font: sfFont)
       let (currentpage,) = counter(page).get()
       if currentpage == 1 {} else {
@@ -71,7 +113,9 @@
           #v(17pt)
         ]
       }
-    }, header-ascent: 0%, footer: context{
+    },
+    header-ascent: 0%,
+    footer: context {
       set text(size: 8pt)
       let (currentpage,) = counter(page).get()
       let currentfooting = [
@@ -83,7 +127,8 @@
       } else {
         align(bottom + right, currentfooting)
       })
-    }, footer-descent: 0%,
+    },
+    footer-descent: 0%,
   )
 
   set text(font: mainFont, size: 10pt)
@@ -102,8 +147,12 @@
     // Display authors
     {
       set par(leading: 5.7pt)
-      let displayAuthor(author) = [#text(font: sfFont, size: 11pt, upper(author.name))]
-      let displayAuthors(authors) = authors.map(displayAuthor).join(", ", last: " and ")
+      let displayAuthor(author) = [#text(font: sfFont, size: 11pt, upper(
+        author.name,
+      ))]
+      let displayAuthors(authors) = authors
+        .map(displayAuthor)
+        .join(", ", last: " and ")
 
       let displayAffiliation(affiliation) = [,#text(font: mainFont, size: 9pt)[
           #affiliation.institution, #affiliation.country
@@ -148,9 +197,7 @@
                     [ *#subconcept.at(1)* ]
                   } else if subconcept.at(0) >= 300 {
                     [ _#subconcept.at(1)_ ]
-                  } else {
-                    [ #subconcept.at(1) ]
-                  },)
+                  } else { [ #subconcept.at(1) ] },)
                 }).join(";")
               }
             ],)
@@ -169,7 +216,7 @@
     }
 
     // Display ACM reference format
-    par(text(size: 9pt, context[
+    par(text(size: 9pt, context [
       #strong[ACM Reference Format:]\
       #authors.map(author => author.name).join(", ", last: " and ").
       #acmYear.
@@ -177,9 +224,12 @@
       #emph(journal.nameShort)
       #acmVolume,
       #acmNumber, Article #acmArticle (#displayMonth(acmMonth) #acmYear),
-      #counter(page).display((..nums) => [
-        #nums.pos().last() page#if (nums.pos().last() > 1) { [s] }.
-      ], both: true)
+      #counter(page).display(
+        (..nums) => [
+          #nums.pos().last() page#if (nums.pos().last() > 1) { [s] }.
+        ],
+        both: true,
+      )
       https:\/\/doi.org\/#acmDOI
     ]))
     v(1pt)
@@ -188,7 +238,9 @@
     set text(size: 8pt)
     set par(leading: 0.6em)
     place(
-      bottom, float: true, clearance: .5em,
+      bottom,
+      float: true,
+      clearance: .5em,
     )[
       #line(length: 100%, stroke: 0.4pt + black)
       #v(.5em)
@@ -199,11 +251,11 @@
             }]
           let displayAuthors(authors) = authors.map(displayAuthor).join("; ")
           let displayAffiliation(affiliation) = [#{
-              if affiliation.at("institution", default: none) != none [, #affiliation.institution]
-              if affiliation.at("city", default: none) != none [, #affiliation.city]
-              if affiliation.at("state", default: none) != none [, #affiliation.state]
-              if affiliation.at("country", default: none) != none [, #affiliation.country]
-            }]
+            if affiliation.at("institution", default: none) != none [, #affiliation.institution]
+            if affiliation.at("city", default: none) != none [, #affiliation.city]
+            if affiliation.at("state", default: none) != none [, #affiliation.state]
+            if affiliation.at("country", default: none) != none [, #affiliation.country]
+          }]
 
           let affiliation = none
           let currentAuthors = ()
@@ -248,7 +300,10 @@
   }
 
   set par(
-    justify: true, leading: 5.35pt, first-line-indent: 9.5pt, spacing: 5.35pt,
+    justify: true,
+    leading: 5.35pt,
+    first-line-indent: 9.5pt,
+    spacing: 5.35pt,
   )
   // show par: set block(below: 5.35pt)
 

@@ -32,21 +32,21 @@
 ]
 
 #slide[
-== Definitions: Operation
+  == Definitions: Operation
 
-Operation are tuples: $("proc", "type", "obj", "ival", "oval", "stime", "rtime")$ @viotti2016consistency[pp.3].
+  Operation are tuples: $("proc", "type", "obj", "ival", "oval", "stime", "rtime")$ @viotti2016consistency[pp.3].
 
-```py
-      class Operation(NamedTuple):
-          proc: int # process id
-          type: str # operation type
-          obj: int # object id
-          ival: Any # input value
-          stime: int # start time
-          rtime: int = None # return time
-          oval: Any = None # output value
-          symbol: str = None # readable representation
-      ```
+  ```py
+  class Operation(NamedTuple):
+      proc: int # process id
+      type: str # operation type
+      obj: int # object id
+      ival: Any # input value
+      stime: int # start time
+      rtime: int = None # return time
+      oval: Any = None # output value
+      symbol: str = None # readable representation
+  ```
 ]
 
 #slide[
@@ -66,21 +66,21 @@ Operation are tuples: $("proc", "type", "obj", "ival", "oval", "stime", "rtime")
 ]
 
 #slide[
-== Definitions: History
+  == Definitions: History
 
-Relations:
-- returns-before: $"rb" eq.delta {("a","b"): "a","b" in "H" and "a.rtime" < "b.stime"}$
-- same-session: $"ss" eq.delta {("a","b"): "a","b" in "H" and "a.proc" = "b.proc"}$
-- session-order: $"so" eq.delta "rb" sect "ss"$
-// there are more relations
+  Relations:
+  - returns-before: $"rb" eq.delta {("a","b"): "a","b" in "H" and "a.rtime" < "b.stime"}$
+  - same-session: $"ss" eq.delta {("a","b"): "a","b" in "H" and "a.proc" = "b.proc"}$
+  - session-order: $"so" eq.delta "rb" sect "ss"$
+  // there are more relations
 
-```py
-      class History:
-          def __init__(self: Self,
-            ops: set[Operation],
-            **kwargs: set[Relation]
-          ) -> None: ...
-      ```
+  ```py
+  class History:
+      def __init__(self: Self,
+        ops: set[Operation],
+        **kwargs: set[Relation]
+      ) -> None: ...
+  ```
 ]
 
 #slide[
@@ -93,36 +93,36 @@ Relations:
 ]
 
 #slide[
-== Definitions: Anstract Execution
-Relations:
-- $"vis"$ (visibility): $a arrow.r.long^"vis" b$
-// - visibility
-// - arbitration
-- ...
-// there are more relations
+  == Definitions: Anstract Execution
+  Relations:
+  - $"vis"$ (visibility): $a arrow.r.long^"vis" b$
+  // - visibility
+  // - arbitration
+  - ...
+  // there are more relations
 
-```py
-      class AbstractExecution:
-          def __init__(self: Self,
-            hist: History,
-            **kwargs: set[Relation]
-          ) -> None: ...
-      ```
+  ```py
+  class AbstractExecution:
+      def __init__(self: Self,
+        hist: History,
+        **kwargs: set[Relation]
+      ) -> None: ...
+  ```
 ]
 
 #slide[
-== Example: Monotonic Reads
+  == Example: Monotonic Reads
 
-```txt
-      1: ___ op_a: set("somekey", "someval")
-               op_b: get("somekey") -> "someval"
-      2:       ___      ___
-                        op_c: get("somekey") -> "someval"
-      ```
-- $a arrow.r.long^"vis" b$
-- $b arrow.r.long^"so" c$
-  - $b arrow.r.long^"rb" c$
-  - $b arrow.r.long^"ss" c$
+  ```txt
+  1: ___ op_a: set("somekey", "someval")
+           op_b: get("somekey") -> "someval"
+  2:       ___      ___
+                    op_c: get("somekey") -> "someval"
+  ```
+  - $a arrow.r.long^"vis" b$
+  - $b arrow.r.long^"so" c$
+    - $b arrow.r.long^"rb" c$
+    - $b arrow.r.long^"ss" c$
 ]
 
 #slide[

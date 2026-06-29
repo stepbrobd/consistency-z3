@@ -4,11 +4,6 @@
 > [!Caution]
 > Experimental project, use at your own risk.
 
-Binary Cache:
-
-- Cache: <https://cache.ysun.co>
-- Key: `cache.ysun.co-1:WxPYwT5g3kt9XhUhHPpNLZKI9HIOsVVAuqSHpok8Qt4=`
-
 ## How to Run
 
 This repository is the implementation of **SemantiX**, a SMT-based compatibility

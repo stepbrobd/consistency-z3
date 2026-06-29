@@ -1,7 +1,6 @@
 # Consistency
 
-[![Built with Nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
-
+<!-- deno-fmt-ignore -->
 > [!Caution]
 > Experimental project, use at your own risk.
 
@@ -10,56 +9,173 @@ Binary Cache:
 - Cache: <https://cache.ysun.co>
 - Key: `cache.ysun.co-1:WxPYwT5g3kt9XhUhHPpNLZKI9HIOsVVAuqSHpok8Qt4=`
 
-## Usage
+## How to Run
 
-Our original plan was to designa CLI tool, but due to time constraints, this
-tool can only be used as a library. Either install with `pip` or make a new
-`pytest` module under the `tests` directory to start immediately.
+This repository is the implementation of **SemantiX**, a SMT-based compatibility
+checker. It is consumed as a Python library, and the test suite under `tests/`
+doubles as the runnable artifact. Each test builds Z3 constraints for one or
+more DMs or AppGraphs and checks them with the solver, so "running the artifact"
+means running `pytest`.
 
-Some examples might take a very long time to run, so we recommend using the
-`not slow` marker to skip those tests when trying to do artifact evaluation.
+The paper makes 4 checkable claims:
+
+| #  | Claim                                                                                                        | Paper                   | Reproduce with                                                                                               |
+| -- | ------------------------------------------------------------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| C1 | Pairwise compatibility between the 8 base semantics matches the theoretical partial order                    | Table 1, Figure 1       | `tests/test_pairwise.py`                                                                                     |
+| C2 | Each of the 3 case-study applications is _composable_ under the consistency models chosen in the paper       | Figures 5, 6, 7, Sec. 5 | `tests/test_media.py`, `tests/test_shop.py`, `tests/test_cross_causal.py`                                    |
+| C3 | SemantiX can _search_ the model space and find the weakest compatible combination, with the reported timings | Table 2, Sec. 4.3       | `scripts/analyze.py` (plus `tests/test_timing.py` to regenerate)                                             |
+| C4 | The base-semantics encodings (including the new visibility definition) are sound and self-consistent         | Sec. 3, 3.3             | `tests/test_standalone.py`, `tests/test_witness.py`, `tests/test_visibility.py`, `tests/test_composition.py` |
+
+### 0. Setup
+
+In the pre-built QEMU image, execution environment is already prepared. Just
+enter the artifact directory, where `pytest` and all dependencies are on `PATH`.
+
+To build from source instead, Nix is required <https://nixos.org/download> then
+from the repo root:
 
 ```sh
-pytest --cov=consistency tests -sm 'not slow'
-```
-
-Nix is requried to do the artifact evaluation. Please use the official Nix
-installer <https://nixos.org/download> or DetSys Nix installer
-<https://github.com/determinatesystems/nix-installer> to get started.
-
-After installing Nix, simply run:
-
-```sh
+# installs deps + sets up the env (slow the first time)
 nix develop -c $SHELL
 ```
 
-to get all dependencies installed and the environment set up (might take a while
-the first time).
+All commands below assume you are at the repo root with that environment active,
+so a bare `pytest` resolves to the project's pytest (the tool can also be used
+as a plain library `pip install -e .`).
 
-To run specific tests, use the `-sk` option print test outputs. For example:
+### 1. Functional check
 
 ```sh
-pytest -sk test_timing_xc
+pytest tests --ignore=tests/test_timing.py
 ```
 
-For timing tests you will need to use the watchdog script to ensure Z3 timeouts
-are handled correctly:
+**Expected:** All tests passing within 1min. Every check here is a Z3 solve over
+a tiny symbolic history, so all should pass relatively quickly. All green means
+the framework, all base-semantics encodings, the three case-study AppGraphs
+(C2), and the pairwise compatibility matrix (C1) are working.
+
+### 2. Reproduce tables and figures
+
+#### Table 1: pairwise compatibility
 
 ```sh
-# run the test first, and record the output path printed in the first couple lines
+pytest -s tests/test_pairwise.py::test_timing_compatibility
+```
+
+This should print all off-diagonal checks. `True` is a blue cell in Table 1 (the
+row's semantics subsumes the column's), and `False` is a red cell. The time in
+parentheses is that cell's check time, roughly 10 to 45 ms each (timing may
+differ based on the execution environment due to compute power), against the
+paper's reported average of about 31 ms. The True/False pattern realises the
+partial order of Figure 1. For example, CC and PRAM subsume their constituent
+session guarantees, every model subsumes EC, and no model subsumes LIN. The
+_correctness_ of the key cells is asserted independently by
+`test_known_compatible` and `test_known_incompatible`, both of which are part of
+the Section 1 run. Archived raw data lives in
+`scripts/compatibility_timing_results.csv`.
+
+#### Table 2: compatible DM search
+
+```sh
+python scripts/analyze.py
+```
+
+This aggregates the authors' recorded search runs that ship in `scripts/*.csv`
+and prints, for each case study, exactly the numbers behind Table 2:
+
+```
+shop:
+num entries: 4913
+total time: 251.77 s
+avg duration: 5.12 ms
+timedout: 0.00%
+time to correct: 1.65 s
+media:
+num entries: 800507 out of 1419857
+total time: 131563.92 s
+avg duration: 16.44 ms
+timedout: 0.00%
+time to correct: 20.43 s
+xc:
+num entries: 83521
+total time: 14337.11 s
+avg duration: 17.17 ms
+ave no timeout duration: 15.65 ms
+timedout: 0.15%
+time to correct: 261.09 s
+```
+
+"time to correct" is Table 2's _min-score_ column, the time to find the weakest
+compatible combination. The media run covers 800507 of the 1419857 (17^5)
+combinations, about 56%, which projects to roughly 65 hours for the full space.
+To regenerate the CSVs from scratch rather than trust the bundled data, see
+Section 3.
+
+#### Figures 5, 6, 7: case study AppGraphs
+
+The graphs in the paper are constructed in code. To render the annotated graph,
+uncomment the `matplotlib` / `plot(g)` block near the end of the relevant test
+and run it:
+
+- **Figure 5** (movie streaming, Sec. 5.1): `tests/test_media.py`
+- **Figure 6** (online shopping, Sec. 5.2): `tests/test_shop.py`
+- **Figure 7** (cross-causal XC storage, Sec. 5.3): `tests/test_cross_causal.py`
+
+### 3. Long running tests and how to run a short version
+
+The three search harnesses in `test_timing.py` brute-force **every** assignment
+of the 17 models to each configurable node, so their cost is the combination
+count rather than the per-check time (each Z3 check is roughly 5 to 17 ms):
+
+| Test                | Combinations   | Full runtime                    | `slow`? |
+| ------------------- | -------------- | ------------------------------- | ------- |
+| `test_timing_shop`  | 17^3 = 4913    | ~minutes                        | no      |
+| `test_timing_xc`    | 17^4 = 83521   | ~4 hours                        | yes     |
+| `test_timing_media` | 17^5 = 1419857 | ~65 hours (paper completed 56%) | yes     |
+
+You don't need to re-run these to evaluate Table 2. The command
+`python scripts/analyze.py` (Section 2) can reproduces the reported numbers from
+the bundled CSVs. Re-run the harnesses only if you want to regenerate the raw
+data yourself. There are three ways to get a _short_ run:
+
+1. **Run the smallest one fully (a few minutes)** to confirm the search
+   machinery end to end:
+   ```sh
+   pytest -s tests/test_timing.py::test_timing_shop
+   ```
+   It prints `saving results to: /tmp/.../shop_timing_results.csv` then one dict
+   per combination. (Each harness writes to a **fresh temp directory**, so it
+   never overwrites the bundled `scripts/*.csv`.)
+2. **Regenerate a Table 2 row**, then re-aggregate. Copy the temp CSV printed
+   above into `scripts/` (replacing the matching file), then run
+   `python scripts/analyze.py` and compare.
+3. **Smoke-test `xc` or `media` without the full space.** There is no CLI flag,
+   so shrink the search in code. In the relevant function, either slice the
+   enumerated combinations (for example append `[:50]` to the
+   `sorted(product(...))` list) or cut the choice list (for example keep the
+   first 2 of `svc_choices` or `db_choices`, giving 2^4 = 16 or 2^5 = 32
+   combos). Then run with `-s`.
+
+**Watchdog (for the full multi-hour `xc` / `media` runs only).** Each `xc` /
+`media` combination has an in-process 10s timeout, but a Z3 solve stuck in
+native code cannot always be interrupted from Python. `scripts/watchdog.py`
+sends `SIGINT` (which Z3 honors) when the test goes silent, making long runs
+robust:
+
+```sh
+# 1. start the timing test (note the temp output path it prints)
 pytest -sk test_timing_media
-# get the pytest PID for monitoring
+# 2. find the pytest PID
 ps -ax | grep pytest
-# run the watchdog script with root privileges
+# 3. attach the watchdog as root (it uses strace)
 sudo python ./scripts/watchdog.py <PID>
 ```
 
-Results can be reproduced by running the analysis script with the:
+`test_timing_shop` has no internal timeout, but its histories are tiny (roughly
+0.04 to 0.13 s per combination), so it completes without the watchdog.
 
-```sh
-# replace the file paths first
-python scripts/analyze.py
-```
+To print any test's output as it runs, use `-s` (and `-k` to select), e.g.
+`pytest -sk test_timing_xc`.
 
 ## Guidelines
 
@@ -293,7 +409,7 @@ operations issued by a given process in the same order as they were invoked by
 that process. On the other hand, processes may observe writes issued by
 different processes in different orders. Thus, no global total ordering is
 required. However, the writes from any given process (session) must be
-serialized in order, as if they were in a pipeline – hence the name.
+serialized in order, as if they were in a pipeline, hence the name.
 
 ```math
 PRAM \triangleq \forall a,b \in H: a\overset{so}{\rightarrow} b \Rightarrow a \overset{vis}{\rightarrow} b \triangleq so \subseteq vis
@@ -378,5 +494,5 @@ Context dependent, see implementation for details.
 ## License
 
 The contents inside this repository, excluding all submodules, are licensed
-under the [MIT License](license.md). Third-party file(s) and/or code(s) are
+under the [MIT License](license.txt). Third-party file(s) and/or code(s) are
 subject to their original term(s) and/or license(s).

@@ -742,7 +742,7 @@ def test_timing_media() -> None:
                 (
                     Cons(
                         "User must register before login",
-                        z3.And(  # type: ignore
+                        z3.And(
                             ec_common_login,
                             z3.Exists(
                                 [op_client_login, op_client_register],
@@ -760,14 +760,14 @@ def test_timing_media() -> None:
             )
             # admin writes require a previous admin login
             ec_admin_wr_login = [
-                (Cons("Admin writes requires login", ec_common_admin),)  # type: ignore
+                (Cons("Admin writes requires login", ec_common_admin),)
             ]
             # user db reads require a previous write, admin writes must reflect on user reads
             ec_login_rd_user_db = [
                 (
                     Cons(
                         "Combined constraints from users and admins",
-                        z3.And(  # type: ignore
+                        z3.And(
                             z3.Exists(
                                 [op_user_db_rd, op_user_db_wr],
                                 z3.And(
@@ -789,7 +789,7 @@ def test_timing_media() -> None:
             ec_login_wr_user_db = None  # assume all user db writes are valid
 
             ec_client_wr_rent = [
-                (Cons("Client login before rent movie", ec_common_login),)  # type: ignore
+                (Cons("Client login before rent movie", ec_common_login),)
             ]
             ec_rent_rd_metadata_db = [
                 (
@@ -808,10 +808,10 @@ def test_timing_media() -> None:
             ec_rent_wr_rent_db = None  # assume all rent db writes are valid
 
             ec_client_rd_review = [
-                (Cons("Require login before read review", ec_common_login),)  # type: ignore
+                (Cons("Require login before read review", ec_common_login),)
             ]
             ec_client_wr_review = [
-                (Cons("Require login before write review", ec_common_login),)  # type: ignore
+                (Cons("Require login before write review", ec_common_login),)
             ]
             ec_review_rd_metadata_db = [
                 (
@@ -837,7 +837,7 @@ def test_timing_media() -> None:
             ]
             ec_review_wr_review_db = None  # assume all review db writes are valid
 
-            ec_client_rd_video = [(Cons("Client watch video", ec_common_login),)]  # type: ignore
+            ec_client_rd_video = [(Cons("Client watch video", ec_common_login),)]
             ec_video_rd_metadata_db = [
                 (
                     Cons(
@@ -862,10 +862,10 @@ def test_timing_media() -> None:
             ]
 
             ec_admin_wr_metadata_db = [
-                (Cons("Admin login before write metadata", z3.And(ec_common_admin)),)  # type: ignore
+                (Cons("Admin login before write metadata", z3.And(ec_common_admin)),)
             ]
             ec_admin_wr_video = [
-                (Cons("Admin login before update video", z3.And(ec_common_admin)),)  # type: ignore
+                (Cons("Admin login before update video", z3.And(ec_common_admin)),)
             ]
             ec_video_wr_video_db = None  # assume all video db writes are valid
 

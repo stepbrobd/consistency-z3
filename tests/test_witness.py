@@ -48,7 +48,7 @@ def test_witness() -> None:
                         "--macros-quant-mode=all",
                         "--sygus",
                         f.absolute(),
-                    ],  # type: ignore
+                    ],
                     check=True,
                     capture_output=True,
                 ).returncode

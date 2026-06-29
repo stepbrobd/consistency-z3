@@ -29,5 +29,5 @@ def test_visibility_transitivity_under_monotonic_reads() -> None:
         so(d, f),
     )
     rhs = z3.And(vis(a, d), vis(c, f))
-    s = construct(lhs, rhs)  # type: ignore
+    s = construct(lhs, rhs)
     assert s.check() == z3.unsat

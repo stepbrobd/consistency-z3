@@ -41,7 +41,7 @@ class Antipode:
             a, b, x, y, m, n = Op.Consts("a b x y m n")
             Antipode.Relation.AddConstraint(
                 "lineage",
-                z3.And(  # type: ignore
+                z3.And(
                     # base cases
                     # init can be exit and vice versa, no constraint here
                     # no constraint for local ops
@@ -159,7 +159,7 @@ class Antipode:
             a, b, c, x = Op.Consts("a b c x")
             Antipode.Relation.AddConstraint(
                 "xcy",
-                z3.And(  # type: ignore
+                z3.And(
                     # 1. happened-before
                     z3.ForAll([a, b], z3.Implies(hb(a, b), xcy(a, b))),
                     # 2. reads-from-lineage

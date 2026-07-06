@@ -1,0 +1,98 @@
+%\documentclass[sigconf,screen,review]{acmart}
+%\documentclass[sigconf,review,anonymous]{acmart}
+\documentclass[acmsmall,screen,review]{acmart}
+\usepackage{amsmath}
+\usepackage{diagbox}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{textcomp}
+\usepackage{tikz}
+\usepackage{xcolor}
+
+\input{defs}
+
+\acmJournal{PACMSE}
+%\acmVolume{7}
+%\acmNumber{ISSTA}
+%\acmArticle{1}
+%\acmYear{2025}
+%\acmMonth{5}
+%\acmDOI{}
+%
+%\setcopyright{acmlicensed}
+%\copyrightyear{2025}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+Bib\TeX}}}
+
+\begin{document}
+
+\title{\sysname{}: A Compatibility Checker between Applications and
+Compositions of Distributed Systems}
+
+\author{Yifei Sun}
+\email{ysun@ccs.neu.edu}
+\orcid{0000-0002-1591-7458}
+\affiliation{%
+  \institution{Northeastern University}
+  \city{Boston}
+  \state{Massachusetts}
+  \country{USA}
+}
+
+\author{Ji-Yong Shin}
+\email{j.shin@northeastern.edu}
+\orcid{0000-0002-1595-4849}
+\affiliation{%
+  \institution{Northeastern University}
+  \city{Boston}
+  \state{Massachusetts}
+  \country{USA}
+}
+
+\renewcommand{\shortauthors}{Sun et al.}
+
+\begin{abstract}
+  \input{abstract}
+\end{abstract}
+
+% CCS Concepts: https://dl.acm.org/ccs/ccs.cfm
+%\begin{CCSXML}
+%  <ccs2012>
+%  <concept>
+%  <concept_id>10011007.10011006.10011008</concept_id>
+%  <concept_desc>Software and its engineering~Software creation and
+%  management</concept_desc>
+%  <concept_significance>500</concept_significance>
+%  </concept>
+%  </ccs2012>
+%\end{CCSXML}
+%
+%\ccsdesc[500]{Software and its engineering~Software creation and management}
+%
+%\keywords{Your keywords here, separated by commas}
+
+\maketitle
+
+\input{intro}
+\input{bg}
+\input{standalone}
+\input{usage}
+\input{cs}
+%\input{background}
+%\input{design}
+%\input{composition}
+%\input{case-study}
+\input{eval}
+\input{related-work}
+\input{conclusion}
+
+\section*{Data Availability}
+The data and code that support the findings of this study are currently in the supplementary materials section in the HotCRP submission site accessible to the reviewers. Upon acceptance of the paper, we will make the materials openly accessible in a long term archival digital repository. 
+\bibliographystyle{acmart}
+\bibliography{references, refs2}
+
+%\input{overview}
+
+\end{document}

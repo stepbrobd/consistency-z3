@@ -1,0 +1,195 @@
+\section{Evaluation} \label{sec:eval}
+
+We discuss our experience in using \sysname{} and
+its performance in checking compatibilities.
+
+\newcommand{\tableT}{\textcolor{blue}{T}}
+\newcommand{\tableF}{\textcolor{red}{F}}
+\newcommand{\tableNA}{-}
+\begin{wraptable}[13]{R}{3.4in}
+	\vspace{-0.15in}
+  \centering
+  \small
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+    \hline
+    {} &
+    EC &
+    MR &
+    MW &
+    RYW &
+    WFR &
+    PRAM &
+    CC &
+    LIN \\
+    \hline
+    EC   & \tableNA & \textcolor{red}{24} & \textcolor{red}{22} &
+    \textcolor{red}{26} & \textcolor{red}{25} & \textcolor{red}{24} &
+    \textcolor{red}{35} & \textcolor{red}{32} \\
+    MR   & \textcolor{blue}{23} & \tableNA & \textcolor{red}{12} &
+    \textcolor{red}{16} & \textcolor{red}{75} & \textcolor{red}{16} &
+    \textcolor{red}{26} & \textcolor{red}{217} \\
+    MW   & \textcolor{blue}{27} & \textcolor{red}{16} & \tableNA &
+    \textcolor{red}{18} & \textcolor{red}{16} & \textcolor{red}{16} &
+    \textcolor{red}{23} & \textcolor{red}{22} \\
+    RYW  & \textcolor{blue}{193} & \textcolor{red}{106} &
+    \textcolor{red}{45} & \tableNA & \textcolor{red}{59} &
+    \textcolor{red}{20} & \textcolor{red}{29} & \textcolor{red}{26} \\
+    WFR  & \textcolor{blue}{24} & \textcolor{red}{125} &
+    \textcolor{red}{12} & \textcolor{red}{17} & \tableNA &
+    \textcolor{red}{18} & \textcolor{red}{44} & \textcolor{red}{54} \\
+    PRAM & \textcolor{blue}{24} & \textcolor{blue}{14} &
+    \textcolor{blue}{10} & \textcolor{blue}{14} &
+    \textcolor{red}{178} & \tableNA & \textcolor{red}{27} &
+    \textcolor{red}{28} \\
+    CC   & \textcolor{blue}{33} & \textcolor{blue}{20} &
+    \textcolor{blue}{16} & \textcolor{blue}{19} &
+    \textcolor{blue}{19} & \textcolor{blue}{20} & \tableNA &
+    \textcolor{red}{282} \\
+    LIN  & \textcolor{blue}{26} & \textcolor{blue}{21} &
+    \textcolor{blue}{17} & \textcolor{blue}{22} &
+    \textcolor{blue}{22} & \textcolor{blue}{22} &
+    \textcolor{blue}{44} & \tableNA \\
+    \hline
+  \end{tabular}
+  \caption{Pairwise check performance. Semantics in the first column
+    are checked if they satisfy semantics in other columns. Each cell
+    shows the execution time for completing the check in milliseconds. The
+  blue text indicates the check result is true and red means false. }
+  \label{tab:pairwise-time}
+\end{wraptable}
+%\vspace{-0.3in}
+
+\para{Experience}
+We implemented \sysname{} in Python on Z3 version 4.15.1. It took
+approximately 3.7K lines of code to implement \sysname{}. 
+%
+%% \textbf{Usability}
+%% During review, on several instances we were asked on the usability of \sysname.
+%% We summarized them in these 3 main categories: how can the framework be used,
+%% the expected user input and effort,
+%% and the scalability of our methodology in large-scale applications.
+% 1
+To use \sysname{}, users supply \sysgraph whose nodes and/or edges carry
+built-in or custom \sysmods that extend the base model and relation interfaces.
+When multiple \sysmods are attached, \sysname checks for compatibility of given
+input or exhaustively explores valid combinations.
+
+%The \texttt{check} function optionally emits proof goals via the \texttt{witness} argument (see \texttt{tests/test\_witness.py} in the accompanying artifact), which can be discharged to external SMT solvers.
+
+% 2
+Regarding effort and the learning curve, once semantic requirements are understood, encoding an \sysgraph is straightforward.
+Our case studies only require 183, 80, and 252 lines of code for encoding the movie streaming service, online shopping mall, and XC storage, respectively, thanks to existing facilities such as the \sysmods{} in the \sysname{} framework. 
+These relatively small efforts for constraint encoding and automated checks validates our framework's goal of enabling agile compatibility checks compared to typical end-to-end formal verification which could have huge proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet, disel} which could follow with confidence after our \sysname{} check passes. 
+%Our effort constraints remain stable unless interfaces or consistency requirements change.
+
+% 3
+The scalability of our tool is mainly expressed via modular composition,
+\sysgraph nodes and edges compose modularly: large systems can be decomposed into sub-\sysgraphs,
+verified independently, and re-aggregated into monolithic node that preserves the verified properties of its components.
+This pattern (\eg Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and 
+reuse of solved results for large service meshes.
+%(see \texttt{tests/test\_aggregate.py} and Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and reuse of solved results for large service meshes.
+
+% end
+In general, our framework offers early compatibility detection,
+architecture validation before implementation, and pre-verification screening to de-risk downstream formal proofs.
+It targets teams building correctness-critical distributed systems who want a high-level, low-maintenance checker rather than line-by-line deductive proof development (\eg using tools like Verus\cite{verus}, Dafny\cite{dafny}, Rocq\cite{coq}, and Lean\cite{lean}).
+
+
+\para{Performance}
+SMT solvers often take an extended period to complete their tasks.
+Thus, we measure the
+duration of the compatibility check in \sysname{}.
+All experiments were conducted on an Intel i7-1360P processor with
+64GB RAM running NixOS 25.11 (Linux 6.12.30).
+
+% 10 seconds
+% timeout limit. However, during our evaluation, we discovered a
+% termination bug in Z3 4.15.1
+% where the solver would not respect timeout parameters, continuing to
+% run well beyond the specified limit (e.g., still running after 2
+% minutes despite a 10-second timeout). To address this, we implemented
+% a watchdog mechanism using strace to monitors write systemcalls to
+% stdout, sending SIGINT if the 10-second timeout is exceeded,
+% following the philosophy established in recent
+% verification work Verus that ``it's better to improve solver
+% performance than rely on a slow proof'' \cite{verus}.
+% https://github.com/verus-lang/verus/blob/0b6f3cbb8fceff6681b4988c3cac37a8b801f8e6/source/docs/guide/src/smt_failures.md
+
+\textbf{Pairwise Compatibility Check.}
+%
+First, we evaluated the compatibility between pairs of base
+consistency semantics,
+EC, MR, RYW, MW, WFR, PRAM, CC, and LIN, in \sysname{}.
+Table \ref{tab:pairwise-time} shows the execution times for these
+pairwise compatibility checks and the results of the check encoded in
+colors (blue: compatible, red: non-compatible). On average, it took
+only 31 ms per check and the results of the checks are correct with
+respect to the theory.
+
+
+\begin{wraptable}[9]{R}{3.37in}
+	\center
+	\small
+	\begin{tabular}{ |l|r|r|r|r| }
+		\hline
+		Application & \# of combs. & All & Min score & Single \\
+		\hline
+		Movie    & $17^5=1.4\textrm{M}$ & 64.82 hr$^*$ & 20.43 sec  & 16.5 ms\\
+		Shopping & $17^3=4.9\textrm{K}$ &251.77 sec   & 1.65 sec   & 5.12 ms \\
+		XC store & $17^4=83.5\textrm{K}$ &3.98 hr      & 261.09 sec & 17.17 ms\\
+		\hline
+	\end{tabular}
+	\caption{Search time for compatible DMs. Columns show number of searched DM combinations, time to search all combinations (all), time to find the minimum score combination (min score), and average time to check one combination (single).  ($^*$ predicted time)}
+        % \jiyong{fill in the blank. Also for XC, the min score combination is the combination we give as input in case study, which is the number here right (see the text below)?}
+	\label{tbl:searchtime}
+%	\end{table}
+\end{wraptable}
+\textbf{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using
+three case studies in \cref{sec:cs}.
+This evaluation focuses on two key metrics: the framework's ability to
+find valid compositions with the weakest semantics (i.e., the minimum score combination in \cref{subsec:search}) and its
+performance characteristics under different system complexities.
+%
+For each case study, we gave blank \sysmods{} to each application
+so that \sysname{} search and output compatible \sysmod{} combinations.
+\sysname{} uses the search strategy in \cref{subsec:search}. The results are summarized in \cref{tbl:searchtime}.
+%we enumerated all possible combinations of
+%consistency models for nodes with non-null provs fields, while
+%keeping nodes with predefined needs fields unchanged. We assigned
+%scores to individual consistency models and their combinations based
+%on their strength as shown in Figure \ref{fig:semantics-tree}.
+
+Movie streaming service requires finding \sysmods{} corresponding to
+five DB nodes that satisfy application node and edge constraints.
+Given that \sysname{} contains 17 \sysmods{} as illustrated in
+\cref{fig:semantics-tree} the full search space contains
+$17^5$ combinations. On average, checking each combination
+takes 16.5 ms and can find a compatible combination with the lowest
+score in 20.43 seconds with a timeout of 10 seconds for each check.
+Checking the entire search space is feasible but is expected to take
+64.82 hours (we have completed 800,507 checks or 56.28\% of search space
+in 36.55 hours).
+
+The online shopping mall example is simpler than the movie streaming service
+and involves only three DB nodes to search.
+We evaluated all $17^3$ possible combinations of consistency semantics across
+these nodes. The evaluation completed in 251.77 seconds with an average
+duration of 5.12 ms per combination with 0 timeouts. The minimum score combination 
+was found in 1.65 seconds. 
+
+Finally, four DB node combinations (i.e., $17^4$ cases) are searched for
+the cross causal storage. The total search completes in 3.98 hours
+with an average duration of 17.17 ms per combination.
+Our tool successfully identified the combination in our original design (also the
+minimun score combination) in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
+
+Overall, depending on the complexity of the constraints the
+compatibility check times
+vary, but individual checks are done in less than 20ms on average. Even though
+searching through compatible answers in the entire search space could
+take extended
+time, finding the optimal, minimum-score configuration for each case
+study takes only less than 5 minutes.
+
+

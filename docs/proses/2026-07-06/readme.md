@@ -1,0 +1,248 @@
+## Reviewer A:
+
+- The viewed relation (line 528) requires (x,b) /in can-view, where both x, b
+  \in H_{wr}. Is "can-view" not defined as a relation between a read and a write
+  operation (as given in line 507)?
+- Figure 3 could benefit from a more detailed explanation. For example,
+  including sample read and written values along with the specific values of the
+  "can-view" and "viewed" relations would be helpful. While the paragraph
+  starting on line 540 provides some examples, additional details could be
+  helpful, especially since the formalization of visibility is one of the
+  contributions of the work.
+- The formalization of the contextual return value policy (lines 403 and the
+  formula on line 423) could be elaborated on for better understanding.
+- You could consider introducing/referring to an example AppGraph while
+  explaining the compatibility checking in Section 4.2 to make the explanation
+  easier to follow.
+
+Minor:\
+[addressed] Line 574: Typo in “strainghtforward”\
+[addressed] Line 647: “and” could use a different font.
+
+[addressed] Q1: What inputs does the user exactly provide to the framework to
+model their application constraints?\
+[addressed] Q2: What is the scalability of the method to large-scale programs?\
+[addressed] Q3: Are the source code and evaluation data for SemantiX available?
+
+## Reviewer B:
+
+- Problem formulation can be improved
+- Missing information regarding the use of the framework by developers
+- Questionable relevance/impact (related to the above)
+- Evaluation targeting initial feasibility only, not usability from actual
+  stakeholders
+- Presentation can be improved (grammar, figures)
+
+#### Rigor
+
+The tackled problem is described in the introduction as “the mismatch of the
+chosen system’s semantics and the application’s expected semantics could
+introduce subtle and silent semantic bugs” but not exemplified/motivated enough
+later.
+
+The formal treatment of the subject, both in the background presented in Section
+2 and the presentation of the distributed consistency models in Section 3, is
+one of the strong aspects of the paper. I was able to get the important ideas
+behind the formalization and found novel definition of visibility quite
+interesting and well thought. I believe that Section 3 could have been even
+better if the motivating example of Sec. 2.2 was used as a running example to
+illustrate the semantics.
+
+One specific question I had regarding the formalization is what is the “custom”
+type of operation, and why it is needed.
+
+When it comes to the description of the framework, I was missing important
+information about the input (and the its form) expected from the developer. In
+the end, after looking also at the code provided as supplementary material, I
+realised that the end-user (developer) needs to provide a description of the
+constraints propagated through the DAG of the system; this could have been
+illustrated better in Sections 4 and 5.
+
+When it comes to the evaluation, this takes the form of extracting some results
+from three example systems specified by the authors. Although interesting to
+read, I’m a bit doubtful about this type of evaluation since, although it
+assesses the feasibility of the framework, it does not speak to its usability by
+its targeted stakeholder, i.e. developers (see my comments on Relevance as
+well).
+
+Apart from the above point, the evaluation is rather unstructured since there
+are no guiding research questions. Finally, in terms of methodology, the authors
+use the term case study but these are example cases, not "case studies" in the
+empirical sense.
+
+#### Relevance
+
+I found this aspect to be a shortcoming of the submission, since the paper does
+not really provide any concrete idea on how the framework can be used in a
+realistic setting.
+
+First, if the target stakeholders are indeed developers, is it realistic to
+expect that developers are familiar with axiomatic semantics and SMT encodings
+(as mentioned in the beginning of Section 5? I very doubtful about that.
+
+Second, how exactly the framework will be used by the developers and architects
+is not really elaborated. What would be the phases in the development lifecycle
+where the approach is most useful, what would be the inputs provided by the end
+users and what the outputs to be expected from the system?
+
+Third, what is the estimated extra effort needed to use the framework, and does
+this pay off?
+
+I found very hard to judge the relevance without even an initial
+assessment/estimation of the above.
+
+#### Verifiability and transparency
+
+The paper provides enough details to understand the formal semantics and the
+overall working of the framework, but lacks details when it comes to its use.
+Some more information about this is provided in the detailed README of the code
+repository provided as supplementary material, along with all the code. Overall,
+I found the work verifiable.
+
+#### Presentation
+
+The paper is well structured but has some shortcomings in presentation when it
+comes to the figures and to some grammar mistakes (harming readability at
+places):
+
+- Figures 4, 5, 6 should have been more consistent with each other: they
+  describe the AppGraph for the different systems, having different details on
+  the figures makes it confusing to the reader
+- [addressed] Line 89: “the number of proofs that need to be written could be
+  several times longer in lines of code comparing with the implementation”
+- [addressed] Line 111: “Custom models defined in our interface are
+  automatically compatibility with existing ones, and can be used to check its
+  own satisfiability”
+- [addressed] Line 266: “to minimize anomalous users may experience.”
+- [addressed] Line 269: “The collection of constraints must be satisfied by what
+  the consistency model of which metadata DB developer chooses provides.”
+- [addressed] Line 391: “where H_wr and H_rd are histories of reads and writes,
+  respectively” -> this is the other way round, right?
+- [addressed] Line 655: “This checks if the chosen path provides guarantee of
+  the destination (check_provs) is implied by the conjunction”
+
+### Reaction to rebuttal
+
+On my 3 questions/points of critisism:
+
+1. How can the framework be used? The answer provided does not really add more
+   information to what is in the paper, but at least it verifies my
+   understanding that the users need to manually create an AppGraph instance
+   using the provided Python library. I would have expected/preferred an answer
+   that goes more into details on when the AppGraphs are created, when are they
+   modified, when is analysis triggered, and how exactly is responsible for them
+   (lead developer, architect?) That would provide me with a better
+   understanding of the SE context assumed. I have to say that all the above can
+   be somewhat deduced from the paper; I still think that it would be good to
+   make the answers to the above more explicit.
+2. What is the benefit for software engineers and how it can be assessed. Here,
+   some ideas/options are provided on the what part, but not on the assessment
+   part. I find the answer reasonable, however it also highlights that the
+   benefit of the approach is not really shown in the current submission at
+   least.
+3. What is the cost/overhead for software engineers and how it can be assessed.
+   Here again, the reply emphasizes lines of code, but I believe the real cost
+   is on the learning curve to understand the notation and use it. To this, the
+   answer of the authors is that they anyway expect people with formal
+   background to use it.
+
+Then, on top of my concerns which are only partially addressed as I analyse
+above, there is the concern raised by Reviewer 3 on verifiability.
+
+Given the above, I am increasing my score to weak reject, acknowledging the
+well-argued answers but also the (for me) questionable usability and therefore
+related potential impact of the approach at this stage.
+
+### Questions for authors’ response
+
+1. How can the framework be used in a realistic setting?
+2. What is (an estimation of) the benefit of using the framework for a
+   development team, how can this be assessed?
+3. What is (an estimation of) the cost, in terms of extra effort, of using the
+   framework for a development team, and how can this be assessed?
+
+## Reviewer C:
+
+**Presentation**
+
+- The can-view relation could be simplified. Perhaps it makes sense to
+  additionally provide a logically reduced definition, that also takes advantage
+  of the invariant $rtime \ge stime$?
+- It may be more comfortable for the reader if the order of the arrow relation
+  is swapped so that intuitively, events preceding their related object are left
+  of the arrow pointing right
+- L565 Unfortunately this paragraph was very difficult to understand
+
+**Minor Comments**
+
+- [addressed] L152 (paragraph) Keep tense consistent instead of switching
+  between past and present
+- [addressed] L234 This diagram is too crowded, it is difficult to see the
+  arrows
+- [addressed] L300 Awkward wording - "whether" does not fit in this context
+- [addressed] L328 Awkward wording, perhaps rather "An operation can be
+  conceptualized as an atomic action with a request-response pair..."?
+- [addressed] L407 For completeness sake, the arrow relation syntax should be
+  explicitly introduced
+- [addressed] L407 The monotonic reads definition is the same as the monotonic
+  writes definition
+- [addressed] L565 The next two paragraphs should use the same identifiers in
+  the explanation as in the preceding $vis$ definition for clarity
+- [addressed] L574 Typo "straignforward"
+- [addressed] L582 Typo "is" -> "are"
+- [addressed] L694 Type "assume" -> "assumes"
+- [addressed] L793 Inconsistent notation compared to previous definitions.
+  $ob(op_{login}, op_{rent})$ -> $(op_{login}, op_{rent}) \in ob$
+
+## Extras?
+
+- [addressed] Address usability in evaluation
+- [addressed] When mentioning on the models pluggined in to each node/edge,
+  distinguish application level semantics vs consistency models (not at the
+  intro of DMs, sect. 4.2, around line 644)
+- [addressed] Add AppGraph skeleton (high level code snippet) in Section 4.2
+  (make a figure, like couple squares with prov, need, cons on the edge, with
+  edges pointing to each other, in the figure description include formula)
+- [addressed] Address usability issue by adding another section with code
+  example (this should be in case study)?
+- [addressed] Select one example in evaluation (find an "interesting" one),
+  select a few edges to show the code corresponding to the formalization (ICSE
+  submission page 12)
+- [addressed] In the figure and also in the page 11 explanation, make it clear
+  where path_premise is from
+- [addressed] Maybe remove check_provs or compose box and make them a caption on
+  the arrow
+- [addressed] Change font size for new fig 4 (around the same size as caption),
+  move green box (also need to change the color and shape) to the left, use a
+  different arrow for ones outside of the appgraph box (different shape for the
+  bounding box, or color?), arrows outside of appgraph box should be marked as
+  control flow (maybe add a legend)
+- [addressed] Figure 4 should be wrapfigure, source of the path_premise should
+  be a text saying "accumulated"
+- [addressed] Check on the edge pseudocode, edge 1 and edge 8 should be included
+  in the edge list
+- [addressed] In section 4 introduce `extract` function
+- [addressed] Clarify compatibility vs composition
+- [addressed] Unify composition check compositionality check, etc. throughout
+  paper
+- [addressed] Media example edge 8 in section 5, and how login db and user node
+  can be aggregated with semantic constraints + app level constraints
+- [addressed] Remove the mentioning of onode in extract explanation (no need
+  mention limitation)
+- [addressed] Add another node to the left of edge(u,v) mentioning extract
+  function, also update caption
+- [addressed] In Section 5 change the use of compose and composed to smth else
+  to avoid confusion
+- [addressed] In the first case study before showing formalization, mention we
+  will show a interaction flow from user login to writing review
+- [addressed] After showing login flow, mention how the appgraph is constructed
+  (just by writing nodes and edges with constraints), demonstrate simplicity
+- [addressed] Get rid of all code in section 5
+- [addressed] Mention extraction in XC case study
+- [addressed] Add sentence at the beginning of 4.3 on extraction, at the first
+  sentence, our framework provides scalability and check re-use with extraction
+  function...
+- [addressed] Link scalability with extraction
+- [partial] Figures 5-7 should look consistent (stretch 5 6 7, use the extra
+  space on the edges, to use different colors to differential semantic
+  constraints vs application specific constraints)

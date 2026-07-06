@@ -1,0 +1,250 @@
+\section{Introduction}
+
+Modern cloud environments provide hundreds of services on various platforms
+that are readily available for developers to build a
+large-scale distributed application. System architects and developers
+following the microservice or service-oriented designs can freely
+choose and compose the building blocks in a modular fashion and plug them
+into the application.
+
+However, different distributed storage systems provide different consistency
+semantics, and the mismatch of the chosen system's semantics and the
+application's expected semantics could introduce subtle and silent
+semantic bugs \cite{silentbugs, silentbugs2}. For example, a user may connect a
+key-value store providing
+eventual consistency to an application that expects a
+linearizable storage service. In this case, the application could
+read outdated information causing erroneous outcomes but without
+crash-like explicit errors.
+
+Developers and system architects could carefully review the
+application needs and choose a
+matching system. However, when the application depends on multiple
+distributed services, checking the overall compatibility between the
+application logic and multiple system components can easily become unmanageable. Even
+if one successfully finds the correct combination, for example, through
+extensive testing, developers might change the application code or
+plug in different systems due to management, considerations of cost and performance.
+Consequently, sophisticated compatibility checks must be repeated.
+
+% When you have fixed application logic, you may choose two
+% compatible systems. Two systems may collectively satisfy the
+% application requirement, and changing one may invalidate both.
+% NOTE: addressed below
+
+Formal verification offers an alternative approach to these challenges,
+where the correctness of the code can mathematically guarantee the
+compatibility between code and system \cite{lampson2021hints}.
+However, depending on
+the complexity of the code, which could include non-essential parts
+for reasoning about compatibility, the mechanized formal proofs
+can take extensive time and effort \cite{certikos-osdi16,
+klein2009sel4, wormspace}.
+Furthermore, depending on the technique used, mechanized formal
+proofs can be several times larger, in Lines of Code (LoC), than the implementation.
+Moreover, minor changes can easily invalidate the entire proof
+\cite{klein2009sel4}.
+Thus, formal verification
+leads to a similar problem to above-mentioned testing methods where
+the compatibility check
+lacks the agility to adapt to changes in underlying systems and
+applications.
+
+In this paper, we propose \sysname{}, a lightweight \sysnamelong{}. \sysname{}
+helps developers quickly encode their application logic and
+requirements and check the compatibility with underlying distributed
+systems using an SMT-based approach.
+%to encode and analyze
+%the safety properties of different consistency semantics and
+%their compositions.
+
+\sysname{} includes axiomatic models of distributed consistency
+semantics, including eventual consistency,
+linearizability~\cite{viotti2016consistency}, four session
+guarantees~\cite{terry1994session}, pipeline RAM (PRAM) consistency~\cite{pram},
+and causal consistency~\cite{causaldef}, which are commonly used in both
+industry and academia~\cite{pileus, cosmosdb, anna, bayou, yogurt,
+pnuts, cloudflare-session, causalmemory, cops}.
+Users of our tool can leverage predefined models as
+building blocks to rapidly iterate the service compositions and compatibility
+of these models with their applications. Additional models can be
+added to further
+strengthen \sysname{}'s expressiveness with provided interfaces.
+User-authored custom models inheriting from our base class automatically work with our pre-built ones,
+including assertions for individual satisfiability and compatibility between one or more models
+with user defined application logic.
+
+Although axiomatic definitions of distributed consistency semantics
+exist in prior literature \cite{finkbeiner2007smt,
+  tekken2017monitoring, kuper2019toward, fan2023satisfiability,
+ma2024noctua}, encoding the details into the SMT
+clauses for compatibility checks is challenging as the definitions
+omit key details. For example, the commonly used concept
+of \textit{visibility} for defining weak distributed consistency
+semantics is subtle, but to our knowledge, no literature provides
+a concrete definition. \sysname{} fills in these missing gaps to realize
+full-fledged formal models for the compatibility checking.
+
+Each application functionality is systematically encoded as a
+directed acyclic graph (DAG), and the entire application is modeled as
+a directed multi-graph format which we call the \sysgraph{}.
+Each node in the \sysgraph{} represents key functionality in the application
+that requires certain properties from the lower-level nodes it depends on,
+and provides certain properties to the upper-level nodes.
+The edges are used to specify more specific requirements and condition that each
+functionality needs to enforce in accessing the downstream nodes.
+The leaf nodes typically represent external distributed services
+following one of the pre-built distributed consistency semantic models
+in \sysname{}.
+%
+The \sysgraph{} model is expressive enough to model an application logic
+from high-level and trace complex dependencies that go across multiple
+application logic boundaries, and distributed systems which the application
+relies on. 
+
+Using the \sysgraph{}, \sysname{} can verify simple applications 
+relying on one distributed service and scale to complex microservice-based 
+production environment that leverages multiple modules and distributed storage systems.
+%
+Once the user specifies the application logic, \sysname{} can quickly
+check the compatibility with the plugged-in consistency models. This
+could be verifying the user's selection, or alternatively, \sysname{}
+can explore different combinations of existing models to
+find compositions of distributed system with compatible consistency semantics.
+These approaches enable fast exploration and iteration of alternative
+system designs, guiding the development to adhere to intended
+consistency guarantees from the very beginning.
+
+%%%%%% Examples %%%%%%    % NOTE: addressed here
+%%%%%% Examples %%%%%%    {
+%%%%%% Examples %%%%%%      \color{red}
+%%%%%% Examples %%%%%%      Consider a Not So Simple Storage Service
+% (NS4) that advertises
+%%%%%% Examples %%%%%%      itself to provide linearizability
+% guarantee to users' read/write to objects.
+%%%%%% Examples %%%%%%      NS4's architecture is based on an API
+% layer that provides
+%%%%%% Examples %%%%%%      arbitration between users and the
+%%%%%% Examples %%%%%%      underlying monolithic storage layer
+%%%%%% Examples %%%%%%      with read-your-writes guarantee. In this
+% case, \sysname{} can be used to
+%%%%%% Examples %%%%%%      model the abstract semantical properties
+% of NS4, and check whether the
+%%%%%% Examples %%%%%%      modeled NS4 have advertised user-facing
+% linearizable guarantee.
+%%%%%% Examples %%%%%%      Three nodes (client, API, and storage)
+% and two edges (client to
+%%%%%% Examples %%%%%%      API, API to storage) are
+%%%%%% Examples %%%%%%      added to the DAG, where the client node
+% requires linearizability
+%%%%%% Examples %%%%%%      from the API node,
+%%%%%% Examples %%%%%%      API node exports linearizability to the
+% client, and API node
+%%%%%% Examples %%%%%%      requires read-your-writes from the storage node.
+%%%%%% Examples %%%%%%      The storage node exports read-your-writes
+% to the API node. With
+%%%%%% Examples %%%%%%      this modeling, \sysname{}
+%%%%%% Examples %%%%%%      will be able to find a satisfying
+% assignment for the DAG where
+%%%%%% Examples %%%%%%      user-facing guarantee is linearizability.
+%%%%%% Examples %%%%%%      However, if we swap the API layer
+% requirement from the storage
+%%%%%% Examples %%%%%%      layer from read-your-writes to
+%%%%%% Examples %%%%%%      to PRAM consistency, \sysname{} will be
+% able to find that the leaf
+%%%%%% Examples %%%%%%      level semantical requirement can no
+% longer be satisfied.
+%%%%%% Examples %%%%%%    }
+
+%%%%%% %%%%%%    \jiyong{Some challenges in doing this?}
+%%%%%% %%%%%%    \yifei{What aspect should we talk about? Preliminary
+% encoding on
+%%%%%% %%%%%%      semantics? Debugging? Unresolved encoding on
+% models with "eventual"
+%%%%%% %%%%%%    visibility (see eventual source code)?}
+
+As case studies, we use \sysname{} to model two microservice-based
+applications \cite{gan2019an}, a movie streaming service, an e-commerce
+service, and a cross-service causal storage system built on top of
+multiple weakly consistent distributed storage systems \cite{boltoncc}.
+We evaluate and demonstrate \sysname{}'s ability to check compatibility
+between user-defined application specific logic, with underlying
+distributed systems and explore other compatible semantics.
+Our framework is capable of checking single compatibility combination in under 20 milliseconds and exploring
+other compatible combinations in less than 5 minutes.
+
+%%%%%% %%%%%%    \jiyong{Some insights we gained?}
+%%%%%% %%%%%%    \yifei{
+%%%%%% %%%%%%      This is a project with a lot of moving parts,
+% modeling a system,
+%%%%%% %%%%%%      like in real life, have multiple ways to achieve
+% the same goal.
+%%%%%% %%%%%%      The level of abstraction we've chosen made it not
+% too hard to check
+%%%%%% %%%%%%      real system's behavior but that part is not implemented.
+%%%%%% %%%%%%      Personally I feel like some part of the project
+% would be better
+%%%%%% %%%%%%      written in a proper theorem prover (representation
+% of ops, binary
+%%%%%% %%%%%%      relations), and discharge part of semantic
+% constraints to SMT solvers.
+%%%%%% %%%%%%    }
+
+This paper makes the following contributions:
+\itemparen{
+\item We present \sysname{}, the first compatibility checking tool for
+  applications that are composed of multiple distributed services.
+\item We provide the missing formal definitions including visibility to fully express
+  and check distributed weak consistency semantics.
+\item We present a systematic way of encoding complex applications
+  using the \sysgraph{} structure and checking their compatibility
+  collectively using the SMT-based approach.
+\item We conduct case studies on three representative distributed
+  applications to demonstrate the workings of \sysname{}.
+}
+
+%%%%    % FIXME: full rewrite
+%%%%    {\color{red}
+%%%%
+%%%%      Modern distributed systems often relax strict consistency
+%%%%      guarantees to achieve
+%%%%      scalability, fault tolerance, and low latency operations.
+% Understanding and
+%%%%      comparing different forms of relaxed consistency semantics
+% is crucial for both
+%%%%      system designers and researchers. Yet, systematically
+% modeling and reasoning
+%%%%      about these semantics, as well as their compositional
+% properties, remained a
+%%%%      understudied area.
+%%%%
+%%%%      Our framework aims to bridge this gap by providing a
+% SMT-based approach to
+%%%%      encode and analyze the safety properties of weaker consistency
+%%%%      models (comparing
+%%%%      with linearizability \cite{herlihy1990linearizability}), and their
+%%%%      compositions under
+%%%%      the assumption of livenss properties are always satisfied,
+% i.e. eventual
+%%%%      consistency \cite{petersen1997flexible} is guaranteed (replicas
+%%%%      eventually converge),
+%%%%      and we are layering everything on top of it. By offering a per-system
+%%%%      (differentiated by symbols), logical representation of
+% operations, our system
+%%%%      can differentiates operations belonging to distinct systems
+% and/or components
+%%%%      through the use of unique symbols (see
+% tests/test\_cross\_causal.py), enabling
+%%%%      analysis of cross-system interactions. Additionally, solver
+% backends can
+%%%%      discharge proof witnesses on the satisfiability of specific
+% consistency
+%%%%      properties, or the compatibility and composability between
+% multiple models.
+%%%%      These approaches enable fast exploration and iteration of
+% alternative system
+%%%%      designs, guiding the development adhere to intended consistency
+%%%%      guarantees from
+%%%%      the very beginning.
+%%%%
+%%%%    }

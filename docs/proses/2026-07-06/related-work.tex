@@ -50,6 +50,12 @@ distributed consistency,
 their formalization of ordering relations ($\prec_{rf}$,
 $\prec_{fr}$, $\prec_{ws}$) provides insights
 for our visibility-based encoding of session guarantees.
+More recently, Kater~\cite{kater} expresses weak memory consistency models in a
+fragment of Kleene algebra with tests, automatically answers metatheoretic
+questions about them, and generates consistency checkers. While Kater targets hardware and language memory models rather
+than the service-composition setting of \sysname{}, its algebraic treatment of
+ordering relations is closely related to our relational encoding of visibility
+and session guarantees.
 
 MixT~\cite{mixt} is a domain specific language to simplify
 programming mixed-consistency transactions over multiple

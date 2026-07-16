@@ -102,8 +102,9 @@ each tuple is a conjunction of constraints.
 
 \usetikzlibrary{arrows.meta, positioning, calc, fit}
 
-\begin{wrapfigure}[22]{R}{3.3in}
-\vspace{-0.2in}
+%\begin{wrapfigure}[22]{R}{3.3in}
+\begin{wrapfigure}{R}{3.3in}
+%\vspace{-0.2in}
 \Small \centering
 \centering
 \begin{tikzpicture}[
@@ -145,7 +146,7 @@ each tuple is a conjunction of constraints.
 \draw[->, dashed] (ok.west) -- node[lbl, above] {after} node[lbl, below] {success} (extract.east);
 
 \end{tikzpicture}
-\vspace{-0.1in}
+%\vspace{-0.1in}
         \caption{Example flow for a single edge $(u,v)$: inside \sysgraph, select \texttt{check\_needs}, \texttt{check\_ec}, and the node’s \texttt{check\_provs}; outside, evaluate \texttt{compatible} on \texttt{compose(check\_needs, check\_ec)} and \texttt{path\_premise}. After a successful compatibility check, \texttt{extract} function can optionally aggregate \texttt{compatible} return value. For multigraphs, repeat per parallel edge (or edge combinations) with its own \texttt{cons} tuple. Solid arrows are part of \sysgraph and have the same meaning as the figures below. Dashed arrows represent control flow.}
 \label{fig:skel}
 \end{wrapfigure}

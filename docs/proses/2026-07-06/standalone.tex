@@ -146,8 +146,9 @@ environments and implementation-specific constraints.
 \subsection{Base Consistency Semantics}
 \label{subsec:semdef}
 
-  \begin{wrapfigure}[12]{R}{3.5in}
-	  \vspace{-0.2in}
+  %\begin{wrapfigure}[12]{R}{3.5in}
+  \begin{wrapfigure}{R}{3.5in}
+	 % \vspace{-0.2in}
   \begin{minipage}{3.5in}
     \begin{eqnarray*}
 	    \text{MR} & \triangleq & \forall a \in H, \forall b, c \in H_\text{rd}: a
@@ -276,7 +277,8 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   \subsection{Formal Definitions of Visibility}
   \label{subsec:vis}
 
-\begin{wrapfigure}[12]{R}{3.3in}
+%\begin{wrapfigure}[12]{R}{3.3in}
+\begin{wrapfigure}{R}{3.3in}
 %	\vspace{-0.1in}
 \Small \centering
 	\begin{tikzpicture}[scale=0.64]
@@ -309,7 +311,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
 	  \draw[thick] (10,1.8) -- (10,2.2); % right terminating bar
 	  \node[left] at (1.9,2) {$w_5$};
 	\end{tikzpicture}
-	\vspace{-0.1in}
+	%\vspace{-0.1in}
     \caption{The can-view relation captures the
       possible visibility between read and write operations. The
       read-write pairs $r$ and $w_{1-5}$ are defined based on their start and return times, 

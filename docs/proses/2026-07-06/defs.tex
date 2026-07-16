@@ -1,7 +1,7 @@
 \usepackage{etoolbox} % toggle
 \usepackage[capitalize,noabbrev,sort]{cleveref} % cref
 \usepackage{listings}
-\usepackage{subfig}
+\usepackage[caption=false]{subfig}
 \usepackage{wrapfig}
 \usepackage{listings}
 \usepackage{url}
@@ -167,30 +167,8 @@ between applications and composition of distributed systems}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Custom section/paragraph formats
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\usepackage{titlesec}
-
-%-------------------------------------------------------------------------------
-% \titleformat{command}[shape]{format}{label}{space}{before code}[after code]
-%-------------------------------------------------------------------------------
-% command: target command
-% shape: [runin: embed title in the paragraph] [hang: default as in sections]
-% format: title text format
-% labeling: numbering format for table of contents
-% space: space after title
-% before code: code betore title
-% after code: code after title
-
-%\titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries}{\theparagraph}{0em}{\uline}
-\titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries\itshape}{\theparagraph}{0em}{}
-
-%\titleformat{\subparagraph}[runin]{\normalfont\normalsize\bfseries\itshape}{\thesubparagraph}{1em}{}
-%\titleformat{\subparagraph}[runin]{\normalfont\normalsize}{\thesubparagraph}{1em}{\underline}
-
-%-------------------------------------------------------------------------------
-% \titlespacing{command}{leftmargin}{before space}{after space}[right space]
-%-------------------------------------------------------------------------------
-\titlespacing*{\paragraph}{0pt}{5pt}{0.5em}
-%\titlespacing*{\subparagraph}{\parindent}{5pt}{1em}
+% titlesec removed for camera-ready: acmart v2.19 forbids redefining
+% sectioning commands; we rely on acmart's native run-in \paragraph style.
 
 \newcommand*{\squigglyarrowhead}[0]{\ \raisebox{0.15em}{\tikz \draw [->,
       line join=round,

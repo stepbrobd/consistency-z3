@@ -6,10 +6,15 @@ its performance in checking compatibilities.
 \newcommand{\tableT}{\textcolor{blue}{T}}
 \newcommand{\tableF}{\textcolor{red}{F}}
 \newcommand{\tableNA}{-}
-\begin{wraptable}[13]{R}{3.4in}
+\begin{wraptable}[14]{R}{3.4in}
 	\vspace{-0.15in}
   \centering
   \small
+  \caption{Pairwise check performance. Semantics in the first column
+    are checked if they satisfy semantics in other columns. Each cell
+    shows the execution time for completing the check in milliseconds. The
+  blue text indicates the check result is true and red means false. }
+  \label{tab:pairwise-time}
   \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
     \hline
     {} &
@@ -51,15 +56,10 @@ its performance in checking compatibilities.
     \textcolor{blue}{44} & \tableNA \\
     \hline
   \end{tabular}
-  \caption{Pairwise check performance. Semantics in the first column
-    are checked if they satisfy semantics in other columns. Each cell
-    shows the execution time for completing the check in milliseconds. The
-  blue text indicates the check result is true and red means false. }
-  \label{tab:pairwise-time}
 \end{wraptable}
 %\vspace{-0.3in}
 
-\para{Experience}
+\para{Experience.}
 We implemented \sysname{} in Python on Z3 version 4.15.1. It took
 approximately 3.7K lines of code to implement \sysname{}. 
 %
@@ -96,12 +96,12 @@ architecture validation before implementation, and pre-verification screening to
 It targets teams building correctness-critical distributed systems who want a high-level, low-maintenance checker rather than line-by-line deductive proof development (\eg using tools like Verus\cite{verus}, Dafny\cite{dafny}, Rocq\cite{coq}, and Lean\cite{lean}).
 
 
-\para{Performance}
+\para{Performance.}
 SMT solvers often take an extended period to complete their tasks.
 Thus, we measure the
 duration of the compatibility check in \sysname{}.
 All experiments were conducted on an Intel i7-1360P processor with
-64GB RAM running NixOS 25.11 (Linux 6.12.30).
+64\,GB RAM running NixOS 25.11 (Linux 6.12.30).
 
 % 10 seconds
 % timeout limit. However, during our evaluation, we discovered a
@@ -128,9 +128,11 @@ only 31 ms per check and the results of the checks are correct with
 respect to the theory.
 
 
-\begin{wraptable}[9]{R}{3.37in}
+\begin{wraptable}[10]{R}{3.37in}
 	\center
 	\small
+	\caption{Search time for compatible DMs. Columns show number of searched DM combinations, time to search all combinations (all), time to find the minimum score combination (min score), and average time to check one combination (single).  ($^*$ predicted time)}
+	\label{tbl:searchtime}
 	\begin{tabular}{ |l|r|r|r|r| }
 		\hline
 		Application & \# of combs. & All & Min score & Single \\
@@ -140,9 +142,7 @@ respect to the theory.
 		XC store & $17^4=83.5\textrm{K}$ &3.98 hr      & 261.09 sec & 17.17 ms\\
 		\hline
 	\end{tabular}
-	\caption{Search time for compatible DMs. Columns show number of searched DM combinations, time to search all combinations (all), time to find the minimum score combination (min score), and average time to check one combination (single).  ($^*$ predicted time)}
         % \jiyong{fill in the blank. Also for XC, the min score combination is the combination we give as input in case study, which is the number here right (see the text below)?}
-	\label{tbl:searchtime}
 %	\end{table}
 \end{wraptable}
 \textbf{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using

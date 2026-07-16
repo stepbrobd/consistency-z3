@@ -6,8 +6,14 @@ its performance in checking compatibilities.
 \newcommand{\tableT}{\textcolor{blue}{T}}
 \newcommand{\tableF}{\textcolor{red}{F}}
 \newcommand{\tableNA}{-}
-\begin{wraptable}[13]{R}{3.4in}
-	\vspace{-0.15in}
+%\begin{wraptable}[13]{R}{3.4in}
+\begin{wraptable}{R}{3.4in}
+%	\vspace{-0.15in}
+  \caption{Pairwise check performance. Semantics in the first column
+    are checked if they satisfy semantics in other columns. Each cell
+    shows the execution time for completing the check in milliseconds. The
+  blue text indicates the check result is true and red means false. }
+  \label{tab:pairwise-time}
   \centering
   \small
   \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
@@ -51,11 +57,6 @@ its performance in checking compatibilities.
     \textcolor{blue}{44} & \tableNA \\
     \hline
   \end{tabular}
-  \caption{Pairwise check performance. Semantics in the first column
-    are checked if they satisfy semantics in other columns. Each cell
-    shows the execution time for completing the check in milliseconds. The
-  blue text indicates the check result is true and red means false. }
-  \label{tab:pairwise-time}
 \end{wraptable}
 %\vspace{-0.3in}
 
@@ -128,7 +129,11 @@ only 31 ms per check and the results of the checks are correct with
 respect to the theory.
 
 
-\begin{wraptable}[9]{R}{3.37in}
+%\begin{wraptable}[9]{R}{3.37in}
+\begin{wraptable}{R}{3.37in}
+	\caption{Search time for compatible DMs. Columns show number of searched DM combinations, time to search all combinations (all), time to find the minimum score combination (min score), and average time to check one combination (single).  ($^*$ predicted time)}
+        % \jiyong{fill in the blank. Also for XC, the min score combination is the combination we give as input in case study, which is the number here right (see the text below)?}
+	\label{tbl:searchtime}
 	\center
 	\small
 	\begin{tabular}{ |l|r|r|r|r| }
@@ -140,9 +145,6 @@ respect to the theory.
 		XC store & $17^4=83.5\textrm{K}$ &3.98 hr      & 261.09 sec & 17.17 ms\\
 		\hline
 	\end{tabular}
-	\caption{Search time for compatible DMs. Columns show number of searched DM combinations, time to search all combinations (all), time to find the minimum score combination (min score), and average time to check one combination (single).  ($^*$ predicted time)}
-        % \jiyong{fill in the blank. Also for XC, the min score combination is the combination we give as input in case study, which is the number here right (see the text below)?}
-	\label{tbl:searchtime}
 %	\end{table}
 \end{wraptable}
 \textbf{Compatible \sysmod{} Search.} Next, we evaluate \sysname{} using

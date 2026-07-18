@@ -108,7 +108,7 @@ history-based constraints distinctly to operations belonging to
 different modeled systems or components, contributing to the logical
 isolation necessary for cross-system analysis.
 
-\para{Abstract Execution (AE).}
+\para{Abstract Execution (AE)}
 An abstract execution instantiates and refines the history by
 specifying which operations are visible to, or are arbitrated over
 each other to model and check valid behaviors under a consistency semantics.
@@ -140,7 +140,7 @@ distributed system behaviors where operations may be reordered,
 delayed, or selectively visible across different system components.
 In other words, multiple AEs are possible for a
 single history as observed event orderings can differ between nodes.
-The AE encode the non-deterministic effects of asynchronous execution
+The AE encode the non-determinism of asynchronous execution
 environments and implementation-specific constraints.
 
 \subsection{Base Consistency Semantics}
@@ -187,7 +187,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   using \sysname{}
   (Section \ref{sec:eval}).
 
-  \para{Eventual Consistency (EC).}
+  \para{Eventual Consistency (EC)}
   While EC definitions in other literature~\cite{terry1994session,
   eventual, viotti2016consistency}
   focus primarily on liveness aspects using the concept of
@@ -220,7 +220,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   strict context $ctx(A, op)$ (an over-approximation), so that
   every operation's output is one of the input values of the writes it can view.
 
-  \para{Causal Consistency (CC).}
+  \para{Causal Consistency (CC)}
   There is no single agreed-upon definition of causal consistency across the
   literature. Our CC formulation primarily follows the writes-into semantics of
   causal memory~\cite{baldoni2002an}, cross-checked against the definitions of
@@ -257,7 +257,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   causally dependent writes manifest in proper order from any
   observer's viewpoint.
 
-  \para{Linearizability (LIN).} In our encoding of LIN,
+  \para{Linearizability (LIN)} In our encoding of LIN,
   we introduce a modified single global order constraint to unify visibility and
   arbitration for all write operations regardless of operations in
   session-based semantics or not, and enforce real-time ordering to
@@ -358,7 +358,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   \text{rtime}$, the case $b \xrightarrow{\text{rb}} a$ already implies
   $a.\text{rtime} \ge b.\text{stime}$, so this temporal condition reduces to the
   equivalent inequality $a.\text{rtime} \ge b.\text{stime}$: a read $a$ is
-  eligible to view a write $b$ on the same object precisely when $a$ does not
+  eligible to view a write $b$ precisely when $a$ does not
   return before $b$ is invoked.
 %%  \begin{eqnarray*}
 %%	  \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj}  \land (b \xrightarrow{\text{rb}} a

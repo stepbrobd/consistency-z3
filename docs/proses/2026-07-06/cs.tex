@@ -1,3 +1,34 @@
+\section{Case Study}
+\label{sec:cs}
+
+To demonstrate \sysname{}'s utility, and to detail how a complex distributed
+application can be specified in \sysname{} for the compatibility check with
+pluggable distributed services, we present case studies of three applications.
+Two applications, a movie streaming service and an online shopping
+mall, are from
+a microservice benchmark suite~\cite{gan2019an} and the other is from an
+academic system that designs causally consistent storage service
+across multiple weakly consistent distributed storage services~\cite{boltoncc}.
+We mainly focus on the movie example to delve into the details.
+Our framework is designed for a quick specification of applications
+and prompt compatibility checks, and assumes users to be familiar with
+axiomatic semantics and SMT encodings which are becoming more common and 
+widely taught in schools~\cite{fmedu1, fmedu2, fmedu3, fmedu4}.
+
+\subsection{Movie Streaming Service}
+
+
+Our movie streaming service application~\cite{gan2019an} involves
+multiple functionalities that can be represented as
+regular nodes and edges in \sysgraph{} and distributed storage services (or DBs)
+that can be captured as \sysmods{} (\cref{fig:case-study-media}).
+
+\para{System Architecture.}
+The media streaming service consists of eleven interconnected
+components, each with specific consistency requirements based on
+their functional roles. While users can choose a \sysmod{} for the
+DB components, they must specify the constraints for the other components.
+
 %\begin{wrapfigure}[25]{R}{2.8in}
 \begin{figure*}
   \centering
@@ -75,42 +106,12 @@
     12: Rent checks content availability in Metadata DB.
     13: Video service accesses Video DB.
     14: Video service verifies metadata before playback.
-    \\
 }
   \label{fig:case-study-media}
 	\end{minipage}
 		%\vspace{-0.3in}
 \end{figure*}
 %\end{wrapfigure}
-\section{Case Study}
-\label{sec:cs}
-
-To demonstrate \sysname{}'s utility, and to detail how a complex distributed
-application can be specified in \sysname{} for the compatibility check with
-pluggable distributed services, we present case studies of three applications.
-Two applications, a movie streaming service and an online shopping
-mall, are from
-a microservice benchmark suite~\cite{gan2019an} and the other is from an
-academic system that designs causally consistent storage service
-across multiple weakly consistent distributed storage services~\cite{boltoncc}.
-We mainly focus on the movie example to delve into the details.
-Our framework is designed for a quick specification of applications
-and prompt compatibility checks, and assumes users to be familiar with
-axiomatic semantics and SMT encodings which are becoming more common and 
-widely taught in schools~\cite{fmedu1, fmedu2, fmedu3, fmedu4}.
-
-\subsection{Movie Streaming Service}
-
-Our movie streaming service application~\cite{gan2019an} involves
-multiple functionalities that can be represented as
-regular nodes and edges in \sysgraph{} and distributed storage services (or DBs)
-that can be captured as \sysmods{} (\cref{fig:case-study-media}).
-
-\para{System Architecture.}
-The media streaming service consists of eleven interconnected
-components, each with specific consistency requirements based on
-their functional roles. While users can choose a \sysmod{} for the
-DB components, they must specify the constraints for the other components.
 
 
 
@@ -313,9 +314,10 @@ own reviews. %while maintaining content validity checks.
 %
 %
 %\begin{wrapfigure}[10]{R}{2.8in}
-\begin{wrapfigure}{R}{2.8in}
-	%\vspace{-0.4in}
-\centering
+\begin{figure}
+  \centering
+	\begin{minipage}[c]{0.56\textwidth}
+		\centering
 \begin{tikzpicture}[
     font=\footnotesize,
     node distance=1.2cm,
@@ -349,9 +351,13 @@ own reviews. %while maintaining content validity checks.
   \node[cons, align=left, right=1mm] at (arbitrator.east) {LIN};
   \node[cons, align=right, left=1mm] at (tx.west) {LIN};
 \end{tikzpicture}
+	\end{minipage}
+	\begin{minipage}[c]{0.42\textwidth}
+		\centering
 \caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
 \label{fig:case-study-shop}
-\end{wrapfigure}
+	\end{minipage}
+\end{figure}
 %
 %
 An e-commerce application~\cite{gan2019an} is similar to the movie
@@ -364,21 +370,15 @@ models client behaviors:
 \item \textbf{Client}: The end-user interface through which
   customers browse products, manage their shopping cart, and
   initiate purchases. The client itself doesn't enforce specific
-  consistency guarantees but relies on guarantees provided by
-  the interacting services.
-
-\end{enumerate}
-
-\begin{enumerate}[leftmargin=*, noitemsep,topsep=0pt]
-\setcounter{enumi}{1}
+  consistency guarantees but relies on the interacting
+  services' guarantees.
 \item \textbf{Cart DB}: The shopping cart DB maintains customers'
   shopping cart state. It stores items that customers intend to
   purchase and supports read and write operations. The cart can be
   loosely managed and immediate propagation of updates is not required.
-\item \textbf{Shop DB}: Maintains the authoritative inventory state
+\item \textbf{Shop DB}: \looseness=-1 Maintains the authoritative inventory state
   for all products. Clients can observe stale state, but the shop must provide
-  up-to-date information to the checkout service which process purchase
-  transactions.
+  up-to-date information to the checkout service that processes purchases.
 
 \item \textbf{Checkout}: Acts as a serialization point for
   purchase transactions, providing linearizability guarantees. This
@@ -389,10 +389,10 @@ models client behaviors:
   linearizability,
   its logic should guarantee strong consistency.
 
-\item \textbf{Tx Log DB}: Records all completed purchases
+\item \textbf{Tx Log DB}: \looseness=-1 Records all completed purchases
   with linearizability guarantees, ensuring that transaction
   records are stored in a strictly consistent manner for auditing
-  and financial reconciliation purposes.
+  and financial reconciliation.
 \end{enumerate}
 
 %\subsubsection{Interaction Flow}

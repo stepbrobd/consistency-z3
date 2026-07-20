@@ -176,10 +176,10 @@ environments and implementation-specific constraints.
   \end{wrapfigure}
 Building on these preliminaries, we now discuss the formal definitions of
 base consistency semantics: EC, MR, RYW, MW, WFR, PRAM, CC, and LIN. In
-\cref{sec:background}., the semantics are defined axiomatically using the relations between
+\cref{fig:semdef}, the semantics are defined axiomatically using the relations between
 pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   operations, where $H_\text{rd}$ and $H_\text{wr}$ are histories of reads and
-  writes respectively.
+	  writes respectively).
   While we adopt the definitions of MR, RYW, MW, WFR,
   and PRAM of Viotti et al.~\cite{viotti2016consistency} (\cref{fig:semdef}),
   we introduce or augment EC, CC, and LIN for SMT encoding and
@@ -349,11 +349,15 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   constrain it only when a read $a$ and a write $b$ access the same object,
   based on their start and return times, and leave it unconstrained on every
   other pair (so, for example, it imposes nothing on a pair of writes):
-  \begin{equation*}
-	  (a, b) \in \text{can-view} \;\land\; a \in H_\text{rd} \;\land\; b \in H_\text{wr}
-	  \;\land\; a.\text{obj} = b.\text{obj} \;\Rightarrow\; (b \xrightarrow{\text{rb}} a
-	  \lor \lnot(a \xrightarrow{\text{rb}} b \lor b \xrightarrow{\text{rb}} a)).
-  \end{equation*}
+  \begin{eqnarray*}
+	  \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj}  \land 
+		(\xrightarrow{\text{rb}} a \lor \lnot(a \xrightarrow{\text{rb}} b \lor b \xrightarrow{\text{rb}} a))\}
+  \end{eqnarray*}
+%  \begin{equation*}
+%	  (a, b) \in \text{can-view} \;\land\; a \in H_\text{rd} \;\land\; b \in H_\text{wr}
+%	  \;\land\; a.\text{obj} = b.\text{obj} \;\Rightarrow\; (b \xrightarrow{\text{rb}} a
+%	  \lor \lnot(a \xrightarrow{\text{rb}} b \lor b \xrightarrow{\text{rb}} a)).
+%  \end{equation*}
   Using the invariant that every operation satisfies $\text{stime} \le
   \text{rtime}$, the case $b \xrightarrow{\text{rb}} a$ already implies
   $a.\text{rtime} \ge b.\text{stime}$, so this temporal condition reduces to the
@@ -402,16 +406,19 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
  %% \end{eqnarray*}
 
   While can-view captures the possible visibility between read and write, the
-  result dependency between them is captured by the \textit{viewed} relation:
+  resulting dependency between them is captured by the \textit{viewed} relation:
   \begin{eqnarray*}
     \text{viewed} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in
-      H_\text{wr} \quad \land \quad (a, b) \in \text{can-view} \\
-      & & \land (
-        (a.\text{oval} = b.\text{ival}) \quad \lor \quad
-        \text{ }(\exists x \in H_\text{wr} : (x, b) \in
-        \text{can-view} \land a.\text{oval} = x.\text{ival})
+      H_\text{wr}  \land (a, b) \in \text{can-view} \quad \\
+	  & & \land \text{ } ( (a.\text{oval} = b.\text{ival}) \quad \\
+	  & & \text{ } \text{ } \lor (\exists x \in H_\text{wr} : 
+	  	%(a, x) \in \text{can-view} \land 
+		b.\text{obj} = x.\text{obj}  \land
+		(b\xrightarrow{\text{rb}}x \lor \lnot(b \xrightarrow{\text{rb}} x \lor b \xrightarrow{\text{rb}} x)) \land a.\text{oval} = x.\text{ival})
       )
     \}
+        %\text{ }(\exists x \in H_\text{wr} : (x, b) \in
+        %\text{can-view} \land a.\text{oval} = x.\text{ival})
   \end{eqnarray*}
 %%  \begin{eqnarray*}
 %%    \text{viewed} & \triangleq & \{(a, b) : a \in H_\text{rd}, b \in
@@ -448,9 +455,10 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   from $w_1$, but $r$'s output matches $w_5$'s input ($r.\text{oval} =
   w_5.\text{ival}$), then $r$ and $w_1$ are still in the viewed relation through
   the existential clause instantiated with $x = w_5$ (write $w_1$ still affects
-  $r$). Here the write-write reference $(w_5, w_1) \in \text{can-view}$ is
-  unconstrained, so the operative condition is the existence of $w_5$ and the
-  value equivalence between $r$ and $w_5$.
+  $r$). 
+  %Here the write-write reference $(w_5, w_1) \in \text{can-view}$ is
+  %unconstrained, so the operative condition is the existence of $w_5$ and the
+  %value equivalence between $r$ and $w_5$.
 
   % actual vis
   Finally, the \textit{visibility (vis)} definition establishes a

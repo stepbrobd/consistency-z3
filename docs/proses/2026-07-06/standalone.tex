@@ -126,7 +126,7 @@ conflict resolution. The relationships include:
   and is previously defined in the literature as the transitive union
   of session order and visibility: $hb \triangleq (\text{so} \cup
   {\text{vis}})^{+}$. We write $\text{acyclic}(hb)$ to require that $hb$ contains
-  no cycle, \ie no operation happens before itself, so that $hb$ is a strict
+  no cycle, i.e., no operation happens before itself, so that $hb$ is a strict
   partial order.
   \
 }
@@ -342,16 +342,16 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   the categories in \textit{can-view}: either (1) the write 
   returns before read (\eg $w_1$ and $r$ in \cref{fig:can-view}; 
   note that which process issued the read/write does not matter, as synchronization is not required to establish probable effect causality)
-  or (2) the read and write are \textit{concurrent} (\ie returns before relations do not hold as the durations of the read and write overlap 
+  or (2) the read and write are \textit{concurrent} (i.e., returns before relations do not hold as the durations of the read and write overlap 
   as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read is eligible to observe the write's effect.
   %
   Formally, can-view is a binary relation over all pairs of operations. We
   constrain it only when a read $a$ and a write $b$ access the same object,
   based on their start and return times, and leave it unconstrained on every
-  other pair (so, for example, it imposes nothing on a pair of writes):
+  other pair:
   \begin{eqnarray*}
 	  \text{can-view} \triangleq \{(a, b) : a \in H_\text{rd}, b \in H_\text{wr} \land a.\text{obj} = b.\text{obj}  \land 
-		(\xrightarrow{\text{rb}} a \lor \lnot(a \xrightarrow{\text{rb}} b \lor b \xrightarrow{\text{rb}} a))\}
+		(b \xrightarrow{\text{rb}} a \lor \lnot(a \xrightarrow{\text{rb}} b \lor b \xrightarrow{\text{rb}} a))\}
   \end{eqnarray*}
 %  \begin{equation*}
 %	  (a, b) \in \text{can-view} \;\land\; a \in H_\text{rd} \;\land\; b \in H_\text{wr}
@@ -441,7 +441,8 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   assign additional value-related constraints to operations: either the value
   written by the write operation must match the output
   of the read, or, in case of another write operation that happened after or
-  concurrently to the aforementioned write, the viewed relation enforces the
+  concurrently to the aforementioned write (i.e., similar to can-view but between
+  write pairs), the viewed relation enforces the
   output of the read to be from one of the writes (but only one can be chosen).
   In the visibility definition, the transitivity of the viewed relation
   is implicitly

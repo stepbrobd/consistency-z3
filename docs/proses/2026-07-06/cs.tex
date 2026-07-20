@@ -316,7 +316,7 @@ own reviews. %while maintaining content validity checks.
 %\begin{wrapfigure}[10]{R}{2.8in}
 \begin{figure}
   \centering
-	\begin{minipage}[c]{0.56\textwidth}
+	\begin{minipage}[c]{0.52\textwidth}
 		\centering
 \begin{tikzpicture}[
     font=\footnotesize,
@@ -352,7 +352,7 @@ own reviews. %while maintaining content validity checks.
   \node[cons, align=right, left=1mm] at (tx.west) {LIN};
 \end{tikzpicture}
 	\end{minipage}
-	\begin{minipage}[c]{0.42\textwidth}
+	\begin{minipage}[c]{0.46\textwidth}
 		\centering
 \caption{Architecture of the online shopping system with consistency guarantees. Numbers denote application constraints/flow on edges: 1: client read/write cart; 2: client browse shop; 3: client purchase via checkout; 4: checkout check/update shop; 5: checkout record to Tx Log. Node labels show provided consistency semantics.}
 \label{fig:case-study-shop}
@@ -606,8 +606,7 @@ provide constraints representing the other three session guarantees needed to
 potentially satisfy causal consistency up to that point.
 
 The core idea of this example is to build a stronger guarantee by composing
-weaker guarantees provided by individual services ($\text{SVC}1
-\ldots 4$), using
+weaker guarantees provided by individual services ($\text{SVC}1..4$), using
 the edges to supply the missing pieces which reflects the application design
 as shown in \cref{fig:cross-service-causal}.
 

@@ -44,7 +44,7 @@ in \cref{fig:semantics-tree} and in previous literature \cite{terry1994session}.
 
 To combine multiple consistency models into a single stronger model, we used
 logical conjunctions on each \sysmod{}'s constraints. By taking the constraints
-representing each model's semantics and forming their conjunction, we derive a
+representing each model's semantics and forming their conjunction, we derive an
 aggregated model that enforces all included constraints simultaneously.
 This approach allows incremental composition: users can start from a
 base model and iteratively strengthen it by adding new sets of constraints,
@@ -158,7 +158,7 @@ constraints in \texttt{path\_premise}, along the current path.
 Constraints in \texttt{path\_premise} are invisible to users and are dynamic in nature based on which
 edge(s), \texttt{needs}, \texttt{provs} are selected. Constraints are populated in and out
 based on the satisfiability of the previous levels, and current level checks.
-\sysname{} perform compatibility checks, \texttt{compatible(check\_provs,
+\sysname{} performs compatibility checks, \texttt{compatible(check\_provs,
 compose(check\_needs, check\_ec), path\_premise)}:
 for each edge $(u, v)$ from the current node $u$, it checks if \texttt{provs} from $v$
 and \texttt{cons} from edge $(u, v)$ satisfy needs from $u$.
@@ -173,8 +173,8 @@ with the plugged-in \sysmods{} and the application logics are also
 sound as a whole.
 
 
-To avoid redundant checks in case of a subset of nodes and edges needs to be reused for scalability,
-\sysname{} can aggretate a subgraph into a single logical node using the \texttt{extract} function.
+To avoid redundant checks in case a subset of nodes and edges needs to be reused for scalability,
+\sysname{} can aggregate a subgraph into a single logical node using the \texttt{extract} function.
 % \jiyong{Does this previous sentence make sense?}
 % \jiyong{What is composability check? Is it compatibility check or compositional check or something else?}
 % same thing, prob missed it when revising the terms

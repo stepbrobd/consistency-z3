@@ -1,5 +1,3 @@
-%\documentclass[sigconf,screen,review]{acmart}
-%\documentclass[sigconf,review,anonymous]{acmart}
 \documentclass[acmsmall]{acmart}
 \usepackage{amsmath}
 \usepackage{diagbox}
@@ -11,22 +9,18 @@
 
 \input{defs}
 
-%\acmJournal{PACMSE}
-%\acmVolume{3}
-%\acmNumber{ISSTA}
-%%\acmArticle{}
-%\acmYear{2026}
-%%\acmMonth{}
-%\acmDOI{10.1145/3832138}
-%%
-%%\setcopyright{acmlicensed}
-%%\copyrightyear{2026}
-
 \setcopyright{cc}
 \setcctype{by-nc-nd}
+\acmDOI{10.1145/3832138}
+\acmYear{2026}
 \acmJournal{PACMSE}
-\acmYear{2026} \acmVolume{3} \acmNumber{ISSTA} \acmArticle{ISSTA047}
-\acmMonth{10} \acmDOI{10.1145/3832138}
+\acmVolume{3}
+\acmNumber{ISSTA}
+\acmArticle{ISSTA047}
+\acmMonth{10}
+\acmSubmissionID{issta26main-p405-p}
+\received{2026-01-29}
+\received[accepted]{2026-04-16}
 
 \AtBeginDocument{%
   \providecommand\BibTeX{{%
@@ -34,33 +28,26 @@ Bib\TeX}}}
 
 \begin{document}
 
-\title{\sysname{}: A Compatibility Checker between Applications and
-Compositions of Distributed Systems}
+\title{SemantiX: A Compatibility Checker between Applications and Compositions of Distributed Systems}
 
 \author{Yifei Sun}
-\email{ysun@ccs.neu.edu}
 \orcid{0000-0002-1591-7458}
 \affiliation{%
   \institution{Northeastern University}
   \city{Boston}
-  \state{Massachusetts}
   \country{USA}
 }
-%Inria, Grenoble, France
-%ENS de Lyon, Lyon, France
-%Univ. Grenoble Alpes, Grenoble, France
+\email{yifei.sun@inria.fr}
 
 \author{Ji-Yong Shin}
-\email{j.shin@northeastern.edu}
 \orcid{0000-0002-1595-4849}
 \affiliation{%
   \institution{Northeastern University}
   \city{Boston}
-  \state{Massachusetts}
   \country{USA}
 }
+\email{j.shin@northeastern.edu}
 
-\renewcommand{\shortauthors}{Yifei Sun and Ji-Yong Shin}
 
 \begin{abstract}
   \input{abstract}
@@ -100,10 +87,6 @@ Compositions of Distributed Systems}
 \input{standalone}
 \input{usage}
 \input{cs}
-%\input{background}
-%\input{design}
-%\input{composition}
-%\input{case-study}
 \input{eval}
 \input{related-work}
 \input{conclusion}
@@ -117,6 +100,5 @@ We thank the anonymous reviewers for their insightful reviews. This work is part
 \bibliographystyle{acmart}
 \bibliography{references, refs2}
 
-%\input{overview}
 
 \end{document}

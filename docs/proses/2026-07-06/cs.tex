@@ -169,7 +169,7 @@ DB components, they must specify the constraints for the other components.
 We focus on the login and review services in \cref{fig:case-study-media}
 to explain how constrains are encoded in \sysname{}.
 In this example, the application requires that all users must register for
-an account before they can log in, this would result in a request from
+an account before they can log in, this would result in a request from the
 client to login service (edge 1), then to user database (edge 8).
 If users want to post a review (edge 2), they must
 be logged in (edge 1), and the review service must verify that the
@@ -220,12 +220,12 @@ Formally, we can represent client's login operation (edge 8) as follows:
   EC_{\text{login}} \triangleq \forall op_{\text{login}} \in H_{\text{rd}} : \exists op_{\text{reg}} \in H_{\text{wr}} :
   (op_{\text{login}}, op_{\text{reg}}) \in ob \quad \land \quad (op_{\text{reg}}, op_{\text{login}}) \in vis.
 \]
-Since all interactions to User DB pass through Login, and Login node do not have cross
+Since all interactions to User DB pass through Login, and Login node does not have cross
 edges to outside graph components other than User DB, the subgraph Login, User DB and
 edge 8 can be aggregated with \texttt{extract} function.
 
 For services initiated from the client side, we modeled the behaviors
-as a set of reuseable common constraints with the return-before
+as a set of reusable common constraints with the return-before
 binary relationship. Formally:
 % old version with linefeed
 % \begin{align*}
@@ -243,7 +243,7 @@ binary relationship. Formally:
   (op_{\text{login}}, op_{\text{watch}}) \in rb.
 \end{align*}
 The common constraints are then added to each edge that is dependent on the
-login service or refer to the login operation, ensuring the chain
+login service or refers to the login operation, ensuring the chain
 of dependencies is respected throughout the system.
 
 For posting reviews,
@@ -258,11 +258,11 @@ EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \e
 &(op_{\text{review}}, op_{\text{rdmeta}}) \in ob \quad \land \quad (op_{\text{rdmeta}}, op_{\text{review}}) \in rb.
 \end{align*}
 
-Following these practices one can specify relatively complex and construct \sysgraph with \sysmods and application-level constraints.
+Following these practices one can specify relatively complex applications and construct an \sysgraph with \sysmods and application-level constraints.
 \sysgraph construction is straightforward, we instantiate nodes with their
 \texttt{needs}/\texttt{provs} and connect them with edges carrying the above constraints.
 Moreover, depending on system designers' requirements, Login node, User DB, and edge 8 can be collapsed into a single
-aggregated node by applying \texttt{extract} (introduced in \cref{sec:background}) to the subgraph accumulates
+aggregated node by applying \texttt{extract} (introduced in \cref{sec:usage}) to the subgraph which accumulates
 both the semantic constraints (MW+WFR) and the application constraint $EC_{\text{login}}$ into one summary \texttt{provs}/\texttt{needs} tuple.
 This lets us reuse the combined guarantee downstream or use it as a portable node in another \sysgraph.
 
@@ -486,7 +486,7 @@ The consistency requirements of this system vary by component:
   if a client observes a certain inventory state, all subsequent
   reads will observe either that same state or a more recent one,
   but seeing outdated state is okay as Checkout will prevent
-  ill-formed purchase transaction (e.g., purchasing out-of-stock item).
+  ill-formed purchase transaction (e.g., purchasing out-of-stock items).
 \end{itemize}
 
 \begin{itemize}
@@ -574,9 +574,11 @@ cross-system causal consistency, the augmentation continues down the chain.
 %This example demonstrates modeling a system where multiple services, each
 %offering only a basic consistency guarantee, are chained together.
 
-The goal here is to verify whether their composition, mediated by specific
-inter-service
-constraints, symbolic isolation, and the role of explicit ``glue'' constraints.
+The goal here is to verify their composition, which is mediated by specific inter-service 
+constraints and symbolic isolation, and to demonstrate the role of explicit 'glue' constraints.
+
+%The goal here is to verify their composition, mediated by specific
+%inter-service constraints, symbolic isolation, and the role of explicit ``glue'' constraints.
 
 \para{Architecture.} The architecture forms a chain $\text{XC} \rightarrow
 \text{SVC4} \rightarrow \text{SVC3} \rightarrow \text{SVC2}

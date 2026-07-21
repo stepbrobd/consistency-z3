@@ -84,7 +84,7 @@ A history $H$ is a set of operations that have been logically executed in the
 The functions representing the relations are used as base premises
 for consistency
 models and are used in axioms and invariants that the SMT solvers
-interpret and check. Given that we extensively use set comprehension to capture relations between operations, throughout the formalization, $a \xrightarrow{\text{rel}} b$ is denotationally equal to $(a, b) \in rel$, and directly translate to \texttt{rel(a, b)} in \sysname's source code.
+interpret and check. Given that we extensively use set comprehension to capture relations between operations, throughout the formalization, $a \xrightarrow{\text{rel}} b$ is denotationally equal to $(a, b) \in rel$, and directly translates to \texttt{rel(a, b)} in \sysname's source code.
 Further, $rel^{-1}$ is equivalent to the inverse of $rel$ relation \cite{burckhardt2014principles,viotti2016consistency}.
 
 The relations defined for operations within a history include:
@@ -323,7 +323,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   One of our key contributions is formally defining visibility.
   Although visibility is used as part of defining almost all semantics in
   \cref{subsec:semdef} and \cref{fig:semdef}, its definitions in
-  existing literature is informal and ambiguous regarding exact
+  existing literature are informal and ambiguous regarding exact
   behavior under concurrent
   settings~\cite{viotti2016consistency,viotti2016towards,zhang2018building,ferreira2023antipode}.
   As with many seemingly simple informal definitions concerning
@@ -340,7 +340,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   the effects of another operation. To achieve visibility, two
   operations must first fall in one of
   the categories in \textit{can-view}: either (1) the write 
-  returns before read (\eg $w_1$ and $r$ in \cref{fig:can-view}; 
+  returns before the read (\eg $w_1$ and $r$ in \cref{fig:can-view}; 
   note that which process issued the read/write does not matter, as synchronization is not required to establish probable effect causality)
   or (2) the read and write are \textit{concurrent} (i.e., returns before relations do not hold as the durations of the read and write overlap 
   as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read is eligible to observe the write's effect.
@@ -496,7 +496,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   %$\text{vis}_\text{wr-wr}$ with $b$.
   %
   and we call this the
-  write propagation rule. Conceptually, the rule implies that that, if a read $a$
+  write propagation rule. Conceptually, the rule implies that, if a read $a$
   and another operation (either read or write) $b$ are in the
   visibility relation,
   the closest write operation $x$ that is visible to read $a$ must
@@ -520,7 +520,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   existence of an arbitration relation between them.
   Writes not ordered by visibility are considered invisible to each
   other~\cite{viotti2016consistency}
-  and our proposed write arbitration resolve conflicts in concurrent and invisible operations.
+  and our proposed write arbitration resolves conflicts in concurrent and invisible operations.
 
   \para{Well-Formedness of Visibility.} Although visibility is defined
   recursively, the definition is well-founded. The read-read and read-write cases

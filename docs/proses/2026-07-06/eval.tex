@@ -79,13 +79,13 @@ input or exhaustively explores valid combinations.
 % 2
 Regarding effort and the learning curve, once semantic requirements are understood, encoding an \sysgraph is straightforward.
 Our case studies only require 183, 80, and 252 lines of code for encoding the movie streaming service, online shopping mall, and XC storage, respectively, thanks to existing facilities such as the \sysmods{} in the \sysname{} framework. 
-These relatively small efforts for constraint encoding and automated checks validates our framework's goal of enabling agile compatibility checks compared to typical end-to-end formal verification which could have huge proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet, disel} which could follow with confidence after our \sysname{} check passes. 
+These relatively small efforts for constraint encoding and automated checks validate our framework's goal of enabling agile compatibility checks compared to typical end-to-end formal verification which could have huge proof-to-code/specification ratio~\cite{certikos-osdi16, klein2009sel4, wormspace, ironfleet, disel} which could follow with confidence after our \sysname{} check passes. 
 %Our effort constraints remain stable unless interfaces or consistency requirements change.
 
 % 3
 The scalability of our tool is mainly expressed via modular composition,
 \sysgraph nodes and edges compose modularly: large systems can be decomposed into sub-\sysgraphs,
-verified independently, and re-aggregated into monolithic node that preserves the verified properties of its components.
+verified independently, and re-aggregated into a monolithic node that preserves the verified properties of its components.
 This pattern (\eg Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and 
 reuse of solved results for large service meshes.
 %(see \texttt{tests/test\_aggregate.py} and Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and reuse of solved results for large service meshes.
@@ -152,7 +152,7 @@ find valid compositions with the weakest semantics (i.e., the minimum score comb
 performance characteristics under different system complexities.
 %
 For each case study, we gave blank \sysmods{} to each application
-so that \sysname{} search and output compatible \sysmod{} combinations.
+so that \sysname{} searches and outputs compatible \sysmod{} combinations.
 \sysname{} uses the search strategy in \cref{subsec:search}. The results are summarized in \cref{tbl:searchtime}.
 %we enumerated all possible combinations of
 %consistency models for nodes with non-null provs fields, while
@@ -182,7 +182,7 @@ Finally, four DB node combinations (i.e., $17^4$ cases) are searched for
 the cross causal storage. The total search completes in 3.98 hours
 with an average duration of 17.17 ms per combination.
 Our tool successfully identified the combination in our original design (also the
-minimun score combination) in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
+minimum score combination) in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
 
 Overall, depending on the complexity of the constraints the
 compatibility check times

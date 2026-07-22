@@ -481,8 +481,8 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
       (a \in H_\text{rd}, b \in H_\text{wr} : \exists x \in
       H_\text{wr}: (x, a) \in \text{vis} \Rightarrow (x, b) \in \text{vis}) \\
       & \lor
-      (a \in H_\text{wr}, b \in H_\text{rd} : \text{viewed} \subseteq
-      \text{ar})  \quad \lor \quad
+      (a \in H_\text{wr}, b \in H_\text{rd} : (b, a) \in \text{viewed}
+      \Rightarrow (a, b) \in \text{ar})  \quad \lor \quad
     (a \in H_\text{wr}, b \in H_\text{wr} : (a, b) \in \text{ar})\}.
   \end{align*}
   %\end{eqnarray*}

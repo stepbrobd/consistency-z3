@@ -93,7 +93,7 @@ class AbstractExecution:
                                 x,
                                 z3.And(
                                     op.type(x) == wr,  # type: ignore
-                                    # make sure x is after write b or concurrent to write b
+                                    op.obj(x) == op.obj(b),  # type: ignore
                                     # allow atomic ops
                                     op.rtime(x) >= op.stime(x),  # type: ignore
                                     op.rtime(b) >= op.stime(b),  # type: ignore
@@ -101,8 +101,11 @@ class AbstractExecution:
                                     op.returned(a) == z3.BoolVal(True),  # type: ignore
                                     op.returned(b) == z3.BoolVal(True),  # type: ignore
                                     op.returned(x) == z3.BoolVal(True),  # type: ignore
-                                    # can-view + value equivalence
-                                    can_view(x, b),
+                                    # x is after write b or concurrent to write b
+                                    # i.e. x does not return before b starts
+                                    # (can-view timing but for a write-write pair, can_view itself is unconstrained on write-write)
+                                    op.rtime(x) >= op.stime(b),  # type: ignore
+                                    # value equivalence
                                     op.oval(a) == op.ival(x),  # type: ignore
                                 ),
                             ),

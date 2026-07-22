@@ -414,7 +414,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
 	  & & \text{ } \text{ } \lor (\exists x \in H_\text{wr} : 
 	  	%(a, x) \in \text{can-view} \land 
 		b.\text{obj} = x.\text{obj}  \land
-		(b\xrightarrow{\text{rb}}x \lor \lnot(b \xrightarrow{\text{rb}} x \lor b \xrightarrow{\text{rb}} x)) \land a.\text{oval} = x.\text{ival})
+		(b\xrightarrow{\text{rb}}x \lor \lnot(x \xrightarrow{\text{rb}} b \lor b \xrightarrow{\text{rb}} x)) \land a.\text{oval} = x.\text{ival})
       )
     \}
         %\text{ }(\exists x \in H_\text{wr} : (x, b) \in

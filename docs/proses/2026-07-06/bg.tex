@@ -15,7 +15,7 @@ that \sysname{} models, and provide an example motivating our work.
   \label{fig:semantics-tree}
 \end{wrapfigure}
 Distributed consistency semantics define in which order updates are
-applied and made visible in replica nodes within a cluster of
+applied and made visible in replica nodes within a cluster of a
 distributed system.
 When an update request is submitted to the distributed system, a
 subset (typically one) of nodes receives it and the update is
@@ -39,12 +39,12 @@ While eventual consistency (EC) is considered a liveness property,
 it defines a minimum safety property that visible data reflects valid
 updates in history. Informally,
 \itemparen{
-\item \textbf{Eventual consistency (EC):} users may read any versions
-  of data but with no incoming updates the most up-to-date version
+\item \textbf{Eventual consistency (EC):} users may read any version
+  of data but with no incoming updates, the most up-to-date version
   will eventually become visible to all reads.
 }
 
-Session guarantees (SGs), like its name, define semantics from the
+Session guarantees (SGs), as their name suggests, define semantics from the
 viewpoint of a user session:
 \itemparen{
 \item \textbf{Monotonic reads (MR):} a user sees the same or later
@@ -54,23 +54,23 @@ viewpoint of a user session:
 \item \textbf{Monotonic writes (MW):} writes by a user apply in the
   order that this user wrote.
 \item \textbf{Write-follows-reads (WFR):} writes by a user apply
-  after writes corresponding to what this user read apply.
+  after the writes corresponding to what this user read.
 }
 By choosing whether to enforce each of four session guarantees, a
 total of 16 ($=2^4$) different semantics can be derived. While most
 of them do not have specific names (e.g., MR + RYW), there are a few
 well-known named semantics. For example, EC does not enforce any of
-SGs, pipeline RAM consistency (PRAM) is a combination of MR, RYW, and
+the SGs, pipeline RAM consistency (PRAM) is a combination of MR, RYW, and
 MW \cite{brzezinski2004session}, and causal consistency (CC) is a
 combination of all four SGs, MR, RYW, MW, and
 WFR \cite{sessiontocausal}. Still, PRAM \cite{pram} and
 CC \cite{causaldef} have their own definitions:
 \itemparen{
 \item \textbf{PRAM consistency (PRAM):} read and write operations by
-  a user happen in first in first out order from this user's point
+  a user happen in first-in-first-out order from this user's point
   of view, but there are no global ordering guarantees.
 \item \textbf{Causal consistency (CC):} read and write operations
-  follow the causal ordering (or happens-before ordering~\cite{lamport1978time}) .
+  follow the causal ordering (or happens-before ordering~\cite{lamport1978time}).
 }
 Finally, linearizability hides all distributed and concurrent natures
 of distributed systems.
@@ -81,7 +81,7 @@ of distributed systems.
 }
 These semantics can be partially ordered by their
 strength~\cite{viotti2016consistency} where strictly stronger
-semantics subsumes the weaker ones (\cref{fig:semantics-tree}). Thus,
+semantics subsume the weaker ones (\cref{fig:semantics-tree}). Thus,
 when an application requires a certain semantics then a strictly
 stronger one can safely replace the strictly weaker one without consistency violations.
 
@@ -95,7 +95,7 @@ There are quite a few functionalities and components to build the
 service, and it is nontrivial to meet all service requirements
 and to guarantee that all requirements are fulfilled.
 
-For example, a movie metadata database (DB) stores list of
+For example, a movie metadata database (DB) stores a list of
 available movies and each movie's information such as the
 logline, director, and cast. This DB is accessed 1) when
 the service admin adds/modifies movie information and
@@ -104,7 +104,7 @@ or writing a movie review.
 
 The developer of the system can choose an ACID database or linearizable
 key-value store for the metadata DB, but this may not scale well as
-stronger consistency models trade stronger data consistency guarantee with higher latency.
+stronger consistency models trade stronger data consistency guarantees for higher latency.
 For utmost scalability and performance, an eventually consistent
 key-value store can be used, but users may observe anomalies: for example, reviews
 written to one replica may not be visible to the same user reading it.

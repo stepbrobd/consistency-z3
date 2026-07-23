@@ -45,7 +45,7 @@ proofs can be several times larger, in Lines of Code (LoC), than the implementat
 Moreover, minor changes can easily invalidate the entire proof
 \cite{klein2009sel4}.
 Thus, formal verification
-leads to a similar problem to above-mentioned testing methods where
+leads to a similar problem to the above-mentioned testing methods where
 the compatibility check
 lacks the agility to adapt to changes in underlying systems and
 applications.
@@ -72,7 +72,7 @@ added to further
 strengthen \sysname{}'s expressiveness with provided interfaces.
 User-authored custom models inheriting from our base class automatically work with our pre-built ones,
 including assertions for individual satisfiability and compatibility between one or more models
-with user defined application logic.
+with user-defined application logic.
 
 Although axiomatic definitions of distributed consistency semantics
 exist in prior literature \cite{finkbeiner2007smt,
@@ -91,7 +91,7 @@ a directed multi-graph format which we call the \sysgraph{}.
 Each node in the \sysgraph{} represents key functionality in the application
 that requires certain properties from the lower-level nodes it depends on,
 and provides certain properties to the upper-level nodes.
-The edges are used to specify more specific requirements and condition that each
+The edges are used to specify more specific requirements and conditions that each
 functionality needs to enforce in accessing the downstream nodes.
 The leaf nodes typically represent external distributed services
 following one of the pre-built distributed consistency semantic models
@@ -103,14 +103,14 @@ application logic boundaries, and distributed systems which the application
 relies on. 
 
 Using the \sysgraph{}, \sysname{} can verify simple applications 
-relying on one distributed service and scale to complex microservice-based 
-production environment that leverages multiple modules and distributed storage systems.
+relying on one distributed service and scale to complex microservice-based
+production environments that leverage multiple modules and distributed storage systems.
 %
 Once the user specifies the application logic, \sysname{} can quickly
 check the compatibility with the plugged-in consistency models. This
 could be verifying the user's selection, or alternatively, \sysname{}
 can explore different combinations of existing models to
-find compositions of distributed system with compatible consistency semantics.
+find compositions of distributed systems with compatible consistency semantics.
 These approaches enable fast exploration and iteration of alternative
 system designs, guiding the development to adhere to intended
 consistency guarantees from the very beginning.

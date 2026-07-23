@@ -69,7 +69,7 @@ approximately 3.7K lines of code to implement \sysname{}.
 %% the expected user input and effort,
 %% and the scalability of our methodology in large-scale applications.
 % 1
-To use \sysname{}, users supply \sysgraph whose nodes and/or edges carry
+To use \sysname{}, users supply an \sysgraph whose nodes and/or edges carry
 built-in or custom \sysmods that extend the base model and relation interfaces.
 When multiple \sysmods are attached, \sysname checks the given
 input or exhaustively explores valid combinations.
@@ -83,7 +83,7 @@ These relatively small efforts for constraint encoding and automated checks vali
 %Our effort constraints remain stable unless interfaces or consistency requirements change.
 
 % 3
-The scalability of our tool is mainly expressed via modular composition,
+The scalability of our tool is mainly expressed via modular composition.
 \sysgraph nodes and edges compose modularly: large systems can be decomposed into sub-\sysgraphs,
 verified independently, and re-aggregated into a monolithic node that preserves the verified properties of its components.
 This pattern (\eg Case Study 2 in Section \ref{sec:cs}) also enables parallel SMT solving on sub-components and 
@@ -163,7 +163,7 @@ so that \sysname{} searches and outputs compatible \sysmod{} combinations.
 Movie streaming service requires finding \sysmods{} corresponding to
 five DB nodes that satisfy application node and edge constraints.
 Given that \sysname{} contains 17 \sysmods{} as illustrated in
-\cref{fig:semantics-tree} the full search space contains
+\cref{fig:semantics-tree}, the full search space contains
 $17^5$ combinations. On average, checking each combination
 takes 164.4 ms and can find a compatible combination with the lowest
 score in 20.43 seconds with a timeout of 10 seconds for each check.
@@ -184,12 +184,12 @@ with an average duration of 171.7 ms per combination.
 Our tool successfully identified the combination in our original design (also the
 minimum score combination) in about 261.09 seconds. The timeout rate is only about 0.15\% of cases.
 
-Overall, depending on the complexity of the constraints the
+Overall, depending on the complexity of the constraints, the
 compatibility check times
 vary, but individual checks are done in less than 200\,ms on average. Even though
 searching through compatible answers in the entire search space could
 take extended
 time, finding the optimal, minimum-score configuration for each case
-study takes only less than 5 minutes.
+study takes less than 5 minutes.
 
 

@@ -10,7 +10,7 @@ SMT solvers like Z3 \cite{demoura2008z3} or CVC5 \cite{barbosa2022cvc5}.
 \subsection{Preliminaries}
 
 \sysname{} provides pre-built and pluggable \sysmodlongs{} (\sysmods{})
-that represent distributed storage services, which can be checked individually or in group,
+that represent distributed storage services, which can be checked individually or in groups,
 or as application constraints.
 Each \sysmod{} models distributed consistency semantics introduced in
 \cref{sec:background} and \cref{fig:semantics-tree}.
@@ -234,7 +234,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   coordinates session order, arbitration, visibility, and writes-into to
   preserve consistent causal histories.
 
-  Operations belong to the \texttt{wi} set when: a write $a$
+  Operations belong to the \texttt{wi} set as follows: a write $a$
   writes into a read $b$ if and only if $b$ retrieves the value
   initially written
   by $a$, and $a$ and $b$ access the same object (or identical memory region).
@@ -342,7 +342,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   the categories in \textit{can-view}: either (1) the write 
   returns before the read (\eg $w_1$ and $r$ in \cref{fig:can-view}; 
   note that which process issued the read/write does not matter, as synchronization is not required to establish probable effect causality)
-  or (2) the read and write are \textit{concurrent} (i.e., returns before relations do not hold as the durations of the read and write overlap 
+  or (2) the read and write are \textit{concurrent} (i.e., returns-before relations do not hold as the durations of the read and write overlap
   as in $r$ and $w_{2-5}$ in \cref{fig:can-view}) such that the read is eligible to observe the write's effect.
   %
   Formally, can-view is a binary relation over all pairs of operations. We
@@ -453,7 +453,7 @@ pairwise operations (i.e., $a, b, \textrm{ and } c$ in a history $H$ of
   value matches $r$'s output, then $r$ is in the viewed relation with $w_1$.
   Consider another operation $w_5$ in the same figure that happened
   concurrently with $w_1$. If $w_5$'s written value differs
-  from $w_1$, but $r$'s output matches $w_5$'s input ($r.\text{oval} =
+  from $w_1$'s, but $r$'s output matches $w_5$'s input ($r.\text{oval} =
   w_5.\text{ival}$), then $r$ and $w_1$ are still in the viewed relation through
   the existential clause instantiated with $x = w_5$ (write $w_1$ still affects
   $r$). 

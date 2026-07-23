@@ -7,7 +7,7 @@ pluggable distributed services, we present case studies of three applications.
 Two applications, a movie streaming service and an online shopping
 mall, are from
 a microservice benchmark suite~\cite{gan2019an} and the other is from an
-academic system that designs causally consistent storage service
+academic system that designs a causally consistent storage service
 across multiple weakly consistent distributed storage services~\cite{boltoncc}.
 We mainly focus on the movie example to delve into the details.
 Our framework is designed for a quick specification of applications
@@ -95,7 +95,7 @@ DB components, they must specify the constraints for the other components.
     consistency guarantees. The numbers denote application
     constraints/flow, node labels on storage systems show
     provided consistency. Edges:
-    1–4: Client requests to services (login, review, rent, video).
+    1-4: Client requests to services (login, review, rent, video).
     5: Admin login.
     6: Admin updates metadata.
     7: Admin uploads video.
@@ -118,15 +118,15 @@ DB components, they must specify the constraints for the other components.
 \begin{enumerate}[leftmargin=*,noitemsep,topsep=2pt]
   \item \textbf{Client and Admin}: These components represent the
     entry points for regular users and administrative personnel,
-    respectively. They don't enforce specific consistency guarantees
+    respectively. They do not enforce specific consistency guarantees
     themselves but rely on the guarantees provided by the services
     they interact with.
 
   \item \textbf{Authentication}: Involves two nodes for clients and admins to authenticate.
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Login Service}: Manages user authentication and
-        session handling. It requires order preserving writes
-        for correct credential update and the user's updates
+        session handling. It requires order-preserving writes
+        for correct credential update, and the user's updates
         (e.g., subscription status change) must always be visible for
         flawless service.
       \item \textbf{User DB}: Stores user credentials and
@@ -136,7 +136,7 @@ DB components, they must specify the constraints for the other components.
         %changes are consistently visible to subsequent operations.
     \end{itemize}
 
-  \item \textbf{Content Management}: Movie-related contents made accessible to clients by the admin.
+  \item \textbf{Content Management}: Movie-related content made accessible to clients by the admin.
     \begin{itemize}[leftmargin=*, noitemsep,topsep=0pt]
       \item \textbf{Video Service}: Handles video streaming requests
         and requires users to observe their own prior operations to ensure
@@ -167,10 +167,10 @@ DB components, they must specify the constraints for the other components.
 
 \para{Constraint Encoding.}
 We focus on the login and review services in \cref{fig:case-study-media}
-to explain how constrains are encoded in \sysname{}.
+to explain how constraints are encoded in \sysname{}.
 In this example, the application requires that all users must register for
-an account before they can log in, this would result in a request from the
-client to login service (edge 1), then to user database (edge 8).
+an account before they can log in. This would result in a request from the
+client to the login service (edge 1), then to the user database (edge 8).
 If users want to post a review (edge 2), they must
 be logged in (edge 1), and the review service must verify that the
 title exists
@@ -207,7 +207,7 @@ separate the providing/requiring constraints from downstream
 service logic. In the implementation, we defined multiple operations
 with read or write type to represent interactions between client,
 service nodes, and storage nodes.
-Formally, we can represent client's login operation (edge 8) as follows:
+Formally, we can represent the client's login operation (edge 8) as follows:
 %\vspace{-0.1in}
 % old version with linefeed
 % \begin{align*}
@@ -252,14 +252,14 @@ metadata database before allowing the review to be written. Similar to
 the login operation, we can represent the review service's interaction
 as a set of constraints with existential quantification, object constraints,
 and return-before relationships, on top of consistency semantics
-encoded at each nodes' provide and need fields. Formally,
+encoded at each node's \texttt{provs} and \texttt{needs} fields. Formally,
 \begin{align*}
 EC_{\text{review}} &\triangleq \forall op_{\text{review}} \in H_{\text{wr}} : \exists op_{\text{rdmeta}} \in H_{\text{rd}} :\\
 &(op_{\text{review}}, op_{\text{rdmeta}}) \in ob \quad \land \quad (op_{\text{rdmeta}}, op_{\text{review}}) \in rb.
 \end{align*}
 
 Following these practices one can specify relatively complex applications and construct an \sysgraph with \sysmods and application-level constraints.
-\sysgraph construction is straightforward, we instantiate nodes with their
+\sysgraph construction is straightforward: we instantiate nodes with their
 \texttt{needs}/\texttt{provs} and connect them with edges carrying the above constraints.
 Moreover, depending on system designers' requirements, Login node, User DB, and edge 8 can be collapsed into a single
 aggregated node by applying \texttt{extract} (introduced in \cref{sec:usage}) to the subgraph which accumulates
@@ -486,7 +486,7 @@ The consistency requirements of this system vary by component:
   if a client observes a certain inventory state, all subsequent
   reads will observe either that same state or a more recent one,
   but seeing outdated state is okay as Checkout will prevent
-  ill-formed purchase transaction (e.g., purchasing out-of-stock items).
+  ill-formed purchase transactions (e.g., purchasing out-of-stock items).
 \end{itemize}
 
 \begin{itemize}
@@ -563,9 +563,9 @@ As XC storage itself is a system, its constraints are very different from applic
 XC storage showcases the capability of \sysname{} beyond modeling application logics.
 
 Users accessing data through the XC node get causal consistency,
-but individual storage DB maintains weaker semantics than causal.
+but each individual storage DB maintains weaker semantics than causal.
 SVC4 node's storage backend only provides WFR. To achieve causal
-consistency, application places a shim layer to strengthen the semantics
+consistency, the application places a shim layer to strengthen the semantics
 in the design and this is imposed on the edge between SVC4 and XC.
 While the SVC4-XC combination can achieve causal consistency, SVC4's
 downstream service SVC3's storage backend only provides RYW. To achieve
@@ -575,7 +575,7 @@ cross-system causal consistency, the augmentation continues down the chain.
 %offering only a basic consistency guarantee, are chained together.
 
 The goal here is to verify their composition, which is mediated by specific inter-service 
-constraints and symbolic isolation, and to demonstrate the role of explicit 'glue' constraints.
+constraints and symbolic isolation, and to demonstrate the role of explicit ``glue'' constraints.
 
 %The goal here is to verify their composition, mediated by specific
 %inter-service constraints, symbolic isolation, and the role of explicit ``glue'' constraints.
@@ -589,7 +589,7 @@ four session guarantees via its \texttt{provs} attribute:
 $\text{SVC}1$ provides MR, $\text{SVC}2$ provides
 MW, $\text{SVC}3$ provides RYW, and $\text{SVC}4$ provides WFR.
 
-\para{Constraints Encoding and Compatibility Verification.}
+\para{Constraint Encoding and Compatibility Verification.}
 %\textbf{Symbolic Isolation:}
 To prevent logical interference, the guarantee provided by
 each service and the constraints added on the edges are instantiated
@@ -609,7 +609,7 @@ potentially satisfy causal consistency up to that point.
 
 The core idea of this example is to build a stronger guarantee by composing
 weaker guarantees provided by individual services ($\text{SVC}1..4$), using
-the edges to supply the missing pieces which reflects the application design
+the edges to supply the missing pieces, which reflect the application design
 as shown in \cref{fig:cross-service-causal}.
 
 %\begin{itemize}
@@ -640,7 +640,7 @@ write $w_2$ in $\text{SVC}2$ both
 represent updates to the same user profile, ``glue'' constraints
 equating relevant
 aspects (like $w_1.\text{obj} = w_2.\text{obj}$ or $w_1.\text{ival} =
-w_2.\text{ival}$ despite their different symbolic names) is necessary.
+w_2.\text{ival}$ despite their different symbolic names) are necessary.
 While the current test code
 simplifies this by focusing on composing the consistency axioms, a more rigorous
 model would include these explicit symbol equivalence constraints on the edges

@@ -2167,6 +2167,7 @@ FUNCTION { output.issue.doi.coden.isxn.lccn.url.eprint }
 
 FUNCTION { output.issue.doi.coden.isxn.lccn.url.eprint.note }
 { % enter with stack empty, return with empty string on stack
+  output.issue.doi.coden.isxn.lccn.url.eprint
   note empty.or.unknown
     { }
     {
@@ -2174,12 +2175,12 @@ FUNCTION { output.issue.doi.coden.isxn.lccn.url.eprint.note }
       output.note
     }
   if$
-  output.issue.doi.coden.isxn.lccn.url.eprint
   ""
 }
 
 FUNCTION { output.issue.doi.coden.isxn.lccn.url.eprint.note.check }
 { % enter with stack empty, return with empty string on stack
+  output.issue.doi.coden.isxn.lccn.url.eprint
   note empty.or.unknown
     { }
     {
@@ -2187,7 +2188,6 @@ FUNCTION { output.issue.doi.coden.isxn.lccn.url.eprint.note.check }
       output.note.check
     }
   if$
-  output.issue.doi.coden.isxn.lccn.url.eprint
   ""
 }
 
